@@ -1,0 +1,36 @@
+name: Forschungsfrage
+description: Eine überprüfbare Forschungsfrage aufnehmen oder konkretisieren
+title: "[Forschung] "
+labels: []
+body:
+  - type: input
+    id: kennung
+    attributes:
+      label: Kennung
+      description: Vorhandene RQ-Kennung oder „neu“
+      placeholder: RQ-001
+    validations:
+      required: true
+  - type: textarea
+    id: frage
+    attributes:
+      label: Forschungsfrage
+      description: Präzise und möglichst überprüfbar formulieren
+    validations:
+      required: true
+  - type: textarea
+    id: hypothesen
+    attributes:
+      label: Erste Hypothesen
+      description: Erwartete Antworten und mögliche Widerlegung
+  - type: textarea
+    id: evidenz
+    attributes:
+      label: Benötigte Evidenz
+      description: Welche Beobachtungen, Quellen oder Experimente wären aussagekräftig?
+    validations:
+      required: true
+  - type: textarea
+    id: auswirkungen
+    attributes:
+      label: Ethische und sicherheitsbezogene Auswirkungen

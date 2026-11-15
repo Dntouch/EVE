@@ -1,0 +1,32 @@
+name: Aufgabe
+description: Abgegrenzte organisatorische oder dokumentarische Arbeit
+title: "[Aufgabe] "
+labels: []
+body:
+  - type: textarea
+    id: ziel
+    attributes:
+      label: Ziel
+      description: Welches konkrete Ergebnis soll erreicht werden?
+    validations:
+      required: true
+  - type: textarea
+    id: kontext
+    attributes:
+      label: Kontext
+      description: Warum ist diese Aufgabe erforderlich?
+    validations:
+      required: true
+  - type: textarea
+    id: akzeptanz
+    attributes:
+      label: Akzeptanzkriterien
+      description: Woran ist objektiv erkennbar, dass die Aufgabe abgeschlossen ist?
+      placeholder: "- [ ] ..."
+    validations:
+      required: true
+  - type: textarea
+    id: bezuege
+    attributes:
+      label: Verknüpfungen und Abhängigkeiten
+      description: Forschungsfragen, Entscheidungen, Experimente, Risiken oder andere Issues

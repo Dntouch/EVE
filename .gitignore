@@ -1,0 +1,27 @@
+# Betriebssysteme
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editoren und IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Lokale Arbeitsdateien
+*.tmp
+*.temp
+*.bak
+.env
+.env.*
+!.env.example
+
+# Lokale Versuchsdaten und sensible Artefakte
+/artifacts/
+/data/local/
+/scratch/
+
+# Protokolle
+*.log

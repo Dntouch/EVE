@@ -1,0 +1,47 @@
+name: Experiment
+description: Einen reproduzierbaren Versuch planen
+title: "[Experiment] "
+labels: []
+body:
+  - type: input
+    id: forschungsfrage
+    attributes:
+      label: Forschungsfrage
+      placeholder: RQ-001
+    validations:
+      required: true
+  - type: textarea
+    id: ziel
+    attributes:
+      label: Ziel und Hypothese
+      description: Frage, erwartete Beobachtung und Begründung
+    validations:
+      required: true
+  - type: textarea
+    id: widerlegung
+    attributes:
+      label: Widerlegungskriterium
+      description: Was würde die Hypothese widerlegen oder unentscheidbar machen?
+    validations:
+      required: true
+  - type: textarea
+    id: kontrollen
+    attributes:
+      label: Kontrollen
+      description: Wie werden Zufall, feste Lösungswege und Lehrerentscheidungen ausgeschlossen?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduktion
+    attributes:
+      label: Reproduzierbarkeit
+      description: Ausgangszustand, Ereignisfolge, Zufallszustände und Messgrößen
+    validations:
+      required: true
+  - type: textarea
+    id: stop
+    attributes:
+      label: Abbruch- und Stop-Kriterien
+      description: Technische, wissenschaftliche, ethische und sicherheitsbezogene Grenzen
+    validations:
+      required: true

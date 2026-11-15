@@ -1,0 +1,32 @@
+name: Entscheidung
+description: Eine grundlegende oder schwer umkehrbare Entscheidung vorbereiten
+title: "[Entscheidung] "
+labels: []
+body:
+  - type: textarea
+    id: kontext
+    attributes:
+      label: Kontext
+      description: Warum ist eine Entscheidung erforderlich?
+    validations:
+      required: true
+  - type: textarea
+    id: kriterien
+    attributes:
+      label: Entscheidungskriterien
+    validations:
+      required: true
+  - type: textarea
+    id: optionen
+    attributes:
+      label: Echte Alternativen
+      description: Optionen mit Vor-, Nachteilen und Unsicherheiten
+    validations:
+      required: true
+  - type: textarea
+    id: folgen
+    attributes:
+      label: Erwartete Folgen
+      description: Positive, negative und begrenzende Konsequenzen
+    validations:
+      required: true
