@@ -44,6 +44,7 @@ spätere Entwicklung. Ein Technologie-Stack ist noch nicht festgelegt.
 │   ├── entscheidungen/         Architektur- und Projektentscheidungen
 │   ├── experimente/            Regeln und Vorlage für Versuchsprotokolle
 │   ├── konzept/                Vollständige Projektbeschreibung
+│   ├── philosophie-und-ethik/  Philosophische und ethische Grundlagen
 │   ├── ARBEITSWEISE.md         Git- und Dokumentationsprozess
 │   ├── FORSCHUNGSFRAGEN.md     Offene Forschungsfragen
 │   ├── GLOSSAR.md              Gemeinsame Begriffe
