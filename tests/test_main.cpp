@@ -218,10 +218,18 @@ void test_reproducible_execution() {
     eve::bios::Runtime first(config, 2026);
     eve::bios::Runtime second(config, 2026);
     eve::bios::Runtime different(config, 2027);
+    std::vector<eve::bios::FireObservation> observed_fires;
+    first.set_fire_observer([&observed_fires](const eve::bios::FireObservation& event) {
+        observed_fires.push_back(event);
+    });
     static_cast<void>(first.process_utf8_text("ABAB"));
     static_cast<void>(second.process_utf8_text("ABAB"));
     static_cast<void>(different.process_utf8_text("ABAB"));
     require_equal(first.state_fingerprint(), second.state_fingerprint(), "same seed diverged");
+    require_equal(
+        observed_fires.size(),
+        static_cast<std::size_t>(first.metrics().fire_events),
+        "observer missed fire events");
     require(
         first.state_fingerprint() != different.state_fingerprint(),
         "different seeds unexpectedly produced the same complete state");

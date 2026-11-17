@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <deque>
+#include <functional>
 #include <iosfwd>
 #include <map>
 #include <string>
@@ -51,6 +52,14 @@ struct Diagnostics {
     std::uint64_t state_fingerprint{};
 };
 
+struct FireObservation {
+    std::uint64_t event_index{};
+    NeuronId neuron{};
+    std::uint32_t outgoing_count{};
+};
+
+using FireObserver = std::function<void(const FireObservation&)>;
+
 class Runtime {
 public:
     explicit Runtime(ExperimentConfig config = {}, std::uint64_t seed = 1);
@@ -63,6 +72,7 @@ public:
         const std::string& utf8_text);
 
     void set_trace_stream(std::ostream* stream) noexcept;
+    void set_fire_observer(FireObserver observer);
 
     [[nodiscard]] const ExperimentConfig& config() const noexcept;
     [[nodiscard]] const neural::Network& network() const noexcept;
@@ -90,6 +100,7 @@ private:
     std::deque<Event> queue_;
     Metrics metrics_;
     std::ostream* trace_stream_{};
+    FireObserver fire_observer_;
 };
 
 }  // namespace eve::bios

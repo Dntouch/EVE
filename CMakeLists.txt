@@ -22,6 +22,12 @@ target_link_libraries(eve_experiment PRIVATE eve_core)
 add_executable(eve_sequence_experiment src/sequence_experiment.cpp)
 target_link_libraries(eve_sequence_experiment PRIVATE eve_core)
 
+add_executable(eve_performance_benchmark src/performance_benchmark.cpp)
+target_link_libraries(eve_performance_benchmark PRIVATE eve_core)
+
+add_executable(eve_research_002 src/research_002.cpp)
+target_link_libraries(eve_research_002 PRIVATE eve_core)
+
 include(CTest)
 if(BUILD_TESTING)
     add_executable(eve_tests tests/test_main.cpp)

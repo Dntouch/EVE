@@ -296,6 +296,10 @@ void Runtime::set_trace_stream(std::ostream* stream) noexcept {
     trace_stream_ = stream;
 }
 
+void Runtime::set_fire_observer(FireObserver observer) {
+    fire_observer_ = std::move(observer);
+}
+
 const ExperimentConfig& Runtime::config() const noexcept {
     return config_;
 }
@@ -517,6 +521,13 @@ void Runtime::validate_config() const {
 void Runtime::process_fire(const NeuronId neuron) {
     const auto outgoing = network_.outgoing_synapses(neuron);
     ++metrics_.fire_events;
+    if (fire_observer_) {
+        fire_observer_(FireObservation{
+            metrics_.processed_events,
+            neuron,
+            static_cast<std::uint32_t>(outgoing.size()),
+        });
+    }
     trace("event fire neuron=" + std::to_string(neuron) + " outgoing=" +
           std::to_string(outgoing.size()));
 
