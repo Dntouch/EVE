@@ -11,7 +11,7 @@ namespace eve::bios {
 namespace {
 
 constexpr std::array<char, 8> kPersistenceMagic{{'E', 'V', 'E', '0', '0', '1', '\r', '\n'}};
-constexpr std::uint32_t kPersistenceVersion = 2;
+constexpr std::uint32_t kPersistenceVersion = 3;
 constexpr std::uint64_t kNonZeroRngState = 0x9e3779b97f4a7c15ULL;
 constexpr std::uint64_t kFnvPrime = 1099511628211ULL;
 
@@ -154,6 +154,7 @@ void write_metrics(std::ostream& stream, const Metrics& metrics) {
     write_u64(stream, metrics.fire_events);
     write_u64(stream, metrics.completed_activity_phases);
     write_u64(stream, metrics.synaptic_strengthenings);
+    write_u64(stream, metrics.rejected_strengthenings_at_weight_limit);
     write_u64(stream, metrics.synaptic_weakenings);
     write_u64(stream, metrics.refractory_suppressed_firings);
     write_u64(stream, metrics.growth_attempts);
@@ -170,6 +171,9 @@ Metrics read_metrics(std::istream& stream, const std::uint32_t version) {
     metrics.fire_events = read_u64(stream);
     metrics.completed_activity_phases = read_u64(stream);
     metrics.synaptic_strengthenings = read_u64(stream);
+    if (version >= 3) {
+        metrics.rejected_strengthenings_at_weight_limit = read_u64(stream);
+    }
     if (version >= 2) {
         metrics.synaptic_weakenings = read_u64(stream);
         metrics.refractory_suppressed_firings = read_u64(stream);
@@ -367,6 +371,7 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
     mix_hash(hash, metrics_.fire_events);
     mix_hash(hash, metrics_.completed_activity_phases);
     mix_hash(hash, metrics_.synaptic_strengthenings);
+    mix_hash(hash, metrics_.rejected_strengthenings_at_weight_limit);
     mix_hash(hash, metrics_.synaptic_weakenings);
     mix_hash(hash, metrics_.refractory_suppressed_firings);
     mix_hash(hash, metrics_.growth_attempts);
@@ -559,8 +564,10 @@ void Runtime::process_fire(const NeuronId neuron) {
             static_cast<std::uint32_t>(outgoing.size()),
         });
     }
-    trace("event fire neuron=" + std::to_string(neuron) + " outgoing=" +
-          std::to_string(outgoing.size()));
+    if (trace_stream_ != nullptr) {
+        trace("event fire neuron=" + std::to_string(neuron) + " outgoing=" +
+              std::to_string(outgoing.size()));
+    }
 
     for (const SynapseId synapse : outgoing) {
         queue_.push_back(Event{EventKind::impulse, synapse});
@@ -574,9 +581,11 @@ void Runtime::process_fire(const NeuronId neuron) {
         if (grown.has_value()) {
             ++metrics_.grown_synapses;
             const neural::Synapse& item = network_.synapse(*grown);
-            trace("event growth synapse=" + std::to_string(*grown) + " sender=" +
-                  std::to_string(item.sender) + " receiver=" +
-                  std::to_string(item.receiver));
+            if (trace_stream_ != nullptr) {
+                trace("event growth synapse=" + std::to_string(*grown) + " sender=" +
+                      std::to_string(item.sender) + " receiver=" +
+                      std::to_string(item.receiver));
+            }
         }
     }
 }
@@ -588,6 +597,9 @@ void Runtime::process_impulse(const SynapseId synapse) {
     if (result.strengthened) {
         ++metrics_.synaptic_strengthenings;
     }
+    if (result.strengthening_rejected_by_weight_limit) {
+        ++metrics_.rejected_strengthenings_at_weight_limit;
+    }
     if (result.weakened) {
         ++metrics_.synaptic_weakenings;
     }
@@ -598,14 +610,16 @@ void Runtime::process_impulse(const SynapseId synapse) {
         ++metrics_.completed_activity_phases;
     }
 
-    std::ostringstream line;
-    line << "event impulse synapse=" << synapse << " sender=" << before.sender
-         << " receiver=" << before.receiver << " weight=" << result.applied_weight
-         << " membrane=" << result.membrane_after
-         << " strengthened=" << (result.strengthened ? 1 : 0)
-         << " phase=" << (result.phase_completed ? 1 : 0)
-         << " fired=" << (result.fired ? 1 : 0);
-    trace(line.str());
+    if (trace_stream_ != nullptr) {
+        std::ostringstream line;
+        line << "event impulse synapse=" << synapse << " sender=" << before.sender
+             << " receiver=" << before.receiver << " weight=" << result.applied_weight
+             << " membrane=" << result.membrane_after
+             << " strengthened=" << (result.strengthened ? 1 : 0)
+             << " phase=" << (result.phase_completed ? 1 : 0)
+             << " fired=" << (result.fired ? 1 : 0);
+        trace(line.str());
+    }
 
     if (result.fired) {
         queue_.push_back(Event{EventKind::fire, before.receiver});

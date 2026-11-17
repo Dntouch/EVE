@@ -1,0 +1,811 @@
+variant,seed,group,stage,test_input,training_status,status,error,events,fires,active_neurons,fired_neurons,sequence_hash,sequence_preview,top_transition,strengthenings,rejected,grown_synapses,state_before,state_after
+origin,20261117,trained-AB,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,20261117,trained-BA,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,20261117,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,ae45284dc63af4f3,323f1cecf9587969
+origin,20261117,trained-AB,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,20261117,trained-BA,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,20261117,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,ae45284dc63af4f3,066984e8b462525e
+origin,20261117,trained-AB,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,20261117,trained-BA,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,20261117,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,ae45284dc63af4f3,01f023590b3ba22d
+origin,20261117,trained-AB,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,20261117,trained-BA,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,20261117,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,ae45284dc63af4f3,e5f0fc62c2865551
+origin,20261117,trained-AB,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,20261117,trained-BA,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,20261117,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,ae45284dc63af4f3,0fea181f2110c24d
+origin,7,trained-AB,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,7,trained-BA,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,7,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,2,00ece5d03a59227f,2c1eecd6ad757228
+origin,7,trained-AB,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,7,trained-BA,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,7,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,2,00ece5d03a59227f,ac0f86465b7903e4
+origin,7,trained-AB,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,7,trained-BA,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,7,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,3,00ece5d03a59227f,bf213a8dd9c38b5a
+origin,7,trained-AB,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,7,trained-BA,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,7,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,2,00ece5d03a59227f,3813a977413c135d
+origin,7,trained-AB,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,7,trained-BA,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,7,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,2,00ece5d03a59227f,f5ba7883b4035186
+origin,42,trained-AB,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,42,trained-BA,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,42,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,c91c33eb5238b2cd,7ab760e7debf6679
+origin,42,trained-AB,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,42,trained-BA,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,42,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,c91c33eb5238b2cd,7eb021f569df88ee
+origin,42,trained-AB,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,42,trained-BA,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,42,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,c91c33eb5238b2cd,ed4858b9b0c93663
+origin,42,trained-AB,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,42,trained-BA,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,42,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,c91c33eb5238b2cd,ae2f8c4061fd85a7
+origin,42,trained-AB,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,42,trained-BA,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,42,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,c91c33eb5238b2cd,e87fb9b64f7c63cf
+origin,99,trained-AB,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,99,trained-BA,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,99,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,bab903d757942136,adfae0709b8602be
+origin,99,trained-AB,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,99,trained-BA,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,99,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,bab903d757942136,10b723acb3165615
+origin,99,trained-AB,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,99,trained-BA,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,99,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,bab903d757942136,87be112c0ae05ceb
+origin,99,trained-AB,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,99,trained-BA,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,99,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,bab903d757942136,fa2b6bd7bc3f7d98
+origin,99,trained-AB,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,99,trained-BA,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,99,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,bab903d757942136,6d0f2379dbbbb18c
+origin,2026,trained-AB,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,2026,trained-BA,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,2026,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,ba6ed34b29ebc469,59f04fe6982545f2
+origin,2026,trained-AB,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,2026,trained-BA,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,2026,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,ba6ed34b29ebc469,2387cc0b3fbe11c9
+origin,2026,trained-AB,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,2026,trained-BA,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,2026,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,ba6ed34b29ebc469,75425fe267873e59
+origin,2026,trained-AB,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,2026,trained-BA,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,2026,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,ba6ed34b29ebc469,e934865eea00bc38
+origin,2026,trained-AB,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,2026,trained-BA,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,2026,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,ba6ed34b29ebc469,96ca4dfdeb0d9008
+origin,314159,trained-AB,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,314159,trained-BA,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,314159,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,3b528ce2d3b17375,66f9980c624f8a5a
+origin,314159,trained-AB,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,314159,trained-BA,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,314159,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,3b528ce2d3b17375,f71e52d92ce3c081
+origin,314159,trained-AB,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,314159,trained-BA,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,314159,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,3b528ce2d3b17375,12895121dbaac19a
+origin,314159,trained-AB,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,314159,trained-BA,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,314159,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,3b528ce2d3b17375,370283314f8f6360
+origin,314159,trained-AB,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,314159,trained-BA,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+origin,314159,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,3b528ce2d3b17375,1b42fa4271765ebc
+A1,20261117,trained-AB,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,20261117,trained-BA,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,20261117,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,21d69a4f9242dcfa,4ec7893a16f64440
+A1,20261117,trained-AB,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,20261117,trained-BA,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,20261117,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,21d69a4f9242dcfa,3c58bcdf0d8ea06b
+A1,20261117,trained-AB,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,20261117,trained-BA,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,20261117,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,21d69a4f9242dcfa,df1a08c45fe74a20
+A1,20261117,trained-AB,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,20261117,trained-BA,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,20261117,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,21d69a4f9242dcfa,acfc0c16361fb97c
+A1,20261117,trained-AB,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,20261117,trained-BA,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,20261117,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,21d69a4f9242dcfa,026abd756c2d868c
+A1,7,trained-AB,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,7,trained-BA,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,7,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,2,6243322792c93a56,8c4a717760465ce1
+A1,7,trained-AB,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,7,trained-BA,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,7,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,2,6243322792c93a56,4c71ab1ffc4b5769
+A1,7,trained-AB,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,7,trained-BA,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,7,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,3,6243322792c93a56,7d5ba6d7036da64f
+A1,7,trained-AB,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,7,trained-BA,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,7,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,2,6243322792c93a56,b31606b391451030
+A1,7,trained-AB,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,7,trained-BA,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,7,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,2,6243322792c93a56,474d90ead82fc65f
+A1,42,trained-AB,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,42,trained-BA,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,42,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,84ade8dbce6a548c,fd70069b55b14310
+A1,42,trained-AB,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,42,trained-BA,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,42,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,84ade8dbce6a548c,e02e30ae72780ffb
+A1,42,trained-AB,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,42,trained-BA,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,42,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,84ade8dbce6a548c,fca73936f3c2fa66
+A1,42,trained-AB,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,42,trained-BA,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,42,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,84ade8dbce6a548c,73b81134533e0ada
+A1,42,trained-AB,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,42,trained-BA,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,42,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,84ade8dbce6a548c,5a2db3f60ca878c6
+A1,99,trained-AB,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,99,trained-BA,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,99,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,eb13ddddb21dd337,0460720d4441ac57
+A1,99,trained-AB,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,99,trained-BA,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,99,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,eb13ddddb21dd337,63333f7320828400
+A1,99,trained-AB,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,99,trained-BA,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,99,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,eb13ddddb21dd337,7705d863ee3879ce
+A1,99,trained-AB,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,99,trained-BA,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,99,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,eb13ddddb21dd337,0168b15643f1e8f5
+A1,99,trained-AB,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,99,trained-BA,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,99,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,eb13ddddb21dd337,391cbac9cb4c6845
+A1,2026,trained-AB,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,2026,trained-BA,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,2026,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,b4f3996e5cf2a2d8,a3032e3971a06c4b
+A1,2026,trained-AB,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,2026,trained-BA,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,2026,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,b4f3996e5cf2a2d8,b30c1836a3272ef4
+A1,2026,trained-AB,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,2026,trained-BA,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,2026,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,b4f3996e5cf2a2d8,6f589564c56a6eac
+A1,2026,trained-AB,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,2026,trained-BA,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,2026,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,b4f3996e5cf2a2d8,2f9d9c3ddaa8f915
+A1,2026,trained-AB,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,2026,trained-BA,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,2026,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,b4f3996e5cf2a2d8,053bb92a649709e1
+A1,314159,trained-AB,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,314159,trained-BA,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,314159,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,7a6e5841870602d4,8e1d48caaa93a4b3
+A1,314159,trained-AB,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,314159,trained-BA,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,314159,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,7a6e5841870602d4,f42be8bfaef1da2c
+A1,314159,trained-AB,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,314159,trained-BA,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,314159,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,7a6e5841870602d4,a565229d3a4d638f
+A1,314159,trained-AB,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,314159,trained-BA,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,314159,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,7a6e5841870602d4,563244cf06803ebd
+A1,314159,trained-AB,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,314159,trained-BA,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A1,314159,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,7a6e5841870602d4,9f10038c8aaaa7b5
+A2,20261117,trained-AB,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,20261117,trained-BA,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,20261117,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,25a9360a44dca205,53a9e9927918f747
+A2,20261117,trained-AB,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,20261117,trained-BA,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,20261117,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,25a9360a44dca205,28eb6f5e4bea8070
+A2,20261117,trained-AB,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,20261117,trained-BA,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,20261117,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,25a9360a44dca205,bb4f3c22a68c9e4f
+A2,20261117,trained-AB,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,20261117,trained-BA,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,20261117,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,25a9360a44dca205,346bb5ed6a71356f
+A2,20261117,trained-AB,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,20261117,trained-BA,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,20261117,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,25a9360a44dca205,3debbf5bddf82447
+A2,7,trained-AB,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,7,trained-BA,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,7,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,2,48f4c0af0919d561,b29708bbee9c7e1e
+A2,7,trained-AB,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,7,trained-BA,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,7,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,2,48f4c0af0919d561,02e31f30e4f4dc5a
+A2,7,trained-AB,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,7,trained-BA,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,7,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,3,48f4c0af0919d561,2e87f75489f797b8
+A2,7,trained-AB,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,7,trained-BA,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,7,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,2,48f4c0af0919d561,0b347f8dc0ee0feb
+A2,7,trained-AB,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,7,trained-BA,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,7,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,2,48f4c0af0919d561,bdfbd15428e3abdc
+A2,42,trained-AB,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,42,trained-BA,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,42,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,50aefa1d92791413,363b347f07098757
+A2,42,trained-AB,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,42,trained-BA,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,42,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,50aefa1d92791413,950e01e4e34a5f00
+A2,42,trained-AB,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,42,trained-BA,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,42,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,50aefa1d92791413,eca7738cd1ad7769
+A2,42,trained-AB,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,42,trained-BA,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,42,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,50aefa1d92791413,76dd899b40692e91
+A2,42,trained-AB,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,42,trained-BA,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,42,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,50aefa1d92791413,b2f6f5f6cac90b8d
+A2,99,trained-AB,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,99,trained-BA,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,99,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,eef9db585cf54bd0,cb95442992e96810
+A2,99,trained-AB,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,99,trained-BA,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,99,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,eef9db585cf54bd0,ae536e3cafb034fb
+A2,99,trained-AB,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,99,trained-BA,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,99,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,eef9db585cf54bd0,80a2936e68622f31
+A2,99,trained-AB,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,99,trained-BA,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,99,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,eef9db585cf54bd0,1bce78a93cd3a5be
+A2,99,trained-AB,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,99,trained-BA,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,99,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,eef9db585cf54bd0,e2e93c86e57ec99e
+A2,2026,trained-AB,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,2026,trained-BA,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,2026,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,69221cb3b44a2c3f,6906579e0f350974
+A2,2026,trained-AB,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,2026,trained-BA,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,2026,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,69221cb3b44a2c3f,6cc84546759358af
+A2,2026,trained-AB,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,2026,trained-BA,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,2026,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,69221cb3b44a2c3f,44d721126ed1b9ab
+A2,2026,trained-AB,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,2026,trained-BA,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,2026,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,69221cb3b44a2c3f,b37ebce2969190de
+A2,2026,trained-AB,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,2026,trained-BA,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,2026,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,69221cb3b44a2c3f,e284f18d189a595a
+A2,314159,trained-AB,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,314159,trained-BA,after-512,AB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,314159,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,a0d8550de2cae59b,92397eb06d7faadc
+A2,314159,trained-AB,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,314159,trained-BA,after-512,BA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,314159,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,a0d8550de2cae59b,e9ae17ae19ad63a7
+A2,314159,trained-AB,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,314159,trained-BA,after-512,AC,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,314159,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,a0d8550de2cae59b,037930e1c6539960
+A2,314159,trained-AB,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,314159,trained-BA,after-512,AA,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,314159,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,a0d8550de2cae59b,c95dc9c9cc2349a6
+A2,314159,trained-AB,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,314159,trained-BA,after-512,BB,unstable,not-run,training did not complete,0,0,0,,,,,0,0,0,,
+A2,314159,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,a0d8550de2cae59b,fec517c8eba3250e
+C5,20261117,trained-AB,after-512,AB,complete,stable,,419,30,29,0|1|5|6|14|18|19|20|32|56|64|68|69|77|79|82|85|91|94|95|96|121|156|164|192|203|212|222|251,f235572218b06f17,0|6|82|1|6|18|64|156|203|20|68|77|56|79|19|192|91|14|121|96|85|69|95|32|251|5|164|94|212|222,0>6:1,53,0,5,f8019d920ee317db,dfe5eebc93c25aea
+C5,20261117,trained-BA,after-512,AB,complete,stable,,444,32,31,0|1|6|7|10|14|59|61|65|71|72|73|79|82|97|128|134|136|146|147|148|155|156|157|173|203|209|217|228|246|253,dc6132b7b336c1aa,0|6|10|7|156|79|253|71|14|72|217|155|59|146|228|73|61|157|82|128|209|136|97|1|6|147|65|134|246|148|173|203,0>6:1,51,0,8,9c6e9f1911f2b1f8,8767992c314075a6
+C5,20261117,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,9d2f79326a2094a3,b0853b7dd9275439
+C5,20261117,trained-AB,after-512,BA,complete,stable,,419,30,29,0|1|5|6|14|18|19|20|32|56|64|68|69|77|79|82|85|91|94|95|96|121|156|164|192|203|212|222|251,d3f62d67dffb26a7,1|6|0|6|82|18|64|156|203|20|68|77|56|79|19|192|91|14|121|96|85|69|95|32|251|5|164|94|212|222,0>6:1,55,0,5,f8019d920ee317db,ebe12d403eb2a412
+C5,20261117,trained-BA,after-512,BA,complete,stable,,444,32,31,0|1|6|7|10|14|59|61|65|71|72|73|79|82|97|128|134|136|146|147|148|155|156|157|173|203|209|217|228|246|253,c1623eba7b917a1a,1|6|147|10|156|79|7|155|209|253|59|71|14|72|217|146|61|157|228|73|82|128|136|97|0|6|65|148|134|246|203|173,0>6:1,43,0,3,9c6e9f1911f2b1f8,1767f0d606e77089
+C5,20261117,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,9d2f79326a2094a3,6adc60d869fc552e
+C5,20261117,trained-AB,after-512,AC,complete,stable,,521,38,36,0|1|5|6|8|14|16|17|18|19|20|32|56|64|68|69|77|79|81|82|85|91|94|95|96|121|132|139|156|164|192|196|203|212|222|251,6790ef08543ed6d4,0|6|82|0|1|6|203|192|18|16|64|156|81|8|20|68|77|56|17|79|96|19|91|14|121|32|251|85|69|95|222|5|164|94|212|132|196|139,0>1:1,66,0,7,f8019d920ee317db,54de82876cbf8a79
+C5,20261117,trained-BA,after-512,AC,complete,stable,,512,38,36,0|1|6|7|10|14|43|59|61|65|71|72|73|79|82|97|109|128|134|136|146|147|148|155|156|157|173|180|203|204|209|217|228|233|246|253,b769886c866a6dfd,0|6|10|7|156|79|253|71|14|72|217|155|59|146|228|73|61|157|82|128|209|136|97|0|1|6|203|65|147|134|246|148|173|180|109|233|204|43,0>1:1,60,0,6,9c6e9f1911f2b1f8,d16447f9d441f9bb
+C5,20261117,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,9d2f79326a2094a3,788766dc6127c67d
+C5,20261117,trained-AB,after-512,AA,complete,stable,,391,26,24,0|5|6|14|16|18|19|20|32|64|68|69|77|79|81|82|91|96|156|164|192|203|222|251,cd99cfa2ecf14056,0|6|82|0|6|203|192|18|16|64|156|20|68|77|81|79|96|19|91|14|32|251|69|222|5|164,0>6:2,51,0,5,f8019d920ee317db,e705da82ccbd955f
+C5,20261117,trained-BA,after-512,AA,complete,stable,,457,35,33,0|6|7|10|14|43|59|61|65|71|72|73|79|82|97|109|128|134|136|146|155|156|157|173|180|203|204|209|217|228|233|246|253,d60b15cfd1dd151b,0|6|10|7|156|79|253|71|14|72|217|155|59|146|228|73|61|157|82|128|209|136|97|0|6|203|65|134|246|173|180|109|233|43|204,0>6:2,54,0,7,9c6e9f1911f2b1f8,b781d40b71de09d2
+C5,20261117,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,9d2f79326a2094a3,c809b274c3072f21
+C5,20261117,trained-AB,after-512,BB,complete,stable,,361,24,22,1|6|14|18|19|20|56|64|68|69|77|79|82|85|91|94|95|121|156|164|203|212,6c72e5fc8c71bff6,1|6|1|6|18|64|156|56|20|68|77|82|79|121|91|14|19|95|85|69|203|94|212|164,1>6:2,56,0,6,f8019d920ee317db,e091dde163f7b116
+C5,20261117,trained-BA,after-512,BB,complete,stable,,453,32,30,1|6|7|10|14|59|61|65|71|72|73|76|79|82|97|128|134|136|146|147|148|155|156|157|173|209|217|228|246|253,317b50217e07e1bc,1|6|147|10|156|79|7|155|209|253|59|71|14|72|217|146|61|157|228|73|82|128|136|97|1|6|65|148|134|76|246|173,1>6:2,44,0,3,9c6e9f1911f2b1f8,8456de8ef5bf9189
+C5,20261117,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,9d2f79326a2094a3,ca4719af1118067d
+C5,7,trained-AB,after-512,AB,complete,stable,,183,7,6,0|1|4|6|72|81,01f75742f6ef8959,0|6|81|72|4|1|6,0>6:1,36,0,0,ee43a7c37558c1f8,c195b76f921eebde
+C5,7,trained-BA,after-512,AB,complete,stable,,325,19,18,0|1|2|5|6|10|14|16|45|69|73|79|136|140|161|162|197|200,2155f322f320d613,0|6|10|1|6|136|2|73|14|79|5|162|200|45|197|69|161|16|140,0>6:1,48,0,0,f9d95b35d07fd230,36b1714819f9624e
+C5,7,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,2,8b04046f83333b2f,0bc26ffa05ec9098
+C5,7,trained-AB,after-512,BA,complete,stable,,183,7,6,0|1|4|6|72|81,5095035c0f3d33e9,1|6|81|72|4|0|6,0>6:1,34,0,0,ee43a7c37558c1f8,27d6b3c0bc75303b
+C5,7,trained-BA,after-512,BA,complete,stable,,325,19,18,0|1|2|5|6|10|14|16|45|69|73|79|136|140|161|162|197|200,c93a533c285d9e03,1|6|10|0|6|136|2|73|14|79|5|162|200|45|197|69|161|16|140,0>6:1,46,0,0,f9d95b35d07fd230,d42b4c4a0ed0964d
+C5,7,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,2,8b04046f83333b2f,fff8ce46461e7014
+C5,7,trained-AB,after-512,AC,complete,stable,,240,10,8,0|1|2|4|6|72|81|82,964c9782a41f4ca9,0|6|81|72|4|0|1|6|82|2,0>1:1,42,0,0,ee43a7c37558c1f8,cea8ae7f4f5b4665
+C5,7,trained-BA,after-512,AC,complete,stable,,369,21,19,0|1|2|5|6|10|14|16|34|45|69|73|79|136|140|161|162|197|200,90dcb2f0f7209521,0|6|10|0|1|6|16|136|2|73|34|14|79|5|162|200|45|197|69|161|140,0>1:1,57,0,1,f9d95b35d07fd230,bcbe42baa484b487
+C5,7,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,3,8b04046f83333b2f,f27e5f7ee93a95ea
+C5,7,trained-AB,after-512,AA,complete,stable,,196,8,6,0|4|6|72|81|82,aa5f5ec997a7c30a,0|6|81|72|4|0|6|82,0>6:2,41,0,0,ee43a7c37558c1f8,581c8669dd6df30c
+C5,7,trained-BA,after-512,AA,complete,stable,,338,20,18,0|2|5|6|10|14|16|34|45|69|73|79|136|140|161|162|197|200,2884ad7d6a87d760,0|6|10|0|6|16|136|2|73|34|14|79|5|162|200|45|197|69|161|140,0>6:2,55,0,2,f9d95b35d07fd230,48d4fd927516e437
+C5,7,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,2,8b04046f83333b2f,238ce682fd95ba2d
+C5,7,trained-AB,after-512,BB,complete,stable,,185,8,6,1|4|6|72|81|147,a061a18c8957008b,1|6|81|72|4|1|6|147,1>6:2,40,0,0,ee43a7c37558c1f8,ea05571deb288263
+C5,7,trained-BA,after-512,BB,complete,stable,,314,18,16,1|2|5|6|10|14|45|69|73|79|136|140|161|162|197|200,fcc197e5ef061fd2,1|6|10|1|6|136|2|73|14|79|5|162|200|45|197|69|161|140,1>6:2,46,0,0,f9d95b35d07fd230,4c0b597ae2b3e5bd
+C5,7,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,2,8b04046f83333b2f,71df6dfd53115076
+C5,42,trained-AB,after-512,AB,complete,stable,,497,29,27,0|1|2|3|6|12|33|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|190|218|222,1028f3b30116369b,0|6|138|82|86|141|70|0|95|77|136|2|66|218|85|131|94|190|130|1|6|67|222|133|68|76|3|12|33,0>6:1,41,0,2,526f5ce675dfd8ef,750c6ad2fba94239
+C5,42,trained-BA,after-512,AB,complete,stable,,268,14,13,0|1|4|5|6|65|68|75|132|135|144|151|185,51e53343205e75e6,0|6|65|132|68|5|185|151|1|6|144|75|135|4,0>6:1,51,0,1,78236c483400841b,5219e974a741c0db
+C5,42,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,f7933c71a97d3a3d,727a96c0de0519a9
+C5,42,trained-AB,after-512,BA,complete,stable,,497,29,27,0|1|2|3|6|12|33|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|190|218|222,2ed3e2b60556f97b,1|6|82|0|86|141|70|136|2|138|95|77|66|85|131|67|94|190|130|76|68|3|133|33|0|6|218|222|12,0>6:1,47,0,2,526f5ce675dfd8ef,af7017e172fe7730
+C5,42,trained-BA,after-512,BA,complete,stable,,268,14,13,0|1|4|5|6|65|68|75|132|135|144|151|185,9e7fd111e3148276,1|6|75|65|132|68|5|185|151|0|6|144|135|4,0>6:1,55,0,3,78236c483400841b,0d5a79a4b12b3b4f
+C5,42,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,f7933c71a97d3a3d,3872dd69d558091e
+C5,42,trained-AB,after-512,AC,complete,stable,,541,31,28,0|1|2|3|6|12|33|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|155|190|218|222,e92c0830cbc870a0,0|6|138|82|86|141|70|0|95|77|136|2|66|218|85|131|94|190|130|0|1|6|155|67|222|133|68|76|3|12|33,0>1:1,58,0,1,526f5ce675dfd8ef,dd211902c8a2be12
+C5,42,trained-BA,after-512,AC,complete,stable,,349,20,18,0|1|4|5|6|11|65|68|75|122|132|135|136|144|150|151|185|192,8bf74b799a967b19,0|6|65|132|68|5|185|151|0|1|6|144|75|135|4|136|192|150|11|122,0>1:1,70,0,4,78236c483400841b,f2037e2e228310dc
+C5,42,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,f7933c71a97d3a3d,689d7817872eddb3
+C5,42,trained-AB,after-512,AA,complete,stable,,477,27,24,0|2|6|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|155|190|218|222,5b5caf8e85d2101f,0|6|138|82|86|141|70|0|95|77|136|2|66|218|85|131|94|190|130|0|6|155|222|133|68|76|67,0>6:2,55,0,1,526f5ce675dfd8ef,ce5895d6fc839571
+C5,42,trained-BA,after-512,AA,complete,stable,,264,14,12,0|4|5|6|65|68|75|132|135|144|151|185,0b904b7af204e977,0|6|65|132|68|5|185|151|0|6|144|135|4|75,0>6:2,58,0,2,78236c483400841b,63a0f23bd48a84bd
+C5,42,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,f7933c71a97d3a3d,6e5c3f6fd1652eb7
+C5,42,trained-AB,after-512,BB,complete,stable,,501,29,27,0|1|2|3|6|12|33|66|67|68|70|75|76|77|82|85|86|94|95|130|131|133|136|138|141|190|222,527bf42ef03af37b,1|6|82|0|86|141|70|136|2|138|95|77|66|85|131|67|94|190|130|76|68|3|133|33|1|6|222|75|12,1>6:2,52,0,2,526f5ce675dfd8ef,e3b9cfb0215bb173
+C5,42,trained-BA,after-512,BB,complete,stable,,291,16,14,1|4|5|6|11|65|68|75|122|132|135|144|151|185,8f04b7bcdae24236,1|6|75|65|132|68|5|185|151|1|6|144|135|4|11|122,1>6:2,58,0,4,78236c483400841b,5a6f5f347bb4c5f1
+C5,42,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,f7933c71a97d3a3d,55dc0d96df7f75ff
+C5,99,trained-AB,after-512,AB,complete,stable,,248,12,10,0|1|2|6|13|43|131|141|142|149,496ef7fb31322614,0|6|1|141|142|149|131|1|6|2|13|43,0>6:1,50,0,0,073f2aec5746ccc4,a409e0261e7b82b5
+C5,99,trained-BA,after-512,AB,complete,stable,,290,17,16,0|1|6|21|22|52|78|85|87|133|141|142|155|172|197|205,59b958e4590970c6,0|6|155|22|133|85|172|21|1|6|78|205|141|142|197|87|52,0>6:1,44,0,3,9caebe7bd9c006dc,280ab8d6823c0960
+C5,99,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,8d76576df1abce26,d4604527477ad6ae
+C5,99,trained-AB,after-512,BA,complete,stable,,248,12,10,0|1|2|6|13|43|131|141|142|149,2a08392f4520aee4,1|6|141|142|149|0|6|131|1|13|2|43,0>6:1,50,0,0,073f2aec5746ccc4,f6b2ef4b8bcde60a
+C5,99,trained-BA,after-512,BA,complete,stable,,290,17,16,0|1|6|21|22|52|78|85|87|133|141|142|155|172|197|205,6aca95a4571741f6,1|6|155|22|133|172|0|6|85|21|78|205|141|142|197|87|52,0>6:1,46,0,2,9caebe7bd9c006dc,e13b2bdc878c9447
+C5,99,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,8d76576df1abce26,54e7804d523b9ac5
+C5,99,trained-AB,after-512,AC,complete,stable,,339,19,16,0|1|2|6|13|43|73|80|131|141|142|144|149|174|225|226,b739527ed0d48450,0|6|1|141|142|149|131|0|1|6|2|80|144|13|43|226|73|225|174,0>1:1,59,0,2,073f2aec5746ccc4,ba74ca09de68e692
+C5,99,trained-BA,after-512,AC,complete,stable,,331,19,17,0|1|6|17|21|22|52|78|85|87|133|141|142|155|172|197|205,9be5d199dff944d7,0|6|155|22|133|85|172|21|0|1|6|78|205|141|142|197|87|52|17,0>1:1,48,0,3,9caebe7bd9c006dc,dfbeefc65d1fdb92
+C5,99,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,8d76576df1abce26,997348599de267db
+C5,99,trained-AB,after-512,AA,complete,stable,,294,17,15,0|1|2|6|13|43|80|131|141|142|144|149|174|225|226,c11eda285cfc1db8,0|6|1|141|142|149|131|0|6|2|80|144|13|43|226|225|174,0>6:2,48,0,2,073f2aec5746ccc4,8ac83cc8107a73ba
+C5,99,trained-BA,after-512,AA,complete,stable,,300,18,16,0|6|17|21|22|52|78|85|87|133|141|142|155|172|197|205,c5edc84331f36506,0|6|155|22|133|85|172|21|0|6|78|205|141|142|197|87|52|17,0>6:2,43,0,2,9caebe7bd9c006dc,2de74f53ca89d412
+C5,99,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,8d76576df1abce26,db03239cfcf8ad68
+C5,99,trained-AB,after-512,BB,complete,stable,,195,9,7,1|6|13|131|141|142|149,cd31eb8537a021ad,1|6|141|142|149|1|6|131|13,1>6:2,45,0,0,073f2aec5746ccc4,cc32aec5abd54460
+C5,99,trained-BA,after-512,BB,complete,stable,,293,17,15,1|6|21|22|52|78|85|87|133|141|142|155|172|197|205,7046be0807b80c47,1|6|155|22|133|172|1|6|21|85|78|205|141|142|197|87|52,1>6:2,46,0,2,9caebe7bd9c006dc,fe71d8acb4eae910
+C5,99,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,8d76576df1abce26,a7356e2ac1a90d5c
+C5,2026,trained-AB,after-512,AB,complete,stable,,436,30,28,0|1|2|6|7|8|24|66|67|71|77|79|84|86|88|97|120|134|135|138|147|150|188|198|207|235|245|254,02470cc1859eff7d,0|6|138|188|135|84|24|235|198|67|97|66|1|6|147|0|207|134|7|245|2|8|71|86|79|88|77|120|150|254,0>6:1,28,0,2,b19c5bd3bb587d49,d4bb2114692332a1
+C5,2026,trained-BA,after-512,AB,complete,stable,,575,37,34,0|1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,b6b9ae3954b26ae7,0|6|129|208|27|150|149|7|66|219|205|130|187|10|75|194|140|2|193|1|106|147|83|230|1|6|11|12|79|13|69|222|78|6|151|87|135,0>6:1,61,0,3,969229f1b30ba87e,25a3cf9be13871cf
+C5,2026,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,6b2424250e5ba939,d9602053bf83f442
+C5,2026,trained-AB,after-512,BA,complete,stable,,436,30,28,0|1|2|6|7|8|24|66|67|71|77|79|84|86|88|97|120|134|135|138|147|150|188|198|207|235|245|254,43d8762bc4f9df0d,1|6|67|0|135|84|138|66|188|198|24|235|97|147|0|6|2|8|207|134|7|245|86|71|79|88|77|120|150|254,0>6:1,29,0,0,b19c5bd3bb587d49,7a686eb863de6196
+C5,2026,trained-BA,after-512,BA,complete,stable,,575,37,34,0|1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,efae3d9415ea58d7,1|6|129|27|150|149|7|66|205|130|187|10|208|75|140|2|83|106|230|0|6|194|219|147|1|12|79|13|193|11|69|222|78|6|151|87|135,0>6:1,63,0,3,969229f1b30ba87e,be6ad69d07de8978
+C5,2026,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,6b2424250e5ba939,071d9e8548855159
+C5,2026,trained-AB,after-512,AC,complete,stable,,509,35,32,0|1|2|6|7|8|24|36|66|67|71|73|77|79|84|86|88|97|120|134|135|136|138|144|147|150|188|198|207|235|245|254,2a2de4e23b577eb8,0|6|138|188|135|84|24|235|198|67|97|66|0|1|6|147|8|2|0|207|134|7|245|86|136|71|79|88|77|73|36|120|150|144|254,0>1:1,43,0,1,b19c5bd3bb587d49,29a0b47a6a13b934
+C5,2026,trained-BA,after-512,AC,complete,stable,,630,39,35,0|1|2|6|7|10|11|12|13|27|66|69|72|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,dd47362b7b0e871f,0|6|129|208|27|150|149|7|66|219|205|130|187|10|75|194|140|2|193|1|106|147|83|230|0|1|6|11|12|79|13|69|222|78|6|72|151|87|135,0>1:1,70,0,2,969229f1b30ba87e,157647b94185762a
+C5,2026,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,6b2424250e5ba939,4a862d0695122b09
+C5,2026,trained-AB,after-512,AA,complete,stable,,427,29,26,0|2|6|7|8|24|66|67|71|77|79|84|86|88|97|120|134|135|138|150|188|198|207|235|245|254,e7d16adcbf1016ef,0|6|138|188|135|84|24|235|198|67|97|66|0|6|207|134|7|245|71|86|79|8|88|77|120|0|150|2|254,0>6:2,41,0,3,b19c5bd3bb587d49,cb995f32bf7fbd7f
+C5,2026,trained-BA,after-512,AA,complete,stable,,578,37,34,0|1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,8d94f7564be018e6,0|6|129|208|27|150|149|7|66|219|205|130|187|10|75|194|140|2|193|1|106|147|83|230|0|6|12|79|13|69|11|222|78|6|151|87|135,0>6:2,65,0,3,969229f1b30ba87e,1800834a1e5345ec
+C5,2026,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,6b2424250e5ba939,2bcae3f2da57b488
+C5,2026,trained-AB,after-512,BB,complete,stable,,562,39,36,0|1|2|6|7|8|15|22|24|30|66|67|70|71|77|79|84|86|88|97|119|120|134|135|138|147|150|160|188|198|207|215|217|235|245|254,597d0366452faf42,1|6|67|0|135|84|138|66|188|198|24|235|97|147|1|6|8|2|207|134|7|245|86|71|79|88|77|15|120|150|6|22|215|254|70|30|217|160|119,1>6:2,55,0,3,b19c5bd3bb587d49,7376f80e47ee45f4
+C5,2026,trained-BA,after-512,BB,complete,stable,,512,33,30,1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|140|147|149|150|151|187|205|208|219|222|230,e2fbbfc8466dfe63,1|6|129|27|150|149|7|66|205|130|187|10|208|75|140|2|83|106|230|1|6|11|147|12|79|13|219|69|222|78|6|151|87,1>6:2,58,0,3,969229f1b30ba87e,86df10772a98b3bc
+C5,2026,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,6b2424250e5ba939,9f0ad420e629a458
+C5,314159,trained-AB,after-512,AB,complete,stable,,306,16,15,0|1|3|4|6|10|12|13|67|70|78|80|86|133|209,665dd0cc742523c1,0|6|10|86|133|3|13|1|6|80|78|12|209|70|4|67,0>6:1,42,0,1,b78f4c9d7f69beaf,9944119c4b251e9f
+C5,314159,trained-BA,after-512,AB,complete,stable,,331,20,19,0|1|6|9|10|20|69|72|77|80|128|132|133|137|196|197|205|220|223,3bf69f50d4857b84,0|6|10|128|137|9|72|223|133|80|1|6|220|132|69|77|197|205|196|20,0>6:1,45,0,1,7bb1ea6c2202f881,5d28c81fb45a170c
+C5,314159,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,61814e1f1e2685e5,afe5ba8e2cd13b6a
+C5,314159,trained-AB,after-512,BA,complete,stable,,306,16,15,0|1|3|4|6|10|12|13|67|70|78|80|86|133|209,44e23d9cede2a1a1,1|6|10|86|133|3|13|78|0|6|80|12|70|209|4|67,0>6:1,42,0,1,b78f4c9d7f69beaf,3081963157fd0cb7
+C5,314159,trained-BA,after-512,BA,complete,stable,,331,20,19,0|1|6|9|10|20|69|72|77|80|128|132|133|137|196|197|205|220|223,5db3510dd73475c4,1|6|137|9|10|72|223|133|80|128|0|6|220|132|69|77|197|205|196|20,0>6:1,50,0,1,7bb1ea6c2202f881,20984644585f4cf5
+C5,314159,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,61814e1f1e2685e5,dacf2607ef389011
+C5,314159,trained-AB,after-512,AC,complete,stable,,433,27,25,0|1|3|4|6|9|10|12|13|17|24|47|60|65|67|70|78|80|86|133|144|189|190|209|254,0ad0a113a972476e,0|6|10|86|133|3|13|0|1|6|80|60|47|144|65|78|12|209|9|70|4|67|17|190|24|189|254,0>1:1,55,0,1,b78f4c9d7f69beaf,8fe2a8cc8dd159e0
+C5,314159,trained-BA,after-512,AC,complete,stable,,387,24,22,0|1|6|9|10|20|69|72|77|80|103|122|128|130|132|133|137|196|197|205|220|223,720414076835c7fb,0|6|10|128|137|9|72|223|133|80|0|1|6|220|132|69|77|197|205|196|20|130|122|103,0>1:1,55,0,1,7bb1ea6c2202f881,d2dadcff18032020
+C5,314159,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,61814e1f1e2685e5,3b728828c9b2a82a
+C5,314159,trained-AB,after-512,AA,complete,stable,,347,21,19,0|3|4|6|10|12|13|47|60|67|70|78|80|86|133|189|190|209|254,737e0351bedf3cde,0|6|10|86|133|3|13|0|6|80|60|47|12|78|209|4|70|67|190|189|254,0>6:2,48,0,3,b78f4c9d7f69beaf,0aad2586e38875ca
+C5,314159,trained-BA,after-512,AA,complete,stable,,325,20,18,0|6|9|10|20|69|72|77|80|128|132|133|137|196|197|205|220|223,a6c81bf443a46c85,0|6|10|128|137|9|72|223|133|80|0|6|220|132|69|77|197|205|196|20,0>6:2,47,0,1,7bb1ea6c2202f881,f6958ff261d3b743
+C5,314159,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,61814e1f1e2685e5,04b45e73a2086290
+C5,314159,trained-AB,after-512,BB,complete,stable,,308,16,14,1|3|4|6|10|12|13|67|70|78|80|86|133|209,2c7b2a65452b7b10,1|6|10|86|133|3|13|78|1|6|80|67|12|70|209|4,1>6:2,51,0,0,b78f4c9d7f69beaf,53d22c9771777d82
+C5,314159,trained-BA,after-512,BB,complete,stable,,352,22,20,1|6|9|10|20|69|72|77|80|128|132|133|137|139|196|197|205|220|223|231,4924efabd819f7d9,1|6|137|9|10|72|223|133|80|128|1|6|220|132|69|77|197|205|196|20|139|231,1>6:2,57,0,2,7bb1ea6c2202f881,c5352e401132a1bb
+C5,314159,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,61814e1f1e2685e5,ec6618bc8a91d4ec
+C5+A1,20261117,trained-AB,after-512,AB,complete,stable,,238,11,10,0|1|6|22|63|64|69|82|241|249,0934854e4f7bfe22,0|6|69|82|1|6|64|22|241|249|63,0>6:1,0,50,0,cd216fd8cd3a131b,a42e60f8b028804a
+C5+A1,20261117,trained-BA,after-512,AB,complete,stable,,518,34,32,0|1|6|9|12|16|21|28|42|50|65|69|73|75|78|81|83|84|90|96|98|128|130|131|141|145|156|180|197|201|246|249,497504d70afb66a1,0|6|16|130|180|78|131|42|1|6|65|156|197|21|69|246|90|73|9|50|96|28|84|12|141|98|1|83|201|75|81|128|249|145,0>6:1,0,65,2,798c233a551026f5,7c3cda981b011969
+C5+A1,20261117,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,fb5387470893fa8a,06b5c1c88b2381d0
+C5+A1,20261117,trained-AB,after-512,BA,complete,stable,,238,11,10,0|1|6|22|63|64|69|82|241|249,993e3a7dae6c4fe2,1|6|69|0|6|82|64|22|241|249|63,0>6:1,0,49,0,cd216fd8cd3a131b,f427626b7a22d241
+C5+A1,20261117,trained-BA,after-512,BA,complete,stable,,518,34,32,0|1|6|9|12|16|21|28|42|50|65|69|73|75|78|81|83|84|90|96|98|128|130|131|141|145|156|180|197|201|246|249,7be1956fe9a583a1,1|6|130|16|78|0|6|131|65|180|156|197|21|69|246|90|73|9|50|42|96|28|84|12|141|98|1|83|201|75|81|128|249|145,0>6:1,0,66,4,798c233a551026f5,bf086382f45f4956
+C5+A1,20261117,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,fb5387470893fa8a,a08d8f4e8f911a3b
+C5+A1,20261117,trained-AB,after-512,AC,complete,stable,,399,24,22,0|1|6|9|16|17|18|22|63|64|69|74|81|82|107|131|137|146|202|217|241|249,52b4d7561450deb3,0|6|69|82|0|1|6|217|64|16|146|22|241|249|17|202|63|18|107|137|9|81|74|131,0>1:1,0,58,2,cd216fd8cd3a131b,0dcfc5abaa554706
+C5+A1,20261117,trained-BA,after-512,AC,complete,stable,,554,35,32,0|1|6|9|12|16|21|28|42|50|65|69|73|75|78|81|83|84|90|96|98|128|130|131|141|145|156|180|197|201|246|249,86252bd386d4e061,0|6|16|130|180|78|131|42|0|1|6|65|128|73|9|156|197|75|21|69|246|90|50|201|1|96|98|28|84|12|141|81|145|83|249,0>1:1,0,84,2,798c233a551026f5,b2d694011a8d0712
+C5+A1,20261117,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,fb5387470893fa8a,beb4f8cb57279330
+C5+A1,20261117,trained-AB,after-512,AA,complete,stable,,256,13,11,0|6|22|63|64|69|82|137|217|241|249,2fb0b077d311a813,0|6|69|82|0|6|217|64|22|241|249|63|137,0>6:2,0,47,1,cd216fd8cd3a131b,0815ce829ef26d45
+C5+A1,20261117,trained-BA,after-512,AA,complete,stable,,521,34,32,0|1|6|9|12|16|21|28|42|50|65|69|73|75|78|81|83|84|90|96|98|128|130|131|141|145|156|180|197|201|246|249,7c2bde7bc8efcd40,0|6|16|130|180|78|131|42|0|6|65|156|197|75|21|69|246|90|73|9|50|96|98|28|84|12|141|1|201|81|128|83|145|249,0>6:2,0,80,3,798c233a551026f5,e837b452c6a604e4
+C5+A1,20261117,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,fb5387470893fa8a,ac86bbf044796f0c
+C5+A1,20261117,trained-AB,after-512,BB,complete,stable,,224,10,8,1|6|22|63|64|69|241|249,322324f282fd8d31,1|6|69|1|6|64|22|241|249|63,1>6:2,0,41,0,cd216fd8cd3a131b,70be5d7254abc6aa
+C5+A1,20261117,trained-BA,after-512,BB,complete,stable,,428,28,26,1|6|9|12|16|21|28|42|50|65|69|73|78|83|84|90|96|98|128|130|141|156|197|201|246|249,980652c39bd21dbd,1|6|130|16|78|1|6|83|65|156|197|21|69|246|90|73|9|50|96|28|84|12|141|98|42|249|201|128,1>6:2,0,61,4,798c233a551026f5,643e5e460f5314ea
+C5+A1,20261117,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,fb5387470893fa8a,3c910826521ae25c
+C5+A1,7,trained-AB,after-512,AB,complete,stable,,183,7,6,0|1|4|6|72|81,01f75742f6ef8959,0|6|81|72|4|1|6,0>6:1,0,36,0,1e582babd15febf2,859df4cfecb9d9c2
+C5+A1,7,trained-BA,after-512,AB,complete,stable,,348,21,20,0|1|2|5|6|10|14|16|45|69|73|78|79|87|136|140|161|162|197|200,d5762416b24c497a,0|6|10|136|1|6|2|73|14|79|5|162|200|87|45|197|69|161|78|16|140,0>6:1,0,50,5,fd7e15a9a0a1fb9f,5b60ae393a1e4a13
+C5+A1,7,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,2,35e937cab58e58c6,a66be6623cd761f1
+C5+A1,7,trained-AB,after-512,BA,complete,stable,,183,7,6,0|1|4|6|72|81,5095035c0f3d33e9,1|6|81|72|4|0|6,0>6:1,0,34,0,1e582babd15febf2,7b07a3e78c6437c2
+C5+A1,7,trained-BA,after-512,BA,complete,stable,,348,21,20,0|1|2|5|6|10|14|16|45|69|73|78|79|87|136|140|161|162|197|200,a57175d84f41bc9a,1|6|136|10|0|6|2|73|14|79|5|162|200|87|45|197|69|161|78|16|140,0>6:1,0,49,5,fd7e15a9a0a1fb9f,03815c4825367e8b
+C5+A1,7,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,2,35e937cab58e58c6,0095b45c5bfc5cd9
+C5+A1,7,trained-AB,after-512,AC,complete,stable,,240,10,8,0|1|2|4|6|72|81|82,964c9782a41f4ca9,0|6|81|72|4|0|1|6|82|2,0>1:1,0,42,0,1e582babd15febf2,0783eeccc562f843
+C5+A1,7,trained-BA,after-512,AC,complete,stable,,392,23,21,0|1|2|5|6|10|14|16|34|45|69|73|78|79|87|136|140|161|162|197|200,1b79d48c251a4c58,0|6|10|136|0|1|6|16|2|73|34|14|79|5|162|200|87|45|197|69|161|78|140,0>1:1,0,60,2,fd7e15a9a0a1fb9f,334e62a3bfb47377
+C5+A1,7,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,3,35e937cab58e58c6,734d72e25bdd43bf
+C5+A1,7,trained-AB,after-512,AA,complete,stable,,196,8,6,0|4|6|72|81|82,aa5f5ec997a7c30a,0|6|81|72|4|0|6|82,0>6:2,0,41,0,1e582babd15febf2,352b33d94a7e4436
+C5+A1,7,trained-BA,after-512,AA,complete,stable,,361,22,20,0|2|5|6|10|14|16|34|45|69|73|78|79|87|136|140|161|162|197|200,9a2be88273ce5f89,0|6|10|136|0|6|16|2|73|34|14|79|5|162|200|87|45|197|69|161|78|140,0>6:2,0,58,3,fd7e15a9a0a1fb9f,c730b1dc26d8a172
+C5+A1,7,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,2,35e937cab58e58c6,107e9acb67200e00
+C5+A1,7,trained-AB,after-512,BB,complete,stable,,185,8,6,1|4|6|72|81|147,a061a18c8957008b,1|6|81|72|4|1|6|147,1>6:2,0,40,0,1e582babd15febf2,1760d99b03e1de05
+C5+A1,7,trained-BA,after-512,BB,complete,stable,,337,20,18,1|2|5|6|10|14|45|69|73|78|79|87|136|140|161|162|197|200,ed68ee5b5d5c9f6b,1|6|136|10|1|6|2|73|14|79|5|162|200|87|45|197|69|161|78|140,1>6:2,0,51,5,fd7e15a9a0a1fb9f,93eaa7b6ed7d17a5
+C5+A1,7,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,2,35e937cab58e58c6,58f765f1f5d0680f
+C5+A1,42,trained-AB,after-512,AB,complete,stable,,497,29,27,0|1|2|3|6|12|33|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|190|218|222,1028f3b30116369b,0|6|138|82|86|141|70|0|95|77|136|2|66|218|85|131|94|190|130|1|6|67|222|133|68|76|3|12|33,0>6:1,0,41,2,59d7a2e7e56e1c84,d12184c76b4d07b4
+C5+A1,42,trained-BA,after-512,AB,complete,stable,,636,40,37,0|1|4|5|6|9|14|15|16|19|20|68|69|70|77|78|79|81|83|84|88|92|100|119|128|133|134|142|147|151|160|165|204|219|226|234|247,18c83201850fd3d3,0|6|81|128|1|160|14|69|83|19|6|5|70|147|142|151|84|68|79|9|219|133|92|77|4|134|234|204|119|247|226|100|1|6|16|20|15|78|88|165,0>6:1,1,57,6,8af11216849d0d39,83375f2e666a92bd
+C5+A1,42,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,afbf07dfb773fd3c,f90d4e70b6a84180
+C5+A1,42,trained-AB,after-512,BA,complete,stable,,497,29,27,0|1|2|3|6|12|33|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|190|218|222,2ed3e2b60556f97b,1|6|82|0|86|141|70|136|2|138|95|77|66|85|131|67|94|190|130|76|68|3|133|33|0|6|218|222|12,0>6:1,0,47,2,59d7a2e7e56e1c84,7af2cf554a68b3f8
+C5+A1,42,trained-BA,after-512,BA,complete,stable,,637,40,37,0|1|4|5|6|9|14|15|16|19|20|68|69|70|77|78|79|81|83|84|88|92|100|119|128|133|134|142|147|151|160|165|204|219|226|234|247,dbd1b4c49d9c51d3,1|6|83|19|81|128|14|69|1|147|6|5|70|79|219|142|151|84|68|9|134|234|133|92|77|4|226|247|204|160|119|100|0|6|16|20|15|78|88|165,0>6:1,1,61,7,8af11216849d0d39,f47bbb0dff2f987f
+C5+A1,42,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,afbf07dfb773fd3c,19103da5cfbc7c2b
+C5+A1,42,trained-AB,after-512,AC,complete,stable,,541,31,28,0|1|2|3|6|12|33|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|155|190|218|222,e92c0830cbc870a0,0|6|138|82|86|141|70|0|95|77|136|2|66|218|85|131|94|190|130|0|1|6|155|67|222|133|68|76|3|12|33,0>1:1,0,58,1,59d7a2e7e56e1c84,5d1db3706fbbab6e
+C5+A1,42,trained-BA,after-512,AC,complete,stable,,929,64,60,0|1|2|4|5|6|8|9|10|11|14|15|16|18|19|20|27|63|64|68|69|70|72|74|77|78|79|80|81|82|83|84|88|92|93|100|119|127|128|129|133|134|136|142|146|147|149|151|152|160|163|165|192|201|204|219|226|227|234|247,d2c27702ea3ad593,0|6|81|128|1|160|14|69|83|19|6|5|70|147|142|151|84|68|79|9|219|133|92|77|4|134|234|204|119|247|226|100|0|1|6|152|16|64|72|20|15|78|129|88|165|227|8|18|80|74|82|136|10|146|149|27|11|201|93|2|63|127|163|192,0>1:1,1,73,7,8af11216849d0d39,ec172832362de0bd
+C5+A1,42,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,afbf07dfb773fd3c,fc0d7dd806cc7ef6
+C5+A1,42,trained-AB,after-512,AA,complete,stable,,477,27,24,0|2|6|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|155|190|218|222,5b5caf8e85d2101f,0|6|138|82|86|141|70|0|95|77|136|2|66|218|85|131|94|190|130|0|6|155|222|133|68|76|67,0>6:2,0,55,1,59d7a2e7e56e1c84,81b20f6def04400f
+C5+A1,42,trained-BA,after-512,AA,complete,stable,,641,41,38,0|1|4|5|6|9|14|15|16|19|20|68|69|70|77|78|79|81|83|84|88|92|100|119|128|133|134|142|147|151|152|160|165|204|219|226|234|247,c4e80e56feffed0a,0|6|81|128|1|160|14|69|83|19|6|5|70|147|142|151|84|68|79|9|219|133|92|77|4|134|234|204|119|247|226|100|0|6|152|16|20|15|78|88|165,0>6:2,1,59,6,8af11216849d0d39,cb7e4aa9319cfae2
+C5+A1,42,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,afbf07dfb773fd3c,a84c2e56d06ffbea
+C5+A1,42,trained-AB,after-512,BB,complete,stable,,501,29,27,0|1|2|3|6|12|33|66|67|68|70|75|76|77|82|85|86|94|95|130|131|133|136|138|141|190|222,527bf42ef03af37b,1|6|82|0|86|141|70|136|2|138|95|77|66|85|131|67|94|190|130|76|68|3|133|33|1|6|222|75|12,1>6:2,0,52,2,59d7a2e7e56e1c84,3bbae0b4ef8eeecf
+C5+A1,42,trained-BA,after-512,BB,complete,stable,,638,40,36,1|4|5|6|9|14|15|16|19|20|68|69|70|77|78|79|81|83|84|88|92|100|119|128|133|134|142|147|151|160|165|204|219|226|234|247,74c359f8b11073d2,1|6|83|19|81|128|14|69|1|147|6|5|70|79|219|142|151|84|68|9|134|234|133|92|77|4|226|247|204|160|119|100|1|6|16|20|15|78|88|165,1>6:2,1,68,7,8af11216849d0d39,d3959656d2998512
+C5+A1,42,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,afbf07dfb773fd3c,c0aa6f05acd26eb6
+C5+A1,99,trained-AB,after-512,AB,complete,stable,,248,12,10,0|1|2|6|13|43|131|141|142|149,496ef7fb31322614,0|6|1|141|142|149|131|1|6|2|13|43,0>6:1,0,50,0,2b3d30231fd6ae86,2add6e30de6ca9a4
+C5+A1,99,trained-BA,after-512,AB,complete,stable,,290,17,16,0|1|6|21|22|52|78|85|87|133|141|142|155|172|197|205,59b958e4590970c6,0|6|155|22|133|85|172|21|1|6|78|205|141|142|197|87|52,0>6:1,0,44,3,50ca9201432d04c2,29a880d779309197
+C5+A1,99,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,faaaa02cbb687f27,d4e00c0df2bc1287
+C5+A1,99,trained-AB,after-512,BA,complete,stable,,248,12,10,0|1|2|6|13|43|131|141|142|149,2a08392f4520aee4,1|6|141|142|149|0|6|131|1|13|2|43,0>6:1,0,50,0,2b3d30231fd6ae86,816708c425d97ed7
+C5+A1,99,trained-BA,after-512,BA,complete,stable,,290,17,16,0|1|6|21|22|52|78|85|87|133|141|142|155|172|197|205,6aca95a4571741f6,1|6|155|22|133|172|0|6|85|21|78|205|141|142|197|87|52,0>6:1,0,46,2,50ca9201432d04c2,320718351c12db66
+C5+A1,99,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,faaaa02cbb687f27,4ad29b0451411530
+C5+A1,99,trained-AB,after-512,AC,complete,stable,,339,19,16,0|1|2|6|13|43|73|80|131|141|142|144|149|174|225|226,b739527ed0d48450,0|6|1|141|142|149|131|0|1|6|2|80|144|13|43|226|73|225|174,0>1:1,0,59,2,2b3d30231fd6ae86,56a227e68d971e5f
+C5+A1,99,trained-BA,after-512,AC,complete,stable,,331,19,17,0|1|6|17|21|22|52|78|85|87|133|141|142|155|172|197|205,9be5d199dff944d7,0|6|155|22|133|85|172|21|0|1|6|78|205|141|142|197|87|52|17,0>1:1,0,48,3,50ca9201432d04c2,000656ed44f6fcb4
+C5+A1,99,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,faaaa02cbb687f27,b5fa20c6786fe63e
+C5+A1,99,trained-AB,after-512,AA,complete,stable,,294,17,15,0|1|2|6|13|43|80|131|141|142|144|149|174|225|226,c11eda285cfc1db8,0|6|1|141|142|149|131|0|6|2|80|144|13|43|226|225|174,0>6:2,0,48,2,2b3d30231fd6ae86,5307f875d839a9a7
+C5+A1,99,trained-BA,after-512,AA,complete,stable,,300,18,16,0|6|17|21|22|52|78|85|87|133|141|142|155|172|197|205,c5edc84331f36506,0|6|155|22|133|85|172|21|0|6|78|205|141|142|197|87|52|17,0>6:2,0,43,2,50ca9201432d04c2,1812b9a2cf2e9807
+C5+A1,99,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,faaaa02cbb687f27,8b633a9d196a6c05
+C5+A1,99,trained-AB,after-512,BB,complete,stable,,195,9,7,1|6|13|131|141|142|149,cd31eb8537a021ad,1|6|141|142|149|1|6|131|13,1>6:2,0,45,0,2b3d30231fd6ae86,56b1255655ee32d0
+C5+A1,99,trained-BA,after-512,BB,complete,stable,,293,17,15,1|6|21|22|52|78|85|87|133|141|142|155|172|197|205,7046be0807b80c47,1|6|155|22|133|172|1|6|21|85|78|205|141|142|197|87|52,1>6:2,0,46,2,50ca9201432d04c2,a30d7d0f7ecf62d0
+C5+A1,99,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,faaaa02cbb687f27,e632d55df54349d5
+C5+A1,2026,trained-AB,after-512,AB,complete,stable,,237,15,14,0|1|4|6|11|13|67|78|86|94|131|140|211|212,0c3be2be8af98aab,0|6|4|140|211|212|131|1|6|67|78|13|11|94|86,0>6:1,0,42,1,4e5a45f3538dfc90,95698328092a908e
+C5+A1,2026,trained-BA,after-512,AB,complete,stable,,575,37,34,0|1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,b6b9ae3954b26ae7,0|6|129|208|27|150|149|7|66|219|205|130|187|10|75|194|140|2|193|1|106|147|83|230|1|6|11|12|79|13|69|222|78|6|151|87|135,0>6:1,1,60,3,a58cc64d683c46ec,3edfa5f2018fe2fd
+C5+A1,2026,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,389249c235532248,b46efe63627833bb
+C5+A1,2026,trained-AB,after-512,BA,complete,stable,,237,15,14,0|1|4|6|11|13|67|78|86|94|131|140|211|212,14cadb7c1d08929b,1|6|67|4|140|94|211|212|131|11|0|6|78|13|86,0>6:1,0,39,1,4e5a45f3538dfc90,1e907b03008ee82a
+C5+A1,2026,trained-BA,after-512,BA,complete,stable,,575,37,34,0|1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,efae3d9415ea58d7,1|6|129|27|150|149|7|66|205|130|187|10|208|75|140|2|83|106|230|0|6|194|219|147|1|12|79|13|193|11|69|222|78|6|151|87|135,0>6:1,1,62,3,a58cc64d683c46ec,5d9bf0820da58250
+C5+A1,2026,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,389249c235532248,184b80bf76389fa4
+C5+A1,2026,trained-AB,after-512,AC,complete,stable,,315,18,15,0|1|4|6|11|13|65|67|78|86|94|131|140|211|212,0ba28a0ca370391b,0|6|4|140|211|212|131|0|1|6|1|67|78|13|65|11|94|86,0>1:1,1,57,1,4e5a45f3538dfc90,5b6c7eb6125c130a
+C5+A1,2026,trained-BA,after-512,AC,complete,stable,,630,39,35,0|1|2|6|7|10|11|12|13|27|66|69|72|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,dd47362b7b0e871f,0|6|129|208|27|150|149|7|66|219|205|130|187|10|75|194|140|2|193|1|106|147|83|230|0|1|6|11|12|79|13|69|222|78|6|72|151|87|135,0>1:1,1,69,2,a58cc64d683c46ec,168427e940bffb16
+C5+A1,2026,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,389249c235532248,f87f68d0e1f781dc
+C5+A1,2026,trained-AB,after-512,AA,complete,stable,,281,17,15,0|1|4|6|11|13|65|67|78|86|94|131|140|211|212,2b3ae9d436281c8a,0|6|4|140|211|212|131|0|6|1|78|13|67|65|86|11|94,0>6:2,0,46,1,4e5a45f3538dfc90,7eae2afc0a864239
+C5+A1,2026,trained-BA,after-512,AA,complete,stable,,578,37,34,0|1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,8d94f7564be018e6,0|6|129|208|27|150|149|7|66|219|205|130|187|10|75|194|140|2|193|1|106|147|83|230|0|6|12|79|13|69|11|222|78|6|151|87|135,0>6:2,1,64,3,a58cc64d683c46ec,6bbadd476f86faa7
+C5+A1,2026,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,389249c235532248,38af925112472e25
+C5+A1,2026,trained-AB,after-512,BB,complete,stable,,245,15,13,1|4|6|11|13|67|78|86|94|131|140|211|212,19ea34f3ad66d62a,1|6|67|4|140|94|211|212|131|11|1|6|78|13|86,1>6:2,1,44,1,4e5a45f3538dfc90,01d7c9173da0c9f2
+C5+A1,2026,trained-BA,after-512,BB,complete,stable,,512,33,30,1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|140|147|149|150|151|187|205|208|219|222|230,e2fbbfc8466dfe63,1|6|129|27|150|149|7|66|205|130|187|10|208|75|140|2|83|106|230|1|6|11|147|12|79|13|219|69|222|78|6|151|87,1>6:2,0,58,3,a58cc64d683c46ec,81584b7928c1329b
+C5+A1,2026,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,389249c235532248,95e6c3d662854df1
+C5+A1,314159,trained-AB,after-512,AB,complete,stable,,291,16,15,0|1|2|6|9|22|47|72|75|131|140|144|150|156|165,7ea8da6b2080be55,0|6|75|144|72|22|140|9|165|47|1|6|2|131|150|156,0>6:1,1,47,2,c9350a6703c6b17a,8dcb7e12702a28e2
+C5+A1,314159,trained-BA,after-512,AB,complete,stable,,371,21,19,0|1|6|17|60|65|73|77|79|82|85|87|129|131|135|138|143|220|223,86d1ad37363cd1a0,0|6|138|65|220|135|85|0|77|60|129|1|6|131|73|223|87|143|79|17|82,0>6:1,0,61,0,75f5786ad737f9e8,a3a1e277edd9a4ce
+C5+A1,314159,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,f14930367a24e384,307852aa02898583
+C5+A1,314159,trained-AB,after-512,BA,complete,stable,,291,16,15,0|1|2|6|9|22|47|72|75|131|140|144|150|156|165,d192c6bbbbc40185,1|6|75|144|72|22|140|9|165|0|6|2|47|131|150|156,0>6:1,1,45,2,c9350a6703c6b17a,d6d0a39c56e8be56
+C5+A1,314159,trained-BA,after-512,BA,complete,stable,,371,21,19,0|1|6|17|60|65|73|77|79|82|85|87|129|131|135|138|143|220|223,7de0ff375399d090,1|6|138|65|0|220|135|85|131|77|129|0|6|17|73|60|223|87|143|79|82,0>6:1,0,66,0,75f5786ad737f9e8,f6d602c1aa4275f2
+C5+A1,314159,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,f14930367a24e384,631074e666ff1ebc
+C5+A1,314159,trained-AB,after-512,AC,complete,stable,,337,18,16,0|1|2|6|9|22|47|72|75|82|131|140|144|150|156|165,4a349e08094a8d97,0|6|75|144|72|22|140|9|165|47|0|1|6|2|82|131|150|156,0>1:1,1,54,2,c9350a6703c6b17a,ef8df6abbc93f6e2
+C5+A1,314159,trained-BA,after-512,AC,complete,stable,,461,27,24,0|1|6|8|17|60|64|65|72|73|77|79|82|85|87|129|131|135|137|138|143|145|220|223,9117c3f146fecba8,0|6|138|65|220|135|85|0|77|60|129|0|1|6|17|73|131|223|87|143|79|8|82|64|72|137|145,0>1:1,0,67,0,75f5786ad737f9e8,ef0cda71b8f05ba1
+C5+A1,314159,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,f14930367a24e384,9e55dac33bced09f
+C5+A1,314159,trained-AB,after-512,AA,complete,stable,,277,15,13,0|2|6|9|22|47|72|75|140|144|150|156|165,ae99715f3c04d557,0|6|75|144|72|22|140|9|165|47|0|6|2|150|156,0>6:2,1,50,2,c9350a6703c6b17a,9083d4cf1b1a0a42
+C5+A1,314159,trained-BA,after-512,AA,complete,stable,,350,20,17,0|6|17|60|65|73|77|79|85|87|129|131|135|138|143|220|223,4e97223fce4a25e3,0|6|138|65|220|135|85|0|77|60|129|0|6|17|73|223|87|143|79|131,0>6:2,0,55,0,75f5786ad737f9e8,d8381164d5ba5c42
+C5+A1,314159,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,f14930367a24e384,a3f2b344f619e82d
+C5+A1,314159,trained-AB,after-512,BB,complete,stable,,363,20,18,0|1|2|3|6|9|22|47|66|72|75|82|131|140|144|150|156|165,7babccc246ea2d17,1|6|75|144|72|22|140|9|165|1|6|131|0|2|150|82|47|3|156|66,1>6:2,1,60,4,c9350a6703c6b17a,38c8ab1ffda6ab24
+C5+A1,314159,trained-BA,after-512,BB,complete,stable,,440,27,25,0|1|4|6|12|17|65|73|75|76|77|79|82|85|87|91|129|131|135|138|139|143|220|223|231,44f0c337aac719d5,1|6|138|65|0|220|135|85|131|77|129|1|6|139|82|73|223|75|87|143|79|231|17|12|76|4|91,1>6:2,0,72,1,75f5786ad737f9e8,247462d23c9ed671
+C5+A1,314159,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,f14930367a24e384,f4ad7e349468c8a5
+C5+A2,20261117,trained-AB,after-512,AB,complete,stable,,419,30,29,0|1|5|6|14|18|19|20|32|56|64|68|69|77|79|82|85|91|94|95|96|121|156|164|192|203|212|222|251,f235572218b06f17,0|6|82|1|6|18|64|156|203|20|68|77|56|79|19|192|91|14|121|96|85|69|95|32|251|5|164|94|212|222,0>6:1,0,53,5,5d9831468bdbd270,b59de9aa5d0e7bd2
+C5+A2,20261117,trained-BA,after-512,AB,complete,stable,,524,36,34,0|1|4|5|6|13|15|27|30|32|49|64|68|69|70|71|75|76|81|82|87|92|128|130|143|149|154|156|158|161|165|193|231|235,6044715c2f43f863,0|6|128|81|82|149|71|15|32|70|6|161|193|165|49|92|143|87|4|130|158|156|27|154|30|68|76|69|1|6|75|13|231|5|235|64,0>6:1,1,62,1,ec44d690499bc16e,df2b1a9f693e4192
+C5+A2,20261117,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,cdd406ccf3c1ed15,e990db0f4b1a8b17
+C5+A2,20261117,trained-AB,after-512,BA,complete,stable,,419,30,29,0|1|5|6|14|18|19|20|32|56|64|68|69|77|79|82|85|91|94|95|96|121|156|164|192|203|212|222|251,d3f62d67dffb26a7,1|6|0|6|82|18|64|156|203|20|68|77|56|79|19|192|91|14|121|96|85|69|95|32|251|5|164|94|212|222,0>6:1,0,55,5,5d9831468bdbd270,56de1f1b9c3da9c1
+C5+A2,20261117,trained-BA,after-512,BA,complete,stable,,524,36,34,0|1|4|5|6|13|15|27|30|32|49|64|68|69|70|71|75|76|81|82|87|92|128|130|143|149|154|156|158|161|165|193|231|235,20a206a74b45aa83,1|6|82|128|149|71|15|32|70|6|161|193|165|49|92|143|76|87|4|130|158|156|27|154|30|75|68|69|0|6|81|13|231|5|235|64,0>6:1,1,61,3,ec44d690499bc16e,8cfbfe0911187f92
+C5+A2,20261117,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,cdd406ccf3c1ed15,e7a1ca01f2a95540
+C5+A2,20261117,trained-AB,after-512,AC,complete,stable,,521,38,36,0|1|5|6|8|14|16|17|18|19|20|32|56|64|68|69|77|79|81|82|85|91|94|95|96|121|132|139|156|164|192|196|203|212|222|251,6790ef08543ed6d4,0|6|82|0|1|6|203|192|18|16|64|156|81|8|20|68|77|56|17|79|96|19|91|14|121|32|251|85|69|95|222|5|164|94|212|132|196|139,0>1:1,0,66,7,5d9831468bdbd270,eb7540f84cc0c54d
+C5+A2,20261117,trained-BA,after-512,AC,complete,stable,,561,37,34,0|1|4|5|6|13|15|27|30|32|49|64|68|69|70|71|75|76|81|82|87|92|128|130|143|149|154|156|158|161|165|193|231|235,1f1ffdbae6d40353,0|6|128|81|82|149|71|15|32|70|6|161|193|165|49|92|143|87|4|130|158|156|27|154|30|68|76|69|0|1|6|75|64|13|231|5|235,0>1:1,1,76,1,ec44d690499bc16e,065d0e8a3ae0237f
+C5+A2,20261117,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,cdd406ccf3c1ed15,6bf4a4b45254ec5f
+C5+A2,20261117,trained-AB,after-512,AA,complete,stable,,391,26,24,0|5|6|14|16|18|19|20|32|64|68|69|77|79|81|82|91|96|156|164|192|203|222|251,cd99cfa2ecf14056,0|6|82|0|6|203|192|18|16|64|156|20|68|77|81|79|96|19|91|14|32|251|69|222|5|164,0>6:2,0,51,5,5d9831468bdbd270,125380ef8e5582e6
+C5+A2,20261117,trained-BA,after-512,AA,complete,stable,,528,36,33,0|4|5|6|13|15|27|30|32|49|64|68|69|70|71|75|76|81|82|87|92|128|130|143|149|154|156|158|161|165|193|231|235,3844ca6dc1fad362,0|6|128|81|82|149|71|15|32|70|6|161|193|165|49|92|143|87|4|130|158|156|27|154|30|68|76|69|0|6|75|13|231|5|235|64,0>6:2,1,73,1,ec44d690499bc16e,df8da9c113927afd
+C5+A2,20261117,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,cdd406ccf3c1ed15,fa58804dc088f97f
+C5+A2,20261117,trained-AB,after-512,BB,complete,stable,,361,24,22,1|6|14|18|19|20|56|64|68|69|77|79|82|85|91|94|95|121|156|164|203|212,6c72e5fc8c71bff6,1|6|1|6|18|64|156|56|20|68|77|82|79|121|91|14|19|95|85|69|203|94|212|164,1>6:2,0,56,6,5d9831468bdbd270,089013e6a23b3519
+C5+A2,20261117,trained-BA,after-512,BB,complete,stable,,512,35,32,1|4|5|6|13|15|27|30|32|49|64|68|69|70|71|75|76|82|87|92|128|130|143|149|154|156|158|161|165|193|231|235,697d323249b74883,1|6|82|128|149|71|15|32|70|6|161|193|165|49|92|143|76|87|4|130|158|156|27|154|30|75|68|69|1|6|13|231|5|235|64,1>6:2,1,64,3,ec44d690499bc16e,a34a70658f40c5c9
+C5+A2,20261117,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,cdd406ccf3c1ed15,9b81ef702be1a457
+C5+A2,7,trained-AB,after-512,AB,complete,stable,,183,7,6,0|1|4|6|72|81,01f75742f6ef8959,0|6|81|72|4|1|6,0>6:1,0,36,0,c498481549c43f56,ca1639292d86e5ad
+C5+A2,7,trained-BA,after-512,AB,complete,stable,,325,19,18,0|1|2|5|6|10|14|16|45|69|73|79|136|140|161|162|197|200,2155f322f320d613,0|6|10|1|6|136|2|73|14|79|5|162|200|45|197|69|161|16|140,0>6:1,1,47,0,d9d23ef293df56d4,090a15dfe06cbc96
+C5+A2,7,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,2,6f92957fe14abcd1,26ca9ac24373a1ee
+C5+A2,7,trained-AB,after-512,BA,complete,stable,,183,7,6,0|1|4|6|72|81,5095035c0f3d33e9,1|6|81|72|4|0|6,0>6:1,0,34,0,c498481549c43f56,5087c12ca0e17317
+C5+A2,7,trained-BA,after-512,BA,complete,stable,,325,19,18,0|1|2|5|6|10|14|16|45|69|73|79|136|140|161|162|197|200,c93a533c285d9e03,1|6|10|0|6|136|2|73|14|79|5|162|200|45|197|69|161|16|140,0>6:1,1,45,0,d9d23ef293df56d4,0dfcca55bd3c80a2
+C5+A2,7,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,2,6f92957fe14abcd1,0633407bbdf4260a
+C5+A2,7,trained-AB,after-512,AC,complete,stable,,240,10,8,0|1|2|4|6|72|81|82,964c9782a41f4ca9,0|6|81|72|4|0|1|6|82|2,0>1:1,0,42,0,c498481549c43f56,92525ea62df12406
+C5+A2,7,trained-BA,after-512,AC,complete,stable,,369,21,19,0|1|2|5|6|10|14|16|34|45|69|73|79|136|140|161|162|197|200,90dcb2f0f7209521,0|6|10|0|1|6|16|136|2|73|34|14|79|5|162|200|45|197|69|161|140,0>1:1,2,55,1,d9d23ef293df56d4,ed53b34b2e4febfd
+C5+A2,7,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,3,6f92957fe14abcd1,37833bb8266d8168
+C5+A2,7,trained-AB,after-512,AA,complete,stable,,196,8,6,0|4|6|72|81|82,aa5f5ec997a7c30a,0|6|81|72|4|0|6|82,0>6:2,0,41,0,c498481549c43f56,2c9d5156f1330f4d
+C5+A2,7,trained-BA,after-512,AA,complete,stable,,338,20,18,0|2|5|6|10|14|16|34|45|69|73|79|136|140|161|162|197|200,2884ad7d6a87d760,0|6|10|0|6|16|136|2|73|34|14|79|5|162|200|45|197|69|161|140,0>6:2,2,53,2,d9d23ef293df56d4,8b911ab247510ecc
+C5+A2,7,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,2,6f92957fe14abcd1,6114e44ca2ad8ffb
+C5+A2,7,trained-AB,after-512,BB,complete,stable,,185,8,6,1|4|6|72|81|147,a061a18c8957008b,1|6|81|72|4|1|6|147,1>6:2,0,40,0,c498481549c43f56,c18d27862e2a1dc1
+C5+A2,7,trained-BA,after-512,BB,complete,stable,,314,18,16,1|2|5|6|10|14|45|69|73|79|136|140|161|162|197|200,fcc197e5ef061fd2,1|6|10|1|6|136|2|73|14|79|5|162|200|45|197|69|161|140,1>6:2,1,45,0,d9d23ef293df56d4,31bd5bc44e83b213
+C5+A2,7,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,2,6f92957fe14abcd1,641766ec7ad9fe8c
+C5+A2,42,trained-AB,after-512,AB,complete,stable,,497,29,27,0|1|2|3|6|12|33|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|190|218|222,1028f3b30116369b,0|6|138|82|86|141|70|0|95|77|136|2|66|218|85|131|94|190|130|1|6|67|222|133|68|76|3|12|33,0>6:1,0,41,2,49b08502d34494ac,3da7a4aaae0bb808
+C5+A2,42,trained-BA,after-512,AB,complete,stable,,268,14,13,0|1|4|5|6|65|68|75|132|135|144|151|185,51e53343205e75e6,0|6|65|132|68|5|185|151|1|6|144|75|135|4,0>6:1,0,51,1,da2d2cd6c938a7a9,7766f960ede338a9
+C5+A2,42,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,1570c72c8d671243,06bace7fb583ed87
+C5+A2,42,trained-AB,after-512,BA,complete,stable,,497,29,27,0|1|2|3|6|12|33|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|190|218|222,2ed3e2b60556f97b,1|6|82|0|86|141|70|136|2|138|95|77|66|85|131|67|94|190|130|76|68|3|133|33|0|6|218|222|12,0>6:1,0,47,2,49b08502d34494ac,b76576365376d76c
+C5+A2,42,trained-BA,after-512,BA,complete,stable,,268,14,13,0|1|4|5|6|65|68|75|132|135|144|151|185,9e7fd111e3148276,1|6|75|65|132|68|5|185|151|0|6|144|135|4,0>6:1,0,55,3,da2d2cd6c938a7a9,7ecf3311e1f885b9
+C5+A2,42,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,1570c72c8d671243,7cad5d761408f030
+C5+A2,42,trained-AB,after-512,AC,complete,stable,,541,31,28,0|1|2|3|6|12|33|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|155|190|218|222,e92c0830cbc870a0,0|6|138|82|86|141|70|0|95|77|136|2|66|218|85|131|94|190|130|0|1|6|155|67|222|133|68|76|3|12|33,0>1:1,0,58,1,49b08502d34494ac,e0f9ad319fb9c86f
+C5+A2,42,trained-BA,after-512,AC,complete,stable,,349,20,18,0|1|4|5|6|11|65|68|75|122|132|135|136|144|150|151|185|192,8bf74b799a967b19,0|6|65|132|68|5|185|151|0|1|6|144|75|135|4|136|192|150|11|122,0>1:1,0,70,4,da2d2cd6c938a7a9,5f1c0a6382a3fdc9
+C5+A2,42,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,1570c72c8d671243,e0c34a43c29426b9
+C5+A2,42,trained-AB,after-512,AA,complete,stable,,477,27,24,0|2|6|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|155|190|218|222,5b5caf8e85d2101f,0|6|138|82|86|141|70|0|95|77|136|2|66|218|85|131|94|190|130|0|6|155|222|133|68|76|67,0>6:2,0,55,1,49b08502d34494ac,7451c7326eb7380e
+C5+A2,42,trained-BA,after-512,AA,complete,stable,,264,14,12,0|4|5|6|65|68|75|132|135|144|151|185,0b904b7af204e977,0|6|65|132|68|5|185|151|0|6|144|135|4|75,0>6:2,0,58,2,da2d2cd6c938a7a9,a7bcb3860643c410
+C5+A2,42,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,1570c72c8d671243,2043d0530d096761
+C5+A2,42,trained-AB,after-512,BB,complete,stable,,501,29,27,0|1|2|3|6|12|33|66|67|68|70|75|76|77|82|85|86|94|95|130|131|133|136|138|141|190|222,527bf42ef03af37b,1|6|82|0|86|141|70|136|2|138|95|77|66|85|131|67|94|190|130|76|68|3|133|33|1|6|222|75|12,1>6:2,0,52,2,49b08502d34494ac,d27c2680cf001a98
+C5+A2,42,trained-BA,after-512,BB,complete,stable,,291,16,14,1|4|5|6|11|65|68|75|122|132|135|144|151|185,8f04b7bcdae24236,1|6|75|65|132|68|5|185|151|1|6|144|135|4|11|122,1>6:2,0,58,4,da2d2cd6c938a7a9,6b89ce5139109644
+C5+A2,42,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,1570c72c8d671243,94518abf3dc61fbd
+C5+A2,99,trained-AB,after-512,AB,complete,stable,,248,12,10,0|1|2|6|13|43|131|141|142|149,496ef7fb31322614,0|6|1|141|142|149|131|1|6|2|13|43,0>6:1,1,49,0,1aad229143dd16b2,16b2e927bae36890
+C5+A2,99,trained-BA,after-512,AB,complete,stable,,290,17,16,0|1|6|21|22|52|78|85|87|133|141|142|155|172|197|205,59b958e4590970c6,0|6|155|22|133|85|172|21|1|6|78|205|141|142|197|87|52,0>6:1,0,44,3,e0420bbdcea1b128,6dd6438d9ee74f1a
+C5+A2,99,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,a89501aa49cea400,c7328bfef3e06680
+C5+A2,99,trained-AB,after-512,BA,complete,stable,,248,12,10,0|1|2|6|13|43|131|141|142|149,2a08392f4520aee4,1|6|141|142|149|0|6|131|1|13|2|43,0>6:1,1,49,0,1aad229143dd16b2,9078b0f0923aaf0b
+C5+A2,99,trained-BA,after-512,BA,complete,stable,,290,17,16,0|1|6|21|22|52|78|85|87|133|141|142|155|172|197|205,6aca95a4571741f6,1|6|155|22|133|172|0|6|85|21|78|205|141|142|197|87|52,0>6:1,0,46,2,e0420bbdcea1b128,92706228019181e7
+C5+A2,99,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,a89501aa49cea400,e7357b340cf4a12b
+C5+A2,99,trained-AB,after-512,AC,complete,stable,,339,19,16,0|1|2|6|13|43|73|80|131|141|142|144|149|174|225|226,b739527ed0d48450,0|6|1|141|142|149|131|0|1|6|2|80|144|13|43|226|73|225|174,0>1:1,1,58,2,1aad229143dd16b2,bdb0360049ee22dd
+C5+A2,99,trained-BA,after-512,AC,complete,stable,,331,19,17,0|1|6|17|21|22|52|78|85|87|133|141|142|155|172|197|205,9be5d199dff944d7,0|6|155|22|133|85|172|21|0|1|6|78|205|141|142|197|87|52|17,0>1:1,0,48,3,e0420bbdcea1b128,0dad6950bfa3f26c
+C5+A2,99,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,a89501aa49cea400,fa0575363cdc9421
+C5+A2,99,trained-AB,after-512,AA,complete,stable,,294,17,15,0|1|2|6|13|43|80|131|141|142|144|149|174|225|226,c11eda285cfc1db8,0|6|1|141|142|149|131|0|6|2|80|144|13|43|226|225|174,0>6:2,1,47,2,1aad229143dd16b2,7bce964dd97f19f1
+C5+A2,99,trained-BA,after-512,AA,complete,stable,,300,18,16,0|6|17|21|22|52|78|85|87|133|141|142|155|172|197|205,c5edc84331f36506,0|6|155|22|133|85|172|21|0|6|78|205|141|142|197|87|52|17,0>6:2,0,43,2,e0420bbdcea1b128,068fee18e4587e5e
+C5+A2,99,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,a89501aa49cea400,a19a53e0de401a4e
+C5+A2,99,trained-AB,after-512,BB,complete,stable,,195,9,7,1|6|13|131|141|142|149,cd31eb8537a021ad,1|6|141|142|149|1|6|131|13,1>6:2,1,44,0,1aad229143dd16b2,2ea9509e94cfe49a
+C5+A2,99,trained-BA,after-512,BB,complete,stable,,293,17,15,1|6|21|22|52|78|85|87|133|141|142|155|172|197|205,7046be0807b80c47,1|6|155|22|133|172|1|6|21|85|78|205|141|142|197|87|52,1>6:2,0,46,2,e0420bbdcea1b128,9d2a9eaf4a21d8ed
+C5+A2,99,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,a89501aa49cea400,c41f4e8d2860d72e
+C5+A2,2026,trained-AB,after-512,AB,complete,stable,,436,30,28,0|1|2|6|7|8|24|66|67|71|77|79|84|86|88|97|120|134|135|138|147|150|188|198|207|235|245|254,02470cc1859eff7d,0|6|138|188|135|84|24|235|198|67|97|66|1|6|147|0|207|134|7|245|2|8|71|86|79|88|77|120|150|254,0>6:1,0,28,2,a83e86fcc09042ef,b05a6e7d90d50a1b
+C5+A2,2026,trained-BA,after-512,AB,complete,stable,,575,37,34,0|1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,b6b9ae3954b26ae7,0|6|129|208|27|150|149|7|66|219|205|130|187|10|75|194|140|2|193|1|106|147|83|230|1|6|11|12|79|13|69|222|78|6|151|87|135,0>6:1,3,58,3,7946454b753d1dda,1fcf824930c42a93
+C5+A2,2026,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,2b65d29cb75dd4ef,9fd2b8ab8d59e424
+C5+A2,2026,trained-AB,after-512,BA,complete,stable,,436,30,28,0|1|2|6|7|8|24|66|67|71|77|79|84|86|88|97|120|134|135|138|147|150|188|198|207|235|245|254,43d8762bc4f9df0d,1|6|67|0|135|84|138|66|188|198|24|235|97|147|0|6|2|8|207|134|7|245|86|71|79|88|77|120|150|254,0>6:1,0,29,0,a83e86fcc09042ef,dc5e71e17e2fdba7
+C5+A2,2026,trained-BA,after-512,BA,complete,stable,,575,37,34,0|1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,efae3d9415ea58d7,1|6|129|27|150|149|7|66|205|130|187|10|208|75|140|2|83|106|230|0|6|194|219|147|1|12|79|13|193|11|69|222|78|6|151|87|135,0>6:1,3,60,3,7946454b753d1dda,4a6f1e16328f1696
+C5+A2,2026,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,2b65d29cb75dd4ef,a983b9b8a84d4ddf
+C5+A2,2026,trained-AB,after-512,AC,complete,stable,,509,35,32,0|1|2|6|7|8|24|36|66|67|71|73|77|79|84|86|88|97|120|134|135|136|138|144|147|150|188|198|207|235|245|254,2a2de4e23b577eb8,0|6|138|188|135|84|24|235|198|67|97|66|0|1|6|147|8|2|0|207|134|7|245|86|136|71|79|88|77|73|36|120|150|144|254,0>1:1,0,43,1,a83e86fcc09042ef,b784e08f38f76e35
+C5+A2,2026,trained-BA,after-512,AC,complete,stable,,630,39,35,0|1|2|6|7|10|11|12|13|27|66|69|72|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,dd47362b7b0e871f,0|6|129|208|27|150|149|7|66|219|205|130|187|10|75|194|140|2|193|1|106|147|83|230|0|1|6|11|12|79|13|69|222|78|6|72|151|87|135,0>1:1,3,67,2,7946454b753d1dda,346b67c1d2505108
+C5+A2,2026,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,2b65d29cb75dd4ef,c968fc200847719b
+C5+A2,2026,trained-AB,after-512,AA,complete,stable,,427,29,26,0|2|6|7|8|24|66|67|71|77|79|84|86|88|97|120|134|135|138|150|188|198|207|235|245|254,e7d16adcbf1016ef,0|6|138|188|135|84|24|235|198|67|97|66|0|6|207|134|7|245|71|86|79|8|88|77|120|0|150|2|254,0>6:2,0,41,3,a83e86fcc09042ef,8544fccf5093bbac
+C5+A2,2026,trained-BA,after-512,AA,complete,stable,,578,37,34,0|1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,8d94f7564be018e6,0|6|129|208|27|150|149|7|66|219|205|130|187|10|75|194|140|2|193|1|106|147|83|230|0|6|12|79|13|69|11|222|78|6|151|87|135,0>6:2,3,62,3,7946454b753d1dda,85deb8aed8abca56
+C5+A2,2026,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,2b65d29cb75dd4ef,152d83e8140e7f6e
+C5+A2,2026,trained-AB,after-512,BB,complete,stable,,562,39,36,0|1|2|6|7|8|15|22|24|30|66|67|70|71|77|79|84|86|88|97|119|120|134|135|138|147|150|160|188|198|207|215|217|235|245|254,597d0366452faf42,1|6|67|0|135|84|138|66|188|198|24|235|97|147|1|6|8|2|207|134|7|245|86|71|79|88|77|15|120|150|6|22|215|254|70|30|217|160|119,1>6:2,0,55,3,a83e86fcc09042ef,ab9c24e0086a9dfd
+C5+A2,2026,trained-BA,after-512,BB,complete,stable,,512,33,30,1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|140|147|149|150|151|187|205|208|219|222|230,e2fbbfc8466dfe63,1|6|129|27|150|149|7|66|205|130|187|10|208|75|140|2|83|106|230|1|6|11|147|12|79|13|219|69|222|78|6|151|87,1>6:2,1,57,3,7946454b753d1dda,c01dade31a55ec30
+C5+A2,2026,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,2b65d29cb75dd4ef,3d50f8eee252f7aa
+C5+A2,314159,trained-AB,after-512,AB,complete,stable,,306,16,15,0|1|3|4|6|10|12|13|67|70|78|80|86|133|209,665dd0cc742523c1,0|6|10|86|133|3|13|1|6|80|78|12|209|70|4|67,0>6:1,0,42,1,9a71227ace1e1311,11388f36c6781b20
+C5+A2,314159,trained-BA,after-512,AB,complete,stable,,331,20,19,0|1|6|9|10|20|69|72|77|80|128|132|133|137|196|197|205|220|223,3bf69f50d4857b84,0|6|10|128|137|9|72|223|133|80|1|6|220|132|69|77|197|205|196|20,0>6:1,0,45,1,e27cd65877ab1255,dba6d1956ed019fe
+C5+A2,314159,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,f7e8bdb0ec0e364b,f5b7ecba6cf69dac
+C5+A2,314159,trained-AB,after-512,BA,complete,stable,,306,16,15,0|1|3|4|6|10|12|13|67|70|78|80|86|133|209,44e23d9cede2a1a1,1|6|10|86|133|3|13|78|0|6|80|12|70|209|4|67,0>6:1,0,42,1,9a71227ace1e1311,93fc45effe9b8c72
+C5+A2,314159,trained-BA,after-512,BA,complete,stable,,331,20,19,0|1|6|9|10|20|69|72|77|80|128|132|133|137|196|197|205|220|223,5db3510dd73475c4,1|6|137|9|10|72|223|133|80|128|0|6|220|132|69|77|197|205|196|20,0>6:1,0,50,1,e27cd65877ab1255,c29b58e32fa09665
+C5+A2,314159,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,f7e8bdb0ec0e364b,e88c344db3f75337
+C5+A2,314159,trained-AB,after-512,AC,complete,stable,,433,27,25,0|1|3|4|6|9|10|12|13|17|24|47|60|65|67|70|78|80|86|133|144|189|190|209|254,0ad0a113a972476e,0|6|10|86|133|3|13|0|1|6|80|60|47|144|65|78|12|209|9|70|4|67|17|190|24|189|254,0>1:1,0,55,1,9a71227ace1e1311,82d9b7ce72ba153f
+C5+A2,314159,trained-BA,after-512,AC,complete,stable,,387,24,22,0|1|6|9|10|20|69|72|77|80|103|122|128|130|132|133|137|196|197|205|220|223,720414076835c7fb,0|6|10|128|137|9|72|223|133|80|0|1|6|220|132|69|77|197|205|196|20|130|122|103,0>1:1,0,55,1,e27cd65877ab1255,6bb404c9273ff936
+C5+A2,314159,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,f7e8bdb0ec0e364b,f8eaf1f2051a7a70
+C5+A2,314159,trained-AB,after-512,AA,complete,stable,,347,21,19,0|3|4|6|10|12|13|47|60|67|70|78|80|86|133|189|190|209|254,737e0351bedf3cde,0|6|10|86|133|3|13|0|6|80|60|47|12|78|209|4|70|67|190|189|254,0>6:2,0,48,3,9a71227ace1e1311,5047ad7ed51e6531
+C5+A2,314159,trained-BA,after-512,AA,complete,stable,,325,20,18,0|6|9|10|20|69|72|77|80|128|132|133|137|196|197|205|220|223,a6c81bf443a46c85,0|6|10|128|137|9|72|223|133|80|0|6|220|132|69|77|197|205|196|20,0>6:2,0,47,1,e27cd65877ab1255,f01910fee97c30c0
+C5+A2,314159,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,f7e8bdb0ec0e364b,6decc8c27127f956
+C5+A2,314159,trained-AB,after-512,BB,complete,stable,,308,16,14,1|3|4|6|10|12|13|67|70|78|80|86|133|209,2c7b2a65452b7b10,1|6|10|86|133|3|13|78|1|6|80|67|12|70|209|4,1>6:2,0,51,0,9a71227ace1e1311,9cb662c5af69905e
+C5+A2,314159,trained-BA,after-512,BB,complete,stable,,352,22,20,1|6|9|10|20|69|72|77|80|128|132|133|137|139|196|197|205|220|223|231,4924efabd819f7d9,1|6|137|9|10|72|223|133|80|128|1|6|220|132|69|77|197|205|196|20|139|231,1>6:2,0,57,2,e27cd65877ab1255,9b44d5d1e24f609c
+C5+A2,314159,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,f7e8bdb0ec0e364b,30e89965cee941fe
+C5+A3,20261117,trained-AB,after-512,AB,complete,stable,,419,30,29,0|1|5|6|14|18|19|20|32|56|64|68|69|77|79|82|85|91|94|95|96|121|156|164|192|203|212|222|251,f235572218b06f17,0|6|82|1|6|18|64|156|203|20|68|77|56|79|19|192|91|14|121|96|85|69|95|32|251|5|164|94|212|222,0>6:1,2,51,5,39dd4e909a685358,0190035a01a7edb6
+C5+A3,20261117,trained-BA,after-512,AB,complete,stable,,444,32,31,0|1|6|7|10|14|59|61|65|71|72|73|79|82|97|128|134|136|146|147|148|155|156|157|173|203|209|217|228|246|253,dc6132b7b336c1aa,0|6|10|7|156|79|253|71|14|72|217|155|59|146|228|73|61|157|82|128|209|136|97|1|6|147|65|134|246|148|173|203,0>6:1,2,49,8,f840ca1a28ac1232,cd587caa8a1b9d85
+C5+A3,20261117,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,ed05be8c2c701b1b,574d270ec4b3bf59
+C5+A3,20261117,trained-AB,after-512,BA,complete,stable,,419,30,29,0|1|5|6|14|18|19|20|32|56|64|68|69|77|79|82|85|91|94|95|96|121|156|164|192|203|212|222|251,d3f62d67dffb26a7,1|6|0|6|82|18|64|156|203|20|68|77|56|79|19|192|91|14|121|96|85|69|95|32|251|5|164|94|212|222,0>6:1,2,53,5,39dd4e909a685358,c98355d61a24f41d
+C5+A3,20261117,trained-BA,after-512,BA,complete,stable,,444,32,31,0|1|6|7|10|14|59|61|65|71|72|73|79|82|97|128|134|136|146|147|148|155|156|157|173|203|209|217|228|246|253,c1623eba7b917a1a,1|6|147|10|156|79|7|155|209|253|59|71|14|72|217|146|61|157|228|73|82|128|136|97|0|6|65|148|134|246|203|173,0>6:1,2,41,3,f840ca1a28ac1232,27e9f5009852d814
+C5+A3,20261117,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,ed05be8c2c701b1b,3967395738a9588e
+C5+A3,20261117,trained-AB,after-512,AC,complete,stable,,521,38,36,0|1|5|6|8|14|16|17|18|19|20|32|56|64|68|69|77|79|81|82|85|91|94|95|96|121|132|139|156|164|192|196|203|212|222|251,6790ef08543ed6d4,0|6|82|0|1|6|203|192|18|16|64|156|81|8|20|68|77|56|17|79|96|19|91|14|121|32|251|85|69|95|222|5|164|94|212|132|196|139,0>1:1,2,64,7,39dd4e909a685358,5830efd363c303ad
+C5+A3,20261117,trained-BA,after-512,AC,complete,stable,,512,38,36,0|1|6|7|10|14|43|59|61|65|71|72|73|79|82|97|109|128|134|136|146|147|148|155|156|157|173|180|203|204|209|217|228|233|246|253,b769886c866a6dfd,0|6|10|7|156|79|253|71|14|72|217|155|59|146|228|73|61|157|82|128|209|136|97|0|1|6|203|65|147|134|246|148|173|180|109|233|204|43,0>1:1,3,57,6,f840ca1a28ac1232,19a2771317f79a68
+C5+A3,20261117,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,ed05be8c2c701b1b,2f5d19f5db22639d
+C5+A3,20261117,trained-AB,after-512,AA,complete,stable,,391,26,24,0|5|6|14|16|18|19|20|32|64|68|69|77|79|81|82|91|96|156|164|192|203|222|251,cd99cfa2ecf14056,0|6|82|0|6|203|192|18|16|64|156|20|68|77|81|79|96|19|91|14|32|251|69|222|5|164,0>6:2,1,50,5,39dd4e909a685358,767013a1c389d3bc
+C5+A3,20261117,trained-BA,after-512,AA,complete,stable,,457,35,33,0|6|7|10|14|43|59|61|65|71|72|73|79|82|97|109|128|134|136|146|155|156|157|173|180|203|204|209|217|228|233|246|253,d60b15cfd1dd151b,0|6|10|7|156|79|253|71|14|72|217|155|59|146|228|73|61|157|82|128|209|136|97|0|6|203|65|134|246|173|180|109|233|43|204,0>6:2,3,51,7,f840ca1a28ac1232,7d67fc6c24a86b9e
+C5+A3,20261117,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,ed05be8c2c701b1b,fecb36aa6976e241
+C5+A3,20261117,trained-AB,after-512,BB,complete,stable,,361,24,22,1|6|14|18|19|20|56|64|68|69|77|79|82|85|91|94|95|121|156|164|203|212,6c72e5fc8c71bff6,1|6|1|6|18|64|156|56|20|68|77|82|79|121|91|14|19|95|85|69|203|94|212|164,1>6:2,1,55,6,39dd4e909a685358,150da99d5db388f5
+C5+A3,20261117,trained-BA,after-512,BB,complete,stable,,453,32,30,1|6|7|10|14|59|61|65|71|72|73|76|79|82|97|128|134|136|146|147|148|155|156|157|173|209|217|228|246|253,317b50217e07e1bc,1|6|147|10|156|79|7|155|209|253|59|71|14|72|217|146|61|157|228|73|82|128|136|97|1|6|65|148|134|76|246|173,1>6:2,2,42,3,f840ca1a28ac1232,74c137838405abc4
+C5+A3,20261117,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,ed05be8c2c701b1b,bd2245ebbe6994b5
+C5+A3,7,trained-AB,after-512,AB,complete,stable,,183,7,6,0|1|4|6|72|81,01f75742f6ef8959,0|6|81|72|4|1|6,0>6:1,0,36,0,9ad6ec2bc9423304,4b2c7b330a50997a
+C5+A3,7,trained-BA,after-512,AB,complete,stable,,325,19,18,0|1|2|5|6|10|14|16|45|69|73|79|136|140|161|162|197|200,2155f322f320d613,0|6|10|1|6|136|2|73|14|79|5|162|200|45|197|69|161|16|140,0>6:1,1,47,0,7ab03e2e80e3d9ff,5e33ef8df29fa76f
+C5+A3,7,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,2,a3a9920eeebe71cf,e822e9247bc5d2b0
+C5+A3,7,trained-AB,after-512,BA,complete,stable,,183,7,6,0|1|4|6|72|81,5095035c0f3d33e9,1|6|81|72|4|0|6,0>6:1,0,34,0,9ad6ec2bc9423304,7475f6138f4087f8
+C5+A3,7,trained-BA,after-512,BA,complete,stable,,325,19,18,0|1|2|5|6|10|14|16|45|69|73|79|136|140|161|162|197|200,c93a533c285d9e03,1|6|10|0|6|136|2|73|14|79|5|162|200|45|197|69|161|16|140,0>6:1,1,45,0,7ab03e2e80e3d9ff,4a9add0fc6575163
+C5+A3,7,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,2,a3a9920eeebe71cf,b21d6cdbdc0575f4
+C5+A3,7,trained-AB,after-512,AC,complete,stable,,240,10,8,0|1|2|4|6|72|81|82,964c9782a41f4ca9,0|6|81|72|4|0|1|6|82|2,0>1:1,1,41,0,9ad6ec2bc9423304,1c3684826181751b
+C5+A3,7,trained-BA,after-512,AC,complete,stable,,369,21,19,0|1|2|5|6|10|14|16|34|45|69|73|79|136|140|161|162|197|200,90dcb2f0f7209521,0|6|10|0|1|6|16|136|2|73|34|14|79|5|162|200|45|197|69|161|140,0>1:1,2,55,1,7ab03e2e80e3d9ff,e450d8bd91f1cb44
+C5+A3,7,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,3,a3a9920eeebe71cf,dc1298c869663402
+C5+A3,7,trained-AB,after-512,AA,complete,stable,,196,8,6,0|4|6|72|81|82,aa5f5ec997a7c30a,0|6|81|72|4|0|6|82,0>6:2,1,40,0,9ad6ec2bc9423304,93e7e871176d9921
+C5+A3,7,trained-BA,after-512,AA,complete,stable,,338,20,18,0|2|5|6|10|14|16|34|45|69|73|79|136|140|161|162|197|200,2884ad7d6a87d760,0|6|10|0|6|16|136|2|73|34|14|79|5|162|200|45|197|69|161|140,0>6:2,2,53,2,7ab03e2e80e3d9ff,495f486c05fb356c
+C5+A3,7,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,2,a3a9920eeebe71cf,70c24511b95db955
+C5+A3,7,trained-AB,after-512,BB,complete,stable,,185,8,6,1|4|6|72|81|147,a061a18c8957008b,1|6|81|72|4|1|6|147,1>6:2,0,40,0,9ad6ec2bc9423304,24e8c4f077867851
+C5+A3,7,trained-BA,after-512,BB,complete,stable,,314,18,16,1|2|5|6|10|14|45|69|73|79|136|140|161|162|197|200,fcc197e5ef061fd2,1|6|10|1|6|136|2|73|14|79|5|162|200|45|197|69|161|140,1>6:2,1,45,0,7ab03e2e80e3d9ff,3855c5deb69cfd22
+C5+A3,7,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,2,a3a9920eeebe71cf,5c6f8813d7ca9fee
+C5+A3,42,trained-AB,after-512,AB,complete,stable,,497,29,27,0|1|2|3|6|12|33|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|190|218|222,1028f3b30116369b,0|6|138|82|86|141|70|0|95|77|136|2|66|218|85|131|94|190|130|1|6|67|222|133|68|76|3|12|33,0>6:1,1,40,2,7e67074b95d1484f,de471022739c367a
+C5+A3,42,trained-BA,after-512,AB,complete,stable,,268,14,13,0|1|4|5|6|65|68|75|132|135|144|151|185,51e53343205e75e6,0|6|65|132|68|5|185|151|1|6|144|75|135|4,0>6:1,0,51,1,6e92ec04c3eb03ce,58c34383a8fd82b5
+C5+A3,42,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,8a2fddb228d1855d,3de5c839057b98c9
+C5+A3,42,trained-AB,after-512,BA,complete,stable,,497,29,27,0|1|2|3|6|12|33|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|190|218|222,2ed3e2b60556f97b,1|6|82|0|86|141|70|136|2|138|95|77|66|85|131|67|94|190|130|76|68|3|133|33|0|6|218|222|12,0>6:1,1,46,2,7e67074b95d1484f,f894a70352bf9c66
+C5+A3,42,trained-BA,after-512,BA,complete,stable,,268,14,13,0|1|4|5|6|65|68|75|132|135|144|151|185,9e7fd111e3148276,1|6|75|65|132|68|5|185|151|0|6|144|135|4,0>6:1,0,55,3,6e92ec04c3eb03ce,1df7274dadb5aa04
+C5+A3,42,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,8a2fddb228d1855d,4c75d26b73f268fe
+C5+A3,42,trained-AB,after-512,AC,complete,stable,,541,31,28,0|1|2|3|6|12|33|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|155|190|218|222,e92c0830cbc870a0,0|6|138|82|86|141|70|0|95|77|136|2|66|218|85|131|94|190|130|0|1|6|155|67|222|133|68|76|3|12|33,0>1:1,1,57,1,7e67074b95d1484f,2c53163c1d357415
+C5+A3,42,trained-BA,after-512,AC,complete,stable,,349,20,18,0|1|4|5|6|11|65|68|75|122|132|135|136|144|150|151|185|192,8bf74b799a967b19,0|6|65|132|68|5|185|151|0|1|6|144|75|135|4|136|192|150|11|122,0>1:1,0,70,4,6e92ec04c3eb03ce,fa5508a728447d4c
+C5+A3,42,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,8a2fddb228d1855d,8dac8678616081d3
+C5+A3,42,trained-AB,after-512,AA,complete,stable,,477,27,24,0|2|6|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|155|190|218|222,5b5caf8e85d2101f,0|6|138|82|86|141|70|0|95|77|136|2|66|218|85|131|94|190|130|0|6|155|222|133|68|76|67,0>6:2,1,54,1,7e67074b95d1484f,7d1a9ec827cefd24
+C5+A3,42,trained-BA,after-512,AA,complete,stable,,264,14,12,0|4|5|6|65|68|75|132|135|144|151|185,0b904b7af204e977,0|6|65|132|68|5|185|151|0|6|144|135|4|75,0>6:2,0,58,2,6e92ec04c3eb03ce,b4e1f6351c69946b
+C5+A3,42,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,8a2fddb228d1855d,e138c286749e361f
+C5+A3,42,trained-AB,after-512,BB,complete,stable,,501,29,27,0|1|2|3|6|12|33|66|67|68|70|75|76|77|82|85|86|94|95|130|131|133|136|138|141|190|222,527bf42ef03af37b,1|6|82|0|86|141|70|136|2|138|95|77|66|85|131|67|94|190|130|76|68|3|133|33|1|6|222|75|12,1>6:2,1,51,2,7e67074b95d1484f,8f81772add679111
+C5+A3,42,trained-BA,after-512,BB,complete,stable,,291,16,14,1|4|5|6|11|65|68|75|122|132|135|144|151|185,8f04b7bcdae24236,1|6|75|65|132|68|5|185|151|1|6|144|135|4|11|122,1>6:2,0,58,4,6e92ec04c3eb03ce,443ab38731716988
+C5+A3,42,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,8a2fddb228d1855d,310b6f1e6bfae81f
+C5+A3,99,trained-AB,after-512,AB,complete,stable,,248,12,10,0|1|2|6|13|43|131|141|142|149,496ef7fb31322614,0|6|1|141|142|149|131|1|6|2|13|43,0>6:1,1,49,0,c094a117b60f81b7,7f467ae3ab69d23a
+C5+A3,99,trained-BA,after-512,AB,complete,stable,,290,17,16,0|1|6|21|22|52|78|85|87|133|141|142|155|172|197|205,59b958e4590970c6,0|6|155|22|133|85|172|21|1|6|78|205|141|142|197|87|52,0>6:1,2,42,3,5a9d85939e1f02e8,78f0ec06fa93d79c
+C5+A3,99,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,920cbf212fa7483e,bfc8dc4e3a3d67ce
+C5+A3,99,trained-AB,after-512,BA,complete,stable,,248,12,10,0|1|2|6|13|43|131|141|142|149,2a08392f4520aee4,1|6|141|142|149|0|6|131|1|13|2|43,0>6:1,1,49,0,c094a117b60f81b7,c7ffe29d0a553a7d
+C5+A3,99,trained-BA,after-512,BA,complete,stable,,290,17,16,0|1|6|21|22|52|78|85|87|133|141|142|155|172|197|205,6aca95a4571741f6,1|6|155|22|133|172|0|6|85|21|78|205|141|142|197|87|52,0>6:1,2,44,2,5a9d85939e1f02e8,0f71ac2f46cf063c
+C5+A3,99,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,920cbf212fa7483e,6430c0b4f1594025
+C5+A3,99,trained-AB,after-512,AC,complete,stable,,339,19,16,0|1|2|6|13|43|73|80|131|141|142|144|149|174|225|226,b739527ed0d48450,0|6|1|141|142|149|131|0|1|6|2|80|144|13|43|226|73|225|174,0>1:1,1,58,2,c094a117b60f81b7,84f11a8d6c06e3b5
+C5+A3,99,trained-BA,after-512,AC,complete,stable,,331,19,17,0|1|6|17|21|22|52|78|85|87|133|141|142|155|172|197|205,9be5d199dff944d7,0|6|155|22|133|85|172|21|0|1|6|78|205|141|142|197|87|52|17,0>1:1,3,45,3,5a9d85939e1f02e8,ea3fcd0311739f5f
+C5+A3,99,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,920cbf212fa7483e,66b4157a76284cfb
+C5+A3,99,trained-AB,after-512,AA,complete,stable,,294,17,15,0|1|2|6|13|43|80|131|141|142|144|149|174|225|226,c11eda285cfc1db8,0|6|1|141|142|149|131|0|6|2|80|144|13|43|226|225|174,0>6:2,1,47,2,c094a117b60f81b7,d7f2697d243d733f
+C5+A3,99,trained-BA,after-512,AA,complete,stable,,300,18,16,0|6|17|21|22|52|78|85|87|133|141|142|155|172|197|205,c5edc84331f36506,0|6|155|22|133|85|172|21|0|6|78|205|141|142|197|87|52|17,0>6:2,2,41,2,5a9d85939e1f02e8,68671955ce87803d
+C5+A3,99,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,920cbf212fa7483e,0d1ad6d7130f8f08
+C5+A3,99,trained-AB,after-512,BB,complete,stable,,195,9,7,1|6|13|131|141|142|149,cd31eb8537a021ad,1|6|141|142|149|1|6|131|13,1>6:2,1,44,0,c094a117b60f81b7,c4ff0cd50c0060c7
+C5+A3,99,trained-BA,after-512,BB,complete,stable,,293,17,15,1|6|21|22|52|78|85|87|133|141|142|155|172|197|205,7046be0807b80c47,1|6|155|22|133|172|1|6|21|85|78|205|141|142|197|87|52,1>6:2,2,44,2,5a9d85939e1f02e8,e7388948aab56c13
+C5+A3,99,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,920cbf212fa7483e,4986ee0ef46a94fc
+C5+A3,2026,trained-AB,after-512,AB,complete,stable,,436,30,28,0|1|2|6|7|8|24|66|67|71|77|79|84|86|88|97|120|134|135|138|147|150|188|198|207|235|245|254,02470cc1859eff7d,0|6|138|188|135|84|24|235|198|67|97|66|1|6|147|0|207|134|7|245|2|8|71|86|79|88|77|120|150|254,0>6:1,0,28,2,62f2a2e5f804acae,b957aef5e34def84
+C5+A3,2026,trained-BA,after-512,AB,complete,stable,,575,37,34,0|1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,b6b9ae3954b26ae7,0|6|129|208|27|150|149|7|66|219|205|130|187|10|75|194|140|2|193|1|106|147|83|230|1|6|11|12|79|13|69|222|78|6|151|87|135,0>6:1,3,58,3,8e9f22c7dbcf1d93,c0fe54e064da3721
+C5+A3,2026,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,56c3804d3125e071,1f1b97f4f22e71da
+C5+A3,2026,trained-AB,after-512,BA,complete,stable,,436,30,28,0|1|2|6|7|8|24|66|67|71|77|79|84|86|88|97|120|134|135|138|147|150|188|198|207|235|245|254,43d8762bc4f9df0d,1|6|67|0|135|84|138|66|188|198|24|235|97|147|0|6|2|8|207|134|7|245|86|71|79|88|77|120|150|254,0>6:1,0,29,0,62f2a2e5f804acae,7ebf91812310ef7f
+C5+A3,2026,trained-BA,after-512,BA,complete,stable,,575,37,34,0|1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,efae3d9415ea58d7,1|6|129|27|150|149|7|66|205|130|187|10|208|75|140|2|83|106|230|0|6|194|219|147|1|12|79|13|193|11|69|222|78|6|151|87|135,0>6:1,3,60,3,8e9f22c7dbcf1d93,2bb95dda93a22b1e
+C5+A3,2026,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,56c3804d3125e071,bb762a67cb3c9d01
+C5+A3,2026,trained-AB,after-512,AC,complete,stable,,509,35,32,0|1|2|6|7|8|24|36|66|67|71|73|77|79|84|86|88|97|120|134|135|136|138|144|147|150|188|198|207|235|245|254,2a2de4e23b577eb8,0|6|138|188|135|84|24|235|198|67|97|66|0|1|6|147|8|2|0|207|134|7|245|86|136|71|79|88|77|73|36|120|150|144|254,0>1:1,0,43,1,62f2a2e5f804acae,bf81d4f7188040d2
+C5+A3,2026,trained-BA,after-512,AC,complete,stable,,630,39,35,0|1|2|6|7|10|11|12|13|27|66|69|72|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,dd47362b7b0e871f,0|6|129|208|27|150|149|7|66|219|205|130|187|10|75|194|140|2|193|1|106|147|83|230|0|1|6|11|12|79|13|69|222|78|6|72|151|87|135,0>1:1,3,67,2,8e9f22c7dbcf1d93,01d502cd65ce97f8
+C5+A3,2026,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,56c3804d3125e071,997a2e7c79911941
+C5+A3,2026,trained-AB,after-512,AA,complete,stable,,427,29,26,0|2|6|7|8|24|66|67|71|77|79|84|86|88|97|120|134|135|138|150|188|198|207|235|245|254,e7d16adcbf1016ef,0|6|138|188|135|84|24|235|198|67|97|66|0|6|207|134|7|245|71|86|79|8|88|77|120|0|150|2|254,0>6:2,0,41,3,62f2a2e5f804acae,5d861c355c7c2fbd
+C5+A3,2026,trained-BA,after-512,AA,complete,stable,,578,37,34,0|1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,8d94f7564be018e6,0|6|129|208|27|150|149|7|66|219|205|130|187|10|75|194|140|2|193|1|106|147|83|230|0|6|12|79|13|69|11|222|78|6|151|87|135,0>6:2,3,62,3,8e9f22c7dbcf1d93,19325c65fad1cd65
+C5+A3,2026,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,56c3804d3125e071,a236add438b12f28
+C5+A3,2026,trained-AB,after-512,BB,complete,stable,,562,39,36,0|1|2|6|7|8|15|22|24|30|66|67|70|71|77|79|84|86|88|97|119|120|134|135|138|147|150|160|188|198|207|215|217|235|245|254,597d0366452faf42,1|6|67|0|135|84|138|66|188|198|24|235|97|147|1|6|8|2|207|134|7|245|86|71|79|88|77|15|120|150|6|22|215|254|70|30|217|160|119,1>6:2,0,55,3,62f2a2e5f804acae,08a70afd5bab44d9
+C5+A3,2026,trained-BA,after-512,BB,complete,stable,,512,33,30,1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|140|147|149|150|151|187|205|208|219|222|230,e2fbbfc8466dfe63,1|6|129|27|150|149|7|66|205|130|187|10|208|75|140|2|83|106|230|1|6|11|147|12|79|13|219|69|222|78|6|151|87,1>6:2,1,57,3,8e9f22c7dbcf1d93,628badfe5e1e7451
+C5+A3,2026,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,56c3804d3125e071,d27e2ee1786853f0
+C5+A3,314159,trained-AB,after-512,AB,complete,stable,,306,16,15,0|1|3|4|6|10|12|13|67|70|78|80|86|133|209,665dd0cc742523c1,0|6|10|86|133|3|13|1|6|80|78|12|209|70|4|67,0>6:1,0,42,1,b9629a10f9cb19ac,f30776cae4bf0a91
+C5+A3,314159,trained-BA,after-512,AB,complete,stable,,331,20,19,0|1|6|9|10|20|69|72|77|80|128|132|133|137|196|197|205|220|223,3bf69f50d4857b84,0|6|10|128|137|9|72|223|133|80|1|6|220|132|69|77|197|205|196|20,0>6:1,0,45,1,bd44e695988accf8,846aa5af8164740d
+C5+A3,314159,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,c49ebccfc112d285,c4d023de42ab0482
+C5+A3,314159,trained-AB,after-512,BA,complete,stable,,306,16,15,0|1|3|4|6|10|12|13|67|70|78|80|86|133|209,44e23d9cede2a1a1,1|6|10|86|133|3|13|78|0|6|80|12|70|209|4|67,0>6:1,0,42,1,b9629a10f9cb19ac,e7bcb00d99d52dd0
+C5+A3,314159,trained-BA,after-512,BA,complete,stable,,331,20,19,0|1|6|9|10|20|69|72|77|80|128|132|133|137|196|197|205|220|223,5db3510dd73475c4,1|6|137|9|10|72|223|133|80|128|0|6|220|132|69|77|197|205|196|20,0>6:1,0,50,1,bd44e695988accf8,44eda368a54fb954
+C5+A3,314159,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,c49ebccfc112d285,2d5227d4ffd49d19
+C5+A3,314159,trained-AB,after-512,AC,complete,stable,,433,27,25,0|1|3|4|6|9|10|12|13|17|24|47|60|65|67|70|78|80|86|133|144|189|190|209|254,0ad0a113a972476e,0|6|10|86|133|3|13|0|1|6|80|60|47|144|65|78|12|209|9|70|4|67|17|190|24|189|254,0>1:1,0,55,1,b9629a10f9cb19ac,5c6997abc47aa1a3
+C5+A3,314159,trained-BA,after-512,AC,complete,stable,,387,24,22,0|1|6|9|10|20|69|72|77|80|103|122|128|130|132|133|137|196|197|205|220|223,720414076835c7fb,0|6|10|128|137|9|72|223|133|80|0|1|6|220|132|69|77|197|205|196|20|130|122|103,0>1:1,0,55,1,bd44e695988accf8,796a615a3fee5837
+C5+A3,314159,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,c49ebccfc112d285,85091b6df2fbabca
+C5+A3,314159,trained-AB,after-512,AA,complete,stable,,347,21,19,0|3|4|6|10|12|13|47|60|67|70|78|80|86|133|189|190|209|254,737e0351bedf3cde,0|6|10|86|133|3|13|0|6|80|60|47|12|78|209|4|70|67|190|189|254,0>6:2,0,48,3,b9629a10f9cb19ac,60e31a9a3951ac70
+C5+A3,314159,trained-BA,after-512,AA,complete,stable,,325,20,18,0|6|9|10|20|69|72|77|80|128|132|133|137|196|197|205|220|223,a6c81bf443a46c85,0|6|10|128|137|9|72|223|133|80|0|6|220|132|69|77|197|205|196|20,0>6:2,0,47,1,bd44e695988accf8,3222f9709541aa8f
+C5+A3,314159,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,c49ebccfc112d285,7cdf6dc3c84d7630
+C5+A3,314159,trained-AB,after-512,BB,complete,stable,,308,16,14,1|3|4|6|10|12|13|67|70|78|80|86|133|209,2c7b2a65452b7b10,1|6|10|86|133|3|13|78|1|6|80|67|12|70|209|4,1>6:2,0,51,0,b9629a10f9cb19ac,42788e70a968e68c
+C5+A3,314159,trained-BA,after-512,BB,complete,stable,,352,22,20,1|6|9|10|20|69|72|77|80|128|132|133|137|139|196|197|205|220|223|231,4924efabd819f7d9,1|6|137|9|10|72|223|133|80|128|1|6|220|132|69|77|197|205|196|20|139|231,1>6:2,0,57,2,bd44e695988accf8,bd95cf7acf4dfca4
+C5+A3,314159,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,c49ebccfc112d285,08d5f8e9a422d18c
+C5+A4,20261117,trained-AB,after-512,AB,complete,stable,,419,30,29,0|1|5|6|14|18|19|20|32|56|64|68|69|77|79|82|85|91|94|95|96|121|156|164|192|203|212|222|251,f235572218b06f17,0|6|82|1|6|18|64|156|203|20|68|77|56|79|19|192|91|14|121|96|85|69|95|32|251|5|164|94|212|222,0>6:1,5,48,5,73e736bf73cfb1b7,95bb39d767be8106
+C5+A4,20261117,trained-BA,after-512,AB,complete,stable,,444,32,31,0|1|6|7|10|14|59|61|65|71|72|73|79|82|97|128|134|136|146|147|148|155|156|157|173|203|209|217|228|246|253,dc6132b7b336c1aa,0|6|10|7|156|79|253|71|14|72|217|155|59|146|228|73|61|157|82|128|209|136|97|1|6|147|65|134|246|148|173|203,0>6:1,5,46,8,94aa4f77e361b550,4898037a0796320b
+C5+A4,20261117,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,2b8c626f32b40a87,b5786a2cd7357295
+C5+A4,20261117,trained-AB,after-512,BA,complete,stable,,419,30,29,0|1|5|6|14|18|19|20|32|56|64|68|69|77|79|82|85|91|94|95|96|121|156|164|192|203|212|222|251,d3f62d67dffb26a7,1|6|0|6|82|18|64|156|203|20|68|77|56|79|19|192|91|14|121|96|85|69|95|32|251|5|164|94|212|222,0>6:1,5,50,5,73e736bf73cfb1b7,9ba45f4263a7254d
+C5+A4,20261117,trained-BA,after-512,BA,complete,stable,,444,32,31,0|1|6|7|10|14|59|61|65|71|72|73|79|82|97|128|134|136|146|147|148|155|156|157|173|203|209|217|228|246|253,c1623eba7b917a1a,1|6|147|10|156|79|7|155|209|253|59|71|14|72|217|146|61|157|228|73|82|128|136|97|0|6|65|148|134|246|203|173,0>6:1,6,37,3,94aa4f77e361b550,3343b8ed1cef233a
+C5+A4,20261117,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,2b8c626f32b40a87,dd93ee7163fa6ffa
+C5+A4,20261117,trained-AB,after-512,AC,complete,stable,,521,38,36,0|1|5|6|8|14|16|17|18|19|20|32|56|64|68|69|77|79|81|82|85|91|94|95|96|121|132|139|156|164|192|196|203|212|222|251,6790ef08543ed6d4,0|6|82|0|1|6|203|192|18|16|64|156|81|8|20|68|77|56|17|79|96|19|91|14|121|32|251|85|69|95|222|5|164|94|212|132|196|139,0>1:1,7,59,7,73e736bf73cfb1b7,930b47dab1a44fd6
+C5+A4,20261117,trained-BA,after-512,AC,complete,stable,,512,38,36,0|1|6|7|10|14|43|59|61|65|71|72|73|79|82|97|109|128|134|136|146|147|148|155|156|157|173|180|203|204|209|217|228|233|246|253,b769886c866a6dfd,0|6|10|7|156|79|253|71|14|72|217|155|59|146|228|73|61|157|82|128|209|136|97|0|1|6|203|65|147|134|246|148|173|180|109|233|204|43,0>1:1,6,54,6,94aa4f77e361b550,ff02510979e681b8
+C5+A4,20261117,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,2b8c626f32b40a87,5a0cee2573bd8349
+C5+A4,20261117,trained-AB,after-512,AA,complete,stable,,391,26,24,0|5|6|14|16|18|19|20|32|64|68|69|77|79|81|82|91|96|156|164|192|203|222|251,cd99cfa2ecf14056,0|6|82|0|6|203|192|18|16|64|156|20|68|77|81|79|96|19|91|14|32|251|69|222|5|164,0>6:2,2,49,5,73e736bf73cfb1b7,f9ff3efb2fb51e4e
+C5+A4,20261117,trained-BA,after-512,AA,complete,stable,,457,35,33,0|6|7|10|14|43|59|61|65|71|72|73|79|82|97|109|128|134|136|146|155|156|157|173|180|203|204|209|217|228|233|246|253,d60b15cfd1dd151b,0|6|10|7|156|79|253|71|14|72|217|155|59|146|228|73|61|157|82|128|209|136|97|0|6|203|65|134|246|173|180|109|233|43|204,0>6:2,4,50,7,94aa4f77e361b550,b27c90b02ea0316e
+C5+A4,20261117,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,2b8c626f32b40a87,e2dea5711e83338d
+C5+A4,20261117,trained-AB,after-512,BB,complete,stable,,361,24,22,1|6|14|18|19|20|56|64|68|69|77|79|82|85|91|94|95|121|156|164|203|212,6c72e5fc8c71bff6,1|6|1|6|18|64|156|56|20|68|77|82|79|121|91|14|19|95|85|69|203|94|212|164,1>6:2,4,52,6,73e736bf73cfb1b7,bb828d2c5b6b344b
+C5+A4,20261117,trained-BA,after-512,BB,complete,stable,,453,32,30,1|6|7|10|14|59|61|65|71|72|73|76|79|82|97|128|134|136|146|147|148|155|156|157|173|209|217|228|246|253,317b50217e07e1bc,1|6|147|10|156|79|7|155|209|253|59|71|14|72|217|146|61|157|228|73|82|128|136|97|1|6|65|148|134|76|246|173,1>6:2,6,38,3,94aa4f77e361b550,e4dcb3ac5193b164
+C5+A4,20261117,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,2b8c626f32b40a87,eb4368d11cf32841
+C5+A4,7,trained-AB,after-512,AB,complete,stable,,183,7,6,0|1|4|6|72|81,01f75742f6ef8959,0|6|81|72|4|1|6,0>6:1,0,36,0,e323dcbfb33edd6c,4b5f2b89dda22b42
+C5+A4,7,trained-BA,after-512,AB,complete,stable,,325,19,18,0|1|2|5|6|10|14|16|45|69|73|79|136|140|161|162|197|200,2155f322f320d613,0|6|10|1|6|136|2|73|14|79|5|162|200|45|197|69|161|16|140,0>6:1,2,46,0,1b86f85b80eafd59,1eb52dbfde9f7ed6
+C5+A4,7,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,2,bf46e1410ee6bf33,09dfc8262bac5954
+C5+A4,7,trained-AB,after-512,BA,complete,stable,,183,7,6,0|1|4|6|72|81,5095035c0f3d33e9,1|6|81|72|4|0|6,0>6:1,0,34,0,e323dcbfb33edd6c,41f6b265d08b9c68
+C5+A4,7,trained-BA,after-512,BA,complete,stable,,325,19,18,0|1|2|5|6|10|14|16|45|69|73|79|136|140|161|162|197|200,c93a533c285d9e03,1|6|10|0|6|136|2|73|14|79|5|162|200|45|197|69|161|16|140,0>6:1,2,44,0,1b86f85b80eafd59,bc4daf1dd70b8c12
+C5+A4,7,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,2,bf46e1410ee6bf33,35bffb514c54d9f0
+C5+A4,7,trained-AB,after-512,AC,complete,stable,,240,10,8,0|1|2|4|6|72|81|82,964c9782a41f4ca9,0|6|81|72|4|0|1|6|82|2,0>1:1,2,40,0,e323dcbfb33edd6c,b5276c2095c62a11
+C5+A4,7,trained-BA,after-512,AC,complete,stable,,369,21,19,0|1|2|5|6|10|14|16|34|45|69|73|79|136|140|161|162|197|200,90dcb2f0f7209521,0|6|10|0|1|6|16|136|2|73|34|14|79|5|162|200|45|197|69|161|140,0>1:1,3,54,1,1b86f85b80eafd59,481b1ea564b5bc7a
+C5+A4,7,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,3,bf46e1410ee6bf33,d533f90a753a7ff6
+C5+A4,7,trained-AB,after-512,AA,complete,stable,,196,8,6,0|4|6|72|81|82,aa5f5ec997a7c30a,0|6|81|72|4|0|6|82,0>6:2,2,39,0,e323dcbfb33edd6c,9687b0ea459e0058
+C5+A4,7,trained-BA,after-512,AA,complete,stable,,338,20,18,0|2|5|6|10|14|16|34|45|69|73|79|136|140|161|162|197|200,2884ad7d6a87d760,0|6|10|0|6|16|136|2|73|34|14|79|5|162|200|45|197|69|161|140,0>6:2,3,52,2,1b86f85b80eafd59,d696a6aff2805412
+C5+A4,7,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,2,bf46e1410ee6bf33,d465c198dc27de79
+C5+A4,7,trained-AB,after-512,BB,complete,stable,,185,8,6,1|4|6|72|81|147,a061a18c8957008b,1|6|81|72|4|1|6|147,1>6:2,0,40,0,e323dcbfb33edd6c,35489a23405d4722
+C5+A4,7,trained-BA,after-512,BB,complete,stable,,314,18,16,1|2|5|6|10|14|45|69|73|79|136|140|161|162|197|200,fcc197e5ef061fd2,1|6|10|1|6|136|2|73|14|79|5|162|200|45|197|69|161|140,1>6:2,1,45,0,1b86f85b80eafd59,eee0b02d1c5c3840
+C5+A4,7,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,2,bf46e1410ee6bf33,ac648485d009e70a
+C5+A4,42,trained-AB,after-512,AB,complete,stable,,497,29,27,0|1|2|3|6|12|33|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|190|218|222,1028f3b30116369b,0|6|138|82|86|141|70|0|95|77|136|2|66|218|85|131|94|190|130|1|6|67|222|133|68|76|3|12|33,0>6:1,3,38,2,ff6e0bcbf0a66668,75da123a773a6190
+C5+A4,42,trained-BA,after-512,AB,complete,stable,,268,14,13,0|1|4|5|6|65|68|75|132|135|144|151|185,51e53343205e75e6,0|6|65|132|68|5|185|151|1|6|144|75|135|4,0>6:1,5,46,1,807a057626a2aec5,7e40a92ce69aaab8
+C5+A4,42,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,6580b98ed7477421,fd5fe2552757b345
+C5+A4,42,trained-AB,after-512,BA,complete,stable,,497,29,27,0|1|2|3|6|12|33|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|190|218|222,2ed3e2b60556f97b,1|6|82|0|86|141|70|136|2|138|95|77|66|85|131|67|94|190|130|76|68|3|133|33|0|6|218|222|12,0>6:1,3,44,2,ff6e0bcbf0a66668,419f0eb082d53b58
+C5+A4,42,trained-BA,after-512,BA,complete,stable,,268,14,13,0|1|4|5|6|65|68|75|132|135|144|151|185,9e7fd111e3148276,1|6|75|65|132|68|5|185|151|0|6|144|135|4,0>6:1,5,50,3,807a057626a2aec5,a710148d4d431885
+C5+A4,42,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,6580b98ed7477421,ad1e57a68c7d652a
+C5+A4,42,trained-AB,after-512,AC,complete,stable,,541,31,28,0|1|2|3|6|12|33|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|155|190|218|222,e92c0830cbc870a0,0|6|138|82|86|141|70|0|95|77|136|2|66|218|85|131|94|190|130|0|1|6|155|67|222|133|68|76|3|12|33,0>1:1,4,54,1,ff6e0bcbf0a66668,15f87f4d6ec995b7
+C5+A4,42,trained-BA,after-512,AC,complete,stable,,349,20,18,0|1|4|5|6|11|65|68|75|122|132|135|136|144|150|151|185|192,8bf74b799a967b19,0|6|65|132|68|5|185|151|0|1|6|144|75|135|4|136|192|150|11|122,0>1:1,5,65,4,807a057626a2aec5,eb5cc2a4578c308d
+C5+A4,42,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,6580b98ed7477421,d7b0026b9ea8a4cf
+C5+A4,42,trained-AB,after-512,AA,complete,stable,,477,27,24,0|2|6|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|155|190|218|222,5b5caf8e85d2101f,0|6|138|82|86|141|70|0|95|77|136|2|66|218|85|131|94|190|130|0|6|155|222|133|68|76|67,0>6:2,4,51,1,ff6e0bcbf0a66668,9c2485bc2f31c172
+C5+A4,42,trained-BA,after-512,AA,complete,stable,,264,14,12,0|4|5|6|65|68|75|132|135|144|151|185,0b904b7af204e977,0|6|65|132|68|5|185|151|0|6|144|135|4|75,0>6:2,4,54,2,807a057626a2aec5,adcbdc775c401e4b
+C5+A4,42,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,6580b98ed7477421,6b1e0c652adc02f3
+C5+A4,42,trained-AB,after-512,BB,complete,stable,,501,29,27,0|1|2|3|6|12|33|66|67|68|70|75|76|77|82|85|86|94|95|130|131|133|136|138|141|190|222,527bf42ef03af37b,1|6|82|0|86|141|70|136|2|138|95|77|66|85|131|67|94|190|130|76|68|3|133|33|1|6|222|75|12,1>6:2,3,49,2,ff6e0bcbf0a66668,6533e4c0304de9a2
+C5+A4,42,trained-BA,after-512,BB,complete,stable,,291,16,14,1|4|5|6|11|65|68|75|122|132|135|144|151|185,8f04b7bcdae24236,1|6|75|65|132|68|5|185|151|1|6|144|135|4|11|122,1>6:2,5,53,4,807a057626a2aec5,d77b20741f11bde1
+C5+A4,42,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,6580b98ed7477421,11ce1d05799934a3
+C5+A4,99,trained-AB,after-512,AB,complete,stable,,248,12,10,0|1|2|6|13|43|131|141|142|149,496ef7fb31322614,0|6|1|141|142|149|131|1|6|2|13|43,0>6:1,3,47,0,6bbf990f542ba378,99cffc3cb1eb23ee
+C5+A4,99,trained-BA,after-512,AB,complete,stable,,290,17,16,0|1|6|21|22|52|78|85|87|133|141|142|155|172|197|205,59b958e4590970c6,0|6|155|22|133|85|172|21|1|6|78|205|141|142|197|87|52,0>6:1,2,42,3,068881cc68a97d7c,404b8f65dfc8f385
+C5+A4,99,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,deceb8bbb8be7baa,33e8202a4cc552ea
+C5+A4,99,trained-AB,after-512,BA,complete,stable,,248,12,10,0|1|2|6|13|43|131|141|142|149,2a08392f4520aee4,1|6|141|142|149|0|6|131|1|13|2|43,0>6:1,3,47,0,6bbf990f542ba378,f282226665440679
+C5+A4,99,trained-BA,after-512,BA,complete,stable,,290,17,16,0|1|6|21|22|52|78|85|87|133|141|142|155|172|197|205,6aca95a4571741f6,1|6|155|22|133|172|0|6|85|21|78|205|141|142|197|87|52,0>6:1,2,44,2,068881cc68a97d7c,def9caf07bcc951d
+C5+A4,99,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,deceb8bbb8be7baa,52fa1b04ae1e6491
+C5+A4,99,trained-AB,after-512,AC,complete,stable,,339,19,16,0|1|2|6|13|43|73|80|131|141|142|144|149|174|225|226,b739527ed0d48450,0|6|1|141|142|149|131|0|1|6|2|80|144|13|43|226|73|225|174,0>1:1,4,55,2,6bbf990f542ba378,2bd87a3a1202d687
+C5+A4,99,trained-BA,after-512,AC,complete,stable,,331,19,17,0|1|6|17|21|22|52|78|85|87|133|141|142|155|172|197|205,9be5d199dff944d7,0|6|155|22|133|85|172|21|0|1|6|78|205|141|142|197|87|52|17,0>1:1,3,45,3,068881cc68a97d7c,6888a5e90eb2c1e0
+C5+A4,99,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,deceb8bbb8be7baa,3b598455526fffc7
+C5+A4,99,trained-AB,after-512,AA,complete,stable,,294,17,15,0|1|2|6|13|43|80|131|141|142|144|149|174|225|226,c11eda285cfc1db8,0|6|1|141|142|149|131|0|6|2|80|144|13|43|226|225|174,0>6:2,4,44,2,6bbf990f542ba378,c98a48120892495a
+C5+A4,99,trained-BA,after-512,AA,complete,stable,,300,18,16,0|6|17|21|22|52|78|85|87|133|141|142|155|172|197|205,c5edc84331f36506,0|6|155|22|133|85|172|21|0|6|78|205|141|142|197|87|52|17,0>6:2,2,41,2,068881cc68a97d7c,191d6c4045e95e06
+C5+A4,99,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,deceb8bbb8be7baa,f4a8dc6054027214
+C5+A4,99,trained-AB,after-512,BB,complete,stable,,195,9,7,1|6|13|131|141|142|149,cd31eb8537a021ad,1|6|141|142|149|1|6|131|13,1>6:2,3,42,0,6bbf990f542ba378,efa67d397a95f6e7
+C5+A4,99,trained-BA,after-512,BB,complete,stable,,293,17,15,1|6|21|22|52|78|85|87|133|141|142|155|172|197|205,7046be0807b80c47,1|6|155|22|133|172|1|6|21|85|78|205|141|142|197|87|52,1>6:2,2,44,2,068881cc68a97d7c,227f789fe95a07f6
+C5+A4,99,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,deceb8bbb8be7baa,8a5916aedf894e20
+C5+A4,2026,trained-AB,after-512,AB,complete,stable,,436,30,28,0|1|2|6|7|8|24|66|67|71|77|79|84|86|88|97|120|134|135|138|147|150|188|198|207|235|245|254,02470cc1859eff7d,0|6|138|188|135|84|24|235|198|67|97|66|1|6|147|0|207|134|7|245|2|8|71|86|79|88|77|120|150|254,0>6:1,0,28,2,3ce270d7cca9827d,c5320942d80c5203
+C5+A4,2026,trained-BA,after-512,AB,complete,stable,,575,37,34,0|1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,b6b9ae3954b26ae7,0|6|129|208|27|150|149|7|66|219|205|130|187|10|75|194|140|2|193|1|106|147|83|230|1|6|11|12|79|13|69|222|78|6|151|87|135,0>6:1,4,57,3,b06717f320ef99d4,0ceadcf4ef95ca3e
+C5+A4,2026,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,db0d9f30c3662b2d,12b43da4ee1402be
+C5+A4,2026,trained-AB,after-512,BA,complete,stable,,436,30,28,0|1|2|6|7|8|24|66|67|71|77|79|84|86|88|97|120|134|135|138|147|150|188|198|207|235|245|254,43d8762bc4f9df0d,1|6|67|0|135|84|138|66|188|198|24|235|97|147|0|6|2|8|207|134|7|245|86|71|79|88|77|120|150|254,0>6:1,0,29,0,3ce270d7cca9827d,afa2c425f48584ee
+C5+A4,2026,trained-BA,after-512,BA,complete,stable,,575,37,34,0|1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,efae3d9415ea58d7,1|6|129|27|150|149|7|66|205|130|187|10|208|75|140|2|83|106|230|0|6|194|219|147|1|12|79|13|193|11|69|222|78|6|151|87|135,0>6:1,5,58,3,b06717f320ef99d4,f07903bef061557c
+C5+A4,2026,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,db0d9f30c3662b2d,757080e105a45615
+C5+A4,2026,trained-AB,after-512,AC,complete,stable,,509,35,32,0|1|2|6|7|8|24|36|66|67|71|73|77|79|84|86|88|97|120|134|135|136|138|144|147|150|188|198|207|235|245|254,2a2de4e23b577eb8,0|6|138|188|135|84|24|235|198|67|97|66|0|1|6|147|8|2|0|207|134|7|245|86|136|71|79|88|77|73|36|120|150|144|254,0>1:1,0,43,1,3ce270d7cca9827d,50a288a0d97e0b08
+C5+A4,2026,trained-BA,after-512,AC,complete,stable,,630,39,35,0|1|2|6|7|10|11|12|13|27|66|69|72|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,dd47362b7b0e871f,0|6|129|208|27|150|149|7|66|219|205|130|187|10|75|194|140|2|193|1|106|147|83|230|0|1|6|11|12|79|13|69|222|78|6|72|151|87|135,0>1:1,4,66,2,b06717f320ef99d4,af0bbfbcd8047b58
+C5+A4,2026,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,db0d9f30c3662b2d,ab6e3136bc589645
+C5+A4,2026,trained-AB,after-512,AA,complete,stable,,427,29,26,0|2|6|7|8|24|66|67|71|77|79|84|86|88|97|120|134|135|138|150|188|198|207|235|245|254,e7d16adcbf1016ef,0|6|138|188|135|84|24|235|198|67|97|66|0|6|207|134|7|245|71|86|79|8|88|77|120|0|150|2|254,0>6:2,0,41,3,3ce270d7cca9827d,fb79b180f897496b
+C5+A4,2026,trained-BA,after-512,AA,complete,stable,,578,37,34,0|1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,8d94f7564be018e6,0|6|129|208|27|150|149|7|66|219|205|130|187|10|75|194|140|2|193|1|106|147|83|230|0|6|12|79|13|69|11|222|78|6|151|87|135,0>6:2,4,61,3,b06717f320ef99d4,0d84724764e53842
+C5+A4,2026,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,db0d9f30c3662b2d,156f49b1e7a5c034
+C5+A4,2026,trained-AB,after-512,BB,complete,stable,,562,39,36,0|1|2|6|7|8|15|22|24|30|66|67|70|71|77|79|84|86|88|97|119|120|134|135|138|147|150|160|188|198|207|215|217|235|245|254,597d0366452faf42,1|6|67|0|135|84|138|66|188|198|24|235|97|147|1|6|8|2|207|134|7|245|86|71|79|88|77|15|120|150|6|22|215|254|70|30|217|160|119,1>6:2,0,55,3,3ce270d7cca9827d,d9e39d963eb47f6b
+C5+A4,2026,trained-BA,after-512,BB,complete,stable,,512,33,30,1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|140|147|149|150|151|187|205|208|219|222|230,e2fbbfc8466dfe63,1|6|129|27|150|149|7|66|205|130|187|10|208|75|140|2|83|106|230|1|6|11|147|12|79|13|219|69|222|78|6|151|87,1>6:2,3,55,3,b06717f320ef99d4,0a7a0a8ba0575a2e
+C5+A4,2026,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,db0d9f30c3662b2d,f017a9b74a73858c
+C5+A4,314159,trained-AB,after-512,AB,complete,stable,,306,16,15,0|1|3|4|6|10|12|13|67|70|78|80|86|133|209,665dd0cc742523c1,0|6|10|86|133|3|13|1|6|80|78|12|209|70|4|67,0>6:1,0,42,1,115b78482e62b191,38776deaf8004187
+C5+A4,314159,trained-BA,after-512,AB,complete,stable,,331,20,19,0|1|6|9|10|20|69|72|77|80|128|132|133|137|196|197|205|220|223,3bf69f50d4857b84,0|6|10|128|137|9|72|223|133|80|1|6|220|132|69|77|197|205|196|20,0>6:1,0,45,1,6ab992f063f8b69b,756a06e36f8dd01e
+C5+A4,314159,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,3eaf23d0d91331f9,c8313a6b812c7156
+C5+A4,314159,trained-AB,after-512,BA,complete,stable,,306,16,15,0|1|3|4|6|10|12|13|67|70|78|80|86|133|209,44e23d9cede2a1a1,1|6|10|86|133|3|13|78|0|6|80|12|70|209|4|67,0>6:1,1,41,1,115b78482e62b191,89ae9b7bd5172e1c
+C5+A4,314159,trained-BA,after-512,BA,complete,stable,,331,20,19,0|1|6|9|10|20|69|72|77|80|128|132|133|137|196|197|205|220|223,5db3510dd73475c4,1|6|137|9|10|72|223|133|80|128|0|6|220|132|69|77|197|205|196|20,0>6:1,0,50,1,6ab992f063f8b69b,94f324c80d202c73
+C5+A4,314159,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,3eaf23d0d91331f9,e242c77c93edc0fd
+C5+A4,314159,trained-AB,after-512,AC,complete,stable,,433,27,25,0|1|3|4|6|9|10|12|13|17|24|47|60|65|67|70|78|80|86|133|144|189|190|209|254,0ad0a113a972476e,0|6|10|86|133|3|13|0|1|6|80|60|47|144|65|78|12|209|9|70|4|67|17|190|24|189|254,0>1:1,0,55,1,115b78482e62b191,68fa75c898e5e451
+C5+A4,314159,trained-BA,after-512,AC,complete,stable,,387,24,22,0|1|6|9|10|20|69|72|77|80|103|122|128|130|132|133|137|196|197|205|220|223,720414076835c7fb,0|6|10|128|137|9|72|223|133|80|0|1|6|220|132|69|77|197|205|196|20|130|122|103,0>1:1,1,54,1,6ab992f063f8b69b,73f3097c1a9853dd
+C5+A4,314159,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,3eaf23d0d91331f9,dd511b3d14177986
+C5+A4,314159,trained-AB,after-512,AA,complete,stable,,347,21,19,0|3|4|6|10|12|13|47|60|67|70|78|80|86|133|189|190|209|254,737e0351bedf3cde,0|6|10|86|133|3|13|0|6|80|60|47|12|78|209|4|70|67|190|189|254,0>6:2,0,48,3,115b78482e62b191,2575d65624e45349
+C5+A4,314159,trained-BA,after-512,AA,complete,stable,,325,20,18,0|6|9|10|20|69|72|77|80|128|132|133|137|196|197|205|220|223,a6c81bf443a46c85,0|6|10|128|137|9|72|223|133|80|0|6|220|132|69|77|197|205|196|20,0>6:2,1,46,1,6ab992f063f8b69b,96c1aac719c40f7e
+C5+A4,314159,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,3eaf23d0d91331f9,b881ad27aca1962c
+C5+A4,314159,trained-AB,after-512,BB,complete,stable,,308,16,14,1|3|4|6|10|12|13|67|70|78|80|86|133|209,2c7b2a65452b7b10,1|6|10|86|133|3|13|78|1|6|80|67|12|70|209|4,1>6:2,1,50,0,115b78482e62b191,4a177dac6753ecf8
+C5+A4,314159,trained-BA,after-512,BB,complete,stable,,352,22,20,1|6|9|10|20|69|72|77|80|128|132|133|137|139|196|197|205|220|223|231,4924efabd819f7d9,1|6|137|9|10|72|223|133|80|128|1|6|220|132|69|77|197|205|196|20|139|231,1>6:2,0,57,2,6ab992f063f8b69b,3053ecc38278da53
+C5+A4,314159,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,3eaf23d0d91331f9,eb3c7e13d2179ff0
+C5+A5,20261117,trained-AB,after-512,AB,complete,stable,,419,30,29,0|1|5|6|14|18|19|20|32|56|64|68|69|77|79|82|85|91|94|95|96|121|156|164|192|203|212|222|251,f235572218b06f17,0|6|82|1|6|18|64|156|203|20|68|77|56|79|19|192|91|14|121|96|85|69|95|32|251|5|164|94|212|222,0>6:1,8,45,5,40015ceaa8529005,1d58997d63b8efeb
+C5+A5,20261117,trained-BA,after-512,AB,complete,stable,,444,32,31,0|1|6|7|10|14|59|61|65|71|72|73|79|82|97|128|134|136|146|147|148|155|156|157|173|203|209|217|228|246|253,dc6132b7b336c1aa,0|6|10|7|156|79|253|71|14|72|217|155|59|146|228|73|61|157|82|128|209|136|97|1|6|147|65|134|246|148|173|203,0>6:1,7,44,8,e5cff13a92f094a0,5dff44000a2dc8e5
+C5+A5,20261117,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,f52e5f07e65ec08f,dc11674da203dc6d
+C5+A5,20261117,trained-AB,after-512,BA,complete,stable,,419,30,29,0|1|5|6|14|18|19|20|32|56|64|68|69|77|79|82|85|91|94|95|96|121|156|164|192|203|212|222|251,d3f62d67dffb26a7,1|6|0|6|82|18|64|156|203|20|68|77|56|79|19|192|91|14|121|96|85|69|95|32|251|5|164|94|212|222,0>6:1,8,47,5,40015ceaa8529005,166f7249ed8e511c
+C5+A5,20261117,trained-BA,after-512,BA,complete,stable,,444,32,31,0|1|6|7|10|14|59|61|65|71|72|73|79|82|97|128|134|136|146|147|148|155|156|157|173|203|209|217|228|246|253,c1623eba7b917a1a,1|6|147|10|156|79|7|155|209|253|59|71|14|72|217|146|61|157|228|73|82|128|136|97|0|6|65|148|134|246|203|173,0>6:1,8,35,3,e5cff13a92f094a0,e9677e2ebf78148e
+C5+A5,20261117,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,f52e5f07e65ec08f,6382f6c184742a62
+C5+A5,20261117,trained-AB,after-512,AC,complete,stable,,521,38,36,0|1|5|6|8|14|16|17|18|19|20|32|56|64|68|69|77|79|81|82|85|91|94|95|96|121|132|139|156|164|192|196|203|212|222|251,6790ef08543ed6d4,0|6|82|0|1|6|203|192|18|16|64|156|81|8|20|68|77|56|17|79|96|19|91|14|121|32|251|85|69|95|222|5|164|94|212|132|196|139,0>1:1,13,53,7,40015ceaa8529005,ea08d441889e7acf
+C5+A5,20261117,trained-BA,after-512,AC,complete,stable,,512,38,36,0|1|6|7|10|14|43|59|61|65|71|72|73|79|82|97|109|128|134|136|146|147|148|155|156|157|173|180|203|204|209|217|228|233|246|253,b769886c866a6dfd,0|6|10|7|156|79|253|71|14|72|217|155|59|146|228|73|61|157|82|128|209|136|97|0|1|6|203|65|147|134|246|148|173|180|109|233|204|43,0>1:1,9,51,6,e5cff13a92f094a0,3e67df7a5ab94eb3
+C5+A5,20261117,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,f52e5f07e65ec08f,3553131bdb9459e1
+C5+A5,20261117,trained-AB,after-512,AA,complete,stable,,391,26,24,0|5|6|14|16|18|19|20|32|64|68|69|77|79|81|82|91|96|156|164|192|203|222|251,cd99cfa2ecf14056,0|6|82|0|6|203|192|18|16|64|156|20|68|77|81|79|96|19|91|14|32|251|69|222|5|164,0>6:2,5,46,5,40015ceaa8529005,97d602005b1dc99a
+C5+A5,20261117,trained-BA,after-512,AA,complete,stable,,457,35,33,0|6|7|10|14|43|59|61|65|71|72|73|79|82|97|109|128|134|136|146|155|156|157|173|180|203|204|209|217|228|233|246|253,d60b15cfd1dd151b,0|6|10|7|156|79|253|71|14|72|217|155|59|146|228|73|61|157|82|128|209|136|97|0|6|203|65|134|246|173|180|109|233|43|204,0>6:2,7,47,7,e5cff13a92f094a0,7ce54e45566e11bc
+C5+A5,20261117,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,f52e5f07e65ec08f,2c9ee2f186e59835
+C5+A5,20261117,trained-AB,after-512,BB,complete,stable,,361,24,22,1|6|14|18|19|20|56|64|68|69|77|79|82|85|91|94|95|121|156|164|203|212,6c72e5fc8c71bff6,1|6|1|6|18|64|156|56|20|68|77|82|79|121|91|14|19|95|85|69|203|94|212|164,1>6:2,6,50,6,40015ceaa8529005,3335601ab7274d49
+C5+A5,20261117,trained-BA,after-512,BB,complete,stable,,453,32,30,1|6|7|10|14|59|61|65|71|72|73|76|79|82|97|128|134|136|146|147|148|155|156|157|173|209|217|228|246|253,317b50217e07e1bc,1|6|147|10|156|79|7|155|209|253|59|71|14|72|217|146|61|157|228|73|82|128|136|97|1|6|65|148|134|76|246|173,1>6:2,7,37,3,e5cff13a92f094a0,0c395d1955dd11ec
+C5+A5,20261117,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,f52e5f07e65ec08f,c2ea20400a33de49
+C5+A5,7,trained-AB,after-512,AB,complete,stable,,183,7,6,0|1|4|6|72|81,01f75742f6ef8959,0|6|81|72|4|1|6,0>6:1,1,35,0,d9b87466407d370c,cd2a05cb8e176a90
+C5+A5,7,trained-BA,after-512,AB,complete,stable,,325,19,18,0|1|2|5|6|10|14|16|45|69|73|79|136|140|161|162|197|200,2155f322f320d613,0|6|10|1|6|136|2|73|14|79|5|162|200|45|197|69|161|16|140,0>6:1,4,44,0,cbb57b2334aa9ea6,4b68e61c7311acbb
+C5+A5,7,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,2,40a57e2b9b78bf5b,4721e71aca9f047c
+C5+A5,7,trained-AB,after-512,BA,complete,stable,,183,7,6,0|1|4|6|72|81,5095035c0f3d33e9,1|6|81|72|4|0|6,0>6:1,1,33,0,d9b87466407d370c,071173ada7378db2
+C5+A5,7,trained-BA,after-512,BA,complete,stable,,325,19,18,0|1|2|5|6|10|14|16|45|69|73|79|136|140|161|162|197|200,c93a533c285d9e03,1|6|10|0|6|136|2|73|14|79|5|162|200|45|197|69|161|16|140,0>6:1,4,42,0,cbb57b2334aa9ea6,6ec3c47203633f8f
+C5+A5,7,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,2,40a57e2b9b78bf5b,22b0a2cb922a3a68
+C5+A5,7,trained-AB,after-512,AC,complete,stable,,240,10,8,0|1|2|4|6|72|81|82,964c9782a41f4ca9,0|6|81|72|4|0|1|6|82|2,0>1:1,4,38,0,d9b87466407d370c,1ab2666ec0562655
+C5+A5,7,trained-BA,after-512,AC,complete,stable,,369,21,19,0|1|2|5|6|10|14|16|34|45|69|73|79|136|140|161|162|197|200,90dcb2f0f7209521,0|6|10|0|1|6|16|136|2|73|34|14|79|5|162|200|45|197|69|161|140,0>1:1,6,51,1,cbb57b2334aa9ea6,301c445114340dba
+C5+A5,7,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,3,40a57e2b9b78bf5b,bf78141a52a20efe
+C5+A5,7,trained-AB,after-512,AA,complete,stable,,196,8,6,0|4|6|72|81|82,aa5f5ec997a7c30a,0|6|81|72|4|0|6|82,0>6:2,3,38,0,d9b87466407d370c,e7642c766cb8d56e
+C5+A5,7,trained-BA,after-512,AA,complete,stable,,338,20,18,0|2|5|6|10|14|16|34|45|69|73|79|136|140|161|162|197|200,2884ad7d6a87d760,0|6|10|0|6|16|136|2|73|34|14|79|5|162|200|45|197|69|161|140,0>6:2,6,49,2,cbb57b2334aa9ea6,037d974f18dbd2e2
+C5+A5,7,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,2,40a57e2b9b78bf5b,55822242b38e3ac1
+C5+A5,7,trained-AB,after-512,BB,complete,stable,,185,8,6,1|4|6|72|81|147,a061a18c8957008b,1|6|81|72|4|1|6|147,1>6:2,1,39,0,d9b87466407d370c,a6c27bcc10104bb4
+C5+A5,7,trained-BA,after-512,BB,complete,stable,,314,18,16,1|2|5|6|10|14|45|69|73|79|136|140|161|162|197|200,fcc197e5ef061fd2,1|6|10|1|6|136|2|73|14|79|5|162|200|45|197|69|161|140,1>6:2,3,43,0,cbb57b2334aa9ea6,0d20eb7e561f75fd
+C5+A5,7,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,2,40a57e2b9b78bf5b,8bafb4c681272be2
+C5+A5,42,trained-AB,after-512,AB,complete,stable,,497,29,27,0|1|2|3|6|12|33|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|190|218|222,1028f3b30116369b,0|6|138|82|86|141|70|0|95|77|136|2|66|218|85|131|94|190|130|1|6|67|222|133|68|76|3|12|33,0>6:1,7,34,2,1c759abe61898ae3,ee6f6cb1492d0916
+C5+A5,42,trained-BA,after-512,AB,complete,stable,,268,14,13,0|1|4|5|6|65|68|75|132|135|144|151|185,51e53343205e75e6,0|6|65|132|68|5|185|151|1|6|144|75|135|4,0>6:1,6,45,1,938888fa8f5e6a69,9b3230a221a696c8
+C5+A5,42,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,5fb1cf6061869479,eecd056c9fb564fd
+C5+A5,42,trained-AB,after-512,BA,complete,stable,,497,29,27,0|1|2|3|6|12|33|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|190|218|222,2ed3e2b60556f97b,1|6|82|0|86|141|70|136|2|138|95|77|66|85|131|67|94|190|130|76|68|3|133|33|0|6|218|222|12,0>6:1,7,40,2,1c759abe61898ae3,10fc14453c208696
+C5+A5,42,trained-BA,after-512,BA,complete,stable,,268,14,13,0|1|4|5|6|65|68|75|132|135|144|151|185,9e7fd111e3148276,1|6|75|65|132|68|5|185|151|0|6|144|135|4,0>6:1,6,49,3,938888fa8f5e6a69,043e29b086d23699
+C5+A5,42,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,5fb1cf6061869479,1c43486ac829aaf2
+C5+A5,42,trained-AB,after-512,AC,complete,stable,,541,31,28,0|1|2|3|6|12|33|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|155|190|218|222,e92c0830cbc870a0,0|6|138|82|86|141|70|0|95|77|136|2|66|218|85|131|94|190|130|0|1|6|155|67|222|133|68|76|3|12|33,0>1:1,9,49,1,1c759abe61898ae3,e753ff9084f9676c
+C5+A5,42,trained-BA,after-512,AC,complete,stable,,349,20,18,0|1|4|5|6|11|65|68|75|122|132|135|136|144|150|151|185|192,8bf74b799a967b19,0|6|65|132|68|5|185|151|0|1|6|144|75|135|4|136|192|150|11|122,0>1:1,6,64,4,938888fa8f5e6a69,71178adeeba297d9
+C5+A5,42,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,5fb1cf6061869479,89901eb7f184aad7
+C5+A5,42,trained-AB,after-512,AA,complete,stable,,477,27,24,0|2|6|66|67|68|70|76|77|82|85|86|94|95|130|131|133|136|138|141|155|190|218|222,5b5caf8e85d2101f,0|6|138|82|86|141|70|0|95|77|136|2|66|218|85|131|94|190|130|0|6|155|222|133|68|76|67,0>6:2,8,47,1,1c759abe61898ae3,1203762f07a77e9c
+C5+A5,42,trained-BA,after-512,AA,complete,stable,,264,14,12,0|4|5|6|65|68|75|132|135|144|151|185,0b904b7af204e977,0|6|65|132|68|5|185|151|0|6|144|135|4|75,0>6:2,5,53,2,938888fa8f5e6a69,08e639040ab0f732
+C5+A5,42,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,5fb1cf6061869479,2f6ab065c20829db
+C5+A5,42,trained-AB,after-512,BB,complete,stable,,501,29,27,0|1|2|3|6|12|33|66|67|68|70|75|76|77|82|85|86|94|95|130|131|133|136|138|141|190|222,527bf42ef03af37b,1|6|82|0|86|141|70|136|2|138|95|77|66|85|131|67|94|190|130|76|68|3|133|33|1|6|222|75|12,1>6:2,7,45,2,1c759abe61898ae3,c38d4abcadd6608c
+C5+A5,42,trained-BA,after-512,BB,complete,stable,,291,16,14,1|4|5|6|11|65|68|75|122|132|135|144|151|185,8f04b7bcdae24236,1|6|75|65|132|68|5|185|151|1|6|144|135|4|11|122,1>6:2,6,52,4,938888fa8f5e6a69,4d62f8fd8b3065f9
+C5+A5,42,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,5fb1cf6061869479,ab36f6e8855c85bb
+C5+A5,99,trained-AB,after-512,AB,complete,stable,,248,12,10,0|1|2|6|13|43|131|141|142|149,496ef7fb31322614,0|6|1|141|142|149|131|1|6|2|13|43,0>6:1,5,45,0,07cf2c4c985dee25,da68897d65742a0b
+C5+A5,99,trained-BA,after-512,AB,complete,stable,,290,17,16,0|1|6|21|22|52|78|85|87|133|141|142|155|172|197|205,59b958e4590970c6,0|6|155|22|133|85|172|21|1|6|78|205|141|142|197|87|52,0>6:1,4,40,3,54dff1b5cee20718,0b4583ed420223bc
+C5+A5,99,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,398c941d63849aa2,3db7cf7d29fdcae2
+C5+A5,99,trained-AB,after-512,BA,complete,stable,,248,12,10,0|1|2|6|13|43|131|141|142|149,2a08392f4520aee4,1|6|141|142|149|0|6|131|1|13|2|43,0>6:1,5,45,0,07cf2c4c985dee25,22ed5f4f4dc80f80
+C5+A5,99,trained-BA,after-512,BA,complete,stable,,290,17,16,0|1|6|21|22|52|78|85|87|133|141|142|155|172|197|205,6aca95a4571741f6,1|6|155|22|133|172|0|6|85|21|78|205|141|142|197|87|52,0>6:1,5,41,2,54dff1b5cee20718,76580a58cf24e9e6
+C5+A5,99,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,398c941d63849aa2,8597cf537e0a6eb9
+C5+A5,99,trained-AB,after-512,AC,complete,stable,,339,19,16,0|1|2|6|13|43|73|80|131|141|142|144|149|174|225|226,b739527ed0d48450,0|6|1|141|142|149|131|0|1|6|2|80|144|13|43|226|73|225|174,0>1:1,6,53,2,07cf2c4c985dee25,c8b1483f0a25f1c8
+C5+A5,99,trained-BA,after-512,AC,complete,stable,,331,19,17,0|1|6|17|21|22|52|78|85|87|133|141|142|155|172|197|205,9be5d199dff944d7,0|6|155|22|133|85|172|21|0|1|6|78|205|141|142|197|87|52|17,0>1:1,5,43,3,54dff1b5cee20718,ab2a3f12fb980d71
+C5+A5,99,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,398c941d63849aa2,bcb8771cf33a7a9f
+C5+A5,99,trained-AB,after-512,AA,complete,stable,,294,17,15,0|1|2|6|13|43|80|131|141|142|144|149|174|225|226,c11eda285cfc1db8,0|6|1|141|142|149|131|0|6|2|80|144|13|43|226|225|174,0>6:2,6,42,2,07cf2c4c985dee25,4503ea86c9735b9d
+C5+A5,99,trained-BA,after-512,AA,complete,stable,,300,18,16,0|6|17|21|22|52|78|85|87|133|141|142|155|172|197|205,c5edc84331f36506,0|6|155|22|133|85|172|21|0|6|78|205|141|142|197|87|52|17,0>6:2,4,39,2,54dff1b5cee20718,ace9b73fbb10e353
+C5+A5,99,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,398c941d63849aa2,63565c621524327c
+C5+A5,99,trained-AB,after-512,BB,complete,stable,,195,9,7,1|6|13|131|141|142|149,cd31eb8537a021ad,1|6|141|142|149|1|6|131|13,1>6:2,5,40,0,07cf2c4c985dee25,c86b1f3e408d67e4
+C5+A5,99,trained-BA,after-512,BB,complete,stable,,293,17,15,1|6|21|22|52|78|85|87|133|141|142|155|172|197|205,7046be0807b80c47,1|6|155|22|133|172|1|6|21|85|78|205|141|142|197|87|52,1>6:2,5,41,2,54dff1b5cee20718,d30db53e90c1c368
+C5+A5,99,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,398c941d63849aa2,df6895b59b610928
+C5+A5,2026,trained-AB,after-512,AB,complete,stable,,436,30,28,0|1|2|6|7|8|24|66|67|71|77|79|84|86|88|97|120|134|135|138|147|150|188|198|207|235|245|254,02470cc1859eff7d,0|6|138|188|135|84|24|235|198|67|97|66|1|6|147|0|207|134|7|245|2|8|71|86|79|88|77|120|150|254,0>6:1,5,23,2,515e3c39e31d5014,0ea33bbad1efef31
+C5+A5,2026,trained-BA,after-512,AB,complete,stable,,575,37,34,0|1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,b6b9ae3954b26ae7,0|6|129|208|27|150|149|7|66|219|205|130|187|10|75|194|140|2|193|1|106|147|83|230|1|6|11|12|79|13|69|222|78|6|151|87|135,0>6:1,8,53,3,260fbfbd6e65369f,f7f0318ea3350cd0
+C5+A5,2026,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,bd173ad72ef782f5,6291ba8714490946
+C5+A5,2026,trained-AB,after-512,BA,complete,stable,,436,30,28,0|1|2|6|7|8|24|66|67|71|77|79|84|86|88|97|120|134|135|138|147|150|188|198|207|235|245|254,43d8762bc4f9df0d,1|6|67|0|135|84|138|66|188|198|24|235|97|147|0|6|2|8|207|134|7|245|86|71|79|88|77|120|150|254,0>6:1,5,24,0,515e3c39e31d5014,8a7a614f75b4c7f8
+C5+A5,2026,trained-BA,after-512,BA,complete,stable,,575,37,34,0|1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,efae3d9415ea58d7,1|6|129|27|150|149|7|66|205|130|187|10|208|75|140|2|83|106|230|0|6|194|219|147|1|12|79|13|193|11|69|222|78|6|151|87|135,0>6:1,10,53,3,260fbfbd6e65369f,5ebe4fa2d24689b5
+C5+A5,2026,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,bd173ad72ef782f5,4c0975090e3282ad
+C5+A5,2026,trained-AB,after-512,AC,complete,stable,,509,35,32,0|1|2|6|7|8|24|36|66|67|71|73|77|79|84|86|88|97|120|134|135|136|138|144|147|150|188|198|207|235|245|254,2a2de4e23b577eb8,0|6|138|188|135|84|24|235|198|67|97|66|0|1|6|147|8|2|0|207|134|7|245|86|136|71|79|88|77|73|36|120|150|144|254,0>1:1,7,36,1,515e3c39e31d5014,a3c3cc7c1f81081e
+C5+A5,2026,trained-BA,after-512,AC,complete,stable,,630,39,35,0|1|2|6|7|10|11|12|13|27|66|69|72|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,dd47362b7b0e871f,0|6|129|208|27|150|149|7|66|219|205|130|187|10|75|194|140|2|193|1|106|147|83|230|0|1|6|11|12|79|13|69|222|78|6|72|151|87|135,0>1:1,8,62,2,260fbfbd6e65369f,62fc870b8641a8aa
+C5+A5,2026,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,bd173ad72ef782f5,116fe421eda1c17d
+C5+A5,2026,trained-AB,after-512,AA,complete,stable,,427,29,26,0|2|6|7|8|24|66|67|71|77|79|84|86|88|97|120|134|135|138|150|188|198|207|235|245|254,e7d16adcbf1016ef,0|6|138|188|135|84|24|235|198|67|97|66|0|6|207|134|7|245|71|86|79|8|88|77|120|0|150|2|254,0>6:2,6,35,3,515e3c39e31d5014,f39df7ede1569dfa
+C5+A5,2026,trained-BA,after-512,AA,complete,stable,,578,37,34,0|1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|135|140|147|149|150|151|187|193|194|205|208|219|222|230,8d94f7564be018e6,0|6|129|208|27|150|149|7|66|219|205|130|187|10|75|194|140|2|193|1|106|147|83|230|0|6|12|79|13|69|11|222|78|6|151|87|135,0>6:2,8,57,3,260fbfbd6e65369f,44cafafc002b421d
+C5+A5,2026,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,bd173ad72ef782f5,4c5c13d5fe58341c
+C5+A5,2026,trained-AB,after-512,BB,complete,stable,,562,39,36,0|1|2|6|7|8|15|22|24|30|66|67|70|71|77|79|84|86|88|97|119|120|134|135|138|147|150|160|188|198|207|215|217|235|245|254,597d0366452faf42,1|6|67|0|135|84|138|66|188|198|24|235|97|147|1|6|8|2|207|134|7|245|86|71|79|88|77|15|120|150|6|22|215|254|70|30|217|160|119,1>6:2,6,49,3,515e3c39e31d5014,a930fe3faf402cfd
+C5+A5,2026,trained-BA,after-512,BB,complete,stable,,512,33,30,1|2|6|7|10|11|12|13|27|66|69|75|78|79|83|87|106|129|130|140|147|149|150|151|187|205|208|219|222|230,e2fbbfc8466dfe63,1|6|129|27|150|149|7|66|205|130|187|10|208|75|140|2|83|106|230|1|6|11|147|12|79|13|219|69|222|78|6|151|87,1>6:2,8,50,3,260fbfbd6e65369f,a99f87aecd0f5282
+C5+A5,2026,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,bd173ad72ef782f5,5f0ae2c4964637e4
+C5+A5,314159,trained-AB,after-512,AB,complete,stable,,306,16,15,0|1|3|4|6|10|12|13|67|70|78|80|86|133|209,665dd0cc742523c1,0|6|10|86|133|3|13|1|6|80|78|12|209|70|4|67,0>6:1,2,40,1,45d6db2c8e6a946c,87afde1f0c5686eb
+C5+A5,314159,trained-BA,after-512,AB,complete,stable,,331,20,19,0|1|6|9|10|20|69|72|77|80|128|132|133|137|196|197|205|220|223,3bf69f50d4857b84,0|6|10|128|137|9|72|223|133|80|1|6|220|132|69|77|197|205|196|20,0>6:1,0,45,1,93d091d8f826fb7c,8d186cb72d658087
+C5+A5,314159,untrained,initial,AB,complete,stable,,20,4,3,0|1|6,be93a9804cdf2204,0|6|1|6,0>6:1,0,0,0,3e9491bab7daf3a1,69887a556c9bc9ee
+C5+A5,314159,trained-AB,after-512,BA,complete,stable,,306,16,15,0|1|3|4|6|10|12|13|67|70|78|80|86|133|209,44e23d9cede2a1a1,1|6|10|86|133|3|13|78|0|6|80|12|70|209|4|67,0>6:1,3,39,1,45d6db2c8e6a946c,31a850ab36be56e0
+C5+A5,314159,trained-BA,after-512,BA,complete,stable,,331,20,19,0|1|6|9|10|20|69|72|77|80|128|132|133|137|196|197|205|220|223,5db3510dd73475c4,1|6|137|9|10|72|223|133|80|128|0|6|220|132|69|77|197|205|196|20,0>6:1,1,49,1,93d091d8f826fb7c,c4936b937bf7de6d
+C5+A5,314159,untrained,initial,BA,complete,stable,,20,4,3,0|1|6,8e905ac144b953e4,1|6|0|6,0>6:1,0,0,0,3e9491bab7daf3a1,f318d79da79a2085
+C5+A5,314159,trained-AB,after-512,AC,complete,stable,,433,27,25,0|1|3|4|6|9|10|12|13|17|24|47|60|65|67|70|78|80|86|133|144|189|190|209|254,0ad0a113a972476e,0|6|10|86|133|3|13|0|1|6|80|60|47|144|65|78|12|209|9|70|4|67|17|190|24|189|254,0>1:1,4,51,1,45d6db2c8e6a946c,580ebdd2f03b29fb
+C5+A5,314159,trained-BA,after-512,AC,complete,stable,,387,24,22,0|1|6|9|10|20|69|72|77|80|103|122|128|130|132|133|137|196|197|205|220|223,720414076835c7fb,0|6|10|128|137|9|72|223|133|80|0|1|6|220|132|69|77|197|205|196|20|130|122|103,0>1:1,2,53,1,93d091d8f826fb7c,d75e2b321891c2c3
+C5+A5,314159,untrained,initial,AC,complete,stable,,25,5,3,0|1|6,71846074b09d07b4,0|6|0|1|6,0>1:1,0,0,0,3e9491bab7daf3a1,9797846cc1043c3e
+C5+A5,314159,trained-AB,after-512,AA,complete,stable,,347,21,19,0|3|4|6|10|12|13|47|60|67|70|78|80|86|133|189|190|209|254,737e0351bedf3cde,0|6|10|86|133|3|13|0|6|80|60|47|12|78|209|4|70|67|190|189|254,0>6:2,3,45,3,45d6db2c8e6a946c,8c8ba70ccc5bcbc7
+C5+A5,314159,trained-BA,after-512,AA,complete,stable,,325,20,18,0|6|9|10|20|69|72|77|80|128|132|133|137|196|197|205|220|223,a6c81bf443a46c85,0|6|10|128|137|9|72|223|133|80|0|6|220|132|69|77|197|205|196|20,0>6:2,2,45,1,93d091d8f826fb7c,2c0881847557bc5a
+C5+A5,314159,untrained,initial,AA,complete,stable,,20,4,2,0|6,dd8e708957ce6c25,0|6|0|6,0>6:2,0,0,0,3e9491bab7daf3a1,67188629af036f24
+C5+A5,314159,trained-AB,after-512,BB,complete,stable,,308,16,14,1|3|4|6|10|12|13|67|70|78|80|86|133|209,2c7b2a65452b7b10,1|6|10|86|133|3|13|78|1|6|80|67|12|70|209|4,1>6:2,3,48,0,45d6db2c8e6a946c,0428519785ab1d7f
+C5+A5,314159,trained-BA,after-512,BB,complete,stable,,352,22,20,1|6|9|10|20|69|72|77|80|128|132|133|137|139|196|197|205|220|223|231,4924efabd819f7d9,1|6|137|9|10|72|223|133|80|128|1|6|220|132|69|77|197|205|196|20|139|231,1>6:2,1,56,2,93d091d8f826fb7c,6363f289a8170723
+C5+A5,314159,untrained,initial,BB,complete,stable,,20,4,2,1|6,ad8b21ca4fa89e05,1|6|1|6,1>6:2,0,0,0,3e9491bab7daf3a1,75a93f11d9fdbd58

@@ -87,6 +87,8 @@ ImpulseResult Brainstem::receive_impulse(
                     }
                 }
             }
+        } else {
+            result.strengthening_rejected_by_weight_limit = true;
         }
         synapse.activity_count = 0;
     }

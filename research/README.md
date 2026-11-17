@@ -65,3 +65,25 @@ Wiedererkennung, einzelne Interferenzerfahrungen, Interferenztests, statische
 Performance und Aggregation liegen als `experiment-002-*.csv` unter `results`.
 Zeitwerte sind maschinen- und lastabhängig; Ereignisse, Zustände und
 Aktivitätshashes sind bei identischem Build deterministisch.
+
+## Experiment 003 – kombinierte Selbstregulation
+
+Der vollständige Lauf einschließlich Kerntests, Langzeitmatrix,
+Wiedererkennung, Interferenz, Performance und Aggregation lautet:
+
+```sh
+scripts/run_experiment_003.sh research/results
+```
+
+Für einen gezielten Diagnoselauf kann eine einzelne Variante ausgewählt werden:
+
+```sh
+scripts/run_experiment_003.sh /tmp/eve-experiment-003 C5+A2
+```
+
+Der vollständige Runner führt die unabhängigen Seed-/Eingabefälle parallel aus
+und schreibt sie anschließend in fester Reihenfolge. Die Parameter stehen in
+`experiment-003-parameters.csv`. Rohdaten und Zusammenfassung liegen als
+`experiment-003-*.csv` unter `results`. Zeitwerte sind maschinen- und
+lastabhängig; Ereignisse, Zustände und Aktivitätshashes bleiben bei identischem
+Build deterministisch.

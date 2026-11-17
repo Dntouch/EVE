@@ -27,6 +27,7 @@ struct EncodedByte {
 struct ImpulseResult {
     bool fired{};
     bool strengthened{};
+    bool strengthening_rejected_by_weight_limit{};
     bool weakened{};
     bool firing_suppressed{};
     bool phase_completed{};

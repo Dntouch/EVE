@@ -50,6 +50,7 @@ struct Metrics {
     std::uint64_t fire_events{};
     std::uint64_t completed_activity_phases{};
     std::uint64_t synaptic_strengthenings{};
+    std::uint64_t rejected_strengthenings_at_weight_limit{};
     std::uint64_t synaptic_weakenings{};
     std::uint64_t refractory_suppressed_firings{};
     std::uint64_t growth_attempts{};
@@ -64,6 +65,8 @@ struct Metrics {
                fire_events == other.fire_events &&
                completed_activity_phases == other.completed_activity_phases &&
                synaptic_strengthenings == other.synaptic_strengthenings &&
+               rejected_strengthenings_at_weight_limit ==
+                   other.rejected_strengthenings_at_weight_limit &&
                synaptic_weakenings == other.synaptic_weakenings &&
                refractory_suppressed_firings == other.refractory_suppressed_firings &&
                growth_attempts == other.growth_attempts &&

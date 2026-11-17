@@ -200,8 +200,38 @@ void test_maximum_synapse_weight() {
     const eve::SynapseId synapse = network.add_synapse(0, 1, 1);
     const auto result = eve::brainstem::Brainstem{}.receive_impulse(network, synapse, config);
     require(!result.strengthened, "capped synapse must not be strengthened");
+    require(result.strengthening_rejected_by_weight_limit,
+            "rejected strengthening was not reported");
     require_equal(network.synapse(synapse).weight, 1, "maximum weight was exceeded");
     require_equal(network.synapse(synapse).activity_count, 0U, "learning counter did not reset");
+}
+
+void test_combined_refractory_and_weight_limit() {
+    auto config = small_config();
+    config.firing_threshold = 1;
+    config.synaptic_learning_threshold = 1;
+    config.activity_phase_limit = 3;
+    config.maximum_synapse_weight = 1;
+    config.refractory_input_events = 2;
+    eve::neural::Network network;
+    network.reset(config);
+    const eve::SynapseId synapse = network.add_synapse(0, 1, 0);
+    eve::brainstem::Brainstem brainstem;
+
+    const auto first = brainstem.receive_impulse(network, synapse, config);
+    require(first.strengthened && first.fired, "combined first impulse should learn and fire");
+    const auto second = brainstem.receive_impulse(network, synapse, config);
+    const auto third = brainstem.receive_impulse(network, synapse, config);
+    require(second.firing_suppressed && third.firing_suppressed,
+            "combined refractory phase did not suppress firing");
+    require(second.strengthening_rejected_by_weight_limit &&
+                third.strengthening_rejected_by_weight_limit,
+            "combined weight limit did not reject strengthening");
+    require(third.phase_completed, "combined phase did not complete");
+    require_equal(network.synapse(synapse).weight, 1,
+                  "phase completion bypassed combined weight limit");
+    const auto fourth = brainstem.receive_impulse(network, synapse, config);
+    require(fourth.fired, "combined neuron did not fire after refractory phase");
 }
 
 void test_input_weight_budget_free_capacity() {
@@ -291,14 +321,17 @@ void test_regulation_state_persistence() {
         std::filesystem::temp_directory_path() / "eve-experiment-002-test-state.bin";
     auto config = small_config();
     config.initial_outgoing_synapses = 1;
-    config.initial_synapse_weight = 3;
-    config.maximum_synapse_weight = 4;
+    config.initial_synapse_weight = 1;
+    config.maximum_synapse_weight = 1;
     config.input_weight_budget = 8;
     config.refractory_input_events = 2;
-    config.learning_enabled = false;
+    config.synaptic_learning_threshold = 1;
+    config.firing_threshold = 100;
     eve::bios::Runtime original(config, 123);
     original.enqueue_fire(0);
     static_cast<void>(original.run());
+    require_equal(original.metrics().rejected_strengthenings_at_weight_limit, 1ULL,
+                  "runtime did not count a rejected strengthening");
     original.save(path.string());
     eve::bios::Runtime restored = eve::bios::Runtime::load(path.string());
     require_equal(original.config().input_weight_budget, restored.config().input_weight_budget,
@@ -308,6 +341,8 @@ void test_regulation_state_persistence() {
                   "refractory configuration was not restored");
     require_equal(original.state_fingerprint(), restored.state_fingerprint(),
                   "regulated state differs after restore");
+    require_equal(original.metrics(), restored.metrics(),
+                  "regulated metrics differ after restore");
     require_equal(original.network().neurons(), restored.network().neurons(),
                   "refractory neuron state differs after restore");
     static_cast<void>(std::filesystem::remove(path));
@@ -441,6 +476,7 @@ int main() {
         {"learning before simultaneous phase completion", test_learning_precedes_phase_completion},
         {"learning through a zero-weight synapse", test_learning_from_zero_weight},
         {"maximum synapse weight", test_maximum_synapse_weight},
+        {"combined refractory and weight limit", test_combined_refractory_and_weight_limit},
         {"input budget with free capacity", test_input_weight_budget_free_capacity},
         {"input budget redistribution", test_input_weight_budget_redistribution},
         {"input budget without competitor", test_input_weight_budget_without_competitor},

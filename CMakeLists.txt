@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.16)
 
 project(EVE VERSION 0.1.0 LANGUAGES CXX)
 
+find_package(Threads REQUIRED)
+
 add_library(eve_core
     src/neural/network.cpp
     src/brainstem/brainstem.cpp
@@ -30,6 +32,12 @@ target_link_libraries(eve_research_002 PRIVATE eve_core)
 
 add_executable(eve_experiment_002 src/experiment_002.cpp)
 target_link_libraries(eve_experiment_002 PRIVATE eve_core)
+
+add_executable(eve_experiment_003 src/experiment_003.cpp)
+target_link_libraries(eve_experiment_003 PRIVATE eve_core Threads::Threads)
+
+add_executable(eve_experiment_003_benchmark src/experiment_003_benchmark.cpp)
+target_link_libraries(eve_experiment_003_benchmark PRIVATE eve_core)
 
 include(CTest)
 if(BUILD_TESTING)
