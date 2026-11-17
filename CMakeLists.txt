@@ -1,0 +1,30 @@
+cmake_minimum_required(VERSION 3.16)
+
+project(EVE VERSION 0.1.0 LANGUAGES CXX)
+
+add_library(eve_core
+    src/neural/network.cpp
+    src/brainstem/brainstem.cpp
+    src/bios/runtime.cpp
+)
+target_include_directories(eve_core PUBLIC include)
+target_compile_features(eve_core PUBLIC cxx_std_17)
+
+if(MSVC)
+    target_compile_options(eve_core PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(eve_core PRIVATE -Wall -Wextra -Wpedantic -Wshadow)
+endif()
+
+add_executable(eve_experiment src/main.cpp)
+target_link_libraries(eve_experiment PRIVATE eve_core)
+
+add_executable(eve_sequence_experiment src/sequence_experiment.cpp)
+target_link_libraries(eve_sequence_experiment PRIVATE eve_core)
+
+include(CTest)
+if(BUILD_TESTING)
+    add_executable(eve_tests tests/test_main.cpp)
+    target_link_libraries(eve_tests PRIVATE eve_core)
+    add_test(NAME eve_experiment_001 COMMAND eve_tests)
+endif()

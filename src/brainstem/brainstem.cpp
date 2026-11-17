@@ -1,0 +1,156 @@
+#include "eve/brainstem/brainstem.hpp"
+
+#include "eve/bios/runtime.hpp"
+
+#include <algorithm>
+#include <cstdint>
+#include <limits>
+#include <stdexcept>
+#include <vector>
+
+namespace eve::brainstem {
+namespace {
+
+std::uint32_t absolute_difference(const std::uint32_t left, const std::uint32_t right) {
+    return left > right ? left - right : right - left;
+}
+
+std::uint32_t chebyshev_distance(const Coordinate left, const Coordinate right) {
+    return std::max({
+        absolute_difference(left.x, right.x),
+        absolute_difference(left.y, right.y),
+        absolute_difference(left.z, right.z),
+    });
+}
+
+}  // namespace
+
+void Brainstem::initialize_network(
+    neural::Network& network,
+    const ExperimentConfig& config,
+    bios::DeterministicRng& rng) const {
+    network.reset(config);
+    for (NeuronId sender = 0; sender < config.neuron_count; ++sender) {
+        while (network.neuron(sender).outgoing_count < config.initial_outgoing_synapses) {
+            const NeuronId receiver = rng.bounded(config.neuron_count);
+            if (receiver == sender || network.has_synapse(sender, receiver)) {
+                continue;
+            }
+            static_cast<void>(
+                network.add_synapse(sender, receiver, config.initial_synapse_weight));
+        }
+    }
+}
+
+ImpulseResult Brainstem::receive_impulse(
+    neural::Network& network,
+    const SynapseId synapse_id,
+    const ExperimentConfig& config) const {
+    neural::Synapse& synapse = network.synapse(synapse_id);
+    neural::Neuron& neuron = network.neuron(synapse.receiver);
+
+    ++neuron.input_event_count;
+    ++synapse.activity_count;
+
+    ImpulseResult result;
+    if (config.learning_enabled &&
+        synapse.activity_count >= config.synaptic_learning_threshold) {
+        if (synapse.weight < config.maximum_synapse_weight) {
+            ++synapse.weight;
+            result.strengthened = true;
+        }
+        synapse.activity_count = 0;
+    }
+
+    result.applied_weight = synapse.weight;
+    const std::int64_t weight = result.applied_weight;
+    if (weight > 0 && neuron.membrane_potential >
+                          std::numeric_limits<std::int64_t>::max() - weight) {
+        neuron.membrane_potential = std::numeric_limits<std::int64_t>::max();
+    } else {
+        neuron.membrane_potential += weight;
+    }
+
+    if (neuron.membrane_potential >= neuron.firing_threshold) {
+        result.fired = true;
+        if (config.reset_mode == ResetMode::to_zero) {
+            neuron.membrane_potential = 0;
+        } else {
+            neuron.membrane_potential -= neuron.firing_threshold;
+        }
+    }
+
+    if (neuron.input_event_count >= config.activity_phase_limit) {
+        result.phase_completed = true;
+        neuron.input_event_count = 0;
+        network.reset_incoming_activity(synapse.receiver);
+    }
+    result.membrane_after = neuron.membrane_potential;
+    return result;
+}
+
+bool Brainstem::should_attempt_growth(
+    const std::uint32_t outgoing_count,
+    bios::DeterministicRng& rng) const {
+    if (outgoing_count == std::numeric_limits<std::uint32_t>::max()) {
+        return false;
+    }
+    return rng.bounded(outgoing_count + 1U) == 0;
+}
+
+std::optional<SynapseId> Brainstem::attempt_growth(
+    neural::Network& network,
+    const NeuronId sender,
+    const ExperimentConfig& config,
+    bios::DeterministicRng& rng) const {
+    const neural::Neuron& source = network.neuron(sender);
+    if (!should_attempt_growth(source.outgoing_count, rng)) {
+        return std::nullopt;
+    }
+
+    const Coordinate origin = network.coordinate(sender);
+    const std::uint32_t maximum_radius =
+        std::max({config.width, config.height, config.depth}) - 1U;
+    for (std::uint32_t radius = 1; radius <= maximum_radius; ++radius) {
+        std::vector<NeuronId> candidates;
+        for (NeuronId candidate = 0; candidate < network.neuron_count(); ++candidate) {
+            if (candidate == sender || network.has_synapse(sender, candidate)) {
+                continue;
+            }
+            if (chebyshev_distance(origin, network.coordinate(candidate)) == radius) {
+                candidates.push_back(candidate);
+            }
+        }
+        if (!candidates.empty()) {
+            const NeuronId target = candidates[rng.bounded(
+                static_cast<std::uint32_t>(candidates.size()))];
+            return network.add_synapse(sender, target, 0);
+        }
+    }
+    return std::nullopt;
+}
+
+std::vector<EncodedByte> Brainstem::encode_utf8_bytes(
+    const std::vector<std::uint8_t>& bytes,
+    const std::uint32_t neuron_count) const {
+    if (neuron_count < 8) {
+        throw std::invalid_argument("the sensory interface requires at least eight neurons");
+    }
+
+    std::vector<EncodedByte> encoded;
+    encoded.reserve(bytes.size());
+    for (std::size_t index = 0; index < bytes.size(); ++index) {
+        EncodedByte item;
+        item.byte_index = index;
+        item.value = bytes[index];
+        for (std::uint32_t bit = 0; bit < 8; ++bit) {
+            if ((item.value & static_cast<std::uint8_t>(1U << bit)) != 0) {
+                item.fired_channels.push_back(bit);
+            }
+        }
+        encoded.push_back(std::move(item));
+    }
+    return encoded;
+}
+
+}  // namespace eve::brainstem
