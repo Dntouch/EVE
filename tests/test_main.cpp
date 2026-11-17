@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <functional>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -189,6 +190,146 @@ void test_learning_from_zero_weight() {
     require_equal(network.neuron(1).membrane_potential, 1LL, "third impulse uses learned weight");
 }
 
+void test_maximum_synapse_weight() {
+    auto config = small_config();
+    config.firing_threshold = 100;
+    config.synaptic_learning_threshold = 1;
+    config.maximum_synapse_weight = 1;
+    eve::neural::Network network;
+    network.reset(config);
+    const eve::SynapseId synapse = network.add_synapse(0, 1, 1);
+    const auto result = eve::brainstem::Brainstem{}.receive_impulse(network, synapse, config);
+    require(!result.strengthened, "capped synapse must not be strengthened");
+    require_equal(network.synapse(synapse).weight, 1, "maximum weight was exceeded");
+    require_equal(network.synapse(synapse).activity_count, 0U, "learning counter did not reset");
+}
+
+void test_input_weight_budget_free_capacity() {
+    auto config = small_config();
+    config.firing_threshold = 100;
+    config.synaptic_learning_threshold = 1;
+    config.input_weight_budget = 2;
+    eve::neural::Network network;
+    network.reset(config);
+    static_cast<void>(network.add_synapse(0, 3, 1));
+    const eve::SynapseId learning = network.add_synapse(1, 3, 0);
+    eve::bios::DeterministicRng rng(42);
+    const auto result =
+        eve::brainstem::Brainstem{}.receive_impulse(network, learning, config, &rng);
+    require(result.strengthened, "free input budget should allow strengthening");
+    require(!result.weakened, "free input budget must not weaken another synapse");
+    require_equal(network.synapse(learning).weight, 1, "learning weight did not increase");
+}
+
+void test_input_weight_budget_redistribution() {
+    const auto execute = []() {
+        auto config = small_config();
+        config.firing_threshold = 100;
+        config.synaptic_learning_threshold = 1;
+        config.input_weight_budget = 2;
+        eve::neural::Network network;
+        network.reset(config);
+        const eve::SynapseId first = network.add_synapse(0, 3, 1);
+        const eve::SynapseId second = network.add_synapse(1, 3, 1);
+        const eve::SynapseId learning = network.add_synapse(2, 3, 0);
+        eve::bios::DeterministicRng rng(99);
+        const auto result =
+            eve::brainstem::Brainstem{}.receive_impulse(network, learning, config, &rng);
+        require(result.strengthened && result.weakened, "budget must redistribute weight");
+        require_equal(network.synapse(learning).weight, 1, "learning synapse did not gain weight");
+        require(
+            network.synapse(first).weight + network.synapse(second).weight == 1,
+            "exactly one competing synapse must lose weight");
+        require(
+            network.synapse(first).weight >= 0 && network.synapse(second).weight >= 0,
+            "competition created a negative weight");
+        return network.state_fingerprint();
+    };
+    require_equal(execute(), execute(), "same competition seed selected a different synapse");
+}
+
+void test_input_weight_budget_without_competitor() {
+    auto config = small_config();
+    config.firing_threshold = 100;
+    config.synaptic_learning_threshold = 1;
+    config.input_weight_budget = 1;
+    eve::neural::Network network;
+    network.reset(config);
+    const eve::SynapseId learning = network.add_synapse(0, 1, 1);
+    eve::bios::DeterministicRng rng(7);
+    const auto result =
+        eve::brainstem::Brainstem{}.receive_impulse(network, learning, config, &rng);
+    require(!result.strengthened && !result.weakened, "source synapse was its own competitor");
+    require_equal(network.synapse(learning).weight, 1, "weight changed without a competitor");
+}
+
+void test_refractory_events_keep_processing_and_learning() {
+    auto config = small_config();
+    config.firing_threshold = 3;
+    config.synaptic_learning_threshold = 1;
+    config.maximum_synapse_weight = 10;
+    config.refractory_input_events = 2;
+    eve::neural::Network network;
+    network.reset(config);
+    const eve::SynapseId synapse = network.add_synapse(0, 1, 2);
+    eve::brainstem::Brainstem brainstem;
+
+    const auto first = brainstem.receive_impulse(network, synapse, config);
+    require(first.fired, "first learned impulse should fire");
+    const auto second = brainstem.receive_impulse(network, synapse, config);
+    const auto third = brainstem.receive_impulse(network, synapse, config);
+    require(!second.fired && !third.fired, "neuron fired during refractory events");
+    require(second.firing_suppressed && third.firing_suppressed, "suppression was not reported");
+    require(second.strengthened && third.strengthened, "learning stopped during refractory phase");
+    require_equal(network.neuron(1).input_event_count, 3U, "input events were not counted");
+    const auto fourth = brainstem.receive_impulse(network, synapse, config);
+    require(fourth.fired, "neuron did not fire after refractory phase");
+}
+
+void test_regulation_state_persistence() {
+    const std::filesystem::path path =
+        std::filesystem::temp_directory_path() / "eve-experiment-002-test-state.bin";
+    auto config = small_config();
+    config.initial_outgoing_synapses = 1;
+    config.initial_synapse_weight = 3;
+    config.maximum_synapse_weight = 4;
+    config.input_weight_budget = 8;
+    config.refractory_input_events = 2;
+    config.learning_enabled = false;
+    eve::bios::Runtime original(config, 123);
+    original.enqueue_fire(0);
+    static_cast<void>(original.run());
+    original.save(path.string());
+    eve::bios::Runtime restored = eve::bios::Runtime::load(path.string());
+    require_equal(original.config().input_weight_budget, restored.config().input_weight_budget,
+                  "input budget was not restored");
+    require_equal(original.config().refractory_input_events,
+                  restored.config().refractory_input_events,
+                  "refractory configuration was not restored");
+    require_equal(original.state_fingerprint(), restored.state_fingerprint(),
+                  "regulated state differs after restore");
+    require_equal(original.network().neurons(), restored.network().neurons(),
+                  "refractory neuron state differs after restore");
+    static_cast<void>(std::filesystem::remove(path));
+}
+
+void test_disabled_regulations_match_reference() {
+    auto reference_config = small_config();
+    reference_config.initial_outgoing_synapses = 2;
+    eve::ExperimentConfig explicit_config = reference_config;
+    explicit_config.maximum_synapse_weight = std::numeric_limits<std::int32_t>::max();
+    explicit_config.input_weight_budget = std::numeric_limits<std::uint64_t>::max();
+    explicit_config.refractory_input_events = 0;
+    eve::bios::Runtime reference(reference_config, 20261117);
+    eve::bios::Runtime explicit_disabled(explicit_config, 20261117);
+    static_cast<void>(reference.process_utf8_text("ABAB"));
+    static_cast<void>(explicit_disabled.process_utf8_text("ABAB"));
+    require_equal(reference.state_fingerprint(), explicit_disabled.state_fingerprint(),
+                  "disabled regulations changed reference execution");
+    require_equal(reference.metrics(), explicit_disabled.metrics(),
+                  "disabled regulations changed reference metrics");
+}
+
 void test_growth_probability_and_partner_selection() {
     eve::brainstem::Brainstem brainstem;
     eve::bios::DeterministicRng statistics_rng(1234);
@@ -299,6 +440,13 @@ int main() {
         {"activity phase reset after eight impulses", test_phase_reset_after_eight_impulses},
         {"learning before simultaneous phase completion", test_learning_precedes_phase_completion},
         {"learning through a zero-weight synapse", test_learning_from_zero_weight},
+        {"maximum synapse weight", test_maximum_synapse_weight},
+        {"input budget with free capacity", test_input_weight_budget_free_capacity},
+        {"input budget redistribution", test_input_weight_budget_redistribution},
+        {"input budget without competitor", test_input_weight_budget_without_competitor},
+        {"refractory processing and learning", test_refractory_events_keep_processing_and_learning},
+        {"regulation state persistence", test_regulation_state_persistence},
+        {"disabled regulations reproduce reference", test_disabled_regulations_match_reference},
         {"growth probability and partner selection", test_growth_probability_and_partner_selection},
         {"reproducible execution", test_reproducible_execution},
         {"state persistence", test_persistence_round_trip},

@@ -45,7 +45,8 @@ void Brainstem::initialize_network(
 ImpulseResult Brainstem::receive_impulse(
     neural::Network& network,
     const SynapseId synapse_id,
-    const ExperimentConfig& config) const {
+    const ExperimentConfig& config,
+    bios::DeterministicRng* const rng) const {
     neural::Synapse& synapse = network.synapse(synapse_id);
     neural::Neuron& neuron = network.neuron(synapse.receiver);
 
@@ -56,8 +57,36 @@ ImpulseResult Brainstem::receive_impulse(
     if (config.learning_enabled &&
         synapse.activity_count >= config.synaptic_learning_threshold) {
         if (synapse.weight < config.maximum_synapse_weight) {
-            ++synapse.weight;
-            result.strengthened = true;
+            if (config.input_weight_budget ==
+                std::numeric_limits<std::uint64_t>::max()) {
+                ++synapse.weight;
+                result.strengthened = true;
+            } else {
+                std::uint64_t positive_input_weight = 0;
+                for (const SynapseId incoming : network.incoming_synapses(synapse.receiver)) {
+                    const std::int32_t weight = network.synapse(incoming).weight;
+                    if (weight > 0) {
+                        positive_input_weight += static_cast<std::uint32_t>(weight);
+                    }
+                }
+                if (positive_input_weight < config.input_weight_budget) {
+                    ++synapse.weight;
+                    result.strengthened = true;
+                } else {
+                    if (rng == nullptr) {
+                        throw std::logic_error(
+                            "input-weight competition requires a deterministic RNG");
+                    }
+                    const auto competitor =
+                        select_competing_synapse(network, synapse_id, *rng);
+                    if (competitor.has_value()) {
+                        --network.synapse(*competitor).weight;
+                        ++synapse.weight;
+                        result.strengthened = true;
+                        result.weakened = true;
+                    }
+                }
+            }
         }
         synapse.activity_count = 0;
     }
@@ -71,13 +100,20 @@ ImpulseResult Brainstem::receive_impulse(
         neuron.membrane_potential += weight;
     }
 
-    if (neuron.membrane_potential >= neuron.firing_threshold) {
+    const bool refractory = neuron.refractory_events_remaining > 0;
+    if (refractory) {
+        --neuron.refractory_events_remaining;
+    }
+    if (!refractory && neuron.membrane_potential >= neuron.firing_threshold) {
         result.fired = true;
+        neuron.refractory_events_remaining = config.refractory_input_events;
         if (config.reset_mode == ResetMode::to_zero) {
             neuron.membrane_potential = 0;
         } else {
             neuron.membrane_potential -= neuron.firing_threshold;
         }
+    } else if (refractory && neuron.membrane_potential >= neuron.firing_threshold) {
+        result.firing_suppressed = true;
     }
 
     if (neuron.input_event_count >= config.activity_phase_limit) {
@@ -87,6 +123,23 @@ ImpulseResult Brainstem::receive_impulse(
     }
     result.membrane_after = neuron.membrane_potential;
     return result;
+}
+
+std::optional<SynapseId> Brainstem::select_competing_synapse(
+    const neural::Network& network,
+    const SynapseId strengthened_synapse,
+    bios::DeterministicRng& rng) const {
+    const neural::Synapse& strengthened = network.synapse(strengthened_synapse);
+    std::vector<SynapseId> candidates;
+    for (const SynapseId incoming : network.incoming_synapses(strengthened.receiver)) {
+        if (incoming != strengthened_synapse && network.synapse(incoming).weight > 0) {
+            candidates.push_back(incoming);
+        }
+    }
+    if (candidates.empty()) {
+        return std::nullopt;
+    }
+    return candidates[rng.bounded(static_cast<std::uint32_t>(candidates.size()))];
 }
 
 bool Brainstem::should_attempt_growth(

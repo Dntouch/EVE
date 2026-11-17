@@ -36,6 +36,8 @@ struct ExperimentConfig {
     std::uint32_t activity_phase_limit{8};
     std::int32_t initial_synapse_weight{0};
     std::int32_t maximum_synapse_weight{std::numeric_limits<std::int32_t>::max()};
+    std::uint64_t input_weight_budget{std::numeric_limits<std::uint64_t>::max()};
+    std::uint32_t refractory_input_events{};
     std::uint64_t maximum_events_per_run{1'000'000};
     bool learning_enabled{true};
     bool growth_enabled{true};
@@ -48,9 +50,12 @@ struct Metrics {
     std::uint64_t fire_events{};
     std::uint64_t completed_activity_phases{};
     std::uint64_t synaptic_strengthenings{};
+    std::uint64_t synaptic_weakenings{};
+    std::uint64_t refractory_suppressed_firings{};
     std::uint64_t growth_attempts{};
     std::uint64_t grown_synapses{};
     std::uint64_t processed_sensor_bytes{};
+    std::uint64_t maximum_queue_size{};
     std::uint64_t event_trace_hash{14695981039346656037ULL};
 
     bool operator==(const Metrics& other) const noexcept {
@@ -59,9 +64,12 @@ struct Metrics {
                fire_events == other.fire_events &&
                completed_activity_phases == other.completed_activity_phases &&
                synaptic_strengthenings == other.synaptic_strengthenings &&
+               synaptic_weakenings == other.synaptic_weakenings &&
+               refractory_suppressed_firings == other.refractory_suppressed_firings &&
                growth_attempts == other.growth_attempts &&
                grown_synapses == other.grown_synapses &&
                processed_sensor_bytes == other.processed_sensor_bytes &&
+               maximum_queue_size == other.maximum_queue_size &&
                event_trace_hash == other.event_trace_hash;
     }
 };

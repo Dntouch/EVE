@@ -29,6 +29,7 @@ bool Neuron::operator==(const Neuron& other) const noexcept {
     return membrane_potential == other.membrane_potential &&
            firing_threshold == other.firing_threshold &&
            input_event_count == other.input_event_count &&
+           refractory_events_remaining == other.refractory_events_remaining &&
            first_incoming == other.first_incoming &&
            first_outgoing == other.first_outgoing &&
            incoming_count == other.incoming_count && outgoing_count == other.outgoing_count;
@@ -200,6 +201,7 @@ std::uint64_t Network::state_fingerprint() const noexcept {
         hash_u64(hash, static_cast<std::uint64_t>(item.membrane_potential));
         hash_u64(hash, static_cast<std::uint64_t>(item.firing_threshold));
         hash_u64(hash, item.input_event_count);
+        hash_u64(hash, item.refractory_events_remaining);
         hash_u64(hash, item.first_incoming);
         hash_u64(hash, item.first_outgoing);
         hash_u64(hash, item.incoming_count);

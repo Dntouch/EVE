@@ -14,6 +14,7 @@ struct Neuron {
     std::int64_t membrane_potential{};
     std::int64_t firing_threshold{};
     std::uint32_t input_event_count{};
+    std::uint32_t refractory_events_remaining{};
     SynapseId first_incoming{kInvalidIndex};
     SynapseId first_outgoing{kInvalidIndex};
     std::uint32_t incoming_count{};

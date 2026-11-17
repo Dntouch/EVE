@@ -91,6 +91,7 @@ private:
     void process_fire(NeuronId neuron);
     void process_impulse(SynapseId synapse);
     void update_event_hash(const Event& event) noexcept;
+    void update_queue_watermark() noexcept;
     void trace(const std::string& line);
 
     ExperimentConfig config_;

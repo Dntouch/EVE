@@ -28,9 +28,12 @@ target_link_libraries(eve_performance_benchmark PRIVATE eve_core)
 add_executable(eve_research_002 src/research_002.cpp)
 target_link_libraries(eve_research_002 PRIVATE eve_core)
 
+add_executable(eve_experiment_002 src/experiment_002.cpp)
+target_link_libraries(eve_experiment_002 PRIVATE eve_core)
+
 include(CTest)
 if(BUILD_TESTING)
     add_executable(eve_tests tests/test_main.cpp)
     target_link_libraries(eve_tests PRIVATE eve_core)
-    add_test(NAME eve_experiment_001 COMMAND eve_tests)
+    add_test(NAME eve_core_tests COMMAND eve_tests)
 endif()

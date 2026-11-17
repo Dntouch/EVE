@@ -45,3 +45,23 @@ deterministisch.
 
 Fingerabdrücke verwenden FNV-1a als reproduzierbares Vergleichsmaß. Sie sind
 keine kryptografischen Integritätsnachweise.
+
+## Experiment 002 – neuronale Selbstregulation
+
+Build, Tests und vollständige 512er-Matrix:
+
+```sh
+scripts/run_experiment_002.sh research/results 512
+```
+
+Ein einzelner Parameter kann für schnelle Reproduktionen ausgewählt werden:
+
+```sh
+scripts/run_experiment_002.sh /tmp/eve-experiment-002 512 C5
+```
+
+Die Parameter stehen in `experiment-002-parameters.csv`. Hauptläufe,
+Wiedererkennung, einzelne Interferenzerfahrungen, Interferenztests, statische
+Performance und Aggregation liegen als `experiment-002-*.csv` unter `results`.
+Zeitwerte sind maschinen- und lastabhängig; Ereignisse, Zustände und
+Aktivitätshashes sind bei identischem Build deterministisch.

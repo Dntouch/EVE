@@ -11,7 +11,7 @@ namespace eve::bios {
 namespace {
 
 constexpr std::array<char, 8> kPersistenceMagic{{'E', 'V', 'E', '0', '0', '1', '\r', '\n'}};
-constexpr std::uint32_t kPersistenceVersion = 1;
+constexpr std::uint32_t kPersistenceVersion = 2;
 constexpr std::uint64_t kNonZeroRngState = 0x9e3779b97f4a7c15ULL;
 constexpr std::uint64_t kFnvPrime = 1099511628211ULL;
 
@@ -113,13 +113,15 @@ void write_config(std::ostream& stream, const ExperimentConfig& config) {
     write_u32(stream, config.activity_phase_limit);
     write_i32(stream, config.initial_synapse_weight);
     write_i32(stream, config.maximum_synapse_weight);
+    write_u64(stream, config.input_weight_budget);
+    write_u32(stream, config.refractory_input_events);
     write_u64(stream, config.maximum_events_per_run);
     write_u8(stream, config.learning_enabled ? 1 : 0);
     write_u8(stream, config.growth_enabled ? 1 : 0);
     write_u8(stream, static_cast<std::uint8_t>(config.reset_mode));
 }
 
-ExperimentConfig read_config(std::istream& stream) {
+ExperimentConfig read_config(std::istream& stream, const std::uint32_t version) {
     ExperimentConfig config;
     config.neuron_count = read_u32(stream);
     config.width = read_u32(stream);
@@ -131,6 +133,10 @@ ExperimentConfig read_config(std::istream& stream) {
     config.activity_phase_limit = read_u32(stream);
     config.initial_synapse_weight = read_i32(stream);
     config.maximum_synapse_weight = read_i32(stream);
+    if (version >= 2) {
+        config.input_weight_budget = read_u64(stream);
+        config.refractory_input_events = read_u32(stream);
+    }
     config.maximum_events_per_run = read_u64(stream);
     config.learning_enabled = read_bool(stream);
     config.growth_enabled = read_bool(stream);
@@ -148,22 +154,32 @@ void write_metrics(std::ostream& stream, const Metrics& metrics) {
     write_u64(stream, metrics.fire_events);
     write_u64(stream, metrics.completed_activity_phases);
     write_u64(stream, metrics.synaptic_strengthenings);
+    write_u64(stream, metrics.synaptic_weakenings);
+    write_u64(stream, metrics.refractory_suppressed_firings);
     write_u64(stream, metrics.growth_attempts);
     write_u64(stream, metrics.grown_synapses);
     write_u64(stream, metrics.processed_sensor_bytes);
+    write_u64(stream, metrics.maximum_queue_size);
     write_u64(stream, metrics.event_trace_hash);
 }
 
-Metrics read_metrics(std::istream& stream) {
+Metrics read_metrics(std::istream& stream, const std::uint32_t version) {
     Metrics metrics;
     metrics.processed_events = read_u64(stream);
     metrics.transmitted_impulses = read_u64(stream);
     metrics.fire_events = read_u64(stream);
     metrics.completed_activity_phases = read_u64(stream);
     metrics.synaptic_strengthenings = read_u64(stream);
+    if (version >= 2) {
+        metrics.synaptic_weakenings = read_u64(stream);
+        metrics.refractory_suppressed_firings = read_u64(stream);
+    }
     metrics.growth_attempts = read_u64(stream);
     metrics.grown_synapses = read_u64(stream);
     metrics.processed_sensor_bytes = read_u64(stream);
+    if (version >= 2) {
+        metrics.maximum_queue_size = read_u64(stream);
+    }
     metrics.event_trace_hash = read_u64(stream);
     return metrics;
 }
@@ -230,6 +246,7 @@ Runtime::Runtime(
 void Runtime::enqueue_fire(const NeuronId neuron) {
     static_cast<void>(network_.neuron(neuron));
     queue_.push_back(Event{EventKind::fire, neuron});
+    update_queue_watermark();
 }
 
 std::uint64_t Runtime::run() {
@@ -339,6 +356,8 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
     mix_hash(hash, config_.activity_phase_limit);
     mix_hash(hash, static_cast<std::uint32_t>(config_.initial_synapse_weight));
     mix_hash(hash, static_cast<std::uint32_t>(config_.maximum_synapse_weight));
+    mix_hash(hash, config_.input_weight_budget);
+    mix_hash(hash, config_.refractory_input_events);
     mix_hash(hash, config_.maximum_events_per_run);
     mix_hash(hash, config_.learning_enabled ? 1 : 0);
     mix_hash(hash, config_.growth_enabled ? 1 : 0);
@@ -348,9 +367,12 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
     mix_hash(hash, metrics_.fire_events);
     mix_hash(hash, metrics_.completed_activity_phases);
     mix_hash(hash, metrics_.synaptic_strengthenings);
+    mix_hash(hash, metrics_.synaptic_weakenings);
+    mix_hash(hash, metrics_.refractory_suppressed_firings);
     mix_hash(hash, metrics_.growth_attempts);
     mix_hash(hash, metrics_.grown_synapses);
     mix_hash(hash, metrics_.processed_sensor_bytes);
+    mix_hash(hash, metrics_.maximum_queue_size);
     mix_hash(hash, metrics_.event_trace_hash);
     for (const Event& event : queue_) {
         mix_hash(hash, static_cast<std::uint8_t>(event.kind));
@@ -379,6 +401,7 @@ void Runtime::save(const std::string& path) const {
         write_i64(stream, neuron.membrane_potential);
         write_i64(stream, neuron.firing_threshold);
         write_u32(stream, neuron.input_event_count);
+        write_u32(stream, neuron.refractory_events_remaining);
         write_u32(stream, neuron.first_incoming);
         write_u32(stream, neuron.first_outgoing);
         write_u32(stream, neuron.incoming_count);
@@ -417,14 +440,15 @@ Runtime Runtime::load(const std::string& path) {
     if (magic != kPersistenceMagic) {
         throw std::runtime_error("not an EVE Experiment 001 state file");
     }
-    if (read_u32(stream) != kPersistenceVersion) {
+    const std::uint32_t version = read_u32(stream);
+    if (version == 0 || version > kPersistenceVersion) {
         throw std::runtime_error("unsupported EVE state version");
     }
 
-    ExperimentConfig config = read_config(stream);
+    ExperimentConfig config = read_config(stream, version);
     Runtime runtime(config, 1, SkipInitializationTag{});
     runtime.rng_.set_state(read_u64(stream));
-    runtime.metrics_ = read_metrics(stream);
+    runtime.metrics_ = read_metrics(stream, version);
 
     const std::uint32_t width = read_u32(stream);
     const std::uint32_t height = read_u32(stream);
@@ -442,6 +466,9 @@ Runtime Runtime::load(const std::string& path) {
         neuron.membrane_potential = read_i64(stream);
         neuron.firing_threshold = read_i64(stream);
         neuron.input_event_count = read_u32(stream);
+        if (version >= 2) {
+            neuron.refractory_events_remaining = read_u32(stream);
+        }
         neuron.first_incoming = read_u32(stream);
         neuron.first_outgoing = read_u32(stream);
         neuron.incoming_count = read_u32(stream);
@@ -487,6 +514,7 @@ Runtime Runtime::load(const std::string& path) {
         }
         runtime.queue_.push_back(event);
     }
+    runtime.update_queue_watermark();
 
     if (stream.peek() != std::char_traits<char>::eof()) {
         throw std::runtime_error("unexpected trailing data in EVE state");
@@ -516,6 +544,9 @@ void Runtime::validate_config() const {
         config_.initial_synapse_weight > config_.maximum_synapse_weight) {
         throw std::invalid_argument("Experiment 001 weights must be non-negative and bounded");
     }
+    if (config_.input_weight_budget == 0) {
+        throw std::invalid_argument("input weight budget must be positive or unlimited");
+    }
 }
 
 void Runtime::process_fire(const NeuronId neuron) {
@@ -535,6 +566,7 @@ void Runtime::process_fire(const NeuronId neuron) {
         queue_.push_back(Event{EventKind::impulse, synapse});
         ++metrics_.transmitted_impulses;
     }
+    update_queue_watermark();
 
     if (config_.growth_enabled) {
         ++metrics_.growth_attempts;
@@ -552,9 +584,15 @@ void Runtime::process_fire(const NeuronId neuron) {
 void Runtime::process_impulse(const SynapseId synapse) {
     const neural::Synapse before = network_.synapse(synapse);
     const brainstem::ImpulseResult result =
-        brainstem_.receive_impulse(network_, synapse, config_);
+        brainstem_.receive_impulse(network_, synapse, config_, &rng_);
     if (result.strengthened) {
         ++metrics_.synaptic_strengthenings;
+    }
+    if (result.weakened) {
+        ++metrics_.synaptic_weakenings;
+    }
+    if (result.firing_suppressed) {
+        ++metrics_.refractory_suppressed_firings;
     }
     if (result.phase_completed) {
         ++metrics_.completed_activity_phases;
@@ -571,6 +609,13 @@ void Runtime::process_impulse(const SynapseId synapse) {
 
     if (result.fired) {
         queue_.push_back(Event{EventKind::fire, before.receiver});
+        update_queue_watermark();
+    }
+}
+
+void Runtime::update_queue_watermark() noexcept {
+    if (queue_.size() > metrics_.maximum_queue_size) {
+        metrics_.maximum_queue_size = queue_.size();
     }
 }
 

@@ -27,6 +27,8 @@ struct EncodedByte {
 struct ImpulseResult {
     bool fired{};
     bool strengthened{};
+    bool weakened{};
+    bool firing_suppressed{};
     bool phase_completed{};
     std::int32_t applied_weight{};
     std::int64_t membrane_after{};
@@ -42,7 +44,13 @@ public:
     [[nodiscard]] ImpulseResult receive_impulse(
         neural::Network& network,
         SynapseId synapse,
-        const ExperimentConfig& config) const;
+        const ExperimentConfig& config,
+        bios::DeterministicRng* rng = nullptr) const;
+
+    [[nodiscard]] std::optional<SynapseId> select_competing_synapse(
+        const neural::Network& network,
+        SynapseId strengthened_synapse,
+        bios::DeterministicRng& rng) const;
 
     [[nodiscard]] bool should_attempt_growth(
         std::uint32_t outgoing_count,
