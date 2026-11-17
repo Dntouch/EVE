@@ -1,5 +1,7 @@
 # EVE – Dynamische gewichtete Neuronenausgänge
 
+> **Status: Verworfen.** Dieses Prinzip wird nicht weiterverfolgt und wurde durch [Dynamische gewichtete Neuroneneingänge](EVE-Dynamische-gewichtete-Neuroneneingaenge.md) ersetzt.
+
 ## Grundprinzip
 
 Ein Neuron besitzt einen Signalausgang, der sich auf mehrere **gewichtete Ausgänge** verteilt. An jeden dieser Ausgänge können beliebig viele gerichtete Synapsen angeschlossen werden.
