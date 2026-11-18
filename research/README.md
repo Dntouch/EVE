@@ -316,3 +316,22 @@ Sequenz-, Alternierungs- und Mischaufgaben tatsächlich ausgeführt.
 
 Wachstum wird vor der Auswertung abgeschaltet. Neue Verbindungen werden strikt
 von nachgewiesenen funktionalen Gewichtsbeiträgen unterschieden.
+
+## Forschungsstufe B.4.5 – lokale Entscheidungsbindung
+
+Build und vollständige K0–K4-Matrix:
+
+```sh
+scripts/run-research-stage-b45.sh research/results/b45
+```
+
+Der Runner führt 143 Varianten mit je 64 gepaarten Seeds aus und bestätigt die
+zentralen Ambiguitätsvarianten mit Seeds 1001–1064. Er erzeugt vollständige
+Trial-, Feuer-, Kandidaten-, Modulations- und Gewichtsprotokolle sowie
+Verwechslungsmatrizen, Seedwerte, gepaarte Bootstrapvergleiche,
+Kausalvergleiche, Hypothesen- und Erfolgskriterien, Regressionen, Persistenz,
+Stabilität, Ressourcen und Performance.
+
+Wachstum ist in allen B.4.5-Varianten deaktiviert. Laufzeit- und RSS-Werte sind
+maschinenabhängig; alle übrigen Ergebnisdateien sind bei identischem Build
+und Seed deterministisch.

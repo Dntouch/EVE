@@ -1,0 +1,6 @@
+intervention,reference,seeds,mean_score_difference,bootstrap_low,bootstrap_high,mean_training_both_difference,score_improved_seeds,both_reduced_seeds
+K2_negative25_mixed,K1_active_phase_mixed,64,0.174292,0.13264,0.218335,-24.3438,45,63
+K2_negative50_mixed,K1_active_phase_mixed,64,0.297049,0.250228,0.347736,-34.2344,55,64
+K2_negative75_mixed,K1_active_phase_mixed,64,0.369742,0.323895,0.417958,-39.9844,59,64
+K2_negative_mixed,K1_active_phase_mixed,64,0.409731,0.364592,0.45463,-44.7344,59,64
+K2_no_modulation_mixed,K1_active_phase_mixed,64,0,0,0,0,0,0

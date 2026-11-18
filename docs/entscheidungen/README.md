@@ -15,6 +15,7 @@ Dieser Ordner enthält bestätigte Entscheidungen zum Projekt sowie eine optiona
 | [0014](0014-begrenztes-einzelreiz-lernen-nach-b42.md) | Geschützte Exploration ermöglicht begrenztes Einzelreiz- und Umkehrlernen; eine allgemeine Freigabe erfolgt nicht. |
 | [0015](0015-keine-freigabe-mehrfachlernen-nach-b43.md) | B.4.3 weist synaptische Interferenz und starkes Vergessen nach; Mehrfachlernen wird nicht freigegeben. |
 | [0016](0016-strukturelle-kapazitaet-ausreichend-nach-b44.md) | B.4.4 weist für zwei Sequenzbeziehungen ausreichende Struktur und die lokale Lernzuordnung als dominanten Engpass aus; die allgemeine Freigabe bleibt gesperrt. |
+| [0017](0017-motorische-konkurrenz-nach-b45.md) | B.4.5 weist konkurrierende Motoraktivität als nächsten lokalen Engpass aus; eine inhibitorische Forschungsvariante wird erst für B.4.6 vorbereitet. |
 
 Nummer 0002 wurde entfernt. Die vorübergehende Nichtwahl eines Technologie-Stacks
 war keine bestätigte langfristige Projektentscheidung. Die Nummern 0004 bis

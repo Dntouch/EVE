@@ -32,6 +32,9 @@ angepasst werden.
 - [Auftrag B.4.4](016-entwicklungsauftrag-forschungsstufe-b44.md)
 - [Technische Analyse B.4.4](016-technische-analyse-synapsenwachstum.md)
 - [Bericht B.4.4](016-forschungsbericht-forschungsstufe-b44.md)
+- [Auftrag B.4.5](017-entwicklungsauftrag-forschungsstufe-b45.md)
+- [Technische Analyse B.4.5](017-technische-analyse-entscheidungsbindung.md)
+- [Bericht B.4.5](017-forschungsbericht-forschungsstufe-b45.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
@@ -44,3 +47,7 @@ Mehrfachlernen; die allgemeine Freigabe bleibt deshalb gesperrt.
 B.4.4 zeigt, dass dynamisches Wachstum zwar viele Nullgewicht-Verbindungen,
 aber keine funktionalen Lernwege erzeugt. `active_phase` reproduziert einen
 starken Sequenzeffekt ohne Wachstum; gemischtes Lernen bleibt ungelöst.
+B.4.5 schließt zeitliche Altspuren und bloße Kandidatenkapazität als
+dominante Mischfehler aus. Eine gezielte Ambiguitätsintervention weist
+motorische Konkurrenz kausal als nächsten Engpass nach, erreicht das robuste
+Lernziel aber nicht.

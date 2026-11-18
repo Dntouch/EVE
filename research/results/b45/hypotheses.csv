@@ -1,0 +1,6 @@
+hypothesis,status,key_measure,reference,interpretation
+H1_temporal_interference,not_dominant,0.358478,0.358478,no spacing-duration-feedback variant restored mixed learning
+H2_motor_competition,supported,0.409731,0.365012,targeted negative ambiguity feedback improved score and reduced doubles
+H3_missing_local_binding,not_resolved_by_existing_selection,0.358478,0.358478,candidate capacity and active_phase did not restore mixed learning
+C1_new_binding,not_implemented,0,0,not justified by K3 or K4
+C2_local_inhibition,deferred,0,0,H2 supports investigation but no validated local inhibition design exists

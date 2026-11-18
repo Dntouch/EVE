@@ -59,6 +59,11 @@ Verbindungen funktioniert technisch und persistent, verbessert die
 untersuchten Lernaufgaben aber nicht. Strukturelle Änderung und funktionaler
 Lernbeitrag werden daher in weiteren Arbeiten getrennt bewertet.
 
+B.4.5 lokalisiert konkurrierende Motoraktivität als Engpass gemischter
+Erfahrungen. Eine inhibitorische Erweiterung zählt weiterhin zu Phase 2
+„Lernen und Erinnerung“ und benötigt vor jeder Integration eigene lokale
+Ereignissemantik, Persistenz und Kausalablation.
+
 ## Erfolgskriterien aus dem Konzept
 
 Ein geeigneter kontrollierter Test folgt der dort beschriebenen Abfolge:

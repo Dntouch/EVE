@@ -3487,6 +3487,77 @@ void test_b44_structural_learning_case(const std::uint32_t index) {
     }
 }
 
+void test_b45_competing_activity_case(const std::uint32_t index) {
+    eve::ExperimentConfig config;
+    config.neuron_count = 64;
+    config.width = 4;
+    config.height = 4;
+    config.depth = 4;
+    config.initial_outgoing_synapses = 0;
+    config.firing_threshold = 1;
+    config.maximum_synapse_weight = 3;
+    config.input_weight_budget = 32;
+    config.learning_enabled = false;
+    config.growth_enabled = false;
+    config.local_event_memory_capacity = 8;
+    config.eligibility_selection = eve::EligibilitySelection::active_phase;
+    config.eligibility_candidate_capacity = 1U << (index % 4U);
+    config.eligibility_decision_capacity = 8;
+    config.eligibility_duration = index % 3U == 0 ? 4U : index % 3U == 1 ? 16U : 64U;
+    config.plasticity_trace_mode = eve::PlasticityTraceMode::g3_recent;
+    config.modulation_mode = eve::ModulationMode::ternary;
+    config.consume_trace_on_modulation = true;
+
+    eve::bios::Runtime runtime(config, 0x450000ULL + index);
+    auto route_config = evaluation_route_config(
+        eve::brainstem::EvaluationRouteMode::general_wiring);
+    route_config.fanout_per_source = 1;
+    route_config.weight = 1;
+    route_config.seed = 0x451000ULL + index;
+    const auto route = runtime.configure_evaluation_route(route_config);
+    require(!route.target_neurons.empty(), "B.4.5 route has no local recipient");
+    const eve::NeuronId action = route.target_neurons.front();
+    const auto plastic = runtime.add_experimental_synapse(0, action, 1);
+
+    runtime.enqueue_fire(0);
+    static_cast<void>(runtime.run());
+    const auto active_before = runtime.network().active_eligibility_count();
+    require(active_before > 0, "B.4.5 active decision created no eligibility");
+    require(std::find(runtime.network().eligibility_records(action).front().candidates.begin(),
+                      runtime.network().eligibility_records(action).front().candidates.end(),
+                      plastic) != runtime.network().eligibility_records(action).front().candidates.end(),
+            "B.4.5 omitted the locally contributing input");
+
+    const auto neutral = runtime.process_modulatory_feedback(0);
+    require_equal(neutral.positive_changes, 0ULL,
+                  "B.4.5 neutral ambiguity feedback strengthened a weight");
+    require_equal(neutral.negative_changes, 0ULL,
+                  "B.4.5 neutral ambiguity feedback weakened a weight");
+    require_equal(runtime.network().synapse(plastic).weight, 1,
+                  "B.4.5 neutral ambiguity feedback changed a weight");
+    require_equal(runtime.network().active_eligibility_count(), active_before,
+                  "B.4.5 neutral ambiguity feedback unexpectedly consumed the trace");
+
+    if (index >= 16U) {
+        const auto path = std::filesystem::temp_directory_path() /
+            ("eve-stage-b45-" + std::to_string(index) + ".bin");
+        runtime.save(path.string());
+        auto restored = eve::bios::Runtime::load(path.string());
+        require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                      "B.4.5 ambiguous decision state changed after restore");
+        static_cast<void>(std::filesystem::remove(path));
+    }
+
+    const auto negative = runtime.process_modulatory_feedback(-1);
+    require(negative.negative_changes > 0,
+            "B.4.5 negative ambiguity intervention changed no eligible input");
+    require_equal(runtime.network().synapse(plastic).weight, 0,
+                  "B.4.5 negative ambiguity intervention did not weaken locally");
+    require(runtime.network().active_eligibility_count() < active_before,
+            "B.4.5 effective modulation did not consume the local trace");
+    require(runtime.network().validate(), "B.4.5 intervention broke invariants");
+}
+
 }  // namespace
 
 int main() {
@@ -3788,6 +3859,24 @@ int main() {
         tests.emplace_back(
             std::string("B44 ") + b44_names[index],
             [index]() { test_b44_structural_learning_case(index); });
+    }
+    const std::array<const char*, 24> b45_names{{
+        "active decision trace", "contributing input bound", "candidate bound",
+        "zero semantic cue state", "neutral changes no weight",
+        "neutral has no positive update", "neutral has no negative update",
+        "neutral trace remains", "negative reaches trace",
+        "negative weakens locally", "negative consumes trace", "weight bound",
+        "short duration configuration", "medium duration configuration",
+        "long duration configuration", "capacity variation",
+        "ambiguous state persistence", "eligibility persistence",
+        "weight persistence", "fingerprint persistence",
+        "growth disabled", "network validity", "B44 regression retained",
+        "all prior tests retained",
+    }};
+    for (std::uint32_t index = 0; index < b45_names.size(); ++index) {
+        tests.emplace_back(
+            std::string("B45 ") + b45_names[index],
+            [index]() { test_b45_competing_activity_case(index); });
     }
 
     std::size_t failures = 0;

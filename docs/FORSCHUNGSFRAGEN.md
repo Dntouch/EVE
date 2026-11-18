@@ -39,3 +39,9 @@ gewichteten Wege. Die bestehende `active_phase`-Auswahl erhält zwei
 Blockbeziehungen ohne Wachstum, scheitert jedoch weiterhin bei alternierenden
 und gemischten Erfahrungen. Offen bleibt damit die lokale zeitliche Bindung
 verschachtelter Erfahrungen.
+B.4.5 zeigt, dass keine Rückmeldung im Mischversuch ältere Episodenspuren
+erreicht und Parameterabstimmung vorhandener Eligibility-Funktionen den Fehler
+nicht löst. Dagegen verbessert ein gezielter Eingriff bei doppelter
+Motoraktivierung die Leistung stark und reduziert Doppelhandlungen kausal.
+Offen ist eine allgemeine lokale inhibitorische Konkurrenz ohne technische
+Handlungsauswahl oder Ereignisreihenfolgebias.

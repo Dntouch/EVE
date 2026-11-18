@@ -28,6 +28,11 @@ enum class Task {
     sequential_xy, sequential_yx, alternating_xy, blocked_xy,
 };
 enum class Representation { separate, distributed, overlapping };
+enum class AmbiguousFeedback {
+    neutral_modulation,
+    negative_modulation,
+    no_modulation,
+};
 
 struct Variant {
     std::string name;
@@ -52,6 +57,9 @@ struct Variant {
     Representation representation{Representation::separate};
     bool structural_growth{};
     std::uint32_t static_extra_synapses{};
+    AmbiguousFeedback ambiguous_feedback{AmbiguousFeedback::neutral_modulation};
+    std::uint64_t episode_spacing{16};
+    std::uint64_t feedback_delay{1};
 };
 
 struct Plan {
@@ -99,6 +107,12 @@ struct Result {
     std::uint64_t structural_synapses_nonzero{};
     std::uint64_t structural_impulses{};
     std::uint64_t existing_synapses_changed{};
+    std::uint64_t training_correct_unique{};
+    std::uint64_t training_incorrect_unique{};
+    std::uint64_t training_both{};
+    std::uint64_t training_none{};
+    std::uint64_t first_half_both{};
+    std::uint64_t second_half_both{};
     std::size_t final_memory_bytes{};
     std::int32_t minimum_final_weight{};
     std::int32_t maximum_final_weight{};
@@ -129,6 +143,10 @@ struct Circuit {
 // records and never participates in candidate selection or modulation.
 std::ostream* b43_eligibility_diagnostics = nullptr;
 std::ostream* b44_growth_diagnostics = nullptr;
+std::ostream* b45_fire_diagnostics = nullptr;
+std::ostream* b45_decision_diagnostics = nullptr;
+std::ostream* b45_modulation_diagnostics = nullptr;
+bool b45_capture_detail = false;
 
 double mean(const std::vector<double>& values) {
     return values.empty() ? 0.0 :
@@ -409,6 +427,17 @@ Result run_seed(
     runtime.set_fire_observer([&](const eve::bios::FireObservation& event) {
         fired_a = fired_a || event.neuron == circuit.action_a;
         fired_b = fired_b || event.neuron == circuit.action_b;
+        if (b45_capture_detail && b45_fire_diagnostics != nullptr) {
+            const char* role = event.neuron == diagnostic_cue ? "presented_sensor" :
+                event.neuron == circuit.action_a ? "motor_A" :
+                event.neuron == circuit.action_b ? "motor_B" :
+                event.neuron < 2 ? "other_sensor" :
+                event.neuron < 6 ? "exploration" : "internal";
+            *b45_fire_diagnostics << variant.name << ',' << seed << ','
+                << diagnostic_episode << ',' << static_cast<unsigned>(diagnostic_cue)
+                << ',' << event.event_index << ',' << event.simulated_time << ','
+                << event.neuron << ',' << role << ',' << event.outgoing_count << '\n';
+        }
     });
     Result result;
     runtime.set_impulse_observer([&](const eve::bios::ImpulseObservation& event) {
@@ -440,6 +469,19 @@ Result run_seed(
                             ? -1 : static_cast<std::int64_t>(std::distance(
                                 event.local_event_snapshot.begin(), position)))
                     << ',' << order << '\n';
+            }
+            if (b45_capture_detail && b45_decision_diagnostics != nullptr) {
+                const auto& candidate = runtime.network().synapse(id);
+                *b45_decision_diagnostics << variant.name << ',' << seed << ','
+                    << diagnostic_episode << ',' << static_cast<unsigned>(diagnostic_cue)
+                    << ',' << event.event_index << ',' << event.simulated_time << ','
+                    << event.receiver << ',' << event.eligibility_generation << ','
+                    << id << ',' << candidate.sender << ',' << candidate.weight << ','
+                    << candidate.activity_count << ',' << order << ','
+                    << ((diagnostic_cue == 0 && candidate.sender == 0) ||
+                        (diagnostic_cue == 1 && candidate.sender == 1)) << ','
+                    << ((diagnostic_cue == 0 && candidate.sender == 1) ||
+                        (diagnostic_cue == 1 && candidate.sender == 0)) << '\n';
             }
             ++order;
         }
@@ -499,7 +541,8 @@ Result run_seed(
         if (episode == training_episodes && variant.structural_growth) {
             runtime.set_structural_growth_enabled(false);
         }
-        const std::uint64_t episode_start = static_cast<std::uint64_t>(episode) * 16;
+        const std::uint64_t episode_start =
+            static_cast<std::uint64_t>(episode) * variant.episode_spacing;
         if (runtime.simulated_time() < episode_start) {
             static_cast<void>(runtime.advance_time_to(episode_start));
         }
@@ -547,6 +590,20 @@ Result run_seed(
         }
         if (unique >= 0) previous_unique = unique;
 
+        if (!evaluating) {
+            if (decision_a && decision_b) {
+                ++result.training_both;
+                if (episode < training_episodes / 2U) ++result.first_half_both;
+                else ++result.second_half_both;
+            } else if (!decision_a && !decision_b) {
+                ++result.training_none;
+            } else if (correct) {
+                ++result.training_correct_unique;
+            } else {
+                ++result.training_incorrect_unique;
+            }
+        }
+
         if (!evaluating && variant.plasticity && variant.feedback != Feedback::none) {
             std::int8_t polarity = static_cast<std::int8_t>(reward);
             if (variant.feedback == Feedback::positive && polarity < 0) polarity = 0;
@@ -556,7 +613,15 @@ Result run_seed(
             if (variant.feedback == Feedback::neutral) polarity = 0;
             // Multiple simultaneous motor outputs are an ambiguous decision,
             // not evidence that either path caused the environmental result.
-            if (decision_a && decision_b) polarity = 0;
+            const bool ambiguous = decision_a && decision_b;
+            if (ambiguous) {
+                if (variant.ambiguous_feedback ==
+                    AmbiguousFeedback::negative_modulation) {
+                    polarity = -1;
+                } else {
+                    polarity = 0;
+                }
+            }
             if (polarity < 0 && variant.alternating_negative &&
                 (++negative_counter % 2U) != 0U) {
                 // Integer weights remain unchanged.  Applying the existing
@@ -567,9 +632,56 @@ Result run_seed(
             if (polarity < 0 && plan.negative_gate >= variant.negative_percent) {
                 polarity = 0;
             }
-            const std::uint64_t due = runtime.simulated_time() + 1;
-            static_cast<void>(runtime.process_modulatory_feedback(polarity, due));
-            static_cast<void>(runtime.advance_time_to(due));
+            const std::uint64_t due = runtime.simulated_time() + variant.feedback_delay;
+            eve::bios::ModulatoryFeedbackResult modulation_result;
+            const bool skip_modulation = ambiguous &&
+                variant.ambiguous_feedback == AmbiguousFeedback::no_modulation;
+            std::uint64_t eligibility_records_a = 0;
+            std::uint64_t eligibility_records_b = 0;
+            std::uint64_t older_eligibility_records = 0;
+            std::array<std::int32_t, 4> weights_before_modulation{};
+            for (std::size_t index = 0; index < circuit.cue_synapses.size(); ++index) {
+                weights_before_modulation[index] =
+                    runtime.network().synapse(circuit.cue_synapses[index]).weight;
+            }
+            for (const auto motor : {circuit.action_a, circuit.action_b}) {
+                const auto records = runtime.network().eligibility_records(motor);
+                if (motor == circuit.action_a) eligibility_records_a = records.size();
+                else eligibility_records_b = records.size();
+                for (const auto& record : records) {
+                    const std::uint64_t created_at = record.expires_at >=
+                            variant.eligibility_duration
+                        ? record.expires_at - variant.eligibility_duration : 0;
+                    older_eligibility_records += created_at < episode_start;
+                }
+            }
+            if (!skip_modulation) {
+                modulation_result = runtime.process_modulatory_feedback(polarity, due);
+                static_cast<void>(runtime.advance_time_to(due));
+                const auto after_modulation = runtime.metrics();
+                modulation_result.processed_events =
+                    after_modulation.processed_events - before.processed_events;
+                modulation_result.positive_changes =
+                    after_modulation.plasticity_positive_changes -
+                    before.plasticity_positive_changes;
+                modulation_result.negative_changes =
+                    after_modulation.plasticity_negative_changes -
+                    before.plasticity_negative_changes;
+            }
+            if (b45_capture_detail && b45_modulation_diagnostics != nullptr) {
+                *b45_modulation_diagnostics << variant.name << ',' << seed << ','
+                    << episode << ',' << static_cast<unsigned>(cue) << ','
+                    << decision_a << ',' << decision_b << ',' << reward << ','
+                    << static_cast<int>(polarity) << ',' << skip_modulation << ','
+                    << due << ',' << modulation_result.positive_changes << ','
+                    << modulation_result.negative_changes << ','
+                    << eligibility_records_a << ',' << eligibility_records_b << ','
+                    << older_eligibility_records << ','
+                    << weights_before_modulation[0] << ','
+                    << weights_before_modulation[1] << ','
+                    << weights_before_modulation[2] << ','
+                    << weights_before_modulation[3] << '\n';
+            }
         } else {
             static_cast<void>(runtime.process_evaluation_feedback(50));
         }
@@ -594,7 +706,7 @@ Result run_seed(
             ++result.exploration_events;
             ++result.post_feedback_explorations;
         }
-        const std::uint64_t episode_end = episode_start + 16;
+        const std::uint64_t episode_end = episode_start + variant.episode_spacing;
         if (runtime.simulated_time() < episode_end) {
             static_cast<void>(runtime.advance_time_to(episode_end));
         }

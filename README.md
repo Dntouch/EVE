@@ -12,9 +12,9 @@ vorgegebene Semantik aus.
 
 **Stand:** 18. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.4.4 – strukturelles Lernen und synaptische Interferenz
+**Jüngste abgeschlossene Forschungsstufe:** B.4.5 – lokale Entscheidungsbindung und motorische Konkurrenz
 
-**Aktueller Forschungsschwerpunkt:** lokale zeitliche Bindung verschachtelter Erfahrungen
+**Aktueller Forschungsschwerpunkt:** ereignisgetriebene lokale motorische Konkurrenz ohne technische Handlungsauswahl
 
 EVE ist inzwischen ein ausführbarer Forschungsprototyp. Er besitzt eine
 deterministische, ereignisgesteuerte Laufzeit, ein eigenes neuronales Netz,
@@ -38,6 +38,12 @@ Rund 104–112 neue Verbindungen je zentralem Lauf bleiben bei Gewicht null und
 ändern das Verhalten nicht. Die bestehende `active_phase`-Auswahl erhält zwei
 sequenziell trainierte Beziehungen auch ohne Wachstum deutlich besser, bleibt
 aber bei alternierenden und gemischten Erfahrungen unzureichend.
+
+B.4.5 schließt ältere Eligibility-Spuren und bloße Kandidatenkapazität als
+dominante Ursache des Mischfehlers aus. Doppelte Motoraktivierung blockiert
+dagegen wirksame Korrektur. Gezielte negative Ambiguitätsrückmeldung verbessert
+die Mischleistung stark, bleibt aber asymmetrisch und weit unter dem
+Robustheitsziel. Eine technische Winner-take-all-Auswahl wird nicht eingeführt.
 
 EVE ist damit weder eine fertige allgemeine Intelligenz noch ein Nachweis, dass
 eigenständige Intelligenz bereits entstanden ist. Der Prototyp dient dazu,
@@ -81,6 +87,7 @@ deaktiviert, damit beobachtete Effekte eindeutig zugeordnet werden können.
 | B.4.2 | Erhalt angeborener Exploration | abgeschlossen, Einzelreiz-Lernen ja, Zwei-Reiz-Lernen nein |
 | B.4.3 | lokale Trennung konkurrierender Erfahrungen | abgeschlossen, Interferenz kausal, Mehrfachlernen nein |
 | B.4.4 | strukturelles Lernen und synaptische Interferenz | abgeschlossen, Struktur für Sequenzen ausreichend, Wachstum wirkungslos |
+| B.4.5 | lokale Entscheidungsbindung und motorische Konkurrenz | abgeschlossen, H2 kausal, robustes Mischlernen nein |
 
 Ausführliche Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen unter
 [`docs/experimente`](docs/experimente/). Die zugehörigen maschinenlesbaren
@@ -126,7 +133,7 @@ Die jüngste abgeschlossene Versuchsmatrix wird mit folgendem Runner neu
 erzeugt:
 
 ```sh
-./scripts/run-research-stage-b44.sh research/results/b44
+./scripts/run-research-stage-b45.sh research/results/b45
 ```
 
 Weitere Runner und die Bedeutung aller Ergebnisdateien sind in der
@@ -165,6 +172,8 @@ Eingabestrom deterministisch.
 - [Entscheidung nach B.4.3](docs/entscheidungen/0015-keine-freigabe-mehrfachlernen-nach-b43.md)
 - [Bericht zur Forschungsstufe B.4.4](docs/experimente/016-forschungsbericht-forschungsstufe-b44.md)
 - [Entscheidung nach B.4.4](docs/entscheidungen/0016-strukturelle-kapazitaet-ausreichend-nach-b44.md)
+- [Bericht zur Forschungsstufe B.4.5](docs/experimente/017-forschungsbericht-forschungsstufe-b45.md)
+- [Entscheidung nach B.4.5](docs/entscheidungen/0017-motorische-konkurrenz-nach-b45.md)
 - [Forschungsfragen](docs/FORSCHUNGSFRAGEN.md)
 - [Glossar](docs/GLOSSAR.md)
 - [Hinweise für Beiträge](CONTRIBUTING.md)
