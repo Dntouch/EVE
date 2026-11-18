@@ -980,6 +980,131 @@ void test_disabled_motor_circuit_preserves_reference() {
                   "disabled motor circuit changed reference state");
 }
 
+eve::brainstem::ExplorationConfig restricted_exploration_config(
+    const std::uint32_t activations = 32,
+    const std::uint64_t seed = 9876) {
+    auto config = exploration_config(
+        eve::brainstem::ExplorationMode::distributed, activations, seed);
+    config.target_policy =
+        eve::brainstem::ExplorationTargetPolicy::processing_neurons_only;
+    return config;
+}
+
+void test_processing_exploration_excludes_configured_reservations() {
+    eve::bios::Runtime runtime(motor_test_config(), 101);
+    runtime.configure_motor_output(motor_output_config(1, 100, 18));
+    const auto wiring = runtime.configure_innate_wiring(innate_config(
+        eve::brainstem::InnateTopology::functional_paths, 3));
+    const auto circuit = runtime.configure_motor_circuit(motor_circuit_config(
+        eve::brainstem::MotorCircuitMode::completion_group, 3, 3));
+    const auto reserved = runtime.exploration_reservations();
+    const auto result = runtime.enqueue_exploration(restricted_exploration_config());
+
+    require_equal(result.reserved_neuron_count,
+                  static_cast<std::uint32_t>(reserved.size()),
+                  "restricted exploration counted reservations incorrectly");
+    require_equal(result.eligible_neuron_count + result.reserved_neuron_count,
+                  runtime.network().neuron_count(),
+                  "restricted exploration candidate partition is incomplete");
+    for (const eve::NeuronId selected : result.activated_neurons) {
+        require(std::find(reserved.begin(), reserved.end(), selected) == reserved.end(),
+                "restricted exploration directly selected a reserved neuron");
+    }
+    for (eve::NeuronId sensory = 0; sensory < 18; ++sensory) {
+        require(std::find(reserved.begin(), reserved.end(), sensory) != reserved.end(),
+                "sensor, response or feedback contact is not reserved");
+    }
+    for (const auto& channel : runtime.motor_assignment().channels) {
+        for (const eve::NeuronId motor : channel) {
+            require(std::find(reserved.begin(), reserved.end(), motor) != reserved.end(),
+                    "motor data contact is not reserved");
+        }
+    }
+    require(std::find(reserved.begin(), reserved.end(),
+                      runtime.motor_assignment().completion_contact) != reserved.end(),
+            "motor completion contact is not reserved");
+    for (const auto& path : wiring.paths) {
+        require(std::find(reserved.begin(), reserved.end(), path.first_relay) != reserved.end() &&
+                    std::find(reserved.begin(), reserved.end(), path.second_relay) !=
+                        reserved.end(),
+                "innate wiring relay is not reserved");
+    }
+    for (const eve::NeuronId relay : circuit.relay_neurons) {
+        require(std::find(reserved.begin(), reserved.end(), relay) != reserved.end(),
+                "motor circuit relay is not reserved");
+    }
+}
+
+void test_reserved_motor_circuit_neurons_remain_synaptically_active() {
+    eve::bios::Runtime runtime(motor_test_config(), 102);
+    runtime.configure_motor_output(motor_output_config(1, 100, 18));
+    const auto circuit = runtime.configure_motor_circuit(motor_circuit_config(
+        eve::brainstem::MotorCircuitMode::completion_group, 3, 3));
+    std::vector<eve::NeuronId> fired;
+    runtime.set_fire_observer([&fired](const eve::bios::FireObservation& observation) {
+        fired.push_back(observation.neuron);
+    });
+    runtime.enqueue_fire(runtime.motor_assignment().channels[0][0]);
+    const auto response = runtime.request_response(false);
+    require(response.valid(), "reserved motor circuit no longer completes synaptically");
+    require(std::any_of(circuit.relay_neurons.begin(), circuit.relay_neurons.end(),
+                        [&fired](const eve::NeuronId relay) {
+                            return std::find(fired.begin(), fired.end(), relay) != fired.end();
+                        }),
+            "reserved motor relay could not fire through a normal synapse");
+}
+
+void test_processing_exploration_is_reproducible() {
+    const auto execute = []() {
+        eve::bios::Runtime runtime(motor_test_config(), 103);
+        runtime.configure_motor_output(motor_output_config(1, 100, 18));
+        static_cast<void>(runtime.configure_innate_wiring(innate_config(
+            eve::brainstem::InnateTopology::functional_paths, 3)));
+        static_cast<void>(runtime.configure_motor_circuit(motor_circuit_config(
+            eve::brainstem::MotorCircuitMode::completion_group, 3, 3, 444)));
+        return runtime.enqueue_exploration(restricted_exploration_config(16, 555))
+            .activated_neurons;
+    };
+    require_equal(execute(), execute(), "restricted exploration is not reproducible");
+}
+
+void test_processing_exploration_is_independent_of_motor_circuit() {
+    const auto relays_for = [](const eve::brainstem::MotorCircuitMode mode) {
+        eve::bios::Runtime runtime(motor_test_config(), 104);
+        runtime.configure_motor_output(motor_output_config(1, 100, 18));
+        static_cast<void>(runtime.configure_innate_wiring(innate_config(
+            eve::brainstem::InnateTopology::functional_paths, 3)));
+        return runtime.configure_motor_circuit(motor_circuit_config(mode, 3, 3, 777))
+            .relay_neurons;
+    };
+    std::vector<eve::NeuronId> common_reservations = relays_for(
+        eve::brainstem::MotorCircuitMode::completion_group);
+    const auto accumulator = relays_for(
+        eve::brainstem::MotorCircuitMode::activity_dependent);
+    common_reservations.insert(common_reservations.end(),
+                               accumulator.begin(), accumulator.end());
+
+    const auto execute = [&common_reservations](
+                             const eve::brainstem::MotorCircuitMode mode) {
+        eve::bios::Runtime runtime(motor_test_config(), 104);
+        runtime.configure_motor_output(motor_output_config(1, 100, 18));
+        static_cast<void>(runtime.configure_innate_wiring(innate_config(
+            eve::brainstem::InnateTopology::functional_paths, 3)));
+        static_cast<void>(runtime.configure_motor_circuit(
+            motor_circuit_config(mode, 3, 3, 777)));
+        auto config = restricted_exploration_config(16, 888);
+        config.additional_reserved_neurons = common_reservations;
+        return runtime.enqueue_exploration(config).activated_neurons;
+    };
+    const auto reference = execute(eve::brainstem::MotorCircuitMode::none);
+    require_equal(reference, execute(eve::brainstem::MotorCircuitMode::direct_completion_path),
+                  "M1 changed the independent exploration sequence");
+    require_equal(reference, execute(eve::brainstem::MotorCircuitMode::completion_group),
+                  "M2 changed the independent exploration sequence");
+    require_equal(reference, execute(eve::brainstem::MotorCircuitMode::activity_dependent),
+                  "M3 changed the independent exploration sequence");
+}
+
 eve::brainstem::FeedbackConfig feedback_config(
     const eve::brainstem::FeedbackMode mode,
     const std::uint64_t budget = 1000,
@@ -1239,6 +1364,14 @@ int main() {
         {"motor circuit reproducibility", test_motor_circuit_is_reproducible},
         {"motor circuit no sensor copy", test_motor_circuit_does_not_copy_sensory_input},
         {"disabled motor circuit", test_disabled_motor_circuit_preserves_reference},
+        {"restricted exploration reservations",
+         test_processing_exploration_excludes_configured_reservations},
+        {"reserved circuit neurons stay active",
+         test_reserved_motor_circuit_neurons_remain_synaptically_active},
+        {"restricted exploration reproducibility",
+         test_processing_exploration_is_reproducible},
+        {"exploration independent of motor circuit",
+         test_processing_exploration_is_independent_of_motor_circuit},
         {"feedback after completion", test_feedback_after_completed_motor_response},
         {"feedback requires activity", test_feedback_requires_observed_activity},
         {"per-event feedback", test_per_motor_event_feedback_preserves_sequence},

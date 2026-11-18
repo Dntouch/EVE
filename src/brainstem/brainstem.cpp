@@ -517,9 +517,42 @@ MotorReachability Brainstem::analyze_motor_reachability(
 
 ExplorationResult Brainstem::select_exploration(
     const neural::Network& network,
-    const ExplorationConfig& config) const {
+    const ExplorationConfig& config,
+    const std::vector<NeuronId>& reserved_neurons) const {
     ExplorationResult result;
     result.config = config;
+
+    std::vector<bool> reserved(network.neuron_count(), false);
+    const auto reserve = [&network, &reserved](const NeuronId neuron) {
+        if (neuron >= network.neuron_count()) {
+            throw std::invalid_argument("exploration reservation is outside the network");
+        }
+        reserved[neuron] = true;
+    };
+    if (config.target_policy == ExplorationTargetPolicy::processing_neurons_only) {
+        for (const NeuronId neuron : reserved_neurons) {
+            reserve(neuron);
+        }
+        for (const NeuronId neuron : config.additional_reserved_neurons) {
+            reserve(neuron);
+        }
+    }
+    result.reserved_neuron_count = static_cast<std::uint32_t>(
+        std::count(reserved.begin(), reserved.end(), true));
+
+    std::vector<NeuronId> candidates;
+    candidates.reserve(network.neuron_count());
+    for (NeuronId neuron = 0; neuron < network.neuron_count(); ++neuron) {
+        if (reserved[neuron]) {
+            continue;
+        }
+        if (config.mode == ExplorationMode::localized &&
+            chebyshev_distance(network.coordinate(neuron), config.center) > config.radius) {
+            continue;
+        }
+        candidates.push_back(neuron);
+    }
+    result.eligible_neuron_count = static_cast<std::uint32_t>(candidates.size());
     if (config.mode == ExplorationMode::none) {
         return result;
     }
@@ -531,16 +564,6 @@ ExplorationResult Brainstem::select_exploration(
     }
     if (config.activation_budget == 0 || requested > config.activation_budget) {
         throw std::invalid_argument("exploration exceeds its activation budget");
-    }
-
-    std::vector<NeuronId> candidates;
-    candidates.reserve(network.neuron_count());
-    for (NeuronId neuron = 0; neuron < network.neuron_count(); ++neuron) {
-        if (config.mode == ExplorationMode::localized &&
-            chebyshev_distance(network.coordinate(neuron), config.center) > config.radius) {
-            continue;
-        }
-        candidates.push_back(neuron);
     }
     if (requested > candidates.size()) {
         throw std::invalid_argument("exploration request exceeds available neurons");

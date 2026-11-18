@@ -82,6 +82,7 @@ public:
     [[nodiscard]] brainstem::MotorReachability motor_reachability() const;
     [[nodiscard]] brainstem::ExplorationResult enqueue_exploration(
         const brainstem::ExplorationConfig& config);
+    [[nodiscard]] std::vector<NeuronId> exploration_reservations() const;
     [[nodiscard]] brainstem::MotorCircuitResult configure_motor_circuit(
         const brainstem::MotorCircuitConfig& config);
     [[nodiscard]] brainstem::FeedbackResult process_motor_feedback(
@@ -120,6 +121,8 @@ private:
     std::ostream* trace_stream_{};
     FireObserver fire_observer_;
     brainstem::MotorOutput motor_output_;
+    std::vector<NeuronId> innate_reservations_;
+    std::vector<NeuronId> motor_circuit_reservations_;
 };
 
 }  // namespace eve::bios

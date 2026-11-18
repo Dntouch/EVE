@@ -96,18 +96,27 @@ enum class ExplorationMode : std::uint8_t {
     distributed = 4,
 };
 
+enum class ExplorationTargetPolicy : std::uint8_t {
+    all_neurons = 0,
+    processing_neurons_only = 1,
+};
+
 struct ExplorationConfig {
     ExplorationMode mode{ExplorationMode::none};
+    ExplorationTargetPolicy target_policy{ExplorationTargetPolicy::all_neurons};
     std::uint32_t activation_count{};
     std::uint32_t activation_budget{};
     std::uint64_t seed{1};
     Coordinate center{};
     std::uint32_t radius{1};
+    std::vector<NeuronId> additional_reserved_neurons;
 };
 
 struct ExplorationResult {
     ExplorationConfig config;
     std::vector<NeuronId> activated_neurons;
+    std::uint32_t eligible_neuron_count{};
+    std::uint32_t reserved_neuron_count{};
 };
 
 enum class MotorCircuitMode : std::uint8_t {
@@ -274,7 +283,8 @@ public:
 
     [[nodiscard]] ExplorationResult select_exploration(
         const neural::Network& network,
-        const ExplorationConfig& config) const;
+        const ExplorationConfig& config,
+        const std::vector<NeuronId>& reserved_neurons = {}) const;
 
     [[nodiscard]] MotorCircuitResult create_motor_circuit(
         neural::Network& network,

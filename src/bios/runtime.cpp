@@ -1,5 +1,6 @@
 #include "eve/bios/runtime.hpp"
 
+#include <algorithm>
 #include <array>
 #include <fstream>
 #include <limits>
@@ -318,6 +319,8 @@ void Runtime::configure_motor_output(const brainstem::MotorOutputConfig& config)
         throw std::logic_error("cannot reconfigure an active motor response");
     }
     motor_output_.configure(network_.neuron_count(), config);
+    innate_reservations_.clear();
+    motor_circuit_reservations_.clear();
 }
 
 brainstem::MotorResponse Runtime::request_response(
@@ -377,8 +380,17 @@ brainstem::InnateWiringResult Runtime::configure_innate_wiring(
         config.initial_weight > config_.maximum_synapse_weight) {
         throw std::invalid_argument("innate weight is outside configured synaptic bounds");
     }
-    return brainstem_.create_innate_wiring(
+    brainstem::InnateWiringResult result = brainstem_.create_innate_wiring(
         network_, motor_output_.assignment(), config);
+    for (const brainstem::InnatePath& path : result.paths) {
+        innate_reservations_.push_back(path.first_relay);
+        innate_reservations_.push_back(path.second_relay);
+    }
+    std::sort(innate_reservations_.begin(), innate_reservations_.end());
+    innate_reservations_.erase(
+        std::unique(innate_reservations_.begin(), innate_reservations_.end()),
+        innate_reservations_.end());
+    return result;
 }
 
 brainstem::MotorReachability Runtime::motor_reachability() const {
@@ -392,11 +404,38 @@ brainstem::MotorReachability Runtime::motor_reachability() const {
 brainstem::ExplorationResult Runtime::enqueue_exploration(
     const brainstem::ExplorationConfig& config) {
     brainstem::ExplorationResult result =
-        brainstem_.select_exploration(network_, config);
+        brainstem_.select_exploration(network_, config, exploration_reservations());
     for (const NeuronId neuron : result.activated_neurons) {
         enqueue_fire(neuron);
     }
     return result;
+}
+
+std::vector<NeuronId> Runtime::exploration_reservations() const {
+    std::vector<NeuronId> reserved;
+    if (!motor_output_.configured()) {
+        return reserved;
+    }
+    const brainstem::MotorAssignment& assignment = motor_output_.assignment();
+    for (NeuronId neuron = 0; neuron < 8 && neuron < network_.neuron_count(); ++neuron) {
+        reserved.push_back(neuron);
+    }
+    reserved.push_back(assignment.config.response_stimulus_neuron);
+    for (NeuronId neuron = assignment.config.response_stimulus_neuron + 1U;
+         neuron < assignment.config.first_motor_neuron;
+         ++neuron) {
+        reserved.push_back(neuron);
+    }
+    for (const auto& channel : assignment.channels) {
+        reserved.insert(reserved.end(), channel.begin(), channel.end());
+    }
+    reserved.push_back(assignment.completion_contact);
+    reserved.insert(reserved.end(), innate_reservations_.begin(), innate_reservations_.end());
+    reserved.insert(reserved.end(), motor_circuit_reservations_.begin(),
+                    motor_circuit_reservations_.end());
+    std::sort(reserved.begin(), reserved.end());
+    reserved.erase(std::unique(reserved.begin(), reserved.end()), reserved.end());
+    return reserved;
 }
 
 brainstem::MotorCircuitResult Runtime::configure_motor_circuit(
@@ -409,8 +448,10 @@ brainstem::MotorCircuitResult Runtime::configure_motor_circuit(
         config.completion_weight > config_.maximum_synapse_weight) {
         throw std::invalid_argument("motor circuit weight is outside synaptic bounds");
     }
-    return brainstem_.create_motor_circuit(
+    brainstem::MotorCircuitResult result = brainstem_.create_motor_circuit(
         network_, motor_output_.assignment(), config);
+    motor_circuit_reservations_ = result.relay_neurons;
+    return result;
 }
 
 brainstem::FeedbackResult Runtime::process_motor_feedback(
