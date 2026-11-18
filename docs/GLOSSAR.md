@@ -1,5 +1,7 @@
 # Glossar
 
+**Grundlage:** Begriffe und Beschreibungen aus dem EVE-Konzept
+
 ## BIOS
 
 Technische Existenzgrundlage von EVE. Es verwaltet Zustand, Zeit, Ereignisse,

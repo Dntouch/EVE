@@ -1,0 +1,7 @@
+neurons,synapses,enabled,memory_bytes,eligibility_bytes_estimate,bytes_per_neuron,record_payload_bytes,events,fire_events,impulses,eligibility_decisions,scheduled_expiries,processed_expiries,maximum_queue,seconds,events_per_second
+256,1024,0,52448,0,0,40,1172,206,824,0,0,0,256,0.00013152,8911192.21
+256,1024,1,84192,31744,124,40,1587,245,980,181,181,181,398,0.00020762,7643772.28
+10000,40000,0,2001248,0,0,40,320,64,256,0,0,0,256,2.368e-05,13513513.5
+10000,40000,1,3241248,1240000,124,40,320,64,256,0,0,0,256,2.248e-05,14234875.4
+100000,0,1,0,12400000,124,40,0,0,0,0,0,0,0,0,0
+1000000,0,1,0,124000000,124,40,0,0,0,0,0,0,0,0,0

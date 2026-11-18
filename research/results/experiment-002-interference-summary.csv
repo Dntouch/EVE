@@ -1,0 +1,7 @@
+variant,seed,CD_completed,EF_completed,GH_completed,failed_stage,status
+C5,20261117,128,128,20,GH,unstable
+C5,7,128,121,0,EF,unstable
+C5,42,128,53,0,EF,unstable
+C5,99,128,128,25,GH,unstable
+C5,2026,128,128,21,GH,unstable
+C5,314159,128,128,7,GH,unstable

@@ -1,0 +1,15 @@
+metric,candidate,control,clusters,mean_difference,ci_low,ci_high
+learned_correct,G2_other_exploration,G1_natural,384,0.0130208,-0.0364583,0.0638021
+learned_correct,G3_other_cues,G1_natural,384,-0.00520833,-0.0533854,0.0442708
+learned_correct,G4_dense_learned_cue,G1_natural,384,0.561198,0.526042,0.59375
+learned_correct,G4_every_2_learned_cue,G1_natural,384,0.0989583,0.0520833,0.145833
+learned_correct,G4_every_8_learned_cue,G1_natural,384,-0.0416667,-0.0820312,-0.00260417
+learned_correct,G5_no_plasticity,G1_natural,384,0.125,0.0742188,0.175781
+learned_correct,G6_preserve_target_weight,G1_natural,384,-0.0755208,-0.121094,-0.0325521
+both_correct,G2_other_exploration,G1_natural,384,-0.00390625,-0.0481771,0.0390625
+both_correct,G3_other_cues,G1_natural,384,0.00260417,-0.0377604,0.0442708
+both_correct,G4_dense_learned_cue,G1_natural,384,0.201823,0.16276,0.240885
+both_correct,G4_every_2_learned_cue,G1_natural,384,0.00651042,-0.0364583,0.0494792
+both_correct,G4_every_8_learned_cue,G1_natural,384,0.0104167,-0.0234375,0.046875
+both_correct,G5_no_plasticity,G1_natural,384,-0.0195312,-0.0546875,0.0182292
+both_correct,G6_preserve_target_weight,G1_natural,384,-0.0677083,-0.0989583,-0.0377604

@@ -1,0 +1,2 @@
+variants,seeds,events,wall_seconds,cpu_seconds,events_per_cpu_second,peak_rss_kib
+100,64,30564993,3.74547,3.73047,8.19334e+06,5788

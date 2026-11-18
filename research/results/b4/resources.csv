@@ -1,0 +1,6 @@
+neurons,estimated_bytes,bytes_per_neuron,projection_basis
+64,44944,702.25,measured
+256,179776,702.25,linear_estimate
+10000,7022500,702.25,linear_estimate
+100000,70225000,702.25,linear_estimate
+1000000,702250000,702.25,linear_estimate

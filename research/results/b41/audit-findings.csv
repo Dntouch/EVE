@@ -1,0 +1,9 @@
+id,finding,method,confirmed,correction
+A,B4 advanced no simulated time in ordinary episodes,source audit and historical execution,1,explicit episode start and advance_time_to
+B,B4 used isolated 64-neuron threshold-one circuit,configuration audit,1,separate 64-neuron validation plus 256-neuron transfer
+C,B4 task and random feedback shared one RNG,source audit,1,precomputed independent task exploration and feedback streams
+D,B4 no-exploration control also suppressed sensory activation,source audit,1,sensory input retained in X0 and K12
+E,B4 weight changes had no demonstrated causal motor effect,result and source audit,1,controlled repetition and diagnostic ablation
+F,core future recovery and expiry events stay queued until due,automated event tests,1,no core scheduling change
+G,modulation contacts could enter membrane and G3 then become excitatory,corrected-run diagnostic,1,separate non-excitatory modulatory receptor processing
+H,B4 motor outputs were targets of evaluation route,topology audit,1,reserved motor neurons plus distinct zero-weight modulation contacts

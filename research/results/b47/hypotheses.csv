@@ -1,0 +1,12 @@
+question,status,measure,interpretation
+A_role_id_asymmetry,not_detected,0,consistent renamings are evaluated after logical backmapping
+A_rng_stream_dependency,detected,-0.248444,complementing only exploration roles restores exact normal-task performance
+A_decorrelated_stream_correction,measured,-0.0371509,single apparatus correction removes fixed binary stream coupling before any learning change
+B_prelearning_difference,stochastic,-0.0463565,paired exploration stream fluctuates by seed but protected paths are structurally symmetric
+C_learning_amplification,supported,0.115707,early exploration preference is associated with later outcome; causal copies qualify interpretation
+D_learned_inhibition_advantage,not_demonstrated,0.0228993,requires positive comparison against fixed and disabled learned inhibition
+D_corrected_stream_learned_vs_fixed,not_demonstrated,0.0133028,both target assignments must independently exclude zero
+E_inverse_assignment,measured,0.590026,same architecture and independent logical target inversion
+F_exploration_share,measured,0.154369,difference between E2 and E1
+G_reversal,insufficient,0.586714,old cue weights persist while feedback alternately weakens and rebuilds competing paths
+H_existing_capability,insufficient,16,decorrelated streams expose capability below the preregistered thresholds

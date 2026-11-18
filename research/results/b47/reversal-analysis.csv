@@ -1,0 +1,7 @@
+variant,target_assignment,training_multiplier,E1_score,E2_score,E2_robust,positive_changes,negative_changes,interpretation
+E_normal_reversal,normal,1,0.178892,0.586714,2,102.031,87.6875,continuous state without technical reset
+E_inverse_reversal,inverse,1,0.656987,0.820611,30,96.7031,86.0156,continuous state without technical reset
+F_normal_reversal_x2,normal,2,0.428269,0.69393,11,198.469,185.703,continuous state without technical reset
+F_normal_reversal_x4,normal,4,0.506458,0.667661,10,387.75,377.047,continuous state without technical reset
+F_inverse_reversal_x2,inverse,2,0.599086,0.786629,18,190.641,180.094,continuous state without technical reset
+F_inverse_reversal_x4,inverse,4,0.405603,0.774461,9,384.641,370.594,continuous state without technical reset

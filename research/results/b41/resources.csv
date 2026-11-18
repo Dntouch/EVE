@@ -1,0 +1,6 @@
+neurons,synapses,estimated_bytes,bytes_per_neuron,bytes_per_synapse,elapsed_seconds,projection
+64,23,45712,714.25,1987.48,0,measured
+256,1073,222640,869.688,207.493,0,measured
+10000,0,8700000,870,0,2.93198,linear_from_256_measurement
+100000,0,87000000,870,0,2.93198,linear_from_256_measurement
+1000000,0,870000000,870,0,2.93198,linear_from_256_measurement

@@ -1,0 +1,4 @@
+reference,expected,actual,absolute_difference,passes
+B45_K2_negative_mixed_score,0.768209,0.768209,2.32957e-07,1
+B45_K2_negative_mixed_X,0.743122,0.743122,2.34919e-08,1
+B45_K2_negative_mixed_Y,0.793296,0.793296,4.42421e-07,1

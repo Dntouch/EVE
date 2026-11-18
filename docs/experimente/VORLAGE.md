@@ -1,87 +1,63 @@
-# EXP-JJJJ-NNN – Titel
+# Experiment – Titel
 
-**Status:** Entwurf  
-**Datum:** JJJJ-MM-TT  
-**Verantwortung:** offen  
-**Forschungsfrage:** RQ-NNN
+Diese Vorlage greift die in den Abschnitten 19 und 23 des EVE-Konzepts genannten
+Bestandteile auf. Nicht benötigte Felder können entfallen.
 
-## Ziel
+## Untersuchte Aufgabe
 
-Welche einzelne Frage soll der Versuch beantworten?
-
-## Hypothese
-
-Welche Beobachtung wird erwartet und warum?
-
-## Widerlegungskriterium
-
-Welche Beobachtung würde die Hypothese widerlegen oder unentscheidbar machen?
-
-## Abgrenzung
-
-Was untersucht dieser Versuch ausdrücklich nicht?
+Welche für EVE unbekannte Aufgabe wird untersucht?
 
 ## Ausgangszustand
 
-- Systemzustand:
-- Konfiguration:
-- Zufallszustand:
-- Umgebung:
-- relevante Versionen:
+- neuronaler Ausgangszustand:
+- relevante Zufallszustände:
+- Umweltbedingungen:
 
-## Versuchsaufbau
+## Externe Ereignisse
 
-Eingänge, mögliche Entscheidungen, Konsequenzen, zeitliche Abfolge und erlaubte
-Schnittstellen beschreiben.
+Welche Eingangssignale und äußeren Ereignisse treten in welcher zeitlichen
+Reihenfolge auf?
 
-## Kontrollen
+## Entscheidungen und Konsequenzen
 
-- Kontrolle ohne Lernmechanismus:
-- Kontrolle gegen Zufallstreffer:
-- Kontrolle gegen fest programmierte Lösung:
-- Kontrolle gegen verdeckte Lehrerentscheidung:
+Welche Entscheidungen kann EVE treffen und welche Konsequenzen kann sie
+wahrnehmen?
 
-## Messgrößen
+## Beobachtete Größen
 
-| Messgröße | Einheit | Erhebung | Relevanz |
-|---|---|---|---|
-| | | | |
+- Eingangssignale:
+- aktivierte Neuronen:
+- übertragene Impulse:
+- zeitliche Abläufe:
+- getroffene Entscheidungen:
+- Änderungen neuronaler Eigenschaften:
+- Änderungen synaptischer Verbindungen:
+- innere Regulationszustände:
+- interner Energieaufwand:
+- tatsächliche Konsequenzen:
 
-## Erfolgskriterien
+## Lernverlauf
 
-- ...
+Wie verändert sich die Leistung über wiederholte Erfahrungen?
 
-## Abbruch- und Stop-Kriterien
+## Persistenz
 
-- technischer Abbruch:
-- wissenschaftlicher Abbruch:
-- ethischer oder sicherheitsbezogener Stopp:
+Bleibt die erworbene Fähigkeit nach einem Neustart erhalten?
 
-## Ablauf
+## Übertragung
 
-1. ...
+Wie verhält sich EVE bei einer veränderten Aufgabe?
 
-## Rohdaten und Artefakte
+## Anpassung
 
-- Speicherort:
-- Integritätsnachweis:
-- sensible Daten:
-- Aufbewahrung:
+Wie verhält sich EVE bei veränderten Umweltbedingungen?
 
-## Ergebnisse
+## Abgrenzung möglicher Erklärungen
 
-Erst nach Freigabe und Durchführung ausfüllen. Beobachtungen von Interpretation
-trennen.
+- fest programmierter Lösungsweg:
+- zufälliger Treffer:
+- verdeckte LLM-Entscheidung:
 
-## Auswertung
+## Ergebnis
 
-- Hypothese bestätigt, widerlegt oder unentschieden:
-- Einschränkungen:
-- alternative Erklärungen:
-- Reproduktionsstatus:
-
-## Folgearbeit
-
-- neue Fragen:
-- relevante Entscheidungen:
-- geplante Reproduktion:
+Beobachtungen und offene Fragen:

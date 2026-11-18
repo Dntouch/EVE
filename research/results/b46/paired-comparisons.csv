@@ -1,0 +1,6 @@
+candidate,reference,mean_difference,ci_low,ci_high,improved_seeds
+K3_shared_start0_mixed,K7_no_learning_mixed,0.340137,0.308258,0.369054,62
+K3_shared_start0_mixed,K2_fixed1_mixed,0.0228993,-0.00930799,0.0543712,24
+K6_normal_normal_order_mixed,K6_normal_reverse_order_mixed,0,0,0,0
+K6_swapped_normal_order_mixed,K6_swapped_reverse_order_mixed,0,0,0,0
+K6_normal_normal_order_mixed,K6_swapped_normal_order_mixed,0.133818,0.0736319,0.188451,46

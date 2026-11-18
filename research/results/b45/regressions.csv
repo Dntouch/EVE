@@ -1,0 +1,6 @@
+check,value,expected,status
+B44_K0_mixed,0.39063,0.39063,pass
+B44_K1_X_then_Y,0.925544,0.925544,pass
+B44_K1_Y_then_X,0.914048,0.914048,pass
+B44_K1_mixed,0.358478,0.358478,pass
+growth_disabled_all_variants,0,0,pass

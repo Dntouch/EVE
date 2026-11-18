@@ -1,0 +1,9 @@
+variant,task,X_correct,Y_correct,balanced_score,applicable_success,robust_seeds
+K3_shared_start0_only_X,only_X,1,0,0.5,1,0
+K3_shared_start0_only_Y,only_Y,0,1,0.5,1,0
+K3_shared_start0_X_then_Y,X_then_Y,0.914645,1,0.957322,0.957322,55
+K3_shared_start0_Y_then_X,Y_then_X,1,0.885232,0.942616,0.942616,52
+K3_shared_start0_alternating,alternating,0.628996,0.69598,0.662488,0.662488,13
+K3_shared_start0_mixed,mixed,0.842303,0.834637,0.83847,0.83847,35
+K3_shared_start0_reversal,reversal,0.595664,0.577763,0.586714,0.586714,2
+K3_shared_start0_retention,retention,0.842303,0.834637,0.83847,0.83847,35

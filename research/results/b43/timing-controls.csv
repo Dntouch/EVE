@@ -1,0 +1,5 @@
+case,duration,feedback_offset,weight_before,weight_after,active_traces
+before,4,3,0,1,0
+at,4,4,0,0,0
+after,4,5,0,0,0
+overlap,64,17,0,1,0

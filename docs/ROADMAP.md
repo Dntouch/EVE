@@ -1,113 +1,123 @@
 # Roadmap zum ersten funktionalen Prototyp
 
-**Status:** Entwurf  
-**Horizont:** zwölf Wochen ab freigegebenem Projektstart  
-**Quelle:** EVE-Konzept vom 15. November 2026
+**Quelle:** Abschnitte 22 und 23 des EVE-Konzepts vom 15. November 2026
 
-Die Roadmap beschreibt Zielzustände und Nachweise. Sie legt noch keine
-Programmiersprache, Bibliothek oder konkrete Implementierungsarchitektur fest.
+**Zeithorizont:** ungefähr zwölf Wochen
 
-## Vor dem Start: Gate 0
+Dieses Dokument fasst die im Konzept beschriebene Roadmap zusammen. Es ergänzt
+keine weiteren Voraussetzungen oder Freigabeschritte.
 
-Die zwölf Wochen beginnen erst, wenn folgende Voraussetzungen geklärt sind:
+## Phase 1 – Wochen 1 bis 3
 
-- Projektumfang und Erfolgskriterien sind angenommen.
-- Rollen, Verantwortlichkeiten und Entscheidungsweg sind benannt.
-- Lizenz und Umgang mit Forschungsdaten sind entschieden.
-- erste Lernaufgabe und Kontrollbedingungen sind beschrieben.
-- Messgrößen für Lernen, Reproduzierbarkeit und Ressourcenverbrauch sind
-  definiert.
-- Sicherheits- und Handlungsgrenzen der Versuche sind freigegeben.
-
-## Phase 1 – Wochen 1 bis 3: BIOS und neuronale Engine
-
-### Ziele
+Entwicklung des BIOS und der neuronalen Engine:
 
 - ereignisgesteuerte Verarbeitung
-- Neuronen, Synapsen und diskrete Impulse
-- zeitliche Integration, Reizschwellen und Erholungszeiten
-- erste angeborene Regulationsfunktionen
-- Energie- und Ressourcenmessung
-- Diagnostik und reproduzierbare Wiederholung
+- Neuronen und Synapsen
+- diskrete Impulse
+- zeitliche Integration
+- Reizschwellen und Erholungszeiten
+- erste Stammhirnfunktionen
+- Energieerfassung
+- Diagnostik und Wiederholbarkeit
 
-### Erforderliche Nachweise
+## Phase 2 – Wochen 4 bis 6
 
-- gleiche Ausgangsbedingungen erzeugen den gleichen beobachtbaren Verlauf,
-- Impulse und Zustandsänderungen sind zeitlich nachvollziehbar,
-- BIOS und neuronaler Kern sind in Verantwortung und Schnittstellen getrennt,
-- interne Aktivitätskosten und reale Hardwaremessung werden nicht vermischt.
+Lernen und Erinnerung:
 
-## Phase 2 – Wochen 4 bis 6: Lernen und Erinnerung
-
-### Ziele
-
-- synaptische Plastizität und Aktivitätsregulation
-- persistenter neuronaler Zustand
+- synaptische Plastizität
+- Aktivitätsregulation
+- Persistenz neuronaler Zustände
 - einfache Entscheidungsaufgaben
 - Lernen aus Konsequenzen
-- erste messbare Lernkurven
+- erste Messungen des Lernfortschritts
 
-### Erforderliche Nachweise
+## Phase 3 – Wochen 7 bis 9
 
-- Verhalten verbessert sich durch Erfahrungen statt durch versteckte Regeln,
-- die erworbene Veränderung bleibt nach einem Neustart erhalten,
-- eine Kontrollgruppe ohne Lernmechanismus zeigt den Effekt nicht,
-- Fehler und unerwartete Konsequenzen bleiben analysierbar.
-
-## Phase 3 – Wochen 7 bis 9: Selbstorganisation
-
-### Ziele
+Selbstorganisation:
 
 - Veränderung neuronaler Eigenschaften
-- Bildung und Entfernung von Verbindungen
+- Neubildung und Entfernung von Verbindungen
 - strukturelle Anpassung
-- Stabilisierung erworbener Fähigkeiten
+- Stabilisierung erlernter Fähigkeiten
 - Untersuchung des Energieaufwands
 
-### Erforderliche Nachweise
+## Phase 4 – Wochen 10 bis 12
 
-- strukturelle Änderungen sind Ursache und Wirkung zuordenbar,
-- erlernte Fähigkeiten werden nicht unkontrolliert überschrieben,
-- Instabilität wird erkannt und reproduzierbar untersucht,
-- Nutzen, Zuverlässigkeit und Ressourcenaufwand werden gemeinsam bewertet.
+Praktische Integration:
 
-## Phase 4 – Wochen 10 bis 12: Praktische Integration
-
-### Ziele
-
-- ausgewählte, begrenzte EVE-Schnittstellen
+- Anbindung ausgewählter EVE-Schnittstellen
 - Interaktion mit Menschen
 - erste Lernaufgaben für Zeichen und einfache Mathematik
-- Vergleich mit dem bestehenden LLM als Lehrer oder Referenz
+- Vergleich mit dem bestehenden LLM
 - Messung von Zuverlässigkeit und Energieverbrauch
-- systematische Analyse von Fehlschlägen
+- Analyse von Fehlschlägen
 
-### Erforderliche Nachweise
+Der Zeitplan ist laut Konzept ein Entwicklungsziel und keine Garantie.
 
-- die ausgewählten Aufgaben funktionieren ohne LLM-Entscheidungen,
-- Lehrer-, Mess- und Entscheidungskanal sind eindeutig getrennt,
-- erworbene Zusammenhänge werden auf eine veränderte Aufgabe übertragen,
-- nach veränderten Umweltbedingungen ist erneute Anpassung messbar.
+B.4.4 prüft einen Teil von Phase 3 kontrolliert: Die Neubildung von
+Verbindungen funktioniert technisch und persistent, verbessert die
+untersuchten Lernaufgaben aber nicht. Strukturelle Änderung und funktionaler
+Lernbeitrag werden daher in weiteren Arbeiten getrennt bewertet.
 
-## Definition eines erfolgreichen ersten Prototyps
+B.4.5 lokalisiert konkurrierende Motoraktivität als Engpass gemischter
+Erfahrungen. Eine inhibitorische Erweiterung zählt weiterhin zu Phase 2
+„Lernen und Erinnerung“ und benötigt vor jeder Integration eigene lokale
+Ereignissemantik, Persistenz und Kausalablation.
 
-Der Prototyp gilt nur dann als erfolgreich, wenn kontrollierte Versuche zeigen:
+B.4.6 implementiert diese inhibitorische Ereignissemantik als getrennte
+synaptische Wirkungsart. Sie verbessert gemischtes Lernen, verfehlt aber das
+Robustheitsziel und bleibt bei vertauschter Motorzuordnung asymmetrisch. Die
+Funktion bleibt deshalb experimentell; B.4.7 muss zunächst den verbleibenden
+Zuordnungsbias isolieren.
 
-1. Eine zunächst unbekannte Aufgabe wird nicht bereits durch eine fest
-   programmierte Lösung beherrscht.
-2. EVE trifft Entscheidungen und erfährt deren Konsequenzen.
-3. Der neuronale Zustand verändert sich überprüfbar.
-4. Die Leistung verbessert sich über mehrere Erfahrungen hinweg.
-5. Die Veränderung bleibt nach Wiederherstellung des Zustands wirksam.
-6. Gelerntes unterstützt eine verwandte, aber unbekannte Aufgabe.
-7. Das System kann sich nach einer Umweltänderung erneut anpassen.
-8. Zufallstreffer und verdeckte LLM-Entscheidungen sind durch Kontrollen
-   ausgeschlossen.
+B.4.7 zeigt, dass konsistente technische Rollenabbildungen exakt invariant
+sind, entdeckt aber eine feste Kopplung der historischen binären
+Zufallsströme. Nach isolierter Seedentkopplung sinkt die Leistung und bleibt
+für normale wie inverse Beziehungen unzureichend robust. Der Restfehler
+entsteht durch die Stabilisierung konkreter früher Explorationsrollen.
+Autonome Antworten und Umkehrlernen bleiben ebenfalls unzureichend.
+B.4.8 muss deshalb zuerst diese Erfahrungsstromabhängigkeit zeitlich und kausal
+isolieren, bevor eine einzelne neue lokale Forschungsvariante zulässig ist.
 
-## Nicht Bestandteil dieser Roadmap
+B.4.8 lokalisiert wirksame frühe Bindung nach 4–8 Erfahrungen, zeigt aber
+keine monotone Stabilisierung. Rückmeldungsabhängige Zusatzexploration erhöht
+die Handlungsversuche, verbessert E1 jedoch weder über drei Stromfamilien noch
+in der unabhängigen Bestätigung zuverlässig. Sie bleibt Forschungsdiagnostik.
+B.4.9 muss lokale Korrektur und autonome Reizbindung untersuchen, ohne
+Explorationsmenge mit erworbener Fähigkeit gleichzusetzen.
 
-- Zusage menschenähnlicher oder allgemeiner Intelligenz
-- anatomisch vollständige Simulation eines Gehirns
-- unbeschränkter Zugriff auf externe Systeme
-- Festlegung auf bestimmte Hardware
-- Garantie des langfristigen 20-Watt-Orientierungsziels
+B.4.9 weist nach, dass rechtzeitige negative Modulation konkrete autonome
+Fehlantworten häufig verändert und konkurrierende Wege erreichbar bleiben.
+Der Engpass liegt nicht in anhaltender Hemmung, sondern in der selektiven und
+interferenzarmen Speicherung positiv bewerteter Alternativen. B.5.0 muss diese
+lokale Kreditzuordnung isolieren, bevor eine neue Lernfunktion zulässig ist.
+
+B.5.0 zeigt, dass die vorhandene Kreditzuordnung die richtige sensorische
+Nullgewicht-Verbindung erreicht. Eine erste positive Änderung bleibt bei
+Gewicht 1 unter der Feuergrenze 2; eine zweite Änderung auf 2 ist im
+isolierten Zustand notwendig und hinreichend. Offen bleiben die natürliche
+Wiederholung erfolgreicher Erfahrung und der Erhalt dieses Schwellenzustands
+in gemischten Strömen. Dies ist der Schwerpunkt von B.5.1.
+
+B.5.1 zeigt, dass natürliche Wiederholung weder selten noch grundsätzlich
+unterbrochen ist: Alle 1.536 Pfade werden erworben und wiedererworben. Der
+Erhalt scheitert an fortlaufender sensorischer, inhibitorischer und
+transienter Konkurrenz. B.5.2 muss diese Verlustbeiträge lokal trennen, bevor
+eine minimale Stabilisierungsvariante zulässig ist.
+
+## Erfolgskriterien aus dem Konzept
+
+Ein geeigneter kontrollierter Test folgt der dort beschriebenen Abfolge:
+
+1. EVE erhält eine unbekannte Aufgabe.
+2. Sie trifft zunächst unzureichende oder zufällige Entscheidungen.
+3. Sie erfährt die Konsequenzen.
+4. Ihre neuronale Organisation verändert sich.
+5. Ihre Entscheidungen verbessern sich messbar.
+6. Nach einem Neustart bleibt die erworbene Fähigkeit erhalten.
+7. Bei einer veränderten Aufgabe nutzt sie erworbene Zusammenhänge.
+8. Bei veränderten Umweltbedingungen passt sie ihre Strategie erneut an.
+
+Dabei ist laut Konzept auszuschließen, dass ein Erfolg lediglich durch fest
+programmierte Lösungswege, zufällige Treffer oder verdeckte LLM-Entscheidungen
+entsteht.

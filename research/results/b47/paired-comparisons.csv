@@ -1,0 +1,12 @@
+candidate,reference,measurement,mean_difference,ci_low,ci_high,improved_seeds
+I2_shared_learned_mixed,I1_fixed_inhibition_mixed,E2,0.0228993,-0.00969709,0.0528175,24
+I2_shared_learned_mixed,I6_no_plasticity_mixed,E2,0.340137,0.308411,0.369302,62
+I2_shared_learned_mixed,I1_fixed_inhibition_mixed,E1,0.0488166,-0.00648602,0.103715,25
+I2_shared_learned_mixed,I6_no_plasticity_mixed,E1,0.684101,0.623098,0.74135,62
+C_inverse_complemented_exploration_mixed,I2_shared_learned_mixed,E2,0,0,0,0
+G_decorrelated_normal_mixed,G_decorrelated_inverse_mixed,E2,-0.0371509,-0.0923689,0.0164161,28
+G_decorrelated_normal_mixed,G_decorrelated_normal_no_learning,E2,0.204579,0.165803,0.24454,49
+G_decorrelated_inverse_mixed,G_decorrelated_inverse_no_learning,E2,0.233903,0.194021,0.273086,54
+G_decorrelated_normal_mixed,G_decorrelated_normal_fixed,E2,0.0134737,-0.0155599,0.0456371,12
+G_decorrelated_inverse_mixed,G_decorrelated_inverse_fixed,E2,0.0131319,-0.0192638,0.0489228,13
+I4_freeze_learned,I5_disable_inhibition,E2,0.133567,0.104197,0.165762,46

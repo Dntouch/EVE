@@ -1,0 +1,6 @@
+variant,plasticity,mean_exploration_A,mean_exploration_B,mean_after_positive,mean_after_negative,mean_early,mean_late,E2_score
+I6_no_plasticity_mixed,0,64.2031,63.7969,67,61,42,43,0.498333
+I0_no_inhibition_mixed,1,3.1875,3.04688,4.1875,2.04688,6.21875,0,0.794867
+I1_fixed_inhibition_mixed,1,38.4844,38.3125,39.5938,37.2031,27.1562,24.5625,0.815571
+I2_shared_learned_mixed,1,37.2656,37,38.3906,35.875,26.4688,23.0156,0.83847
+I3_aware_learned_mixed,1,15.8906,16.125,17.1094,14.9062,11.3438,9.95312,0.792574

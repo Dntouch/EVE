@@ -1,0 +1,4 @@
+metric,trained_known_ab,trained_other_mean,specificity_ratio,untrained_known_ab,trained_to_control_ratio
+processed_events,408.000000,405.250000,1.006786,20.000000,20.400000
+fire_events,74.000000,73.250000,1.010239,4.000000,18.500000
+unique_fired_neurons,60.000000,58.250000,1.030043,3.000000,20.000000
