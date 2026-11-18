@@ -39,6 +39,10 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
   vollständiger Eligibility-Inventur, Einzelgewichtsablationen,
   Wiederholungs- und Interferenzdiagnose.
 - 18 zusätzliche B.5.0-Prüfungen; insgesamt 491/491 bestandene Kerntests.
+- Forschungsstufe B.5.1 mit 512-Episoden-Längsschnitten, natürlichen
+  Gewichtstrajektorien, Schwellenablationen, Verlust-, Wiedererwerbs- und
+  Stabilitätsdiagnosen sowie kontrollierten Fortsetzungen.
+- 18 zusätzliche B.5.1-Prüfungen; insgesamt 509/509 bestandene Kerntests.
 
 ### Geändert
 

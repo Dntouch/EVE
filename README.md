@@ -12,9 +12,9 @@ vorgegebene Semantik aus.
 
 **Stand:** 18. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.5.0 – lokale Kreditzuordnung und Stabilisierung positiver Erfahrungen
+**Jüngste abgeschlossene Forschungsstufe:** B.5.1 – natürliche Lernwiederholung und Stabilität sensorischer Bindungen
 
-**Aktueller Forschungsschwerpunkt:** natürliche Wiederholung und Stabilität erfolgreicher Erfahrungen
+**Aktueller Forschungsschwerpunkt:** lokale Stabilisierung konkurrierender Bindungen
 
 EVE ist inzwischen ein ausführbarer Forschungsprototyp. Er besitzt eine
 deterministische, ereignisgesteuerte Laufzeit, ein eigenes neuronales Netz,
@@ -89,6 +89,15 @@ nach drei Wiederholungen sind 384/384 Diagnosekopien korrekt. Zusätzliche
 nichtursächliche Hemmänderungen und gemischte spätere Erfahrung verhindern
 weiterhin robuste Stabilität. Eine neue Kreditzuordnung wird nicht eingeführt.
 
+B.5.1 verfolgt 1.536 Sensorpfade über 393.216 natürliche Episoden. Alle Pfade
+erreichen autonome Wirksamkeit, werden später aber auch wieder verloren und
+wiedererworben. Nach 64 weiteren Erfahrungen bleiben nur rund 44–45 % der
+zuerst erworbenen Bindungen korrekt; am Ende sind 140/768 Netze gleichzeitig
+für beide Reize korrekt. Inhibitorische Änderungen dominieren frühe Verluste,
+erklären sie isoliert jedoch nur teilweise. Fehlende Wiederholung ist damit
+widerlegt, stabile Mehrfachbindung bleibt ungelöst und es wird kein neuer
+Mechanismus freigegeben.
+
 EVE ist damit weder eine fertige allgemeine Intelligenz noch ein Nachweis, dass
 eigenständige Intelligenz bereits entstanden ist. Der Prototyp dient dazu,
 einzelne Mechanismen kontrolliert zu implementieren, zu messen und auch
@@ -139,6 +148,7 @@ deaktiviert, damit beobachtete Effekte eindeutig zugeordnet werden können.
 | B.4.8 | frühe Erfahrungsbindung und adaptive Exploration | abgeschlossen, frühe instabile Bindung nachgewiesen, adaptive Exploration nicht freigegeben |
 | B.4.9 | lokale Fehlerkorrektur und konkurrierende Handlungswege | abgeschlossen, negative Modulation wirkt, Alternativbindung bleibt instabil, keine neue Funktion |
 | B.5.0 | lokale Kreditzuordnung und positive Erfahrungen | abgeschlossen, Zielpfad erhält Kredit, erste Änderung bleibt unterschwellig, keine neue Regel |
+| B.5.1 | natürliche Lernwiederholung und Stabilität | abgeschlossen, Erwerb und Wiedererwerb vollständig, Erhalt instabil, keine neue Regel |
 
 Ausführliche Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen unter
 [`docs/experimente`](docs/experimente/). Die zugehörigen maschinenlesbaren
@@ -184,7 +194,7 @@ Die jüngste abgeschlossene Versuchsmatrix wird mit folgendem Runner neu
 erzeugt:
 
 ```sh
-./scripts/run-research-stage-b50.sh research/results/b50
+./scripts/run-research-stage-b51.sh research/results/b51
 ```
 
 Weitere Runner und die Bedeutung aller Ergebnisdateien sind in der
@@ -233,6 +243,8 @@ Eingabestrom deterministisch.
 - [Entscheidung nach B.4.9](docs/entscheidungen/0021-keine-neue-fehlerkorrekturfunktion-nach-b49.md)
 - [Bericht zur Forschungsstufe B.5.0](docs/experimente/022-forschungsbericht-forschungsstufe-b50.md)
 - [Entscheidung nach B.5.0](docs/entscheidungen/0022-bestehende-kreditzuordnung-grundsaetzlich-ausreichend.md)
+- [Bericht zur Forschungsstufe B.5.1](docs/experimente/023-forschungsbericht-forschungsstufe-b51.md)
+- [Entscheidung nach B.5.1](docs/entscheidungen/0023-erwerb-ausreichend-stabilisierung-ungeloest.md)
 - [Forschungsfragen](docs/FORSCHUNGSFRAGEN.md)
 - [Glossar](docs/GLOSSAR.md)
 - [Hinweise für Beiträge](CONTRIBUTING.md)

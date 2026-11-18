@@ -941,6 +941,7 @@ void b50_persistence(const std::filesystem::path& output) {
 
 }  // namespace
 
+#ifndef EVE_RESEARCH_STAGE_B50_EMBEDDED
 int main(int argc, char** argv) {
     const std::filesystem::path output = argc > 1
         ? std::filesystem::path(argv[1])
@@ -973,3 +974,4 @@ int main(int argc, char** argv) {
     std::cout << "B.5.0 prospective credit assignment complete K9=not_justified\n";
     return 0;
 }
+#endif

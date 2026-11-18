@@ -4576,6 +4576,261 @@ void test_b50_positive_credit_case(const std::uint32_t index) {
     }
 }
 
+void test_b51_natural_lifecycle_case(const std::uint32_t index) {
+    eve::ExperimentConfig config;
+    config.neuron_count = 16;
+    config.width = 4;
+    config.height = 2;
+    config.depth = 2;
+    config.initial_outgoing_synapses = 0;
+    config.firing_threshold = 2;
+    config.maximum_synapse_weight = 3;
+    config.input_weight_budget = 24;
+    config.learning_enabled = false;
+    config.growth_enabled = false;
+    config.local_event_memory_capacity = 8;
+    config.eligibility_selection = eve::EligibilitySelection::active_phase;
+    config.eligibility_candidate_capacity = 8;
+    config.eligibility_decision_capacity = 8;
+    config.eligibility_duration = 16;
+    config.plasticity_trace_mode = eve::PlasticityTraceMode::g3_recent;
+    config.modulation_mode = eve::ModulationMode::ternary;
+    config.batch_simultaneous_inputs = true;
+    config.inhibitory_plasticity_mode =
+        eve::InhibitoryPlasticityMode::shared;
+
+    struct Fixture {
+        eve::bios::Runtime runtime;
+        std::array<eve::SynapseId, 4> cues{};
+        std::array<eve::SynapseId, 2> explorers{};
+        std::array<eve::SynapseId, 2> outputs{};
+        std::array<eve::SynapseId, 2> inhibition{};
+    };
+    const auto make_fixture = [&]() {
+        Fixture value{eve::bios::Runtime(config, 0x510000ULL)};
+        for (std::size_t cue = 0; cue < 2; ++cue) {
+            for (std::size_t action = 0; action < 2; ++action) {
+                value.cues[cue * 2 + action] =
+                    value.runtime.add_experimental_synapse(
+                        cue, 4 + action, 0, false,
+                        eve::SynapticEffect::excitatory);
+            }
+        }
+        for (std::size_t action = 0; action < 2; ++action) {
+            value.explorers[action] =
+                value.runtime.add_experimental_synapse(
+                    2 + action, 4 + action, 2, true,
+                    eve::SynapticEffect::excitatory);
+            value.outputs[action] =
+                value.runtime.add_experimental_synapse(
+                    4 + action, 6 + action, 2, true,
+                    eve::SynapticEffect::excitatory);
+            value.inhibition[action] =
+                value.runtime.add_experimental_synapse(
+                    4 + action, 7 - action, 0, false,
+                    eve::SynapticEffect::inhibitory);
+        }
+        eve::brainstem::EvaluationRouteConfig route;
+        route.mode = eve::brainstem::EvaluationRouteMode::sensory_input;
+        route.first_input_neuron = 8;
+        route.graded_channel_count = 5;
+        route.fanout_per_source = 1;
+        route.weight = 1;
+        const auto configured = value.runtime.configure_evaluation_route(route);
+        for (const auto source : configured.input_neurons) {
+            for (const auto target : {eve::NeuronId{4}, eve::NeuronId{5},
+                                      eve::NeuronId{6}, eve::NeuronId{7}}) {
+                static_cast<void>(value.runtime.add_experimental_synapse(
+                    source, target, 0, true,
+                    eve::SynapticEffect::excitatory));
+            }
+        }
+        return value;
+    };
+    const auto probe = [](eve::bios::Runtime& runtime,
+                          const eve::NeuronId source) {
+        std::array<bool, 2> fired{};
+        runtime.set_fire_observer([&](const eve::bios::FireObservation& event) {
+            fired[0] = fired[0] || event.neuron == 6;
+            fired[1] = fired[1] || event.neuron == 7;
+        });
+        runtime.enqueue_fire(source);
+        static_cast<void>(runtime.run());
+        runtime.set_fire_observer({});
+        return fired;
+    };
+    struct ObservedEpisode {
+        std::array<bool, 2> autonomous{};
+        std::array<bool, 2> final_output{};
+        bool explored{};
+        bool correct{};
+        std::int8_t modulation{};
+    };
+    const auto experience = [&](Fixture& value, const std::uint8_t cue,
+                                const std::uint8_t action,
+                                const bool target_a,
+                                const bool plasticity = true) {
+        ObservedEpisode result;
+        result.autonomous = probe(value.runtime, cue);
+        result.final_output = result.autonomous;
+        result.explored = !result.autonomous[0] && !result.autonomous[1];
+        if (result.explored) {
+            const auto explored = probe(value.runtime, 2 + action);
+            result.final_output[0] = result.final_output[0] || explored[0];
+            result.final_output[1] = result.final_output[1] || explored[1];
+        }
+        result.correct = target_a
+            ? result.final_output[0] && !result.final_output[1]
+            : result.final_output[1] && !result.final_output[0];
+        result.modulation = result.correct ? 1 : -1;
+        if (plasticity) {
+            static_cast<void>(value.runtime.process_modulatory_feedback(
+                result.modulation));
+        }
+        static_cast<void>(value.runtime.advance_time_by(16));
+        return result;
+    };
+
+    auto fixture = make_fixture();
+    const auto first = experience(fixture, 0, 0, true);
+    if (index == 0) {
+        require(first.final_output[0] && !first.final_output[1] &&
+                    first.correct && first.modulation == 1,
+                "B.5.1 successful observed action was not positively evaluated");
+    } else if (index == 1) {
+        auto failed = make_fixture();
+        const auto wrong = experience(failed, 0, 1, true);
+        require(!wrong.correct && wrong.modulation == -1 &&
+                    failed.runtime.network().synapse(failed.cues[0]).weight == 0,
+                "B.5.1 failed repetition received artificial positive feedback");
+    } else if (index == 2) {
+        const auto second = experience(fixture, 0, 0, true);
+        require(second.explored && second.correct,
+                "B.5.1 repeated positive experience was not actually observed");
+    } else if (index == 3) {
+        auto failed_repeat = make_fixture();
+        static_cast<void>(experience(failed_repeat, 0, 0, true));
+        const auto weight_before = failed_repeat.runtime.network().synapse(
+            failed_repeat.cues[0]).weight;
+        const auto wrong = experience(failed_repeat, 0, 1, true);
+        require(!wrong.correct && wrong.modulation == -1 &&
+                    failed_repeat.runtime.network().synapse(
+                        failed_repeat.cues[0]).weight <= weight_before,
+                "B.5.1 failed second experience was reinforced");
+    } else if (index == 4) {
+        require_equal(fixture.runtime.network().synapse(fixture.cues[0]).weight,
+                      1, "B.5.1 first natural step was not zero to one");
+        static_cast<void>(experience(fixture, 0, 0, true));
+        require_equal(fixture.runtime.network().synapse(fixture.cues[0]).weight,
+                      2, "B.5.1 second natural step was not one to two");
+    } else if (index == 5) {
+        static_cast<void>(experience(fixture, 0, 0, true));
+        const auto before = fixture.runtime;
+        auto after = fixture.runtime;
+        const auto before_answer = probe(after, 0);
+        require(before_answer[0] && !before_answer[1] &&
+                    before.state_fingerprint() != after.state_fingerprint(),
+                "B.5.1 threshold transition did not yield autonomous activity");
+    } else if (index == 6) {
+        auto e1 = fixture.runtime;
+        auto e2 = fixture.runtime;
+        require_equal(e1.state_fingerprint(), e2.state_fingerprint(),
+                      "B.5.1 E1 and E2 did not start from identical copies");
+    } else if (index == 7) {
+        static_cast<void>(experience(fixture, 0, 0, true));
+        auto retained = fixture.runtime;
+        static_cast<void>(retained.advance_time_by(64));
+        const auto answer = probe(retained, 0);
+        require(answer[0] && !answer[1],
+                "B.5.1 autonomous ability was not retained without experience");
+    } else if (index == 8) {
+        static_cast<void>(experience(fixture, 0, 0, true));
+        const auto negative = experience(fixture, 0, 0, false);
+        require(!negative.correct && negative.modulation == -1 &&
+                    fixture.runtime.network().synapse(fixture.cues[0]).weight == 1,
+                "B.5.1 negative evaluation did not weaken an acquired weight");
+    } else if (index == 9) {
+        static_cast<void>(experience(fixture, 0, 0, true));
+        static_cast<void>(experience(fixture, 0, 0, false));
+        auto lost = fixture.runtime;
+        const auto answer = probe(lost, 0);
+        require(!answer[0] && !answer[1],
+                "B.5.1 weakened path did not lose autonomous recall");
+    } else if (index == 10) {
+        static_cast<void>(experience(fixture, 0, 0, true));
+        static_cast<void>(experience(fixture, 0, 0, false));
+        static_cast<void>(experience(fixture, 0, 0, true));
+        auto reacquired = fixture.runtime;
+        const auto answer = probe(reacquired, 0);
+        require(answer[0] && !answer[1],
+                "B.5.1 lost ability was not naturally reacquired");
+    } else if (index == 11) {
+        static_cast<void>(experience(fixture, 0, 0, true));
+        auto rollback = fixture.runtime;
+        rollback.set_experimental_synapse_weight(fixture.cues[0], 1);
+        auto isolated = make_fixture();
+        isolated.runtime.set_experimental_synapse_weight(isolated.cues[0], 2);
+        const auto rollback_answer = probe(rollback, 0);
+        const auto isolated_answer = probe(isolated.runtime, 0);
+        require(!rollback_answer[0] && !rollback_answer[1] &&
+                    isolated_answer[0] && !isolated_answer[1],
+                "B.5.1 causal threshold copies were not necessary and sufficient");
+    } else if (index == 12) {
+        fixture.runtime.set_experimental_synapse_weight(fixture.cues[0], 2);
+        fixture.runtime.set_experimental_synapse_weight(fixture.cues[1], 2);
+        fixture.runtime.set_experimental_synapse_weight(fixture.inhibition[0], 0);
+        fixture.runtime.set_experimental_synapse_weight(fixture.inhibition[1], 3);
+        const auto answer = probe(fixture.runtime, 0);
+        require(!answer[0] || answer[1],
+                "B.5.1 inhibitory interference did not affect unique recall");
+    } else if (index == 13) {
+        auto inverse = make_fixture();
+        static_cast<void>(experience(inverse, 0, 1, false));
+        static_cast<void>(experience(inverse, 0, 1, false));
+        const auto answer = probe(inverse.runtime, 0);
+        require(!answer[0] && answer[1],
+                "B.5.1 inverse assignment did not learn symmetrically");
+    } else if (index == 14) {
+        static_cast<void>(experience(fixture, 0, 0, true));
+        const auto path = std::filesystem::temp_directory_path() /
+            "eve-stage-b51-checkpoint.bin";
+        fixture.runtime.save(path.string());
+        const auto restored = eve::bios::Runtime::load(path.string());
+        require_equal(fixture.runtime.state_fingerprint(),
+                      restored.state_fingerprint(),
+                      "B.5.1 lifecycle state did not persist exactly");
+        static_cast<void>(std::filesystem::remove(path));
+    } else if (index == 15) {
+        auto first_copy = fixture.runtime;
+        auto second_copy = fixture.runtime;
+        static_cast<void>(experience(fixture, 0, 0, true));
+        Fixture left{std::move(first_copy), fixture.cues, fixture.explorers,
+                     fixture.outputs, fixture.inhibition};
+        Fixture right{std::move(second_copy), fixture.cues, fixture.explorers,
+                      fixture.outputs, fixture.inhibition};
+        static_cast<void>(experience(left, 1, 1, false));
+        static_cast<void>(experience(right, 1, 1, false));
+        require_equal(left.runtime.state_fingerprint(),
+                      right.runtime.state_fingerprint(),
+                      "B.5.1 identical continuations diverged");
+    } else if (index == 16) {
+        auto double_output = make_fixture();
+        double_output.runtime.set_experimental_synapse_weight(
+            double_output.cues[0], 2);
+        double_output.runtime.set_experimental_synapse_weight(
+            double_output.cues[1], 2);
+        const auto ambiguous = experience(double_output, 0, 0, true);
+        require(ambiguous.final_output[0] && ambiguous.final_output[1] &&
+                    !ambiguous.correct && ambiguous.modulation == -1,
+                "B.5.1 ambiguous action received positive feedback");
+    } else if (index == 17) {
+        require(fixture.runtime.network().validate(),
+                "B.5.1 lifecycle network is invalid");
+        require_equal(fixture.runtime.metrics().grown_synapses, 0ULL,
+                      "B.5.1 unexpectedly enabled structural growth");
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -4981,6 +5236,31 @@ int main() {
         tests.emplace_back(
             std::string("B50 ") + b50_names[index],
             [index]() { test_b50_positive_credit_case(index); });
+    }
+    const std::array<const char*, 18> b51_names{{
+        "positive feedback after observed success",
+        "failed action receives no positive feedback",
+        "validated repeated positive experience",
+        "failed repetition is not reinforced",
+        "natural zero-one-two transition",
+        "autonomous activity after threshold",
+        "identical E1 E2 checkpoint copies",
+        "retention without further experience",
+        "negative weakening of acquired weight",
+        "loss after weakening",
+        "natural reacquisition after loss",
+        "causal threshold state copies",
+        "inhibitory interference",
+        "normal inverse symmetry",
+        "complete lifecycle persistence",
+        "identical continuation determinism",
+        "ambiguous output receives no positive feedback",
+        "valid bounded architecture",
+    }};
+    for (std::uint32_t index = 0; index < b51_names.size(); ++index) {
+        tests.emplace_back(
+            std::string("B51 ") + b51_names[index],
+            [index]() { test_b51_natural_lifecycle_case(index); });
     }
 
     std::size_t failures = 0;

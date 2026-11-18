@@ -99,6 +99,12 @@ isolierten Zustand notwendig und hinreichend. Offen bleiben die natürliche
 Wiederholung erfolgreicher Erfahrung und der Erhalt dieses Schwellenzustands
 in gemischten Strömen. Dies ist der Schwerpunkt von B.5.1.
 
+B.5.1 zeigt, dass natürliche Wiederholung weder selten noch grundsätzlich
+unterbrochen ist: Alle 1.536 Pfade werden erworben und wiedererworben. Der
+Erhalt scheitert an fortlaufender sensorischer, inhibitorischer und
+transienter Konkurrenz. B.5.2 muss diese Verlustbeiträge lokal trennen, bevor
+eine minimale Stabilisierungsvariante zulässig ist.
+
 ## Erfolgskriterien aus dem Konzept
 
 Ein geeigneter kontrollierter Test folgt der dort beschriebenen Abfolge:

@@ -81,3 +81,10 @@ Der erste Schritt auf Gewicht 1 bleibt jedoch unterschwellig; der zweite
 Schritt auf 2 ist kausal notwendig und hinreichend. Offen ist, warum natürliche
 Erfahrungsströme diese Wiederholung und den anschließenden Erhalt beider
 Beziehungen nicht zuverlässig bereitstellen.
+B.5.1 beantwortet den Wiederholungsteil: Jeder untersuchte Sensorpfad erhält
+genügend positive Wiederholungen und wird autonom wirksam. Die Fähigkeit
+oszilliert danach jedoch zwischen Verlust und Wiedererwerb. Inhibitorische
+Änderungen dominieren den ersten Verlust, Sensoränderungen und transiente
+Zustände tragen ebenfalls kausal bei. Offen bleibt eine rein lokale
+Stabilisierung, die beitragende Konkurrenz erhält, nichtkausale Änderungen
+vermeidet und beide Beziehungen gleichzeitig verfügbar macht.

@@ -21,6 +21,7 @@ Dieser Ordner enthält bestätigte Entscheidungen zum Projekt sowie eine optiona
 | [0020](0020-adaptive-exploration-wird-nicht-freigegeben.md) | B.4.8 weist frühe instabile Pfadbindung nach; adaptive Zusatzexploration zeigt keinen reproduzierbaren autonomen Lernvorteil. |
 | [0021](0021-keine-neue-fehlerkorrekturfunktion-nach-b49.md) | B.4.9 weist lokale Fehlerwirkung und erreichbare Alternativen nach, aber keine robuste Alternativbindung; eine neue Korrekturfunktion wird nicht eingeführt. |
 | [0022](0022-bestehende-kreditzuordnung-grundsaetzlich-ausreichend.md) | B.5.0 weist richtige lokale Reizkreditierung und einen unterschwelligen ersten Lernschritt nach; eine neue Kreditregel wird nicht eingeführt. |
+| [0023](0023-erwerb-ausreichend-stabilisierung-ungeloest.md) | B.5.1 weist ausreichenden natürlichen Erwerb, aber instabilen Erhalt konkurrierender Bindungen nach; ein neuer Mechanismus bleibt gesperrt. |
 
 Nummer 0002 wurde entfernt. Die vorübergehende Nichtwahl eines Technologie-Stacks
 war keine bestätigte langfristige Projektentscheidung. Die Nummern 0004 bis

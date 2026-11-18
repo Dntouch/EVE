@@ -484,3 +484,38 @@ Bestätigung, Aufgabenmatrix, Persistenz und allgemeine Erfolgskriterien werden
 separat ausgewiesen. K9/K10 wurden mangels eines fehlenden lokalen
 Zuordnungsmechanismus nicht implementiert. Historische Ergebnisordner bleiben
 unverändert.
+
+## Forschungsstufe B.5.1 – natürliche Lernwiederholung und Stabilität
+
+Build und vollständige Reproduktions-, Längsschnitt- und Kausalmatrix:
+
+```sh
+scripts/run-research-stage-b51.sh research/results/b51
+```
+
+Der Runner reproduziert B.5.0 in `b50-reproduction` bytegenau und führt danach
+768 natürliche 512-Episoden-Läufe aus: 64 Entdeckungs- und 64 unbenutzte
+Bestätigungs-Seeds, drei Stromfamilien sowie normale und inverse Zuordnung.
+E1 und E2 werden nach 128, 256 und 512 Episoden aus getrennten identischen
+Zustandskopien ausgewertet.
+
+`natural-trajectories.csv.gz`, `eligibility-events.csv.gz` und
+`natural-weight-changes.csv.gz` enthalten die vollständigen episodischen
+Aktivitäts-, Eligibility- und Gewichtsrohdaten. `weight-transitions.csv.gz`,
+`threshold-causal-copies.csv.gz`, `ability-events.csv.gz`,
+`loss-causal-copies.csv` und `loss-continuations.csv` dokumentieren
+Schwellenübergänge, Erwerb, Verlust, Wiedererwerb und kontrollgleiche
+Ablationen.
+
+`stability-checkpoints.csv`, `controlled-continuations.csv`,
+`path-lifecycle.csv`, `checkpoint-evaluation.csv`,
+`confusion-matrices.csv`, `cluster-statistics.csv` und
+`success-criteria.csv` enthalten Retention, alternative Erfahrungsfolgen,
+zensierte Lebenszyklusdaten, Verwechslungsmatrizen und clusterbewusste
+Bootstrapintervalle. `validated-repetition-comparison.csv` weist nach, dass
+die explizite Handlungsprüfung die historischen B.5.0-Werte nicht verändert.
+`task-matrix.csv` erhält Einzelreiz, beide Sequenzrichtungen, Alternierung,
+Mischung, inverse Zuordnung, Umweltumkehr und Retention.
+
+K9/K10 bleiben deaktiviert. Historische Ergebnisordner werden nicht
+überschrieben; Laufzeit und RSS in `performance.csv` sind maschinenabhängig.

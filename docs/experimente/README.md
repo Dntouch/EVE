@@ -50,6 +50,9 @@ angepasst werden.
 - [Auftrag B.5.0](022-entwicklungsauftrag-forschungsstufe-b50.md)
 - [Technische Analyse B.5.0](022-technische-analyse-lokale-kreditzuordnung.md)
 - [Bericht B.5.0](022-forschungsbericht-forschungsstufe-b50.md)
+- [Auftrag B.5.1](023-entwicklungsauftrag-forschungsstufe-b51.md)
+- [Technische Analyse B.5.1](023-technische-analyse-natuerliche-lernwiederholung.md)
+- [Bericht B.5.1](023-forschungsbericht-forschungsstufe-b51.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
@@ -93,3 +96,8 @@ Sensorpfad einer explorativ erfolgreichen Handlung erreicht. Die erste
 ist in 364 Kopien notwendig und hinreichend. Natürliche Wiederholung und
 Stabilität im gemischten Strom bleiben ungelöst, daher entsteht keine neue
 Kreditzuordnungsregel.
+B.5.1 widerlegt fehlende natürliche Wiederholung als Hauptengpass. Alle
+untersuchten Pfade werden autonom erworben, aber später auch verloren und
+wiedererworben. Sensorische, inhibitorische und transiente Konkurrenz
+verhindert stabilen gleichzeitigen Erhalt; eine neue Regel wird nicht
+freigegeben.
