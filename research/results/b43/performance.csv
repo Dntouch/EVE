@@ -1,0 +1,2 @@
+variants,seeds,experiences,events,wall_seconds,cpu_seconds,cpu_seconds_per_experience,events_per_cpu_second,maximum_queue,peak_rss_kib
+48,64,573440,13256426,5.6181,5.59081,9.7496e-06,2.37111e+06,68,6008

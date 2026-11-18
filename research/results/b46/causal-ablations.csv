@@ -1,0 +1,4 @@
+candidate,intervention,status,comparison,interpretation
+K3_shared_start0_mixed,disable_inhibitory_effect,diagnostic_group,K4_effect_disabled_mixed,effect-disabled control separates inhibition from added wiring
+K3_shared_start0_mixed,freeze_inhibitory_weights,diagnostic_group,K2_fixed1_mixed,fixed control separates inhibitory activity from inhibitory plasticity
+K3_shared_start0_mixed,state_copy_single_path_ablation,not_triggered,none,pre-registered only after full discovery success criteria

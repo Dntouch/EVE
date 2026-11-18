@@ -1,0 +1,10 @@
+seed,motor_circuit,event_index,event_kind,sender,receiver,synapse,weight,membrane_before,membrane_after,refractory_before,refractory_after,receiver_fired,role
+2026,M3,34,fire,-1,87,-1,0,0,0,0,0,1,data-2
+2026,M3,35,impulse,87,97,1053,1,0,1,0,0,0,circuit-synapse
+2026,M3,151,fire,-1,104,-1,0,0,0,0,0,1,data-5
+2026,M3,152,fire,-1,139,-1,0,0,0,0,0,1,data-6
+2026,M3,153,impulse,104,97,1056,1,1,2,0,0,0,circuit-synapse
+2026,M3,158,impulse,139,97,1057,1,2,0,0,16,1,circuit-synapse
+2026,M3,163,fire,-1,97,-1,0,0,0,0,0,1,circuit-relay
+2026,M3,164,impulse,97,241,1059,3,0,0,0,16,1,circuit-synapse
+2026,M3,169,fire,-1,241,-1,0,0,0,0,0,1,completion

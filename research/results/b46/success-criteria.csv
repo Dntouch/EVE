@@ -1,0 +1,3 @@
+candidate,phase,X_correct,Y_correct,robust_seeds,advantage_no_learning,ci_low,improvement_vs_B45,passes
+K3_shared_start0_mixed,discovery,0.842303,0.834637,35,0.340137,0.308258,0.0702607,0
+K3_shared_start0_mixed,confirmation,0.813626,0.819154,30,0.31772,0.285453,0.0397987,0

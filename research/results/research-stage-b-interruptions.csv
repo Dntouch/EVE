@@ -1,0 +1,15 @@
+seed,variant,selected_synapse,sender,receiver,baseline_status,baseline_proven_path,baseline_local_path,interrupted_status,interrupted_proven_path,interrupted_local_path,baseline_events,interrupted_events,event_delta,completion_changed
+2026,G3,1053,87,97,completed,1,1,no_response,0,0,173,162,-11,1
+314159,G3,1056,139,74,completed,1,1,no_response,0,0,173,162,-11,1
+2,G3,1052,42,175,completed,1,1,completed,1,1,192,192,0,0
+3,G3,1053,87,77,completed,1,1,no_response,0,0,173,162,-11,1
+5,G3,1052,42,92,completed,1,1,completed,1,1,193,193,0,0
+53,G3,1054,125,163,completed,1,1,no_response,0,0,172,161,-11,1
+83,G3,1050,109,73,completed,1,1,no_response,0,0,173,162,-11,1
+107,G3,1050,109,110,completed,1,1,no_response,0,0,174,163,-11,1
+157,G3,1054,47,91,completed,1,1,no_response,0,0,174,163,-11,1
+173,G3,1052,87,212,completed,1,1,no_response,0,0,174,163,-11,1
+179,G3,1054,125,62,completed,1,1,completed,1,1,192,192,0,0
+233,G3,1053,87,72,completed,1,1,completed,1,1,192,192,0,0
+239,G3,1053,125,238,completed,1,1,no_response,0,0,174,163,-11,1
+241,G3,1056,104,179,completed,1,1,no_response,0,0,174,163,-11,1

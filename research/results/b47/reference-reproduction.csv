@@ -1,0 +1,7 @@
+variant,seeds,expected_score,actual_score,difference,passes
+K2_fixed1_mixed,64,0.815571,0.815571,-3.69825e-07,1
+K3_shared_start0_mixed,64,0.83847,0.83847,-6.99906e-08,1
+K4_effect_disabled_mixed,64,0.794867,0.794867,1.14267e-07,1
+K6_normal_normal_order_mixed,64,0.792574,0.792574,-1.52175e-09,1
+K6_swapped_normal_order_mixed,64,0.658756,0.658756,-8.35445e-08,1
+K7_no_learning_mixed,64,0.498333,0.498333,-6.98715e-08,1

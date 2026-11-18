@@ -559,6 +559,40 @@ Die folgenden Schritte sollen getrennt untersucht werden.
 
 Eine technische Ausgabeschnittstelle bereitstellen und prüfen, ob das neuronale Netzwerk eigenständig unterscheidbare Ausgaben erzeugen kann.
 
+Umsetzung und Ergebnisse:
+
+- [Entwicklungsauftrag](../experimente/004-entwicklungsauftrag-forschungsstufe-a.md)
+- [Forschungsbericht](../experimente/004-forschungsbericht-forschungsstufe-a.md)
+
+### Forschungsstufe A.1 – Angeborene sensomotorische Grundlage
+
+Zwischen A und der lokalen Ereigniszuordnung werden angeborene funktionale
+Pfade, begrenzte neuronale Exploration, motorische Abschlussgruppen und die
+sensorische Wahrnehmung eigener Motorereignisse getrennt untersucht. Diese
+Mechanismen stellen Wahrnehmung, Aktivität, Handlung und Rückmeldung technisch
+bereit, führen aber weder Zielbewertung noch eine neue Lernregel ein.
+
+Umsetzung und Ergebnisse:
+
+- [Entwicklungsauftrag](../experimente/005-entwicklungsauftrag-forschungsstufe-a1.md)
+- [Forschungsbericht](../experimente/005-forschungsbericht-forschungsstufe-a1.md)
+- [Entscheidungsvorlage](../entscheidungen/0005-vorlage-stammhirnentwicklung-nach-a1.md)
+
+### Forschungsstufe A.2 – Kausalität motorischer Abschlüsse
+
+Vor der lokalen Ereigniszuordnung wird geprüft, ob ein Abschluss tatsächlich
+aus vorausgegangener Motoraktivität und einer konkreten neuronalen Schaltung
+entsteht. Exploration schließt alle konfigurierten Sensor-, Motor-, Pfad- und
+Schaltungsneuronen als direkte Ziele aus. Aktive und identisch aufgebaute,
+gezielt unterbrochene Motorschaltungen werden mit realen Impulsfolgen
+verglichen.
+
+Umsetzung und Ergebnisse:
+
+- [Entwicklungsauftrag](../experimente/006-entwicklungsauftrag-forschungsstufe-a2.md)
+- [Forschungsbericht](../experimente/006-forschungsbericht-forschungsstufe-a2.md)
+- [Entscheidungsvorlage](../entscheidungen/0006-vorlage-uebergang-zu-forschungsstufe-b.md)
+
 ### Forschungsstufe B – Lokale Ereigniszuordnung
 
 Untersuchen, wie ein Neuron vorausgegangene Eingangsaktivität berücksichtigen kann, ohne Zeitstempel oder globale Aktualisierungen.
@@ -566,6 +600,11 @@ Untersuchen, wie ein Neuron vorausgegangene Eingangsaktivität berücksichtigen 
 ### Forschungsstufe C – Rückmeldungsabhängiges Lernen
 
 Eine minimale Lernregel erproben, die neuronale Aktivität mit einer nachfolgenden Rückmeldung verbindet.
+
+Der erste isolierte Versuch hierzu ist als
+[lokale Drei-Faktor-Plastizität](EVE-Drei-Faktor-Plastizitaet.md) dokumentiert.
+Er erlaubt begrenzte Änderungen im Forschungsmodus, hebt die fehlende
+Handlungszuordnung und die Sperre für allgemeines Online-Lernen aber nicht auf.
 
 ### Forschungsstufe D – Erwartungsbildung
 

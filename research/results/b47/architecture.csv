@@ -1,0 +1,10 @@
+component,logical_role,normal_ids,permuted_ids,count,weight,effect,protected,notes
+neurons,total,0-31,0-31,32,0,none,0,4x4x2 lattice; geometry unused by experimental wiring
+sensor,X/Y,0/1,17/19,2,0,excitatory,0,each sensor reaches both decision neurons
+exploration,A/B,2/3,21/23,2,2,excitatory,1,symmetric protected innate support
+decision,A/B,4/5,25/27,2,0,mixed,0,local cue eligibility and motor competition
+motor,A/B,6/7,29/31,2,2,excitatory,1,binary fire observations only
+inhibition,A-to-B/B-to-A,4-to-7/5-to-6,25-to-31/27-to-29,2,variant,inhibitory,variant,symmetric cross inhibition
+modulation,scalar feedback,10-14,0-4,20,0,excitatory,1,all inputs carry identical polarity
+threshold,all receivers,2,2,1,2,none,0,no refractory events; input-dependent recovery
+rng,cue/exploration/runtime,0x4601000/0x4602000/0x4703000,same,3,0,none,0,independent deterministic streams by seed

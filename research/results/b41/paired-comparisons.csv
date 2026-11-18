@@ -1,0 +1,6 @@
+left,right,seeds,mean_difference,median_difference,bootstrap_low,bootstrap_high,positive_seed_fraction
+E2_pre_post,K0_no_plasticity,64,-0.511230,-0.468750,-0.550781,-0.472168,0.000000
+E2_pre_post,K3_random_feedback,64,-0.019531,0.000000,-0.094238,0.048340,0.437500
+E2_pre_post,K4_reversed_feedback,64,-0.028320,0.000000,-0.115234,0.046387,0.468750
+E1_G3,E2_pre_post,64,0.053223,0.000000,-0.015625,0.132324,0.187500
+E2_pre_post,E3_membrane,64,0.068359,0.000000,0.038574,0.103027,0.468750

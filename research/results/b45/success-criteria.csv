@@ -1,0 +1,4 @@
+candidate,success_X,success_Y,paired_advantage,ci_low,robust_seeds,passes
+K1_active_phase_mixed,0.393905,0.323051,0.0506364,0.0329282,0,0
+K2_negative75_mixed,0.735013,0.721426,0.420378,0.37483,8,0
+K2_negative_mixed,0.743122,0.793296,0.460368,0.421573,9,0

@@ -13,35 +13,35 @@ body:
   - type: textarea
     id: ziel
     attributes:
-      label: Ziel und Hypothese
-      description: Frage, erwartete Beobachtung und Begründung
+      label: Untersuchte Aufgabe
+      description: Welche für EVE unbekannte Aufgabe wird untersucht?
     validations:
       required: true
   - type: textarea
-    id: widerlegung
+    id: ausgangszustand
     attributes:
-      label: Widerlegungskriterium
-      description: Was würde die Hypothese widerlegen oder unentscheidbar machen?
+      label: Ausgangszustand und Ereignisse
+      description: Neuronaler Zustand, Zufallszustände, Umweltbedingungen und Ereignisfolge
+    validations:
+      required: true
+  - type: textarea
+    id: konsequenzen
+    attributes:
+      label: Entscheidungen und Konsequenzen
+      description: Welche Entscheidungen kann EVE treffen und welche Konsequenzen wahrnehmen?
     validations:
       required: true
   - type: textarea
     id: kontrollen
     attributes:
-      label: Kontrollen
+      label: Abgrenzung möglicher Erklärungen
       description: Wie werden Zufall, feste Lösungswege und Lehrerentscheidungen ausgeschlossen?
     validations:
       required: true
   - type: textarea
-    id: reproduktion
+    id: beobachtung
     attributes:
-      label: Reproduzierbarkeit
-      description: Ausgangszustand, Ereignisfolge, Zufallszustände und Messgrößen
-    validations:
-      required: true
-  - type: textarea
-    id: stop
-    attributes:
-      label: Abbruch- und Stop-Kriterien
-      description: Technische, wissenschaftliche, ethische und sicherheitsbezogene Grenzen
+      label: Beobachtete Größen
+      description: Welche der im Konzept genannten Größen werden aufgezeichnet?
     validations:
       required: true

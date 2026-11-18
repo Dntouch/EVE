@@ -12,30 +12,110 @@ vorgegebene Semantik aus.
 
 **Stand:** 18. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.4.2 – Erhalt explorativer Handlungsfähigkeit
+**Jüngste abgeschlossene Forschungsstufe:** B.5.1 – natürliche Lernwiederholung und Stabilität sensorischer Bindungen
 
-**Aktueller Forschungsschwerpunkt:** lokale Trennung mehrerer Reiz-Handlungs-Zuordnungen
+**Nächster Forschungsschwerpunkt:** B.5.2 – lokale Stabilisierung konkurrierender neuronaler Bindungen
 
 EVE ist inzwischen ein ausführbarer Forschungsprototyp. Er besitzt eine
 deterministische, ereignisgesteuerte Laufzeit, ein eigenes neuronales Netz,
 angeborene Stammhirnfunktionen, persistierbare Zustände und reproduzierbare
 Versuchsreihen.
 
-Die Forschungsreihe B.4 bis B.4.2 untersucht erstmals lokale
-rückmeldungsabhängige Plastizität. B.4 bestätigt die technische Wirksamkeit
-der Drei-Faktor-Regel, erreicht aber noch keine Verhaltensverbesserung. B.4.1
-weist die kausale Wirkung der Gewichtsänderung auf die Motorausgabe nach und
-grenzt den Verlust explorativer Handlungswege als Ursache ein. B.4.2 schützt
-angeborene Explorationssynapsen vor negativer Modulation: Damit lernt EVE einen
-wiederholten Einzelreiz für beide Zielhandlungen und passt seine Präferenz nach
-einer Umweltumkehr an. Die Zwei-Reiz-Aufgabe bleibt trotz einer Verbesserung
-gegenüber der Nullkontrolle ungelöst.
+B.4.2 weist den Verlust explorativer Wege durch negative Modulation kausal
+nach. Ein allgemeiner Schutz angeborener Explorationssynapsen erhält beide
+Handlungsalternativen. Damit lernt EVE einen wiederholten Einzelreiz für Ziel A
+wie B und passt die Präferenz nach Umweltumkehr an. Die Zwei-Reiz-Aufgabe bleibt
+trotz Verbesserung gegenüber der Nullkontrolle ungelöst.
 
-Die Forschungsstufen bleiben als eigenständige Branches erhalten. Der jüngste
-vollständige Implementierungsstand liegt auf
-[`codex/research-stage-b42-exploration-preservation`](https://github.com/Dntouch/EVE/tree/codex/research-stage-b42-exploration-preservation);
-`main` bildet den stabilen Einstieg, das übergeordnete Konzept und die
-gemeinsame Forschungsübersicht ab.
+B.4.3 lokalisiert den verbleibenden Engpass: Im unveränderten G3-Fenster
+stammten 30,15 % der sensorisch klassifizierbaren Lernkandidaten aus der
+jeweils anderen Erfahrung. Sequenzielles Lernen überschreibt die erste
+Beziehung kausal. Engere lokale Fenster reduzieren die Vermischung, genügen
+aber noch nicht für gleichzeitiges Mehrfachlernen.
+
+B.4.4 zeigt, dass zusätzliches Synapsenwachstum diesen Engpass nicht löst:
+Rund 104–112 neue Verbindungen je zentralem Lauf bleiben bei Gewicht null und
+ändern das Verhalten nicht. Die bestehende `active_phase`-Auswahl erhält zwei
+sequenziell trainierte Beziehungen auch ohne Wachstum deutlich besser, bleibt
+aber bei alternierenden und gemischten Erfahrungen unzureichend.
+
+B.4.5 schließt ältere Eligibility-Spuren und bloße Kandidatenkapazität als
+dominante Ursache des Mischfehlers aus. Doppelte Motoraktivierung blockiert
+dagegen wirksame Korrektur. Gezielte negative Ambiguitätsrückmeldung verbessert
+die Mischleistung stark, bleibt aber asymmetrisch und weit unter dem
+Robustheitsziel. Eine technische Winner-take-all-Auswahl wird nicht eingeführt.
+
+B.4.6 weist allgemeine lokale Hemmung technisch nach. Eine getrennte
+synaptische Wirkungsart und gleichzeitige lokale Integration bleiben bei
+vertauschter Queue-Reihenfolge deterministisch. Lernbare Hemmung verbessert
+die Mischleistung auf 83,85 %, erreicht aber nur 35/64 robuste Seeds und in
+der unabhängigen Bestätigung 30/64. Die vertauschte Motorzuordnung legt einen
+verbleibenden Handlungsbias offen; die allgemeine Lernfreigabe bleibt gesperrt.
+
+B.4.7 widerlegt eine technische Nummernpräferenz: 1.088/1.088 konsistente
+Sensor-, Motor-, Explorations-, Modulations-, Neuronen- und
+Synapsenabbildungen sind logisch exakt gleich. Der verbleibende Fehler hängt
+stattdessen stark vom konkreten Explorationsstrom ab. E1 ohne zusätzliche
+Exploration erreicht nur 68,41 %, die inverse Zielzuordnung mit unverändertem
+Strom 59,00 %. Lernbare Hemmung wirkt kausal, ist fester Hemmung aber weiterhin
+nicht statistisch überlegen. Zugleich wird eine feste 67:61-Kopplung der
+historischen binären Zufallsströme entdeckt. Nach ihrer isolierten Korrektur
+fallen normale und inverse Mischleistung auf 70,07 % und 73,78 % bei höchstens
+16/64 robusten Seeds. Das Robustheitsziel bleibt verfehlt.
+
+B.4.8 zeigt mit vollständigen Zustandskopien, dass autonome Bindung bereits
+nach 4–8 Erfahrungen entsteht, danach aber nicht stabil bleibt. Gelernte
+Reizgewichte tragen E1 kausal; falsche eindeutige Antworten verhindern jedoch
+weitere geschützte Exploration. Eine minimale negative-rückmeldungsabhängige
+Zusatzexploration erreicht höchstens 13/64 robuste Seeds und reproduziert
+ihren kleinen Entdeckungsvorteil weder über drei Stromfamilien noch in der
+Bestätigung. Sie wird nicht als Stammhirnfunktion freigegeben.
+
+B.4.9 trennt E1 und E2 methodisch in unabhängige Zustandskopien. Negative
+Modulation beseitigt eine konkrete eindeutige Fehlantwort häufig, doch 48/122
+Fälle erzeugen danach keine eindeutige Alternative. Hemmungsablationen ändern
+dies nicht, und alle konkurrierenden Wege bleiben erreichbar. Von 67 positiv
+bewerteten Alternativerprobungen werden nur 35 beim nächsten Reiz korrekt
+autonom abgerufen; beide Reizbeziehungen bleiben nur in 21 Fällen erhalten.
+Mangels eines einzelnen lokalen Aktivierungsengpasses wird keine neue
+Fehlerkorrekturfunktion eingeführt.
+
+B.5.0 zeigt prospektiv, dass die bestehende Eligibility den zunächst
+wirkungslosen Sensorpfad einer explorativ erfolgreichen Handlung korrekt
+erreicht. Eine erste positive Erfahrung erhöht ihn nur von Gewicht 0 auf 1
+und bleibt unter der Feuergrenze 2. Nach der zweiten real erfolgreichen
+Wiederholung ist der Schritt auf 2 in 364 Kopien notwendig und hinreichend;
+nach drei Wiederholungen sind 384/384 Diagnosekopien korrekt. Zusätzliche
+nichtursächliche Hemmänderungen und gemischte spätere Erfahrung verhindern
+weiterhin robuste Stabilität. Eine neue Kreditzuordnung wird nicht eingeführt.
+
+B.5.1 verfolgt 1.536 Sensorpfade über 393.216 natürliche Episoden. Alle Pfade
+erreichen autonome Wirksamkeit, werden später aber auch wieder verloren und
+wiedererworben. Nach 64 weiteren Erfahrungen bleiben nur rund 44–45 % der
+zuerst erworbenen Bindungen korrekt; am Ende sind 140/768 Netze gleichzeitig
+für beide Reize korrekt. Inhibitorische Änderungen dominieren frühe Verluste,
+erklären sie isoliert jedoch nur teilweise. Fehlende Wiederholung ist damit
+widerlegt, stabile Mehrfachbindung bleibt ungelöst und es wird kein neuer
+Mechanismus freigegeben.
+
+### Einordnung des konsolidierten Stands
+
+- **Beschlossene Architektur:** deterministische Ereignislaufzeit, Trennung von
+  BIOS, angeborenem Stammhirn und neuronalem Netz, lokale Ereigniszustände sowie
+  versionierte Speicherung und Wiederherstellung.
+- **Experimentell implementierte Mechanismen:** lokale Drei-Faktor-Plastizität,
+  inhibitorische Synapsen und Plastizität sowie die lokale Integration technisch
+  gleichzeitiger Eingänge. Diese Mechanismen werden nur in abgegrenzten
+  Forschungsvarianten aktiviert.
+- **Nachgewiesene Fähigkeiten:** Erwerb einer einzelnen Reiz-Handlungs-Beziehung,
+  Anpassung nach Bewertungsumkehr sowie in B.5.1 natürlicher Erwerb, Verlust und
+  Wiedererwerb aller untersuchten Sensorpfade.
+- **Offene Forschungsfragen:** stabiler gleichzeitiger Erhalt konkurrierender
+  Bindungen, Trennung gespeicherter Verbindungsverluste von vorübergehend
+  gestörtem Abruf und die lokalen Ursachen inhibitorischer Interferenz.
+- **Nicht freigegebene Funktionen:** allgemeines adaptives Online-Lernen,
+  inhibitorische Plastizität als Standardfunktion, adaptive Zusatzexploration
+  und ein neuer Stabilisierungs- oder Fehlerkorrekturmechanismus.
 
 EVE ist damit weder eine fertige allgemeine Intelligenz noch ein Nachweis, dass
 eigenständige Intelligenz bereits entstanden ist. Der Prototyp dient dazu,
@@ -72,6 +152,8 @@ verändert.**
 
 - deterministische Ereignisverarbeitung mit simulierter Zeit,
 - Neuronen, gewichtete Synapsen, Feuerereignisse und Erholungsmechanismen,
+- getrennte erregende und experimentelle inhibitorische Synapsenwirkung,
+- optionale lokale Integration technisch gleichzeitiger Eingänge,
 - konfigurierbare synaptische Verstärkung, Aktivitätsregulation und Wachstum,
 - UTF-8-Sensoreingabe sowie angeborene sensorische und motorische Pfade,
 - neuronale Ausgaben, motorische Abschlüsse und sensorische Rückkopplung,
@@ -79,7 +161,7 @@ verändert.**
 - lokale, zeitlich begrenzte Lernberechtigungen (Eligibility),
 - abgestufte Bewertungsreize und neuronale Rückmeldungsrouten,
 - standardmäßig deaktivierte, lokale Drei-Faktor-Plastizität für B.4-Versuche,
-- nicht-erregende neuronale Modulationskontakte,
+- nicht-erregende neuronale Modulationskontakte, die weder Membran noch G3 füllen,
 - persistierbarer Plastizitätsschutz für angeborene Explorationssynapsen,
 - versionierte Speicherung und Wiederherstellung vollständiger Zustände,
 - Diagnostik, Ereignisprotokolle, Zustandsfingerabdrücke und Messdaten,
@@ -100,25 +182,27 @@ deaktiviert, damit beobachtete Effekte eindeutig zugeordnet werden können.
 | B.2 | lokale neuronale Lernberechtigung | abgeschlossen |
 | B.3 | neuronale Bewertungs- und Rückmeldungswege | abgeschlossen |
 | B.3.1 | neuronaler Kontext zur Handlungszuordnung | abgeschlossen, nicht ausreichend |
-| [B.4](https://github.com/Dntouch/EVE/blob/codex/research-stage-b4-three-factor-plasticity/docs/experimente/012-forschungsbericht-forschungsstufe-b4.md) | erste rückmeldungsabhängige Plastizität | abgeschlossen, Lernkriterium verfehlt |
-| [B.4.1](https://github.com/Dntouch/EVE/blob/codex/research-stage-b41-learning-validation/docs/experimente/013-forschungsbericht-forschungsstufe-b41.md) | methodische Validierung des Lernversuchs | abgeschlossen, kausale Wirkung ja, Lernen nein |
-| [B.4.2](https://github.com/Dntouch/EVE/blob/codex/research-stage-b42-exploration-preservation/docs/experimente/014-forschungsbericht-forschungsstufe-b42.md) | Erhalt angeborener Exploration | abgeschlossen, Einzelreiz-Lernen ja, Zwei-Reiz-Lernen nein |
+| B.4 | erste rückmeldungsabhängige Plastizität | abgeschlossen, Lernkriterium verfehlt |
+| B.4.1 | methodische Validierung des Lernversuchs | abgeschlossen, kausale Wirkung ja, Lernen nein |
+| B.4.2 | Erhalt angeborener Exploration | abgeschlossen, Einzelreiz-Lernen ja, Zwei-Reiz-Lernen nein |
+| B.4.3 | lokale Trennung konkurrierender Erfahrungen | abgeschlossen, Interferenz kausal, Mehrfachlernen nein |
+| B.4.4 | strukturelles Lernen und synaptische Interferenz | abgeschlossen, Struktur für Sequenzen ausreichend, Wachstum wirkungslos |
+| B.4.5 | lokale Entscheidungsbindung und motorische Konkurrenz | abgeschlossen, H2 kausal, robustes Mischlernen nein |
+| B.4.6 | lokale neuronale Hemmung und erfahrungsabhängige Konkurrenz | abgeschlossen, technische Hemmung ja, robustes biasfreies Lernen nein |
+| B.4.7 | neuronale Symmetrie und robuste Entscheidungsbildung | abgeschlossen, technische Rollen invariant, Erfahrungsstromabhängigkeit bleibt |
+| B.4.8 | frühe Erfahrungsbindung und adaptive Exploration | abgeschlossen, frühe instabile Bindung nachgewiesen, adaptive Exploration nicht freigegeben |
+| B.4.9 | lokale Fehlerkorrektur und konkurrierende Handlungswege | abgeschlossen, negative Modulation wirkt, Alternativbindung bleibt instabil, keine neue Funktion |
+| B.5.0 | lokale Kreditzuordnung und positive Erfahrungen | abgeschlossen, Zielpfad erhält Kredit, erste Änderung bleibt unterschwellig, keine neue Regel |
+| B.5.1 | natürliche Lernwiederholung und Stabilität | abgeschlossen, Erwerb und Wiedererwerb vollständig, Erhalt instabil, keine neue Regel |
 
-Ausführliche Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen in
-den jeweils verlinkten Forschungsbranches unter `docs/experimente`. Die
-zugehörigen maschinenlesbaren Messdaten liegen dort unter `research/results`.
+Ausführliche Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen unter
+[`docs/experimente`](docs/experimente/). Die zugehörigen maschinenlesbaren
+Messdaten liegen unter [`research/results`](research/results/).
 
 ## Schnellstart
 
 Benötigt werden ein C++17-fähiger Compiler und entweder GNU Make oder CMake ab
 Version 3.16.
-
-Nach dem Klonen wird für den jüngsten ausführbaren Forschungsstand der
-eigenständige B.4.2-Branch ausgecheckt:
-
-```sh
-git switch codex/research-stage-b42-exploration-preservation
-```
 
 ### Mit Make
 
@@ -155,7 +239,7 @@ Die jüngste abgeschlossene Versuchsmatrix wird mit folgendem Runner neu
 erzeugt:
 
 ```sh
-./scripts/run-research-stage-b42.sh research/results/b42
+./scripts/run-research-stage-b51.sh research/results/b51
 ```
 
 Weitere Runner und die Bedeutung aller Ergebnisdateien sind in der
@@ -192,8 +276,24 @@ Eingabestrom deterministisch.
 - [Projektkonzept](docs/konzept/EVE-Konzept.md)
 - [Stammhirnkonzept](docs/konzept/EVE-Stammhirnkonzept.md)
 - [Meilenstein 001 – Die erste erlernte Fähigkeit](docs/meilensteine/001-erste-erlernte-faehigkeit.md)
-- [Bericht zur Forschungsstufe B.4.2](https://github.com/Dntouch/EVE/blob/codex/research-stage-b42-exploration-preservation/docs/experimente/014-forschungsbericht-forschungsstufe-b42.md)
-- [Entscheidung zum begrenzten Lernnachweis](https://github.com/Dntouch/EVE/blob/codex/research-stage-b42-exploration-preservation/docs/entscheidungen/0014-begrenztes-einzelreiz-lernen-nach-b42.md)
+- [Bericht zur Forschungsstufe B.4.2](docs/experimente/014-forschungsbericht-forschungsstufe-b42.md)
+- [Entscheidung zum begrenzten Lernnachweis](docs/entscheidungen/0014-begrenztes-einzelreiz-lernen-nach-b42.md)
+- [Bericht zur Forschungsstufe B.4.3](docs/experimente/015-forschungsbericht-forschungsstufe-b43.md)
+- [Entscheidung nach B.4.3](docs/entscheidungen/0015-keine-freigabe-mehrfachlernen-nach-b43.md)
+- [Bericht zur Forschungsstufe B.4.4](docs/experimente/016-forschungsbericht-forschungsstufe-b44.md)
+- [Entscheidung nach B.4.4](docs/entscheidungen/0016-strukturelle-kapazitaet-ausreichend-nach-b44.md)
+- [Bericht zur Forschungsstufe B.4.5](docs/experimente/017-forschungsbericht-forschungsstufe-b45.md)
+- [Entscheidung nach B.4.5](docs/entscheidungen/0017-motorische-konkurrenz-nach-b45.md)
+- [Bericht zur Forschungsstufe B.4.6](docs/experimente/018-forschungsbericht-forschungsstufe-b46.md)
+- [Entscheidung nach B.4.6](docs/entscheidungen/0018-inhibitorische-grundfunktion-bleibt-experimentell.md)
+- [Bericht zur Forschungsstufe B.4.7](docs/experimente/019-forschungsbericht-forschungsstufe-b47.md)
+- [Entscheidung nach B.4.7](docs/entscheidungen/0019-konkurrenzlernen-bleibt-erfahrungsstromabhaengig.md)
+- [Bericht zur Forschungsstufe B.4.9](docs/experimente/021-forschungsbericht-forschungsstufe-b49.md)
+- [Entscheidung nach B.4.9](docs/entscheidungen/0021-keine-neue-fehlerkorrekturfunktion-nach-b49.md)
+- [Bericht zur Forschungsstufe B.5.0](docs/experimente/022-forschungsbericht-forschungsstufe-b50.md)
+- [Entscheidung nach B.5.0](docs/entscheidungen/0022-bestehende-kreditzuordnung-grundsaetzlich-ausreichend.md)
+- [Bericht zur Forschungsstufe B.5.1](docs/experimente/023-forschungsbericht-forschungsstufe-b51.md)
+- [Entscheidung nach B.5.1](docs/entscheidungen/0023-erwerb-ausreichend-stabilisierung-ungeloest.md)
 - [Forschungsfragen](docs/FORSCHUNGSFRAGEN.md)
 - [Glossar](docs/GLOSSAR.md)
 - [Hinweise für Beiträge](CONTRIBUTING.md)

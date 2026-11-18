@@ -1,0 +1,12 @@
+left,right,seeds,mean_difference,median_difference,bootstrap_low,bootstrap_high,positive_seed_fraction
+K2_A1_protected,K1_A0_B41_reference,64,0.504883,0.562500,0.402832,0.608887,0.734375
+K3_N1_positive_only,K0_N0_no_plasticity,64,0.272461,0.328125,0.211914,0.332520,0.812500
+K5_N3_ternary,K3_N1_positive_only,64,-0.109375,-0.218750,-0.189453,-0.025391,0.265625
+K6_N4_negative_50,K5_N3_ternary,64,-0.086426,0.000000,-0.158691,-0.009766,0.281250
+N4_negative_25,K5_N3_ternary,64,-0.037598,0.000000,-0.116211,0.043457,0.343750
+N4_negative_75,K5_N3_ternary,64,0.023438,0.000000,-0.028320,0.075195,0.218750
+N5_alternating_negative_step,K5_N3_ternary,64,-0.019043,0.000000,-0.094238,0.049805,0.390625
+K16_S2_single_A_ternary,K15_S0_single_A_no_plasticity,64,1.383789,1.359375,1.354004,1.413086,1.000000
+K17_S2_single_B_ternary,S0_single_B,64,1.372559,1.406250,1.341309,1.401855,1.000000
+K18_two_cue_protected,K0_N0_no_plasticity,64,0.163086,0.140625,0.111328,0.221680,0.640625
+K13_random_feedback,K2_A1_protected,64,-0.081543,0.000000,-0.149902,-0.017090,0.312500
