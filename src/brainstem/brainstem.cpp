@@ -6,7 +6,7 @@
 #include <array>
 #include <cstdint>
 #include <limits>
-#include <numeric>
+#include <queue>
 #include <stdexcept>
 #include <utility>
 #include <vector>
@@ -346,6 +346,128 @@ std::vector<EncodedByte> Brainstem::encode_utf8_bytes(
         encoded.push_back(std::move(item));
     }
     return encoded;
+}
+
+InnateWiringResult Brainstem::create_innate_wiring(
+    neural::Network& network,
+    const MotorAssignment& motor_assignment,
+    const InnateWiringConfig& config) const {
+    InnateWiringResult result;
+    result.config = config;
+    if (config.topology == InnateTopology::none) {
+        return result;
+    }
+    if (config.topology == InnateTopology::structural_paths &&
+        config.initial_weight != 0) {
+        throw std::invalid_argument("structural innate paths must start at weight zero");
+    }
+    if ((config.topology == InnateTopology::functional_paths ||
+         config.topology == InnateTopology::varied_functional_paths) &&
+        config.initial_weight <= 0) {
+        throw std::invalid_argument("functional innate paths require positive weight");
+    }
+
+    std::vector<NeuronId> sources;
+    for (NeuronId neuron = 0; neuron < 8; ++neuron) {
+        sources.push_back(neuron);
+    }
+    sources.push_back(motor_assignment.config.response_stimulus_neuron);
+
+    std::vector<NeuronId> motor_targets;
+    for (const auto& channel : motor_assignment.channels) {
+        motor_targets.insert(motor_targets.end(), channel.begin(), channel.end());
+    }
+    motor_targets.push_back(motor_assignment.completion_contact);
+
+    std::vector<bool> reserved(network.neuron_count(), false);
+    for (const NeuronId neuron : sources) {
+        reserved[neuron] = true;
+    }
+    for (const NeuronId neuron : motor_targets) {
+        reserved[neuron] = true;
+    }
+    std::vector<NeuronId> relay_candidates;
+    for (NeuronId neuron = 0; neuron < network.neuron_count(); ++neuron) {
+        if (!reserved[neuron]) {
+            relay_candidates.push_back(neuron);
+        }
+    }
+    if (relay_candidates.size() < motor_targets.size() * 2U) {
+        throw std::invalid_argument("network has too few neurons for innate motor paths");
+    }
+
+    std::uint64_t random_state = config.topology_seed == 0
+                                     ? 0x9e3779b97f4a7c15ULL
+                                     : config.topology_seed;
+    const auto shuffle = [&random_state](std::vector<NeuronId>& values) {
+        for (std::size_t remaining = values.size(); remaining > 1; --remaining) {
+            const std::size_t selected = static_cast<std::size_t>(
+                next_assignment_random(random_state) % remaining);
+            std::swap(values[remaining - 1], values[selected]);
+        }
+    };
+    shuffle(relay_candidates);
+    shuffle(motor_targets);
+
+    const auto connect = [&network, &result, &config](
+                             const NeuronId sender,
+                             const NeuronId receiver) {
+        const auto existing = network.find_synapse(sender, receiver);
+        if (existing.has_value()) {
+            neural::Synapse& synapse = network.synapse(*existing);
+            if (synapse.weight < config.initial_weight) {
+                synapse.weight = config.initial_weight;
+                ++result.adjusted_existing_synapses;
+            }
+            return;
+        }
+        static_cast<void>(network.add_synapse(sender, receiver, config.initial_weight));
+        ++result.added_synapses;
+    };
+
+    result.paths.reserve(motor_targets.size());
+    for (std::size_t index = 0; index < motor_targets.size(); ++index) {
+        const InnatePath path{
+            sources[static_cast<std::size_t>(
+                next_assignment_random(random_state) % sources.size())],
+            relay_candidates[index * 2U],
+            relay_candidates[index * 2U + 1U],
+            motor_targets[index],
+        };
+        connect(path.source, path.first_relay);
+        connect(path.first_relay, path.second_relay);
+        connect(path.second_relay, path.motor_target);
+        result.paths.push_back(path);
+    }
+
+    const auto unreachable = std::numeric_limits<std::uint32_t>::max();
+    std::vector<std::uint32_t> distance(network.neuron_count(), unreachable);
+    std::queue<NeuronId> pending;
+    for (const NeuronId source : sources) {
+        distance[source] = 0;
+        pending.push(source);
+    }
+    while (!pending.empty()) {
+        const NeuronId sender = pending.front();
+        pending.pop();
+        for (const SynapseId synapse : network.outgoing_synapses(sender)) {
+            const NeuronId receiver = network.synapse(synapse).receiver;
+            if (distance[receiver] != unreachable) {
+                continue;
+            }
+            distance[receiver] = distance[sender] + 1U;
+            pending.push(receiver);
+        }
+    }
+    for (const NeuronId target : motor_targets) {
+        if (distance[target] == unreachable) {
+            continue;
+        }
+        ++result.structurally_reachable_motor_contacts;
+        result.maximum_shortest_path =
+            std::max(result.maximum_shortest_path, distance[target]);
+    }
+    return result;
 }
 
 }  // namespace eve::brainstem

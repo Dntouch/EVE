@@ -368,6 +368,19 @@ const brainstem::MotorAssignment& Runtime::motor_assignment() const {
     return motor_output_.assignment();
 }
 
+brainstem::InnateWiringResult Runtime::configure_innate_wiring(
+    const brainstem::InnateWiringConfig& config) {
+    if (!motor_output_.configured()) {
+        throw std::logic_error("motor output must be configured before innate wiring");
+    }
+    if (config.initial_weight < 0 ||
+        config.initial_weight > config_.maximum_synapse_weight) {
+        throw std::invalid_argument("innate weight is outside configured synaptic bounds");
+    }
+    return brainstem_.create_innate_wiring(
+        network_, motor_output_.assignment(), config);
+}
+
 void Runtime::set_trace_stream(std::ostream* stream) noexcept {
     trace_stream_ = stream;
 }

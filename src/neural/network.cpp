@@ -90,6 +90,12 @@ SynapseId Network::add_synapse(
 }
 
 bool Network::has_synapse(const NeuronId sender, const NeuronId receiver) const {
+    return find_synapse(sender, receiver).has_value();
+}
+
+std::optional<SynapseId> Network::find_synapse(
+    const NeuronId sender,
+    const NeuronId receiver) const {
     require_neuron(sender);
     require_neuron(receiver);
     SynapseId current = neurons_[sender].first_outgoing;
@@ -97,11 +103,11 @@ bool Network::has_synapse(const NeuronId sender, const NeuronId receiver) const 
         require_synapse(current);
         const Synapse& item = synapses_[current];
         if (item.receiver == receiver) {
-            return true;
+            return current;
         }
         current = item.next_outgoing;
     }
-    return false;
+    return std::nullopt;
 }
 
 Coordinate Network::coordinate(const NeuronId id) const {

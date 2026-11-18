@@ -43,6 +43,45 @@ enum class MotorResponseStatus : std::uint8_t {
     aborted = 2,
 };
 
+enum class InnateTopology : std::uint8_t {
+    none = 0,
+    structural_paths = 1,
+    functional_paths = 2,
+    varied_functional_paths = 3,
+};
+
+struct InnateWiringConfig {
+    InnateTopology topology{InnateTopology::none};
+    std::int32_t initial_weight{};
+    std::uint64_t topology_seed{1};
+
+    bool operator==(const InnateWiringConfig& other) const noexcept {
+        return topology == other.topology && initial_weight == other.initial_weight &&
+               topology_seed == other.topology_seed;
+    }
+};
+
+struct InnatePath {
+    NeuronId source{};
+    NeuronId first_relay{};
+    NeuronId second_relay{};
+    NeuronId motor_target{};
+
+    bool operator==(const InnatePath& other) const noexcept {
+        return source == other.source && first_relay == other.first_relay &&
+               second_relay == other.second_relay && motor_target == other.motor_target;
+    }
+};
+
+struct InnateWiringResult {
+    InnateWiringConfig config;
+    std::vector<InnatePath> paths;
+    std::uint32_t added_synapses{};
+    std::uint32_t adjusted_existing_synapses{};
+    std::uint32_t structurally_reachable_motor_contacts{};
+    std::uint32_t maximum_shortest_path{};
+};
+
 struct MotorOutputConfig {
     std::uint32_t contacts_per_channel{1};
     std::uint64_t assignment_seed{1};
@@ -142,6 +181,11 @@ public:
     [[nodiscard]] std::vector<EncodedByte> encode_utf8_bytes(
         const std::vector<std::uint8_t>& bytes,
         std::uint32_t neuron_count) const;
+
+    [[nodiscard]] InnateWiringResult create_innate_wiring(
+        neural::Network& network,
+        const MotorAssignment& motor_assignment,
+        const InnateWiringConfig& config) const;
 };
 
 }  // namespace eve::brainstem

@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <map>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -43,6 +44,9 @@ public:
         NeuronId receiver,
         std::int32_t weight);
     [[nodiscard]] bool has_synapse(NeuronId sender, NeuronId receiver) const;
+    [[nodiscard]] std::optional<SynapseId> find_synapse(
+        NeuronId sender,
+        NeuronId receiver) const;
 
     [[nodiscard]] Coordinate coordinate(NeuronId neuron) const;
     [[nodiscard]] std::vector<SynapseId> outgoing_synapses(NeuronId neuron) const;

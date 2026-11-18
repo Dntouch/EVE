@@ -3,6 +3,7 @@
 #include "eve/neural/network.hpp"
 #include "eve/types.hpp"
 
+#include <algorithm>
 #include <cstdint>
 #include <exception>
 #include <filesystem>
@@ -650,6 +651,107 @@ void test_motor_assignment_cannot_directly_copy_sensor_bits() {
                   "sensory byte was copied into a motor response");
 }
 
+eve::brainstem::InnateWiringConfig innate_config(
+    const eve::brainstem::InnateTopology topology,
+    const std::int32_t weight,
+    const std::uint64_t seed = 9917) {
+    eve::brainstem::InnateWiringConfig config;
+    config.topology = topology;
+    config.initial_weight = weight;
+    config.topology_seed = seed;
+    return config;
+}
+
+void test_innate_wiring_is_deterministic() {
+    const auto execute = []() {
+        eve::bios::Runtime runtime(motor_test_config(), 15);
+        runtime.configure_motor_output(motor_output_config());
+        const auto result = runtime.configure_innate_wiring(innate_config(
+            eve::brainstem::InnateTopology::functional_paths, 1));
+        return std::make_pair(result.paths, runtime.state_fingerprint());
+    };
+    const auto first = execute();
+    const auto second = execute();
+    require_equal(first.first, second.first, "innate path selection is not deterministic");
+    require_equal(first.second, second.second, "innate wiring state is not deterministic");
+}
+
+void test_innate_wiring_counts_and_reachability() {
+    eve::bios::Runtime runtime(motor_test_config(), 16);
+    runtime.configure_motor_output(motor_output_config());
+    const auto result = runtime.configure_innate_wiring(innate_config(
+        eve::brainstem::InnateTopology::structural_paths, 0));
+    require_equal(result.paths.size(), std::size_t{9}, "M1 needs nine innate paths");
+    require_equal(result.added_synapses, 27U, "each innate path needs three synapses");
+    require_equal(result.adjusted_existing_synapses, 0U,
+                  "empty network unexpectedly adjusted a synapse");
+    require_equal(result.structurally_reachable_motor_contacts, 9U,
+                  "not all M1 motor contacts are structurally reachable");
+    require_equal(result.maximum_shortest_path, 3U, "innate path length differs from three");
+    require(runtime.network().validate(), "innate wiring violates network invariants");
+}
+
+void test_structural_zero_weight_path_does_not_transmit() {
+    eve::bios::Runtime runtime(motor_test_config(), 17);
+    runtime.configure_motor_output(motor_output_config());
+    const auto result = runtime.configure_innate_wiring(innate_config(
+        eve::brainstem::InnateTopology::structural_paths, 0));
+    std::vector<eve::NeuronId> fired;
+    runtime.set_fire_observer([&fired](const eve::bios::FireObservation& observation) {
+        fired.push_back(observation.neuron);
+    });
+    runtime.enqueue_fire(result.paths.front().source);
+    static_cast<void>(runtime.run());
+    require(std::find(fired.begin(), fired.end(), result.paths.front().motor_target) ==
+                fired.end(),
+            "zero-weight structural path transmitted activity");
+}
+
+void test_functional_innate_path_transmits_neurally() {
+    auto config = motor_test_config();
+    config.firing_threshold = 3;
+    eve::bios::Runtime runtime(config, 18);
+    runtime.configure_motor_output(motor_output_config());
+    const auto result = runtime.configure_innate_wiring(innate_config(
+        eve::brainstem::InnateTopology::functional_paths, 3));
+    std::vector<eve::NeuronId> fired;
+    runtime.set_fire_observer([&fired](const eve::bios::FireObservation& observation) {
+        fired.push_back(observation.neuron);
+    });
+    runtime.enqueue_fire(result.paths.front().source);
+    static_cast<void>(runtime.run());
+    require(std::find(fired.begin(), fired.end(), result.paths.front().first_relay) !=
+                fired.end(),
+            "first innate relay did not fire");
+    require(std::find(fired.begin(), fired.end(), result.paths.front().second_relay) !=
+                fired.end(),
+            "second innate relay did not fire");
+    require(std::find(fired.begin(), fired.end(), result.paths.front().motor_target) !=
+                fired.end(),
+            "functional innate path did not reach motor target");
+}
+
+void test_varied_innate_topology_changes_paths() {
+    const auto execute = [](const std::uint64_t seed) {
+        eve::bios::Runtime runtime(motor_test_config(), 19);
+        runtime.configure_motor_output(motor_output_config());
+        return runtime.configure_innate_wiring(innate_config(
+            eve::brainstem::InnateTopology::varied_functional_paths, 1, seed)).paths;
+    };
+    require(execute(1) != execute(2), "different topology seeds produced identical paths");
+}
+
+void test_disabled_innate_wiring_preserves_reference() {
+    eve::bios::Runtime reference(motor_test_config(), 20);
+    eve::bios::Runtime disabled(motor_test_config(), 20);
+    reference.configure_motor_output(motor_output_config());
+    disabled.configure_motor_output(motor_output_config());
+    static_cast<void>(disabled.configure_innate_wiring(innate_config(
+        eve::brainstem::InnateTopology::none, 0)));
+    require_equal(reference.state_fingerprint(), disabled.state_fingerprint(),
+                  "disabled innate wiring changed reference state");
+}
+
 }  // namespace
 
 int main() {
@@ -687,6 +789,12 @@ int main() {
         {"motor assignment after restore", test_motor_assignment_after_state_restore},
         {"disabled motor interface", test_disabled_motor_interface_preserves_existing_behavior},
         {"no direct sensor copy", test_motor_assignment_cannot_directly_copy_sensor_bits},
+        {"innate wiring determinism", test_innate_wiring_is_deterministic},
+        {"innate wiring reachability", test_innate_wiring_counts_and_reachability},
+        {"structural zero-weight path", test_structural_zero_weight_path_does_not_transmit},
+        {"functional innate path", test_functional_innate_path_transmits_neurally},
+        {"varied innate topology", test_varied_innate_topology_changes_paths},
+        {"disabled innate wiring", test_disabled_innate_wiring_preserves_reference},
     };
 
     std::size_t failures = 0;

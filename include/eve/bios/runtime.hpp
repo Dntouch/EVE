@@ -77,6 +77,8 @@ public:
         std::uint64_t safety_event_limit = 0);
     [[nodiscard]] bool motor_output_configured() const noexcept;
     [[nodiscard]] const brainstem::MotorAssignment& motor_assignment() const;
+    [[nodiscard]] brainstem::InnateWiringResult configure_innate_wiring(
+        const brainstem::InnateWiringConfig& config);
 
     void set_trace_stream(std::ostream* stream) noexcept;
     void set_fire_observer(FireObserver observer);
