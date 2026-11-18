@@ -1599,11 +1599,11 @@ eve::bios::LocalMemoryCausality run_local_m3_memory_case(
     for (std::size_t channel = 0; channel < 3; ++channel) {
         runtime.enqueue_fire(runtime.motor_assignment().channels[channel][0]);
     }
-    static_cast<void>(runtime.request_response(false));
+    const auto response = runtime.request_response(false);
     if (captured != nullptr) {
         *captured = impulses;
     }
-    return runtime.analyze_local_motor_memory(circuit, impulses);
+    return runtime.analyze_local_motor_memory(response, circuit, impulses);
 }
 
 void test_simple_fire_reconstruction_from_local_memory() {
@@ -1646,11 +1646,15 @@ void test_local_memory_detects_unassigned_activity() {
     require(circuit.circuit_synapses.size() >= 2,
             "M3 test circuit has too few synapses");
     eve::bios::ImpulseObservation synthetic;
+    synthetic.event_index = 2;
     synthetic.receiver = circuit.relay_neurons.front();
     synthetic.receiver_fired = true;
     synthetic.local_event_snapshot = {
         circuit.circuit_synapses.back(), circuit.circuit_synapses.front()};
-    const auto result = runtime.analyze_local_motor_memory(circuit, {synthetic});
+    eve::brainstem::MotorResponse response;
+    response.activations.push_back({1, 20, 0});
+    response.activations.push_back({3, runtime.motor_assignment().completion_contact, -1});
+    const auto result = runtime.analyze_local_motor_memory(response, circuit, {synthetic});
     require(result.unassigned_entries >= 1,
             "memory analysis did not separate an unrelated circuit entry");
 }

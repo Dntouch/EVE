@@ -154,6 +154,7 @@ public:
         const brainstem::MotorCircuitResult& circuit,
         const std::vector<ImpulseObservation>& impulses);
     [[nodiscard]] LocalMemoryCausality analyze_local_motor_memory(
+        const brainstem::MotorResponse& response,
         const brainstem::MotorCircuitResult& circuit,
         const std::vector<ImpulseObservation>& impulses) const;
     void set_experimental_synapse_weight(SynapseId synapse, std::int32_t weight);

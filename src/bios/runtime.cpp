@@ -648,6 +648,7 @@ MotorCausality Runtime::analyze_motor_causality(
 }
 
 LocalMemoryCausality Runtime::analyze_local_motor_memory(
+    const brainstem::MotorResponse& response,
     const brainstem::MotorCircuitResult& circuit,
     const std::vector<ImpulseObservation>& impulses) const {
     LocalMemoryCausality result;
@@ -658,6 +659,21 @@ LocalMemoryCausality Runtime::analyze_local_motor_memory(
 
     const NeuronId accumulator = circuit.relay_neurons.front();
     const NeuronId completion = motor_output_.assignment().completion_contact;
+    std::uint64_t first_data_event = 0;
+    std::uint64_t completion_event = 0;
+    for (const brainstem::MotorActivation& activation : response.activations) {
+        if (activation.channel >= 0 && first_data_event == 0) {
+            first_data_event = activation.event_index;
+        }
+        if (activation.channel < 0) {
+            completion_event = activation.event_index;
+            break;
+        }
+    }
+    if (first_data_event == 0 || completion_event == 0 ||
+        completion_event <= first_data_event) {
+        return result;
+    }
     const std::set<SynapseId> circuit_ids(
         circuit.circuit_synapses.begin(), circuit.circuit_synapses.end());
     const std::int64_t motor_weight = std::max<std::int32_t>(1, circuit.config.motor_weight);
@@ -683,7 +699,9 @@ LocalMemoryCausality Runtime::analyze_local_motor_memory(
     };
 
     for (const ImpulseObservation& observation : impulses) {
-        if (!observation.receiver_fired) {
+        if (!observation.receiver_fired ||
+            observation.event_index < first_data_event ||
+            observation.event_index > completion_event) {
             continue;
         }
         if (observation.receiver == accumulator) {
