@@ -12,26 +12,30 @@ vorgegebene Semantik aus.
 
 **Stand:** 18. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.3.1 – neuronaler Handlungskontext
+**Jüngste abgeschlossene Forschungsstufe:** B.4.2 – Erhalt explorativer Handlungsfähigkeit
 
-**Aktueller Forschungsschwerpunkt:** zuverlässigere neuronale Handlungszuordnung vor B.4
+**Aktueller Forschungsschwerpunkt:** lokale Trennung mehrerer Reiz-Handlungs-Zuordnungen
 
 EVE ist inzwischen ein ausführbarer Forschungsprototyp. Er besitzt eine
 deterministische, ereignisgesteuerte Laufzeit, ein eigenes neuronales Netz,
 angeborene Stammhirnfunktionen, persistierbare Zustände und reproduzierbare
 Versuchsreihen.
 
-Die Forschungsstufe B.3.1 zeigt, dass EVE lokale neuronale Handlungskontexte
-bilden, verteilen und mit Eligibility verbinden kann. Die Zuordnung mehrerer
-oder identischer Handlungen ist jedoch noch nicht zuverlässig: In der
-Zwei-Handlungs-Matrix waren nur 96 von 2.688 Rückmeldungen eindeutig richtig,
-18 eindeutig falsch, 1.447 mehrdeutig und 1.127 nicht zugeordnet. Deshalb ist
-B.4 mit rückmeldungsabhängiger Gewichtsänderung ausdrücklich nicht freigegeben.
+Die Forschungsreihe B.4 bis B.4.2 untersucht erstmals lokale
+rückmeldungsabhängige Plastizität. B.4 bestätigt die technische Wirksamkeit
+der Drei-Faktor-Regel, erreicht aber noch keine Verhaltensverbesserung. B.4.1
+weist die kausale Wirkung der Gewichtsänderung auf die Motorausgabe nach und
+grenzt den Verlust explorativer Handlungswege als Ursache ein. B.4.2 schützt
+angeborene Explorationssynapsen vor negativer Modulation: Damit lernt EVE einen
+wiederholten Einzelreiz für beide Zielhandlungen und passt seine Präferenz nach
+einer Umweltumkehr an. Die Zwei-Reiz-Aufgabe bleibt trotz einer Verbesserung
+gegenüber der Nullkontrolle ungelöst.
 
 Die Forschungsstufen bleiben als eigenständige Branches erhalten. Der jüngste
 vollständige Implementierungsstand liegt auf
-`codex/research-stage-b31-neural-action-context`; `main` bildet den stabilen
-Einstieg und das übergeordnete Konzept ab.
+[`codex/research-stage-b42-exploration-preservation`](https://github.com/Dntouch/EVE/tree/codex/research-stage-b42-exploration-preservation);
+`main` bildet den stabilen Einstieg, das übergeordnete Konzept und die
+gemeinsame Forschungsübersicht ab.
 
 EVE ist damit weder eine fertige allgemeine Intelligenz noch ein Nachweis, dass
 eigenständige Intelligenz bereits entstanden ist. Der Prototyp dient dazu,
@@ -48,6 +52,9 @@ negative Ergebnisse nachvollziehbar festzuhalten.
 - lokales neuronales Ereignisgedächtnis,
 - lokale, zeitlich begrenzte Lernberechtigungen (Eligibility),
 - abgestufte Bewertungsreize und neuronale Rückmeldungsrouten,
+- standardmäßig deaktivierte, lokale Drei-Faktor-Plastizität für B.4-Versuche,
+- nicht-erregende neuronale Modulationskontakte,
+- persistierbarer Plastizitätsschutz für angeborene Explorationssynapsen,
 - versionierte Speicherung und Wiederherstellung vollständiger Zustände,
 - Diagnostik, Ereignisprotokolle, Zustandsfingerabdrücke und Messdaten,
 - automatisierte Kerntests und reproduzierbare Forschungsrunner.
@@ -66,12 +73,14 @@ deaktiviert, damit beobachtete Effekte eindeutig zugeordnet werden können.
 | B.1 | ereignisgesteuerte neuronale Erholung | abgeschlossen |
 | B.2 | lokale neuronale Lernberechtigung | abgeschlossen |
 | B.3 | neuronale Bewertungs- und Rückmeldungswege | abgeschlossen |
-| B.3.1 | neuronaler Kontext zur Handlungszuordnung | abgeschlossen |
-| B.4 | erste rückmeldungsabhängige Plastizität | noch nicht freigegeben |
+| B.3.1 | neuronaler Kontext zur Handlungszuordnung | abgeschlossen, nicht ausreichend |
+| [B.4](https://github.com/Dntouch/EVE/blob/codex/research-stage-b4-three-factor-plasticity/docs/experimente/012-forschungsbericht-forschungsstufe-b4.md) | erste rückmeldungsabhängige Plastizität | abgeschlossen, Lernkriterium verfehlt |
+| [B.4.1](https://github.com/Dntouch/EVE/blob/codex/research-stage-b41-learning-validation/docs/experimente/013-forschungsbericht-forschungsstufe-b41.md) | methodische Validierung des Lernversuchs | abgeschlossen, kausale Wirkung ja, Lernen nein |
+| [B.4.2](https://github.com/Dntouch/EVE/blob/codex/research-stage-b42-exploration-preservation/docs/experimente/014-forschungsbericht-forschungsstufe-b42.md) | Erhalt angeborener Exploration | abgeschlossen, Einzelreiz-Lernen ja, Zwei-Reiz-Lernen nein |
 
-Ausführliche Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen unter
-[`docs/experimente`](docs/experimente/). Die zugehörigen maschinenlesbaren
-Messdaten liegen unter [`research/results`](research/results/).
+Ausführliche Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen in
+den jeweils verlinkten Forschungsbranches unter `docs/experimente`. Die
+zugehörigen maschinenlesbaren Messdaten liegen dort unter `research/results`.
 
 ## Schnellstart
 
@@ -79,10 +88,10 @@ Benötigt werden ein C++17-fähiger Compiler und entweder GNU Make oder CMake ab
 Version 3.16.
 
 Nach dem Klonen wird für den jüngsten ausführbaren Forschungsstand der
-eigenständige B.3.1-Branch ausgecheckt:
+eigenständige B.4.2-Branch ausgecheckt:
 
 ```sh
-git switch codex/research-stage-b31-neural-action-context
+git switch codex/research-stage-b42-exploration-preservation
 ```
 
 ### Mit Make
@@ -120,7 +129,7 @@ Die jüngste abgeschlossene Versuchsmatrix wird mit folgendem Runner neu
 erzeugt:
 
 ```sh
-./scripts/run-research-stage-b31.sh research/results
+./scripts/run-research-stage-b42.sh research/results/b42
 ```
 
 Weitere Runner und die Bedeutung aller Ergebnisdateien sind in der
@@ -155,8 +164,8 @@ Eingabestrom deterministisch.
 
 - [Projektkonzept](docs/konzept/EVE-Konzept.md)
 - [Stammhirnkonzept](docs/konzept/EVE-Stammhirnkonzept.md)
-- [Bericht zur Forschungsstufe B.3.1](https://github.com/Dntouch/EVE/blob/codex/research-stage-b31-neural-action-context/docs/experimente/011-forschungsbericht-forschungsstufe-b31.md)
-- [Entscheidung gegen eine B.4-Freigabe](https://github.com/Dntouch/EVE/blob/codex/research-stage-b31-neural-action-context/docs/entscheidungen/0011-keine-freigabe-fuer-b4-nach-b31.md)
+- [Bericht zur Forschungsstufe B.4.2](https://github.com/Dntouch/EVE/blob/codex/research-stage-b42-exploration-preservation/docs/experimente/014-forschungsbericht-forschungsstufe-b42.md)
+- [Entscheidung zum begrenzten Lernnachweis](https://github.com/Dntouch/EVE/blob/codex/research-stage-b42-exploration-preservation/docs/entscheidungen/0014-begrenztes-einzelreiz-lernen-nach-b42.md)
 - [Forschungsfragen](docs/FORSCHUNGSFRAGEN.md)
 - [Glossar](docs/GLOSSAR.md)
 - [Hinweise für Beiträge](CONTRIBUTING.md)
