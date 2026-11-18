@@ -13,7 +13,7 @@ namespace eve::bios {
 namespace {
 
 constexpr std::array<char, 8> kPersistenceMagic{{'E', 'V', 'E', '0', '0', '1', '\r', '\n'}};
-constexpr std::uint32_t kPersistenceVersion = 7;
+constexpr std::uint32_t kPersistenceVersion = 8;
 constexpr std::uint64_t kNonZeroRngState = 0x9e3779b97f4a7c15ULL;
 constexpr std::uint64_t kFnvPrime = 1099511628211ULL;
 
@@ -127,6 +127,10 @@ void write_config(std::ostream& stream, const ExperimentConfig& config) {
     write_u32(stream, config.eligibility_candidate_capacity);
     write_u32(stream, config.eligibility_decision_capacity);
     write_u64(stream, config.eligibility_duration);
+    write_u8(stream, static_cast<std::uint8_t>(config.context_trace_mode));
+    write_u8(stream, static_cast<std::uint8_t>(config.context_binding_mode));
+    write_u32(stream, config.context_trace_capacity);
+    write_u64(stream, config.context_trace_duration);
     write_u64(stream, config.maximum_events_per_run);
     write_u8(stream, config.learning_enabled ? 1 : 0);
     write_u8(stream, config.growth_enabled ? 1 : 0);
@@ -179,6 +183,19 @@ ExperimentConfig read_config(std::istream& stream, const std::uint32_t version) 
         config.eligibility_decision_capacity = read_u32(stream);
         config.eligibility_duration = read_u64(stream);
     }
+    if (version >= 8) {
+        const std::uint8_t trace_mode = read_u8(stream);
+        const std::uint8_t binding_mode = read_u8(stream);
+        if (trace_mode > static_cast<std::uint8_t>(ContextTraceMode::multiple) ||
+            binding_mode >
+                static_cast<std::uint8_t>(ContextBindingMode::temporal_overlap)) {
+            throw std::runtime_error("invalid action context configuration in EVE state");
+        }
+        config.context_trace_mode = static_cast<ContextTraceMode>(trace_mode);
+        config.context_binding_mode = static_cast<ContextBindingMode>(binding_mode);
+        config.context_trace_capacity = read_u32(stream);
+        config.context_trace_duration = read_u64(stream);
+    }
     config.maximum_events_per_run = read_u64(stream);
     config.learning_enabled = read_bool(stream);
     config.growth_enabled = read_bool(stream);
@@ -219,6 +236,17 @@ void write_metrics(std::ostream& stream, const Metrics& metrics) {
     write_u64(stream, metrics.feedback_receipts_without_eligibility);
     write_u64(stream, metrics.feedback_receipts_with_multiple_eligibilities);
     write_u64(stream, metrics.feedback_created_eligibilities);
+    write_u64(stream, metrics.context_traces_created);
+    write_u64(stream, metrics.context_traces_overwritten);
+    write_u64(stream, metrics.processed_context_expiries);
+    write_u64(stream, metrics.stale_context_expiries);
+    write_u64(stream, metrics.eligibility_context_bindings);
+    write_u64(stream, metrics.eligibility_context_ambiguities);
+    write_u64(stream, metrics.feedback_context_unique_matches);
+    write_u64(stream, metrics.feedback_context_ambiguous_matches);
+    write_u64(stream, metrics.feedback_context_missing_matches);
+    write_u64(stream, metrics.feedback_context_expired_matches);
+    write_u64(stream, metrics.feedback_origin_context_matches);
     write_u64(stream, metrics.growth_attempts);
     write_u64(stream, metrics.grown_synapses);
     write_u64(stream, metrics.processed_sensor_bytes);
@@ -267,6 +295,19 @@ Metrics read_metrics(std::istream& stream, const std::uint32_t version) {
         metrics.feedback_receipts_without_eligibility = read_u64(stream);
         metrics.feedback_receipts_with_multiple_eligibilities = read_u64(stream);
         metrics.feedback_created_eligibilities = read_u64(stream);
+    }
+    if (version >= 8) {
+        metrics.context_traces_created = read_u64(stream);
+        metrics.context_traces_overwritten = read_u64(stream);
+        metrics.processed_context_expiries = read_u64(stream);
+        metrics.stale_context_expiries = read_u64(stream);
+        metrics.eligibility_context_bindings = read_u64(stream);
+        metrics.eligibility_context_ambiguities = read_u64(stream);
+        metrics.feedback_context_unique_matches = read_u64(stream);
+        metrics.feedback_context_ambiguous_matches = read_u64(stream);
+        metrics.feedback_context_missing_matches = read_u64(stream);
+        metrics.feedback_context_expired_matches = read_u64(stream);
+        metrics.feedback_origin_context_matches = read_u64(stream);
     }
     metrics.growth_attempts = read_u64(stream);
     metrics.grown_synapses = read_u64(stream);
@@ -701,11 +742,96 @@ EvaluationFeedbackResult Runtime::process_evaluation_feedback(
         before.feedback_receipts_with_multiple_eligibilities;
     result.created_eligibilities = metrics_.feedback_created_eligibilities -
                                    before.feedback_created_eligibilities;
+    result.unique_context_matches = metrics_.feedback_context_unique_matches -
+                                    before.feedback_context_unique_matches;
+    result.ambiguous_context_matches =
+        metrics_.feedback_context_ambiguous_matches -
+        before.feedback_context_ambiguous_matches;
+    result.missing_context_matches = metrics_.feedback_context_missing_matches -
+                                     before.feedback_context_missing_matches;
+    result.expired_context_matches = metrics_.feedback_context_expired_matches -
+                                     before.feedback_context_expired_matches;
     return result;
 }
 
 bool Runtime::evaluation_route_configured() const noexcept {
     return evaluation_route_configured_;
+}
+
+brainstem::ActionContextRoute Runtime::configure_action_context(
+    const brainstem::ActionContextConfig& config) {
+    if (config.weight > config_.maximum_synapse_weight) {
+        throw std::invalid_argument("action context weight exceeds configured maximum");
+    }
+    action_context_route_ = brainstem_.create_action_context_route(network_, config);
+    action_context_configured_ = true;
+    return action_context_route_;
+}
+
+ActionContextEmission Runtime::process_action_context(
+    const brainstem::ActionContextSignal signal,
+    const std::uint8_t observed_motor_value,
+    const std::uint64_t scheduled_time,
+    const bool feedback_origin) {
+    if (!action_context_configured_) {
+        throw std::logic_error("action context route is not configured");
+    }
+    ActionContextEmission result;
+    result.signal = signal;
+    result.observed_motor_value = observed_motor_value;
+    const auto mode = action_context_route_.config.mode;
+    const bool boundary_allowed =
+        mode == brainstem::ActionContextMode::boundary ||
+        mode == brainstem::ActionContextMode::general_circuit ||
+        mode == brainstem::ActionContextMode::combined;
+    const bool motor_allowed =
+        mode == brainstem::ActionContextMode::motor_copy ||
+        mode == brainstem::ActionContextMode::combined;
+    if (mode == brainstem::ActionContextMode::none ||
+        (signal == brainstem::ActionContextSignal::motor_copy && !motor_allowed) ||
+        (signal != brainstem::ActionContextSignal::motor_copy && !boundary_allowed)) {
+        return result;
+    }
+    const std::uint64_t due = scheduled_time == 0 ? simulated_time_ : scheduled_time;
+    if (due < simulated_time_) {
+        throw std::invalid_argument("action context cannot be scheduled in the past");
+    }
+    if (signal == brainstem::ActionContextSignal::start ||
+        signal == brainstem::ActionContextSignal::end) {
+        result.active_inputs.push_back(action_context_route_.boundary_inputs[
+            signal == brainstem::ActionContextSignal::start ? 0U : 1U]);
+    } else {
+        for (std::uint32_t bit = 0; bit < 8; ++bit) {
+            if ((observed_motor_value & static_cast<std::uint8_t>(1U << bit)) != 0) {
+                result.active_inputs.push_back(action_context_route_.motor_inputs[bit]);
+            }
+        }
+    }
+    if (result.active_inputs.empty()) {
+        return result;
+    }
+    std::uint64_t signature = 14695981039346656037ULL;
+    mix_hash(signature, static_cast<std::uint8_t>(signal) + 1U);
+    for (const auto input : result.active_inputs) mix_hash(signature, input + 1U);
+    result.signature = static_cast<std::uint32_t>(signature ^ (signature >> 32U));
+    if (result.signature == 0) result.signature = 1;
+    const Metrics before = metrics_;
+    for (const auto input : result.active_inputs) {
+        enqueue_event(EventKind::fire, input, due, 0, result.signature,
+                      feedback_origin);
+    }
+    if (due == simulated_time_) {
+        result.processed_events = run();
+    }
+    result.created_traces = metrics_.context_traces_created -
+                            before.context_traces_created;
+    result.bound_eligibilities = metrics_.eligibility_context_bindings -
+                                 before.eligibility_context_bindings;
+    return result;
+}
+
+bool Runtime::action_context_configured() const noexcept {
+    return action_context_configured_;
 }
 
 void Runtime::set_trace_stream(std::ostream* stream) noexcept {
@@ -937,6 +1063,10 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
     mix_hash(hash, config_.eligibility_candidate_capacity);
     mix_hash(hash, config_.eligibility_decision_capacity);
     mix_hash(hash, config_.eligibility_duration);
+    mix_hash(hash, static_cast<std::uint8_t>(config_.context_trace_mode));
+    mix_hash(hash, static_cast<std::uint8_t>(config_.context_binding_mode));
+    mix_hash(hash, config_.context_trace_capacity);
+    mix_hash(hash, config_.context_trace_duration);
     mix_hash(hash, config_.maximum_events_per_run);
     mix_hash(hash, config_.learning_enabled ? 1 : 0);
     mix_hash(hash, config_.growth_enabled ? 1 : 0);
@@ -969,6 +1099,17 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
     mix_hash(hash, metrics_.feedback_receipts_without_eligibility);
     mix_hash(hash, metrics_.feedback_receipts_with_multiple_eligibilities);
     mix_hash(hash, metrics_.feedback_created_eligibilities);
+    mix_hash(hash, metrics_.context_traces_created);
+    mix_hash(hash, metrics_.context_traces_overwritten);
+    mix_hash(hash, metrics_.processed_context_expiries);
+    mix_hash(hash, metrics_.stale_context_expiries);
+    mix_hash(hash, metrics_.eligibility_context_bindings);
+    mix_hash(hash, metrics_.eligibility_context_ambiguities);
+    mix_hash(hash, metrics_.feedback_context_unique_matches);
+    mix_hash(hash, metrics_.feedback_context_ambiguous_matches);
+    mix_hash(hash, metrics_.feedback_context_missing_matches);
+    mix_hash(hash, metrics_.feedback_context_expired_matches);
+    mix_hash(hash, metrics_.feedback_origin_context_matches);
     mix_hash(hash, metrics_.growth_attempts);
     mix_hash(hash, metrics_.grown_synapses);
     mix_hash(hash, metrics_.processed_sensor_bytes);
@@ -982,6 +1123,8 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
         mix_hash(hash, event.scheduled_time);
         mix_hash(hash, event.sequence);
         mix_hash(hash, event.generation);
+        mix_hash(hash, event.context_signature);
+        mix_hash(hash, event.context_feedback_origin ? 1 : 0);
     }
     return hash;
 }
@@ -1056,10 +1199,27 @@ void Runtime::save(const std::string& path) const {
             write_u64(stream, record.generation);
             write_u64(stream, record.expires_at);
             write_u8(stream, record.feedback_origin ? 1 : 0);
+            write_u32(stream, record.context_signature);
+            write_u64(stream, record.context_generation);
+            write_u8(stream, record.context_ambiguous ? 1 : 0);
+            write_u8(stream, record.context_feedback_origin ? 1 : 0);
             write_u32(stream, static_cast<std::uint32_t>(record.candidates.size()));
             for (const SynapseId candidate : record.candidates) {
                 write_u32(stream, candidate);
             }
+        }
+    }
+
+    for (NeuronId neuron = 0; neuron < network_.neuron_count(); ++neuron) {
+        write_u64(stream, network_.context_generation(neuron));
+        write_u64(stream, network_.context_overwrites(neuron));
+        const auto traces = network_.context_traces(neuron);
+        write_u32(stream, static_cast<std::uint32_t>(traces.size()));
+        for (const auto& trace : traces) {
+            write_u64(stream, trace.generation);
+            write_u32(stream, trace.signature);
+            write_u64(stream, trace.expires_at);
+            write_u8(stream, trace.feedback_origin ? 1 : 0);
         }
     }
 
@@ -1072,6 +1232,8 @@ void Runtime::save(const std::string& path) const {
         write_u64(stream, event.scheduled_time);
         write_u64(stream, event.sequence);
         write_u64(stream, event.generation);
+        write_u32(stream, event.context_signature);
+        write_u8(stream, event.context_feedback_origin ? 1 : 0);
     }
     stream.flush();
     if (!stream) {
@@ -1193,6 +1355,12 @@ Runtime Runtime::load(const std::string& path) {
                 if (version >= 7) {
                     record.feedback_origin = read_bool(stream);
                 }
+                if (version >= 8) {
+                    record.context_signature = read_u32(stream);
+                    record.context_generation = read_u64(stream);
+                    record.context_ambiguous = read_bool(stream);
+                    record.context_feedback_origin = read_bool(stream);
+                }
                 const std::uint32_t candidate_count = read_u32(stream);
                 if (candidate_count > config.eligibility_candidate_capacity) {
                     throw std::runtime_error(
@@ -1217,6 +1385,36 @@ Runtime Runtime::load(const std::string& path) {
             std::vector<std::uint64_t>(neuron_count));
     }
 
+    if (version >= 8) {
+        std::vector<std::vector<neural::ContextTrace>> traces(neuron_count);
+        std::vector<std::uint64_t> generations(neuron_count);
+        std::vector<std::uint64_t> overwrites(neuron_count);
+        for (NeuronId neuron = 0; neuron < neuron_count; ++neuron) {
+            generations[neuron] = read_u64(stream);
+            overwrites[neuron] = read_u64(stream);
+            const std::uint32_t trace_count = read_u32(stream);
+            if (trace_count > config.context_trace_capacity) {
+                throw std::runtime_error("persisted context traces exceed capacity");
+            }
+            traces[neuron].reserve(trace_count);
+            for (std::uint32_t index = 0; index < trace_count; ++index) {
+                neural::ContextTrace trace;
+                trace.generation = read_u64(stream);
+                trace.signature = read_u32(stream);
+                trace.expires_at = read_u64(stream);
+                trace.feedback_origin = read_bool(stream);
+                traces[neuron].push_back(trace);
+            }
+        }
+        runtime.network_.restore_context_traces(
+            config.context_trace_capacity, traces, generations, overwrites);
+    } else {
+        runtime.network_.restore_context_traces(
+            0, std::vector<std::vector<neural::ContextTrace>>(neuron_count),
+            std::vector<std::uint64_t>(neuron_count),
+            std::vector<std::uint64_t>(neuron_count));
+    }
+
     if (version >= 5) {
         runtime.simulated_time_ = read_u64(stream);
         runtime.next_event_sequence_ = read_u64(stream);
@@ -1227,7 +1425,9 @@ Runtime Runtime::load(const std::string& path) {
     }
     for (std::uint64_t index = 0; index < queue_size; ++index) {
         const std::uint8_t kind_value = read_u8(stream);
-        const std::uint8_t maximum_kind = version >= 7
+        const std::uint8_t maximum_kind = version >= 8
+            ? static_cast<std::uint8_t>(EventKind::context_expiry)
+            : version >= 7
             ? static_cast<std::uint8_t>(EventKind::feedback_impulse)
             : version >= 6 ? static_cast<std::uint8_t>(EventKind::eligibility_expiry)
             : version >= 5 ? static_cast<std::uint8_t>(EventKind::boundary)
@@ -1242,6 +1442,10 @@ Runtime Runtime::load(const std::string& path) {
             event.scheduled_time = read_u64(stream);
             event.sequence = read_u64(stream);
             event.generation = read_u64(stream);
+            if (version >= 8) {
+                event.context_signature = read_u32(stream);
+                event.context_feedback_origin = read_bool(stream);
+            }
         } else {
             event.sequence = runtime.next_event_sequence_++;
         }
@@ -1251,7 +1455,8 @@ Runtime Runtime::load(const std::string& path) {
                    event.kind == EventKind::feedback_impulse) {
             static_cast<void>(runtime.network_.synapse(event.target));
         } else if (event.kind == EventKind::recovery ||
-                   event.kind == EventKind::eligibility_expiry) {
+                   event.kind == EventKind::eligibility_expiry ||
+                   event.kind == EventKind::context_expiry) {
             static_cast<void>(runtime.network_.neuron(event.target));
         }
         runtime.queue_.push_back(event);
@@ -1325,10 +1530,70 @@ void Runtime::validate_config() const {
         throw std::invalid_argument(
             "disabled eligibility must not allocate candidate or decision state");
     }
+    if (static_cast<std::uint8_t>(config_.context_trace_mode) >
+            static_cast<std::uint8_t>(ContextTraceMode::multiple) ||
+        static_cast<std::uint8_t>(config_.context_binding_mode) >
+            static_cast<std::uint8_t>(ContextBindingMode::temporal_overlap)) {
+        throw std::invalid_argument("invalid action context mode");
+    }
+    const bool context_enabled =
+        config_.context_trace_mode != ContextTraceMode::none;
+    if (context_enabled &&
+        (config_.context_trace_capacity == 0 ||
+         config_.context_trace_duration == 0)) {
+        throw std::invalid_argument(
+            "action context traces require positive capacity and duration");
+    }
+    if (!context_enabled &&
+        (config_.context_trace_capacity != 0 ||
+         config_.context_trace_duration != 0 ||
+         config_.context_binding_mode != ContextBindingMode::none)) {
+        throw std::invalid_argument(
+            "disabled action context must not allocate or bind traces");
+    }
+    if (config_.context_trace_mode == ContextTraceMode::single &&
+        config_.context_trace_capacity != 1) {
+        throw std::invalid_argument("single context trace mode requires capacity one");
+    }
+    if (config_.context_trace_mode == ContextTraceMode::multiple &&
+        config_.context_trace_capacity < 2) {
+        throw std::invalid_argument("multiple context trace mode requires capacity two or more");
+    }
+    if (config_.context_binding_mode != ContextBindingMode::none &&
+        !eligibility_enabled) {
+        throw std::invalid_argument("context binding requires eligibility");
+    }
 }
 
-void Runtime::process_fire(const NeuronId neuron, const bool feedback_context) {
+void Runtime::process_fire(
+    const NeuronId neuron,
+    const bool feedback_context,
+    const std::uint32_t context_signature,
+    const bool context_feedback_origin) {
     const auto outgoing = network_.outgoing_synapses(neuron);
+    if (context_signature != 0 && config_.context_trace_capacity != 0) {
+        if (config_.context_trace_duration >
+            std::numeric_limits<std::uint64_t>::max() - simulated_time_) {
+            throw std::overflow_error("context trace expiry time overflow");
+        }
+        const auto stored = network_.store_context_trace(
+            neuron, context_signature,
+            simulated_time_ + config_.context_trace_duration,
+            context_feedback_origin);
+        if (stored.trace.generation != 0) {
+            ++metrics_.context_traces_created;
+            if (stored.overwritten) ++metrics_.context_traces_overwritten;
+            enqueue_event(EventKind::context_expiry, neuron,
+                          stored.trace.expires_at, stored.trace.generation);
+            if (config_.context_binding_mode ==
+                ContextBindingMode::temporal_overlap) {
+                const auto binding = network_.bind_context_to_eligibilities(
+                    neuron, stored.trace);
+                metrics_.eligibility_context_bindings += binding.bound;
+                metrics_.eligibility_context_ambiguities += binding.ambiguous;
+            }
+        }
+    }
     ++metrics_.fire_events;
     if (feedback_context) ++metrics_.feedback_fire_events;
     motor_output_.observe_fire(neuron, metrics_.processed_events);
@@ -1347,7 +1612,8 @@ void Runtime::process_fire(const NeuronId neuron, const bool feedback_context) {
 
     for (const SynapseId synapse : outgoing) {
         enqueue_event(feedback_context ? EventKind::feedback_impulse : EventKind::impulse,
-                      synapse, simulated_time_);
+                      synapse, simulated_time_, 0, context_signature,
+                      context_feedback_origin);
         ++metrics_.transmitted_impulses;
     }
 
@@ -1366,8 +1632,35 @@ void Runtime::process_fire(const NeuronId neuron, const bool feedback_context) {
     }
 }
 
-void Runtime::process_impulse(const SynapseId synapse, const bool feedback_context) {
+void Runtime::process_impulse(
+    const SynapseId synapse,
+    const bool feedback_context,
+    const std::uint32_t context_signature,
+    const bool context_feedback_origin) {
     const neural::Synapse before = network_.synapse(synapse);
+    if (context_signature != 0 && config_.context_trace_capacity != 0) {
+        if (config_.context_trace_duration >
+            std::numeric_limits<std::uint64_t>::max() - simulated_time_) {
+            throw std::overflow_error("context trace expiry time overflow");
+        }
+        const auto stored = network_.store_context_trace(
+            before.receiver, context_signature,
+            simulated_time_ + config_.context_trace_duration,
+            context_feedback_origin);
+        if (stored.trace.generation != 0) {
+            ++metrics_.context_traces_created;
+            if (stored.overwritten) ++metrics_.context_traces_overwritten;
+            enqueue_event(EventKind::context_expiry, before.receiver,
+                          stored.trace.expires_at, stored.trace.generation);
+            if (config_.context_binding_mode ==
+                ContextBindingMode::temporal_overlap) {
+                const auto binding = network_.bind_context_to_eligibilities(
+                    before.receiver, stored.trace);
+                metrics_.eligibility_context_bindings += binding.bound;
+                metrics_.eligibility_context_ambiguities += binding.ambiguous;
+            }
+        }
+    }
     std::size_t eligibility_before = 0;
     if (feedback_context) {
         const auto records = network_.eligibility_records(before.receiver);
@@ -1375,6 +1668,36 @@ void Runtime::process_impulse(const SynapseId synapse, const bool feedback_conte
             records.begin(), records.end(), [](const auto& record) {
                 return !record.feedback_origin;
             }));
+        std::set<std::uint32_t> matched_signatures;
+        bool ambiguous = false;
+        bool has_bound_context = false;
+        bool feedback_origin_match = false;
+        const auto traces = network_.context_traces(before.receiver);
+        for (const auto& record : records) {
+            if (record.feedback_origin || record.context_signature == 0) continue;
+            has_bound_context = true;
+            ambiguous = ambiguous || record.context_ambiguous;
+            const bool active = std::any_of(
+                traces.begin(), traces.end(), [&](const auto& trace) {
+                    return trace.signature == record.context_signature;
+                });
+            if (active) {
+                matched_signatures.insert(record.context_signature);
+                feedback_origin_match = feedback_origin_match ||
+                                        record.context_feedback_origin;
+            }
+        }
+        if (matched_signatures.size() == 1 && !ambiguous) {
+            ++metrics_.feedback_context_unique_matches;
+        } else if (matched_signatures.size() > 1 ||
+                   (!matched_signatures.empty() && ambiguous)) {
+            ++metrics_.feedback_context_ambiguous_matches;
+        } else if (has_bound_context) {
+            ++metrics_.feedback_context_expired_matches;
+        } else {
+            ++metrics_.feedback_context_missing_matches;
+        }
+        if (feedback_origin_match) ++metrics_.feedback_origin_context_matches;
     }
     if (feedback_context) {
         ++metrics_.feedback_impulses;
@@ -1416,6 +1739,12 @@ void Runtime::process_impulse(const SynapseId synapse, const bool feedback_conte
             metrics_.eligibility_overwritten_decisions +=
                 eligibility.overwritten_decisions;
             if (feedback_context) ++metrics_.feedback_created_eligibilities;
+            if (eligibility.context_signature != 0) {
+                ++metrics_.eligibility_context_bindings;
+            }
+            if (eligibility.context_ambiguous) {
+                ++metrics_.eligibility_context_ambiguities;
+            }
         }
     }
     if (result.local_event_recorded) {
@@ -1466,6 +1795,8 @@ void Runtime::process_impulse(const SynapseId synapse, const bool feedback_conte
             result.fired,
             result.firing_suppressed,
             feedback_context,
+            context_signature,
+            context_feedback_origin,
             network_.local_event_memory(before.receiver),
             eligibility.generation,
             eligibility.candidates,
@@ -1474,7 +1805,8 @@ void Runtime::process_impulse(const SynapseId synapse, const bool feedback_conte
 
     if (result.fired) {
         enqueue_event(feedback_context ? EventKind::feedback_fire : EventKind::fire,
-                      before.receiver, simulated_time_);
+                      before.receiver, simulated_time_, 0, context_signature,
+                      context_feedback_origin);
         if (config_.recovery_mode != RecoveryMode::input_dependent) {
             if (config_.recovery_delay >
                 std::numeric_limits<std::uint64_t>::max() - simulated_time_) {
@@ -1530,6 +1862,14 @@ void Runtime::process_eligibility_expiry(const Event& event) {
     }
 }
 
+void Runtime::process_context_expiry(const Event& event) {
+    if (network_.expire_context_trace(event.target, event.generation)) {
+        ++metrics_.processed_context_expiries;
+    } else {
+        ++metrics_.stale_context_expiries;
+    }
+}
+
 void Runtime::process_event(const Event& event) {
     if (event.scheduled_time > simulated_time_) {
         throw std::logic_error("attempted to process a future event");
@@ -1538,10 +1878,12 @@ void Runtime::process_event(const Event& event) {
     update_event_hash(event);
     switch (event.kind) {
     case EventKind::fire:
-        process_fire(event.target, false);
+        process_fire(event.target, false, event.context_signature,
+                     event.context_feedback_origin);
         break;
     case EventKind::impulse:
-        process_impulse(event.target, false);
+        process_impulse(event.target, false, event.context_signature,
+                        event.context_feedback_origin);
         break;
     case EventKind::recovery:
         process_recovery(event);
@@ -1553,10 +1895,15 @@ void Runtime::process_event(const Event& event) {
         process_eligibility_expiry(event);
         break;
     case EventKind::feedback_fire:
-        process_fire(event.target, true);
+        process_fire(event.target, true, event.context_signature,
+                     event.context_feedback_origin);
         break;
     case EventKind::feedback_impulse:
-        process_impulse(event.target, true);
+        process_impulse(event.target, true, event.context_signature,
+                        event.context_feedback_origin);
+        break;
+    case EventKind::context_expiry:
+        process_context_expiry(event);
         break;
     }
 }
@@ -1565,8 +1912,11 @@ void Runtime::enqueue_event(
     const EventKind kind,
     const std::uint32_t target,
     const std::uint64_t scheduled_time,
-    const std::uint64_t generation) {
-    Event event{kind, target, scheduled_time, next_event_sequence_++, generation};
+    const std::uint64_t generation,
+    const std::uint32_t context_signature,
+    const bool context_feedback_origin) {
+    Event event{kind, target, scheduled_time, next_event_sequence_++, generation,
+                context_signature, context_feedback_origin};
     const auto position = std::upper_bound(
         queue_.begin(), queue_.end(), event,
         [](const Event& left, const Event& right) {

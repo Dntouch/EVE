@@ -41,13 +41,44 @@ struct EligibilityRecord {
     std::uint64_t generation{};
     std::uint64_t expires_at{};
     bool feedback_origin{};
+    std::uint32_t context_signature{};
+    std::uint64_t context_generation{};
+    bool context_ambiguous{};
+    bool context_feedback_origin{};
     std::vector<SynapseId> candidates;
 
     bool operator==(const EligibilityRecord& other) const noexcept {
         return generation == other.generation && expires_at == other.expires_at &&
                feedback_origin == other.feedback_origin &&
+               context_signature == other.context_signature &&
+               context_generation == other.context_generation &&
+               context_ambiguous == other.context_ambiguous &&
+               context_feedback_origin == other.context_feedback_origin &&
                candidates == other.candidates;
     }
+};
+
+struct ContextTrace {
+    std::uint64_t generation{};
+    std::uint32_t signature{};
+    std::uint64_t expires_at{};
+    bool feedback_origin{};
+
+    bool operator==(const ContextTrace& other) const noexcept {
+        return generation == other.generation && signature == other.signature &&
+               expires_at == other.expires_at &&
+               feedback_origin == other.feedback_origin;
+    }
+};
+
+struct ContextStoreResult {
+    ContextTrace trace;
+    bool overwritten{};
+};
+
+struct ContextBindingResult {
+    std::uint32_t bound{};
+    std::uint32_t ambiguous{};
 };
 
 struct EligibilityStoreResult {
@@ -87,7 +118,11 @@ public:
         const std::vector<SynapseId>& candidates,
         std::uint64_t expires_at,
         EligibilityHistory history,
-        bool feedback_origin = false);
+        bool feedback_origin = false,
+        std::uint32_t context_signature = 0,
+        std::uint64_t context_generation = 0,
+        bool context_ambiguous = false,
+        bool context_feedback_origin = false);
     [[nodiscard]] bool expire_eligibility(NeuronId neuron, std::uint64_t generation);
     [[nodiscard]] std::vector<EligibilityRecord> eligibility_records(
         NeuronId neuron) const;
@@ -100,6 +135,25 @@ public:
         std::uint32_t candidate_capacity,
         std::uint32_t decision_capacity,
         const std::vector<std::vector<EligibilityRecord>>& records,
+        const std::vector<std::uint64_t>& generations,
+        const std::vector<std::uint64_t>& overwrites);
+
+    [[nodiscard]] ContextStoreResult store_context_trace(
+        NeuronId neuron,
+        std::uint32_t signature,
+        std::uint64_t expires_at,
+        bool feedback_origin = false);
+    [[nodiscard]] bool expire_context_trace(NeuronId neuron, std::uint64_t generation);
+    [[nodiscard]] std::vector<ContextTrace> context_traces(NeuronId neuron) const;
+    [[nodiscard]] ContextBindingResult bind_context_to_eligibilities(
+        NeuronId neuron, const ContextTrace& trace);
+    [[nodiscard]] std::uint32_t context_trace_capacity() const noexcept;
+    [[nodiscard]] std::uint64_t context_generation(NeuronId neuron) const;
+    [[nodiscard]] std::uint64_t context_overwrites(NeuronId neuron) const;
+    [[nodiscard]] std::size_t active_context_trace_count() const noexcept;
+    void restore_context_traces(
+        std::uint32_t capacity,
+        const std::vector<std::vector<ContextTrace>>& traces,
         const std::vector<std::uint64_t>& generations,
         const std::vector<std::uint64_t>& overwrites);
 
@@ -149,9 +203,21 @@ private:
     std::vector<std::uint64_t> eligibility_record_generations_;
     std::vector<std::uint64_t> eligibility_expiry_times_;
     std::vector<std::uint8_t> eligibility_feedback_origins_;
+    std::vector<std::uint32_t> eligibility_context_signatures_;
+    std::vector<std::uint64_t> eligibility_context_generations_;
+    std::vector<std::uint8_t> eligibility_context_ambiguities_;
+    std::vector<std::uint8_t> eligibility_context_feedback_origins_;
     std::vector<std::uint32_t> eligibility_write_positions_;
     std::vector<std::uint64_t> eligibility_generations_;
     std::vector<std::uint64_t> eligibility_overwrites_;
+    std::uint32_t context_trace_capacity_{};
+    std::vector<std::uint64_t> context_trace_record_generations_;
+    std::vector<std::uint32_t> context_trace_signatures_;
+    std::vector<std::uint64_t> context_trace_expiry_times_;
+    std::vector<std::uint8_t> context_trace_feedback_origins_;
+    std::vector<std::uint32_t> context_trace_write_positions_;
+    std::vector<std::uint64_t> context_trace_generations_;
+    std::vector<std::uint64_t> context_trace_overwrites_;
 };
 
 }  // namespace eve::neural

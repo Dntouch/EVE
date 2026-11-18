@@ -2623,6 +2623,414 @@ void test_feedback_never_changes_weights() {
                   "B.3 feedback triggered learning");
 }
 
+eve::ExperimentConfig action_context_test_config(
+    const eve::ContextTraceMode trace_mode = eve::ContextTraceMode::multiple,
+    const eve::ContextBindingMode binding_mode = eve::ContextBindingMode::at_fire) {
+    eve::ExperimentConfig config;
+    config.neuron_count = 64;
+    config.width = 4;
+    config.height = 4;
+    config.depth = 4;
+    config.initial_outgoing_synapses = 0;
+    config.local_event_memory_capacity = 2;
+    config.eligibility_selection = eve::EligibilitySelection::all_recent;
+    config.eligibility_candidate_capacity = 2;
+    config.eligibility_decision_capacity = 2;
+    config.eligibility_duration = 64;
+    config.context_trace_mode = trace_mode;
+    config.context_binding_mode = binding_mode;
+    config.context_trace_capacity =
+        trace_mode == eve::ContextTraceMode::single ? 1U :
+        trace_mode == eve::ContextTraceMode::multiple ? 2U : 0U;
+    config.context_trace_duration =
+        trace_mode == eve::ContextTraceMode::none ? 0U : 64U;
+    config.learning_enabled = false;
+    config.growth_enabled = false;
+    return config;
+}
+
+eve::brainstem::ActionContextConfig action_context_route(
+    const eve::brainstem::ActionContextMode mode,
+    const std::uint64_t seed = 8101) {
+    eve::brainstem::ActionContextConfig config;
+    config.mode = mode;
+    config.first_input_neuron = 16;
+    config.relay_count = 4;
+    config.fanout_per_source = 2;
+    config.weight = 3;
+    config.seed = seed;
+    return config;
+}
+
+void test_disabled_action_context_has_no_state() {
+    eve::bios::Runtime runtime(action_context_test_config(
+        eve::ContextTraceMode::none, eve::ContextBindingMode::none), 8101);
+    static_cast<void>(runtime.configure_action_context(
+        action_context_route(eve::brainstem::ActionContextMode::none)));
+    const auto result = runtime.process_action_context(
+        eve::brainstem::ActionContextSignal::start);
+    require_equal(result.signature, 0U, "C0 emitted a context signature");
+    require_equal(runtime.network().active_context_trace_count(), std::size_t{0},
+                  "C0 allocated context state");
+}
+
+void test_single_context_trace_storage() {
+    eve::neural::Network network;
+    network.reset(action_context_test_config(eve::ContextTraceMode::single));
+    static_cast<void>(network.store_context_trace(1, 11, 64));
+    require_equal(network.context_traces(1).size(), std::size_t{1},
+                  "P1 did not retain one trace");
+}
+
+void test_multiple_context_trace_storage() {
+    eve::neural::Network network;
+    network.reset(action_context_test_config());
+    static_cast<void>(network.store_context_trace(1, 11, 64));
+    static_cast<void>(network.store_context_trace(1, 22, 64));
+    require_equal(network.context_traces(1).size(), std::size_t{2},
+                  "P2 did not retain two traces");
+}
+
+void test_context_trace_ring_overwrite() {
+    eve::neural::Network network;
+    network.reset(action_context_test_config());
+    static_cast<void>(network.store_context_trace(1, 11, 64));
+    static_cast<void>(network.store_context_trace(1, 22, 64));
+    const auto third = network.store_context_trace(1, 33, 64);
+    require(third.overwritten, "bounded context ring did not report overwrite");
+    require_equal(network.context_traces(1).front().signature, 22U,
+                  "bounded context ring retained the wrong oldest trace");
+}
+
+void test_context_trace_expiry() {
+    eve::neural::Network network;
+    network.reset(action_context_test_config());
+    const auto stored = network.store_context_trace(1, 11, 64);
+    require(network.expire_context_trace(1, stored.trace.generation),
+            "valid context expiry was ignored");
+    require(network.context_traces(1).empty(), "expired context remained active");
+}
+
+void test_stale_context_trace_expiry() {
+    eve::neural::Network network;
+    network.reset(action_context_test_config());
+    require(!network.expire_context_trace(1, 99),
+            "unknown context generation was expired");
+}
+
+void test_context_generations_are_local() {
+    eve::neural::Network network;
+    network.reset(action_context_test_config());
+    const auto left = network.store_context_trace(1, 11, 64);
+    const auto right = network.store_context_trace(2, 11, 64);
+    require_equal(left.trace.generation, right.trace.generation,
+                  "context generations behave like a global action number");
+}
+
+void test_context_trace_does_not_change_membrane() {
+    eve::neural::Network network;
+    network.reset(action_context_test_config());
+    const auto before = network.neuron(1);
+    static_cast<void>(network.store_context_trace(1, 11, 64));
+    require_equal(network.neuron(1), before,
+                  "context storage changed ordinary neuron state");
+}
+
+void test_c0_context_route_is_inert() {
+    eve::bios::Runtime runtime(action_context_test_config(), 8102);
+    const auto route = runtime.configure_action_context(
+        action_context_route(eve::brainstem::ActionContextMode::none));
+    require(route.route_synapses.empty(), "C0 created context wiring");
+}
+
+void test_c1_boundary_context_uses_neural_fire() {
+    eve::bios::Runtime runtime(action_context_test_config(), 8103);
+    static_cast<void>(runtime.configure_action_context(
+        action_context_route(eve::brainstem::ActionContextMode::boundary)));
+    const auto result = runtime.process_action_context(
+        eve::brainstem::ActionContextSignal::start);
+    require(result.signature != 0 && result.created_traces > 0,
+            "C1 boundary activity formed no neural trace");
+}
+
+void test_c2_same_motor_activity_same_context() {
+    eve::bios::Runtime runtime(action_context_test_config(), 8104);
+    static_cast<void>(runtime.configure_action_context(
+        action_context_route(eve::brainstem::ActionContextMode::motor_copy)));
+    const auto first = runtime.process_action_context(
+        eve::brainstem::ActionContextSignal::motor_copy, 0x35);
+    const auto second = runtime.process_action_context(
+        eve::brainstem::ActionContextSignal::motor_copy, 0x35);
+    require_equal(first.signature, second.signature,
+                  "identical motor activity received a hidden action identity");
+}
+
+void test_c2_different_motor_activity_differs() {
+    eve::bios::Runtime runtime(action_context_test_config(), 8105);
+    static_cast<void>(runtime.configure_action_context(
+        action_context_route(eve::brainstem::ActionContextMode::motor_copy)));
+    const auto first = runtime.process_action_context(
+        eve::brainstem::ActionContextSignal::motor_copy, 0x01);
+    const auto second = runtime.process_action_context(
+        eve::brainstem::ActionContextSignal::motor_copy, 0x02);
+    require(first.signature != second.signature,
+            "different motor activity formed the same context fingerprint");
+}
+
+void test_c2_zero_motor_activity_has_no_context() {
+    eve::bios::Runtime runtime(action_context_test_config(), 8106);
+    static_cast<void>(runtime.configure_action_context(
+        action_context_route(eve::brainstem::ActionContextMode::motor_copy)));
+    const auto result = runtime.process_action_context(
+        eve::brainstem::ActionContextSignal::motor_copy, 0);
+    require_equal(result.signature, 0U,
+                  "C2 invented context activity for a silent motor output");
+}
+
+void test_c3_general_context_circuit() {
+    eve::bios::Runtime runtime(action_context_test_config(), 8107);
+    const auto route = runtime.configure_action_context(
+        action_context_route(eve::brainstem::ActionContextMode::general_circuit));
+    require(!route.relay_neurons.empty() && !route.target_neurons.empty() &&
+                !route.route_synapses.empty(),
+            "C3 contains no real relay circuit");
+}
+
+void test_c4_combines_boundary_and_motor_sources() {
+    eve::bios::Runtime runtime(action_context_test_config(), 8108);
+    const auto route = runtime.configure_action_context(
+        action_context_route(eve::brainstem::ActionContextMode::combined));
+    require_equal(route.boundary_inputs.size(), std::size_t{2},
+                  "C4 lacks boundary sources");
+    require_equal(route.motor_inputs.size(), std::size_t{8},
+                  "C4 lacks motor-copy sources");
+}
+
+void test_action_context_route_is_reproducible() {
+    eve::bios::Runtime left(action_context_test_config(), 8109);
+    eve::bios::Runtime right(action_context_test_config(), 8109);
+    const auto a = left.configure_action_context(
+        action_context_route(eve::brainstem::ActionContextMode::combined, 44));
+    const auto b = right.configure_action_context(
+        action_context_route(eve::brainstem::ActionContextMode::combined, 44));
+    require_equal(a.route_synapses, b.route_synapses,
+                  "action context wiring is not reproducible");
+    require_equal(left.state_fingerprint(), right.state_fingerprint(),
+                  "reproduced context networks differ");
+}
+
+void test_context_binding_at_fire() {
+    auto config = action_context_test_config();
+    eve::neural::Network network;
+    network.reset(config);
+    const auto synapse = network.add_synapse(0, 1, 3);
+    static_cast<void>(network.record_local_event(1, synapse));
+    static_cast<void>(network.store_context_trace(1, 77, 64));
+    eve::brainstem::Brainstem brainstem;
+    const auto result = brainstem.create_eligibility(network, 1, 64, config);
+    require_equal(result.context_signature, 77U,
+                  "B1 did not bind local context at fire decision");
+}
+
+void test_context_binding_absent_without_trace() {
+    auto config = action_context_test_config();
+    eve::neural::Network network;
+    network.reset(config);
+    const auto synapse = network.add_synapse(0, 1, 3);
+    static_cast<void>(network.record_local_event(1, synapse));
+    eve::brainstem::Brainstem brainstem;
+    const auto result = brainstem.create_eligibility(network, 1, 64, config);
+    require_equal(result.context_signature, 0U,
+                  "B1 invented a context without a trace");
+}
+
+void test_context_binding_marks_ambiguity() {
+    auto config = action_context_test_config();
+    eve::neural::Network network;
+    network.reset(config);
+    const auto synapse = network.add_synapse(0, 1, 3);
+    static_cast<void>(network.record_local_event(1, synapse));
+    static_cast<void>(network.store_context_trace(1, 11, 64));
+    static_cast<void>(network.store_context_trace(1, 22, 64));
+    eve::brainstem::Brainstem brainstem;
+    const auto result = brainstem.create_eligibility(network, 1, 64, config);
+    require(result.context_ambiguous,
+            "B1 concealed multiple distinct local contexts");
+}
+
+void test_temporal_overlap_binds_existing_eligibility() {
+    auto config = action_context_test_config(
+        eve::ContextTraceMode::multiple,
+        eve::ContextBindingMode::temporal_overlap);
+    eve::neural::Network network;
+    network.reset(config);
+    const auto synapse = network.add_synapse(0, 1, 3);
+    static_cast<void>(network.record_local_event(1, synapse));
+    eve::brainstem::Brainstem brainstem;
+    static_cast<void>(brainstem.create_eligibility(network, 1, 64, config));
+    const auto trace = network.store_context_trace(1, 33, 64);
+    const auto binding = network.bind_context_to_eligibilities(1, trace.trace);
+    require_equal(binding.bound, 1U, "B2 did not bind by local overlap");
+}
+
+void test_temporal_overlap_reports_ambiguity() {
+    auto config = action_context_test_config(
+        eve::ContextTraceMode::multiple,
+        eve::ContextBindingMode::temporal_overlap);
+    eve::neural::Network network;
+    network.reset(config);
+    const auto synapse = network.add_synapse(0, 1, 3);
+    static_cast<void>(network.record_local_event(1, synapse));
+    eve::brainstem::Brainstem brainstem;
+    static_cast<void>(brainstem.create_eligibility(network, 1, 64, config));
+    const auto first = network.store_context_trace(1, 33, 64);
+    static_cast<void>(network.bind_context_to_eligibilities(1, first.trace));
+    const auto second = network.store_context_trace(1, 44, 64);
+    const auto binding = network.bind_context_to_eligibilities(1, second.trace);
+    require_equal(binding.ambiguous, 1U,
+                  "B2 silently replaced an overlapping context");
+}
+
+void test_feedback_origin_context_is_labeled() {
+    auto config = action_context_test_config();
+    eve::neural::Network network;
+    network.reset(config);
+    const auto synapse = network.add_synapse(0, 1, 3);
+    static_cast<void>(network.record_local_event(1, synapse));
+    static_cast<void>(network.store_context_trace(1, 55, 64, true));
+    eve::brainstem::Brainstem brainstem;
+    const auto result = brainstem.create_eligibility(network, 1, 64, config);
+    require(result.context_feedback_origin,
+            "feedback-induced context lost its origin label");
+}
+
+void test_eligibility_context_persistence() {
+    const auto path = std::filesystem::temp_directory_path() /
+                      "eve-stage-b31-eligibility-context.bin";
+    eve::bios::Runtime runtime(action_context_test_config(), 8110);
+    static_cast<void>(runtime.configure_action_context(
+        action_context_route(eve::brainstem::ActionContextMode::general_circuit)));
+    static_cast<void>(runtime.process_action_context(
+        eve::brainstem::ActionContextSignal::start));
+    runtime.save(path.string());
+    const auto restored = eve::bios::Runtime::load(path.string());
+    require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                  "eligibility/context relation changed while saving");
+    static_cast<void>(std::filesystem::remove(path));
+}
+
+void test_active_context_trace_persistence() {
+    const auto path = std::filesystem::temp_directory_path() /
+                      "eve-stage-b31-active-context.bin";
+    eve::bios::Runtime runtime(action_context_test_config(), 8111);
+    static_cast<void>(runtime.configure_action_context(
+        action_context_route(eve::brainstem::ActionContextMode::boundary)));
+    static_cast<void>(runtime.process_action_context(
+        eve::brainstem::ActionContextSignal::start));
+    const auto active = runtime.network().active_context_trace_count();
+    runtime.save(path.string());
+    const auto restored = eve::bios::Runtime::load(path.string());
+    require_equal(restored.network().active_context_trace_count(), active,
+                  "active context traces were not restored");
+    static_cast<void>(std::filesystem::remove(path));
+}
+
+void test_pending_context_expiry_persistence() {
+    const auto path = std::filesystem::temp_directory_path() /
+                      "eve-stage-b31-pending-context.bin";
+    eve::bios::Runtime runtime(action_context_test_config(), 8112);
+    static_cast<void>(runtime.configure_action_context(
+        action_context_route(eve::brainstem::ActionContextMode::boundary)));
+    static_cast<void>(runtime.process_action_context(
+        eve::brainstem::ActionContextSignal::start));
+    runtime.save(path.string());
+    auto restored = eve::bios::Runtime::load(path.string());
+    static_cast<void>(runtime.advance_time_to(64));
+    static_cast<void>(restored.advance_time_to(64));
+    require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                  "restored context expiry diverged");
+    static_cast<void>(std::filesystem::remove(path));
+}
+
+void test_context_expiry_emits_no_fire() {
+    eve::bios::Runtime runtime(action_context_test_config(), 8113);
+    static_cast<void>(runtime.configure_action_context(
+        action_context_route(eve::brainstem::ActionContextMode::boundary)));
+    static_cast<void>(runtime.process_action_context(
+        eve::brainstem::ActionContextSignal::start));
+    const auto before = runtime.metrics().fire_events;
+    static_cast<void>(runtime.advance_time_to(64));
+    require_equal(runtime.metrics().fire_events, before,
+                  "context expiry emitted neural fire");
+}
+
+void test_action_context_never_changes_weights() {
+    eve::bios::Runtime runtime(action_context_test_config(), 8114);
+    static_cast<void>(runtime.configure_action_context(
+        action_context_route(eve::brainstem::ActionContextMode::combined)));
+    const auto before = runtime.network().weight_distribution();
+    static_cast<void>(runtime.process_action_context(
+        eve::brainstem::ActionContextSignal::motor_copy, 0x7f));
+    require_equal(runtime.network().weight_distribution(), before,
+                  "B.3.1 context activity changed a synaptic weight");
+}
+
+void test_action_context_triggers_no_learning() {
+    eve::bios::Runtime runtime(action_context_test_config(), 8115);
+    static_cast<void>(runtime.configure_action_context(
+        action_context_route(eve::brainstem::ActionContextMode::general_circuit)));
+    static_cast<void>(runtime.process_action_context(
+        eve::brainstem::ActionContextSignal::start));
+    require_equal(runtime.metrics().synaptic_strengthenings, 0ULL,
+                  "B.3.1 context triggered learning");
+    require_equal(runtime.metrics().synaptic_weakenings, 0ULL,
+                  "B.3.1 context triggered weakening");
+}
+
+void test_context_trace_memory_is_bounded() {
+    eve::bios::Runtime runtime(action_context_test_config(), 8116);
+    static_cast<void>(runtime.configure_action_context(
+        action_context_route(eve::brainstem::ActionContextMode::boundary)));
+    for (int index = 0; index < 8; ++index) {
+        static_cast<void>(runtime.process_action_context(
+            index % 2 == 0 ? eve::brainstem::ActionContextSignal::start
+                           : eve::brainstem::ActionContextSignal::end));
+    }
+    require(runtime.network().active_context_trace_count() <=
+                runtime.network().neuron_count() * 2ULL,
+            "context trace memory grew beyond its fixed bound");
+}
+
+void test_invalid_single_context_capacity() {
+    auto config = action_context_test_config(eve::ContextTraceMode::single);
+    config.context_trace_capacity = 2;
+    bool rejected = false;
+    try { eve::bios::Runtime runtime(config, 8117); }
+    catch (const std::invalid_argument&) { rejected = true; }
+    require(rejected, "invalid P1 capacity was accepted");
+}
+
+void test_invalid_multiple_context_capacity() {
+    auto config = action_context_test_config();
+    config.context_trace_capacity = 1;
+    bool rejected = false;
+    try { eve::bios::Runtime runtime(config, 8118); }
+    catch (const std::invalid_argument&) { rejected = true; }
+    require(rejected, "invalid P2 capacity was accepted");
+}
+
+void test_context_signature_contains_no_sequence_number() {
+    eve::bios::Runtime runtime(action_context_test_config(), 8119);
+    static_cast<void>(runtime.configure_action_context(
+        action_context_route(eve::brainstem::ActionContextMode::motor_copy)));
+    const auto a = runtime.process_action_context(
+        eve::brainstem::ActionContextSignal::motor_copy, 0xa5);
+    const auto b = runtime.process_action_context(
+        eve::brainstem::ActionContextSignal::motor_copy, 0xa5);
+    require_equal(a.signature, b.signature,
+                  "context signature contains a hidden sequence/action number");
+}
+
 }  // namespace
 
 int main() {
@@ -2786,6 +3194,38 @@ int main() {
         {"reordered evaluation feedback", test_reordered_feedback_follows_due_time},
         {"pending feedback persistence", test_pending_feedback_persistence},
         {"feedback has no learning effect", test_feedback_never_changes_weights},
+        {"disabled action context", test_disabled_action_context_has_no_state},
+        {"single context trace", test_single_context_trace_storage},
+        {"multiple context traces", test_multiple_context_trace_storage},
+        {"context trace ring overwrite", test_context_trace_ring_overwrite},
+        {"context trace expiry", test_context_trace_expiry},
+        {"stale context trace expiry", test_stale_context_trace_expiry},
+        {"local context generations", test_context_generations_are_local},
+        {"context and membrane separation", test_context_trace_does_not_change_membrane},
+        {"C0 context route", test_c0_context_route_is_inert},
+        {"C1 boundary context", test_c1_boundary_context_uses_neural_fire},
+        {"C2 identical motor context", test_c2_same_motor_activity_same_context},
+        {"C2 different motor context", test_c2_different_motor_activity_differs},
+        {"C2 silent motor context", test_c2_zero_motor_activity_has_no_context},
+        {"C3 general context circuit", test_c3_general_context_circuit},
+        {"C4 combined context", test_c4_combines_boundary_and_motor_sources},
+        {"context route reproducibility", test_action_context_route_is_reproducible},
+        {"context binding at fire", test_context_binding_at_fire},
+        {"context binding without trace", test_context_binding_absent_without_trace},
+        {"context binding ambiguity", test_context_binding_marks_ambiguity},
+        {"context overlap binding", test_temporal_overlap_binds_existing_eligibility},
+        {"context overlap ambiguity", test_temporal_overlap_reports_ambiguity},
+        {"feedback-origin context label", test_feedback_origin_context_is_labeled},
+        {"eligibility context persistence", test_eligibility_context_persistence},
+        {"active context persistence", test_active_context_trace_persistence},
+        {"pending context expiry persistence", test_pending_context_expiry_persistence},
+        {"context expiry emits no fire", test_context_expiry_emits_no_fire},
+        {"context preserves weights", test_action_context_never_changes_weights},
+        {"context triggers no learning", test_action_context_triggers_no_learning},
+        {"bounded context memory", test_context_trace_memory_is_bounded},
+        {"invalid single context capacity", test_invalid_single_context_capacity},
+        {"invalid multiple context capacity", test_invalid_multiple_context_capacity},
+        {"context has no sequence ID", test_context_signature_contains_no_sequence_number},
     };
 
     std::size_t failures = 0;

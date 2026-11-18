@@ -36,6 +36,7 @@ enum class EventKind : std::uint8_t {
     eligibility_expiry = 4,
     feedback_fire = 5,
     feedback_impulse = 6,
+    context_expiry = 7,
 };
 
 struct Event {
@@ -44,11 +45,15 @@ struct Event {
     std::uint64_t scheduled_time{};
     std::uint64_t sequence{};
     std::uint64_t generation{};
+    std::uint32_t context_signature{};
+    bool context_feedback_origin{};
 
     bool operator==(const Event& other) const noexcept {
         return kind == other.kind && target == other.target &&
                scheduled_time == other.scheduled_time && sequence == other.sequence &&
-               generation == other.generation;
+               generation == other.generation &&
+               context_signature == other.context_signature &&
+               context_feedback_origin == other.context_feedback_origin;
     }
 };
 
@@ -88,6 +93,8 @@ struct ImpulseObservation {
     bool receiver_fired{};
     bool firing_suppressed{};
     bool feedback_context{};
+    std::uint32_t action_context_signature{};
+    bool action_context_feedback_origin{};
     std::vector<SynapseId> local_event_snapshot;
     std::uint64_t eligibility_generation{};
     std::vector<SynapseId> eligibility_candidates;
@@ -104,6 +111,9 @@ struct ImpulseObservation {
                receiver_fired == other.receiver_fired &&
                firing_suppressed == other.firing_suppressed &&
                feedback_context == other.feedback_context &&
+               action_context_signature == other.action_context_signature &&
+               action_context_feedback_origin ==
+                   other.action_context_feedback_origin &&
                local_event_snapshot == other.local_event_snapshot &&
                eligibility_generation == other.eligibility_generation &&
                eligibility_candidates == other.eligibility_candidates;
@@ -134,6 +144,20 @@ struct EvaluationFeedbackResult {
     std::uint64_t receipts_without_eligibility{};
     std::uint64_t receipts_with_multiple_eligibilities{};
     std::uint64_t created_eligibilities{};
+    std::uint64_t unique_context_matches{};
+    std::uint64_t ambiguous_context_matches{};
+    std::uint64_t missing_context_matches{};
+    std::uint64_t expired_context_matches{};
+};
+
+struct ActionContextEmission {
+    brainstem::ActionContextSignal signal{brainstem::ActionContextSignal::start};
+    std::uint8_t observed_motor_value{};
+    std::uint32_t signature{};
+    std::vector<NeuronId> active_inputs;
+    std::uint64_t processed_events{};
+    std::uint64_t created_traces{};
+    std::uint64_t bound_eligibilities{};
 };
 
 using RecoveryObserver = std::function<void(const RecoveryObservation&)>;
@@ -208,6 +232,14 @@ public:
             brainstem::EvaluationSignalKind::graded,
         std::uint64_t scheduled_time = 0);
     [[nodiscard]] bool evaluation_route_configured() const noexcept;
+    [[nodiscard]] brainstem::ActionContextRoute configure_action_context(
+        const brainstem::ActionContextConfig& config);
+    [[nodiscard]] ActionContextEmission process_action_context(
+        brainstem::ActionContextSignal signal,
+        std::uint8_t observed_motor_value = 0,
+        std::uint64_t scheduled_time = 0,
+        bool feedback_origin = false);
+    [[nodiscard]] bool action_context_configured() const noexcept;
 
     void set_trace_stream(std::ostream* stream) noexcept;
     void set_fire_observer(FireObserver observer);
@@ -239,16 +271,27 @@ private:
     Runtime(ExperimentConfig config, std::uint64_t seed, SkipInitializationTag);
 
     void validate_config() const;
-    void process_fire(NeuronId neuron, bool feedback_context = false);
-    void process_impulse(SynapseId synapse, bool feedback_context = false);
+    void process_fire(
+        NeuronId neuron,
+        bool feedback_context = false,
+        std::uint32_t context_signature = 0,
+        bool context_feedback_origin = false);
+    void process_impulse(
+        SynapseId synapse,
+        bool feedback_context = false,
+        std::uint32_t context_signature = 0,
+        bool context_feedback_origin = false);
     void process_recovery(const Event& event);
     void process_eligibility_expiry(const Event& event);
+    void process_context_expiry(const Event& event);
     void process_event(const Event& event);
     void enqueue_event(
         EventKind kind,
         std::uint32_t target,
         std::uint64_t scheduled_time,
-        std::uint64_t generation = 0);
+        std::uint64_t generation = 0,
+        std::uint32_t context_signature = 0,
+        bool context_feedback_origin = false);
     [[nodiscard]] bool has_ready_event() const noexcept;
     [[nodiscard]] Event pop_next_event();
     void update_event_hash(const Event& event) noexcept;
@@ -270,6 +313,8 @@ private:
     std::vector<NeuronId> motor_circuit_reservations_;
     brainstem::EvaluationRouteResult evaluation_route_;
     bool evaluation_route_configured_{};
+    brainstem::ActionContextRoute action_context_route_;
+    bool action_context_configured_{};
     std::uint64_t simulated_time_{};
     std::uint64_t next_event_sequence_{};
 };

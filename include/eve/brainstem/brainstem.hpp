@@ -56,6 +56,10 @@ struct EligibilityResult {
     std::uint32_t overwritten_decisions{};
     std::uint32_t positive_candidates{};
     std::uint32_t zero_weight_candidates{};
+    std::uint32_t context_signature{};
+    std::uint64_t context_generation{};
+    bool context_ambiguous{};
+    bool context_feedback_origin{};
     std::vector<SynapseId> candidates;
 };
 
@@ -240,6 +244,41 @@ struct EvaluationRouteResult {
     std::uint32_t adjusted_synapses{};
 };
 
+enum class ActionContextMode : std::uint8_t {
+    none = 0,
+    boundary = 1,
+    motor_copy = 2,
+    general_circuit = 3,
+    combined = 4,
+};
+
+enum class ActionContextSignal : std::uint8_t {
+    start = 0,
+    end = 1,
+    motor_copy = 2,
+};
+
+struct ActionContextConfig {
+    ActionContextMode mode{ActionContextMode::none};
+    NeuronId first_input_neuron{16};
+    std::uint32_t relay_count{4};
+    std::uint32_t fanout_per_source{4};
+    std::int32_t weight{3};
+    std::uint64_t seed{1};
+    std::vector<NeuronId> reserved_neurons;
+};
+
+struct ActionContextRoute {
+    ActionContextConfig config;
+    std::vector<NeuronId> boundary_inputs;
+    std::vector<NeuronId> motor_inputs;
+    std::vector<NeuronId> relay_neurons;
+    std::vector<NeuronId> target_neurons;
+    std::vector<SynapseId> route_synapses;
+    std::uint32_t added_synapses{};
+    std::uint32_t adjusted_synapses{};
+};
+
 struct MotorOutputConfig {
     std::uint32_t contacts_per_channel{1};
     std::uint64_t assignment_seed{1};
@@ -387,6 +426,9 @@ public:
     [[nodiscard]] EvaluationRouteResult create_evaluation_route(
         neural::Network& network,
         const EvaluationRouteConfig& config) const;
+    [[nodiscard]] ActionContextRoute create_action_context_route(
+        neural::Network& network,
+        const ActionContextConfig& config) const;
 };
 
 }  // namespace eve::brainstem

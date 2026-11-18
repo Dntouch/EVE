@@ -48,6 +48,18 @@ enum class EligibilityHistory : std::uint8_t {
     merge_unique = 2,
 };
 
+enum class ContextTraceMode : std::uint8_t {
+    none = 0,
+    single = 1,
+    multiple = 2,
+};
+
+enum class ContextBindingMode : std::uint8_t {
+    none = 0,
+    at_fire = 1,
+    temporal_overlap = 2,
+};
+
 struct ExperimentConfig {
     std::uint32_t neuron_count{256};
     std::uint32_t width{8};
@@ -72,6 +84,10 @@ struct ExperimentConfig {
     std::uint32_t eligibility_candidate_capacity{};
     std::uint32_t eligibility_decision_capacity{};
     std::uint64_t eligibility_duration{};
+    ContextTraceMode context_trace_mode{ContextTraceMode::none};
+    ContextBindingMode context_binding_mode{ContextBindingMode::none};
+    std::uint32_t context_trace_capacity{};
+    std::uint64_t context_trace_duration{};
     std::uint64_t maximum_events_per_run{1'000'000};
     bool learning_enabled{true};
     bool growth_enabled{true};
@@ -107,6 +123,17 @@ struct Metrics {
     std::uint64_t feedback_receipts_without_eligibility{};
     std::uint64_t feedback_receipts_with_multiple_eligibilities{};
     std::uint64_t feedback_created_eligibilities{};
+    std::uint64_t context_traces_created{};
+    std::uint64_t context_traces_overwritten{};
+    std::uint64_t processed_context_expiries{};
+    std::uint64_t stale_context_expiries{};
+    std::uint64_t eligibility_context_bindings{};
+    std::uint64_t eligibility_context_ambiguities{};
+    std::uint64_t feedback_context_unique_matches{};
+    std::uint64_t feedback_context_ambiguous_matches{};
+    std::uint64_t feedback_context_missing_matches{};
+    std::uint64_t feedback_context_expired_matches{};
+    std::uint64_t feedback_origin_context_matches{};
     std::uint64_t growth_attempts{};
     std::uint64_t grown_synapses{};
     std::uint64_t processed_sensor_bytes{};
@@ -151,6 +178,23 @@ struct Metrics {
                    other.feedback_receipts_with_multiple_eligibilities &&
                feedback_created_eligibilities ==
                    other.feedback_created_eligibilities &&
+               context_traces_created == other.context_traces_created &&
+               context_traces_overwritten == other.context_traces_overwritten &&
+               processed_context_expiries == other.processed_context_expiries &&
+               stale_context_expiries == other.stale_context_expiries &&
+               eligibility_context_bindings == other.eligibility_context_bindings &&
+               eligibility_context_ambiguities ==
+                   other.eligibility_context_ambiguities &&
+               feedback_context_unique_matches ==
+                   other.feedback_context_unique_matches &&
+               feedback_context_ambiguous_matches ==
+                   other.feedback_context_ambiguous_matches &&
+               feedback_context_missing_matches ==
+                   other.feedback_context_missing_matches &&
+               feedback_context_expired_matches ==
+                   other.feedback_context_expired_matches &&
+               feedback_origin_context_matches ==
+                   other.feedback_origin_context_matches &&
                growth_attempts == other.growth_attempts &&
                grown_synapses == other.grown_synapses &&
                processed_sensor_bytes == other.processed_sensor_bytes &&

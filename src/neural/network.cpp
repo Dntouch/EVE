@@ -90,6 +90,10 @@ void Network::reset(const ExperimentConfig& config) {
     eligibility_record_generations_.assign(record_count, 0);
     eligibility_expiry_times_.assign(record_count, 0);
     eligibility_feedback_origins_.assign(record_count, 0);
+    eligibility_context_signatures_.assign(record_count, 0);
+    eligibility_context_generations_.assign(record_count, 0);
+    eligibility_context_ambiguities_.assign(record_count, 0);
+    eligibility_context_feedback_origins_.assign(record_count, 0);
     if (record_count == 0 || eligibility_candidate_capacity_ == 0) {
         eligibility_write_positions_.clear();
         eligibility_generations_.clear();
@@ -98,6 +102,27 @@ void Network::reset(const ExperimentConfig& config) {
         eligibility_write_positions_.assign(config.neuron_count, 0);
         eligibility_generations_.assign(config.neuron_count, 0);
         eligibility_overwrites_.assign(config.neuron_count, 0);
+    }
+
+    context_trace_capacity_ = config.context_trace_capacity;
+    const auto context_count = static_cast<std::size_t>(config.neuron_count) *
+                               context_trace_capacity_;
+    if (context_trace_capacity_ != 0 &&
+        context_count / context_trace_capacity_ != config.neuron_count) {
+        throw std::overflow_error("context trace storage size overflow");
+    }
+    context_trace_record_generations_.assign(context_count, 0);
+    context_trace_signatures_.assign(context_count, 0);
+    context_trace_expiry_times_.assign(context_count, 0);
+    context_trace_feedback_origins_.assign(context_count, 0);
+    if (context_trace_capacity_ == 0) {
+        context_trace_write_positions_.clear();
+        context_trace_generations_.clear();
+        context_trace_overwrites_.clear();
+    } else {
+        context_trace_write_positions_.assign(config.neuron_count, 0);
+        context_trace_generations_.assign(config.neuron_count, 0);
+        context_trace_overwrites_.assign(config.neuron_count, 0);
     }
 }
 
@@ -307,7 +332,11 @@ EligibilityStoreResult Network::store_eligibility(
     const std::vector<SynapseId>& input_candidates,
     const std::uint64_t expires_at,
     const EligibilityHistory history,
-    const bool feedback_origin) {
+    const bool feedback_origin,
+    const std::uint32_t context_signature,
+    const std::uint64_t context_generation,
+    const bool context_ambiguous,
+    const bool context_feedback_origin) {
     require_neuron(id);
     if (eligibility_candidate_capacity_ == 0 || eligibility_decision_capacity_ == 0) {
         return {};
@@ -347,6 +376,10 @@ EligibilityStoreResult Network::store_eligibility(
             eligibility_sizes_[record] = 0;
             eligibility_expiry_times_[record] = 0;
             eligibility_feedback_origins_[record] = 0;
+            eligibility_context_signatures_[record] = 0;
+            eligibility_context_generations_[record] = 0;
+            eligibility_context_ambiguities_[record] = 0;
+            eligibility_context_feedback_origins_[record] = 0;
         }
         for (const SynapseId candidate : candidates) {
             const auto found = std::find(merged.begin(), merged.end(), candidate);
@@ -370,6 +403,10 @@ EligibilityStoreResult Network::store_eligibility(
             eligibility_sizes_[record] = 0;
             eligibility_expiry_times_[record] = 0;
             eligibility_feedback_origins_[record] = 0;
+            eligibility_context_signatures_[record] = 0;
+            eligibility_context_generations_[record] = 0;
+            eligibility_context_ambiguities_[record] = 0;
+            eligibility_context_feedback_origins_[record] = 0;
         }
     }
 
@@ -407,10 +444,17 @@ EligibilityStoreResult Network::store_eligibility(
     eligibility_record_generations_[record] = generation;
     eligibility_expiry_times_[record] = expires_at;
     eligibility_feedback_origins_[record] = feedback_origin ? 1U : 0U;
+    eligibility_context_signatures_[record] = context_signature;
+    eligibility_context_generations_[record] = context_generation;
+    eligibility_context_ambiguities_[record] = context_ambiguous ? 1U : 0U;
+    eligibility_context_feedback_origins_[record] =
+        context_feedback_origin ? 1U : 0U;
     eligibility_write_positions_[id] = (selected + 1U) % eligibility_decision_capacity_;
     eligibility_overwrites_[id] += result.overwritten_decisions;
     result.record = EligibilityRecord{
-        generation, expires_at, feedback_origin, std::move(candidates)};
+        generation, expires_at, feedback_origin, context_signature,
+        context_generation, context_ambiguous, context_feedback_origin,
+        std::move(candidates)};
     return result;
 }
 
@@ -427,6 +471,10 @@ bool Network::expire_eligibility(const NeuronId id, const std::uint64_t generati
             eligibility_sizes_[record] = 0;
             eligibility_expiry_times_[record] = 0;
             eligibility_feedback_origins_[record] = 0;
+            eligibility_context_signatures_[record] = 0;
+            eligibility_context_generations_[record] = 0;
+            eligibility_context_ambiguities_[record] = 0;
+            eligibility_context_feedback_origins_[record] = 0;
             return true;
         }
     }
@@ -450,6 +498,11 @@ std::vector<EligibilityRecord> Network::eligibility_records(const NeuronId id) c
         item.generation = generation;
         item.expires_at = eligibility_expiry_times_[record];
         item.feedback_origin = eligibility_feedback_origins_[record] != 0;
+        item.context_signature = eligibility_context_signatures_[record];
+        item.context_generation = eligibility_context_generations_[record];
+        item.context_ambiguous = eligibility_context_ambiguities_[record] != 0;
+        item.context_feedback_origin =
+            eligibility_context_feedback_origins_[record] != 0;
         const std::size_t candidate_base = record * eligibility_candidate_capacity_;
         item.candidates.assign(
             eligibility_slots_.begin() + static_cast<std::ptrdiff_t>(candidate_base),
@@ -510,6 +563,10 @@ void Network::restore_eligibility(
     eligibility_record_generations_.assign(record_count, 0);
     eligibility_expiry_times_.assign(record_count, 0);
     eligibility_feedback_origins_.assign(record_count, 0);
+    eligibility_context_signatures_.assign(record_count, 0);
+    eligibility_context_generations_.assign(record_count, 0);
+    eligibility_context_ambiguities_.assign(record_count, 0);
+    eligibility_context_feedback_origins_.assign(record_count, 0);
     if (candidate_capacity == 0 || decision_capacity == 0) {
         for (std::size_t id = 0; id < records.size(); ++id) {
             if (!records[id].empty() || generations[id] != 0 || overwrites[id] != 0) {
@@ -538,6 +595,12 @@ void Network::restore_eligibility(
             eligibility_record_generations_[record] = item.generation;
             eligibility_expiry_times_[record] = item.expires_at;
             eligibility_feedback_origins_[record] = item.feedback_origin ? 1U : 0U;
+            eligibility_context_signatures_[record] = item.context_signature;
+            eligibility_context_generations_[record] = item.context_generation;
+            eligibility_context_ambiguities_[record] =
+                item.context_ambiguous ? 1U : 0U;
+            eligibility_context_feedback_origins_[record] =
+                item.context_feedback_origin ? 1U : 0U;
             eligibility_sizes_[record] = static_cast<std::uint32_t>(item.candidates.size());
             const std::size_t base = record * candidate_capacity;
             for (std::size_t index = 0; index < item.candidates.size(); ++index) {
@@ -550,6 +613,190 @@ void Network::restore_eligibility(
             ++slot;
         }
         eligibility_write_positions_[id] = slot % decision_capacity;
+    }
+}
+
+ContextStoreResult Network::store_context_trace(
+    const NeuronId id,
+    const std::uint32_t signature,
+    const std::uint64_t expires_at,
+    const bool feedback_origin) {
+    require_neuron(id);
+    if (context_trace_capacity_ == 0 || signature == 0) {
+        return {};
+    }
+    const std::size_t base = static_cast<std::size_t>(id) * context_trace_capacity_;
+    std::uint32_t selected = context_trace_write_positions_[id];
+    bool found_empty = false;
+    for (std::uint32_t offset = 0; offset < context_trace_capacity_; ++offset) {
+        const std::uint32_t probe =
+            (context_trace_write_positions_[id] + offset) % context_trace_capacity_;
+        if (context_trace_record_generations_[base + probe] == 0) {
+            selected = probe;
+            found_empty = true;
+            break;
+        }
+    }
+    ContextStoreResult result;
+    result.overwritten = !found_empty;
+    if (result.overwritten) {
+        ++context_trace_overwrites_[id];
+    }
+    std::uint64_t generation = ++context_trace_generations_[id];
+    if (generation == 0) {
+        generation = ++context_trace_generations_[id];
+    }
+    const std::size_t record = base + selected;
+    context_trace_record_generations_[record] = generation;
+    context_trace_signatures_[record] = signature;
+    context_trace_expiry_times_[record] = expires_at;
+    context_trace_feedback_origins_[record] = feedback_origin ? 1U : 0U;
+    context_trace_write_positions_[id] = (selected + 1U) % context_trace_capacity_;
+    result.trace = ContextTrace{generation, signature, expires_at, feedback_origin};
+    return result;
+}
+
+bool Network::expire_context_trace(
+    const NeuronId id, const std::uint64_t generation) {
+    require_neuron(id);
+    if (context_trace_capacity_ == 0 || generation == 0) {
+        return false;
+    }
+    const std::size_t base = static_cast<std::size_t>(id) * context_trace_capacity_;
+    for (std::uint32_t slot = 0; slot < context_trace_capacity_; ++slot) {
+        const std::size_t record = base + slot;
+        if (context_trace_record_generations_[record] == generation) {
+            context_trace_record_generations_[record] = 0;
+            context_trace_signatures_[record] = 0;
+            context_trace_expiry_times_[record] = 0;
+            context_trace_feedback_origins_[record] = 0;
+            return true;
+        }
+    }
+    return false;
+}
+
+std::vector<ContextTrace> Network::context_traces(const NeuronId id) const {
+    require_neuron(id);
+    std::vector<ContextTrace> result;
+    if (context_trace_capacity_ == 0) {
+        return result;
+    }
+    const std::size_t base = static_cast<std::size_t>(id) * context_trace_capacity_;
+    for (std::uint32_t slot = 0; slot < context_trace_capacity_; ++slot) {
+        const std::size_t record = base + slot;
+        if (context_trace_record_generations_[record] == 0) {
+            continue;
+        }
+        result.push_back(ContextTrace{
+            context_trace_record_generations_[record],
+            context_trace_signatures_[record],
+            context_trace_expiry_times_[record],
+            context_trace_feedback_origins_[record] != 0});
+    }
+    std::sort(result.begin(), result.end(), [](const auto& left, const auto& right) {
+        return left.generation < right.generation;
+    });
+    return result;
+}
+
+ContextBindingResult Network::bind_context_to_eligibilities(
+    const NeuronId id, const ContextTrace& trace) {
+    require_neuron(id);
+    ContextBindingResult result;
+    if (eligibility_decision_capacity_ == 0 || trace.signature == 0) {
+        return result;
+    }
+    const std::size_t base = static_cast<std::size_t>(id) *
+                             eligibility_decision_capacity_;
+    for (std::uint32_t slot = 0; slot < eligibility_decision_capacity_; ++slot) {
+        const std::size_t record = base + slot;
+        if (eligibility_record_generations_[record] == 0) {
+            continue;
+        }
+        if (eligibility_context_signatures_[record] == 0) {
+            eligibility_context_signatures_[record] = trace.signature;
+            eligibility_context_generations_[record] = trace.generation;
+            eligibility_context_feedback_origins_[record] =
+                trace.feedback_origin ? 1U : 0U;
+            ++result.bound;
+        } else if (eligibility_context_signatures_[record] != trace.signature &&
+                   eligibility_context_ambiguities_[record] == 0) {
+            eligibility_context_ambiguities_[record] = 1U;
+            ++result.ambiguous;
+        }
+    }
+    return result;
+}
+
+std::uint32_t Network::context_trace_capacity() const noexcept {
+    return context_trace_capacity_;
+}
+
+std::uint64_t Network::context_generation(const NeuronId id) const {
+    require_neuron(id);
+    return context_trace_generations_.empty() ? 0 : context_trace_generations_[id];
+}
+
+std::uint64_t Network::context_overwrites(const NeuronId id) const {
+    require_neuron(id);
+    return context_trace_overwrites_.empty() ? 0 : context_trace_overwrites_[id];
+}
+
+std::size_t Network::active_context_trace_count() const noexcept {
+    return static_cast<std::size_t>(std::count_if(
+        context_trace_record_generations_.begin(),
+        context_trace_record_generations_.end(),
+        [](const std::uint64_t generation) { return generation != 0; }));
+}
+
+void Network::restore_context_traces(
+    const std::uint32_t capacity,
+    const std::vector<std::vector<ContextTrace>>& traces,
+    const std::vector<std::uint64_t>& generations,
+    const std::vector<std::uint64_t>& overwrites) {
+    if (traces.size() != neurons_.size() || generations.size() != neurons_.size() ||
+        overwrites.size() != neurons_.size()) {
+        throw std::runtime_error("context trace state count does not match neurons");
+    }
+    context_trace_capacity_ = capacity;
+    const std::size_t count = neurons_.size() * capacity;
+    context_trace_record_generations_.assign(count, 0);
+    context_trace_signatures_.assign(count, 0);
+    context_trace_expiry_times_.assign(count, 0);
+    context_trace_feedback_origins_.assign(count, 0);
+    if (capacity == 0) {
+        for (std::size_t id = 0; id < traces.size(); ++id) {
+            if (!traces[id].empty() || generations[id] != 0 || overwrites[id] != 0) {
+                throw std::runtime_error("disabled context trace storage contains state");
+            }
+        }
+        context_trace_write_positions_.clear();
+        context_trace_generations_.clear();
+        context_trace_overwrites_.clear();
+        return;
+    }
+    context_trace_write_positions_.assign(neurons_.size(), 0);
+    context_trace_generations_ = generations;
+    context_trace_overwrites_ = overwrites;
+    for (NeuronId id = 0; id < neurons_.size(); ++id) {
+        if (traces[id].size() > capacity) {
+            throw std::runtime_error("restored context traces exceed capacity");
+        }
+        std::uint32_t slot = 0;
+        for (const auto& trace : traces[id]) {
+            if (trace.generation == 0 || trace.generation > generations[id] ||
+                trace.signature == 0) {
+                throw std::runtime_error("invalid restored context trace");
+            }
+            const std::size_t record = static_cast<std::size_t>(id) * capacity + slot;
+            context_trace_record_generations_[record] = trace.generation;
+            context_trace_signatures_[record] = trace.signature;
+            context_trace_expiry_times_[record] = trace.expires_at;
+            context_trace_feedback_origins_[record] = trace.feedback_origin ? 1U : 0U;
+            ++slot;
+        }
+        context_trace_write_positions_[id] = slot % capacity;
     }
 }
 
@@ -593,9 +840,20 @@ std::size_t Network::estimated_memory_bytes() const noexcept {
            eligibility_record_generations_.capacity() * sizeof(std::uint64_t) +
            eligibility_expiry_times_.capacity() * sizeof(std::uint64_t) +
            eligibility_feedback_origins_.capacity() * sizeof(std::uint8_t) +
+           eligibility_context_signatures_.capacity() * sizeof(std::uint32_t) +
+           eligibility_context_generations_.capacity() * sizeof(std::uint64_t) +
+           eligibility_context_ambiguities_.capacity() * sizeof(std::uint8_t) +
+           eligibility_context_feedback_origins_.capacity() * sizeof(std::uint8_t) +
            eligibility_write_positions_.capacity() * sizeof(std::uint32_t) +
            eligibility_generations_.capacity() * sizeof(std::uint64_t) +
-           eligibility_overwrites_.capacity() * sizeof(std::uint64_t);
+           eligibility_overwrites_.capacity() * sizeof(std::uint64_t) +
+           context_trace_record_generations_.capacity() * sizeof(std::uint64_t) +
+           context_trace_signatures_.capacity() * sizeof(std::uint32_t) +
+           context_trace_expiry_times_.capacity() * sizeof(std::uint64_t) +
+           context_trace_feedback_origins_.capacity() * sizeof(std::uint8_t) +
+           context_trace_write_positions_.capacity() * sizeof(std::uint32_t) +
+           context_trace_generations_.capacity() * sizeof(std::uint64_t) +
+           context_trace_overwrites_.capacity() * sizeof(std::uint64_t);
 }
 
 std::map<std::int32_t, std::uint64_t> Network::weight_distribution() const {
@@ -653,11 +911,30 @@ std::uint64_t Network::state_fingerprint() const noexcept {
             hash_u64(hash, record.generation);
             hash_u64(hash, record.expires_at);
             hash_u64(hash, record.feedback_origin ? 1 : 0);
+            hash_u64(hash, record.context_signature);
+            hash_u64(hash, record.context_generation);
+            hash_u64(hash, record.context_ambiguous ? 1 : 0);
+            hash_u64(hash, record.context_feedback_origin ? 1 : 0);
             hash_u64(hash, record.candidates.size());
             for (const SynapseId candidate : record.candidates) {
                 hash_u64(hash, candidate);
             }
         }
+    }
+    hash_u64(hash, context_trace_capacity_);
+    for (NeuronId id = 0; id < neurons_.size(); ++id) {
+        const auto traces = context_traces(id);
+        hash_u64(hash, traces.size());
+        for (const auto& trace : traces) {
+            hash_u64(hash, trace.generation);
+            hash_u64(hash, trace.signature);
+            hash_u64(hash, trace.expires_at);
+            hash_u64(hash, trace.feedback_origin ? 1 : 0);
+        }
+        hash_u64(hash, context_trace_generations_.empty()
+                           ? 0 : context_trace_generations_[id]);
+        hash_u64(hash, context_trace_overwrites_.empty()
+                           ? 0 : context_trace_overwrites_[id]);
     }
     return hash;
 }
@@ -708,6 +985,11 @@ bool Network::validate(std::string* error) const {
         eligibility_record_generations_.size() != expected_eligibility_records ||
         eligibility_expiry_times_.size() != expected_eligibility_records ||
         eligibility_feedback_origins_.size() != expected_eligibility_records ||
+        eligibility_context_signatures_.size() != expected_eligibility_records ||
+        eligibility_context_generations_.size() != expected_eligibility_records ||
+        eligibility_context_ambiguities_.size() != expected_eligibility_records ||
+        eligibility_context_feedback_origins_.size() !=
+            expected_eligibility_records ||
         eligibility_write_positions_.size() != expected_eligibility_management ||
         eligibility_generations_.size() != expected_eligibility_management ||
         eligibility_overwrites_.size() != expected_eligibility_management) {
@@ -717,7 +999,11 @@ bool Network::validate(std::string* error) const {
         if (eligibility_sizes_[index] > eligibility_candidate_capacity_ ||
             (eligibility_record_generations_[index] == 0 &&
              (eligibility_sizes_[index] != 0 || eligibility_expiry_times_[index] != 0 ||
-              eligibility_feedback_origins_[index] != 0))) {
+              eligibility_feedback_origins_[index] != 0 ||
+              eligibility_context_signatures_[index] != 0 ||
+              eligibility_context_generations_[index] != 0 ||
+              eligibility_context_ambiguities_[index] != 0 ||
+              eligibility_context_feedback_origins_[index] != 0))) {
             return fail("invalid eligibility record");
         }
         if (eligibility_record_generations_[index] != 0) {
@@ -738,6 +1024,32 @@ bool Network::validate(std::string* error) const {
                     return fail("eligibility candidate has invalid receiver");
                 }
             }
+        }
+    }
+    const std::size_t expected_context_records =
+        neurons_.size() * static_cast<std::size_t>(context_trace_capacity_);
+    const std::size_t expected_context_management =
+        context_trace_capacity_ == 0 ? 0 : neurons_.size();
+    if (context_trace_record_generations_.size() != expected_context_records ||
+        context_trace_signatures_.size() != expected_context_records ||
+        context_trace_expiry_times_.size() != expected_context_records ||
+        context_trace_feedback_origins_.size() != expected_context_records ||
+        context_trace_write_positions_.size() != expected_context_management ||
+        context_trace_generations_.size() != expected_context_management ||
+        context_trace_overwrites_.size() != expected_context_management) {
+        return fail("context trace storage mismatch");
+    }
+    for (std::size_t index = 0; index < expected_context_records; ++index) {
+        if (context_trace_record_generations_[index] == 0 &&
+            (context_trace_signatures_[index] != 0 ||
+             context_trace_expiry_times_[index] != 0 ||
+             context_trace_feedback_origins_[index] != 0)) {
+            return fail("inactive context trace contains state");
+        }
+    }
+    for (std::size_t index = 0; index < expected_context_management; ++index) {
+        if (context_trace_write_positions_[index] >= context_trace_capacity_) {
+            return fail("invalid context trace cursor");
         }
     }
     for (std::size_t index = 0; index < expected_eligibility_management; ++index) {
@@ -851,9 +1163,21 @@ void Network::restore(
     eligibility_record_generations_.clear();
     eligibility_expiry_times_.clear();
     eligibility_feedback_origins_.clear();
+    eligibility_context_signatures_.clear();
+    eligibility_context_generations_.clear();
+    eligibility_context_ambiguities_.clear();
+    eligibility_context_feedback_origins_.clear();
     eligibility_write_positions_.clear();
     eligibility_generations_.clear();
     eligibility_overwrites_.clear();
+    context_trace_capacity_ = 0;
+    context_trace_record_generations_.clear();
+    context_trace_signatures_.clear();
+    context_trace_expiry_times_.clear();
+    context_trace_feedback_origins_.clear();
+    context_trace_write_positions_.clear();
+    context_trace_generations_.clear();
+    context_trace_overwrites_.clear();
     std::string error;
     if (!validate(&error)) {
         throw std::runtime_error("invalid restored network: " + error);

@@ -347,12 +347,38 @@ EligibilityResult Brainstem::create_eligibility(
     }
     std::reverse(selected.begin(), selected.end());
 
+    std::uint32_t context_signature = 0;
+    std::uint64_t context_generation = 0;
+    bool context_ambiguous = false;
+    bool context_feedback_origin = false;
+    if (config.context_binding_mode == ContextBindingMode::at_fire) {
+        const auto traces = network.context_traces(neuron);
+        if (!traces.empty()) {
+            const auto& latest = traces.back();
+            context_signature = latest.signature;
+            context_generation = latest.generation;
+            context_feedback_origin = latest.feedback_origin;
+            for (const auto& trace : traces) {
+                if (trace.signature != context_signature) {
+                    context_ambiguous = true;
+                    break;
+                }
+            }
+        }
+    }
+
     const auto stored = network.store_eligibility(
-        neuron, selected, expires_at, config.eligibility_history, feedback_origin);
+        neuron, selected, expires_at, config.eligibility_history, feedback_origin,
+        context_signature, context_generation, context_ambiguous,
+        context_feedback_origin);
     result.created = stored.record.generation != 0;
     result.generation = stored.record.generation;
     result.expires_at = stored.record.expires_at;
     result.overwritten_decisions = stored.overwritten_decisions;
+    result.context_signature = stored.record.context_signature;
+    result.context_generation = stored.record.context_generation;
+    result.context_ambiguous = stored.record.context_ambiguous;
+    result.context_feedback_origin = stored.record.context_feedback_origin;
     result.candidates = stored.record.candidates;
     for (const SynapseId candidate : result.candidates) {
         if (network.synapse(candidate).weight > 0) {
@@ -923,6 +949,91 @@ EvaluationRouteResult Brainstem::create_evaluation_route(
                 result.target_neurons.push_back(target);
                 connect(relay, target, result);
             }
+        }
+    }
+    return result;
+}
+
+ActionContextRoute Brainstem::create_action_context_route(
+    neural::Network& network,
+    const ActionContextConfig& config) const {
+    constexpr std::uint32_t input_count = 10;
+    if (static_cast<std::uint64_t>(config.first_input_neuron) + input_count >
+        network.neuron_count()) {
+        throw std::invalid_argument("action context input range is invalid");
+    }
+    if (config.mode != ActionContextMode::none &&
+        (config.weight <= 0 || config.fanout_per_source == 0)) {
+        throw std::invalid_argument("action context route requires positive weight and fanout");
+    }
+    ActionContextRoute result;
+    result.config = config;
+    result.boundary_inputs = {
+        config.first_input_neuron, config.first_input_neuron + 1U};
+    for (std::uint32_t bit = 0; bit < 8; ++bit) {
+        result.motor_inputs.push_back(config.first_input_neuron + 2U + bit);
+    }
+    if (config.mode == ActionContextMode::none ||
+        config.mode == ActionContextMode::boundary ||
+        config.mode == ActionContextMode::motor_copy) {
+        return result;
+    }
+
+    std::vector<bool> excluded(network.neuron_count(), false);
+    for (const auto neuron : result.boundary_inputs) excluded.at(neuron) = true;
+    for (const auto neuron : result.motor_inputs) excluded.at(neuron) = true;
+    for (const auto neuron : config.reserved_neurons) {
+        if (neuron < excluded.size()) excluded[neuron] = true;
+    }
+    std::vector<NeuronId> candidates;
+    for (NeuronId neuron = 0; neuron < network.neuron_count(); ++neuron) {
+        if (!excluded[neuron]) candidates.push_back(neuron);
+    }
+    std::uint64_t state = config.seed == 0 ? 0x9e3779b97f4a7c15ULL : config.seed;
+    for (std::size_t remaining = candidates.size(); remaining > 1; --remaining) {
+        const std::size_t selected = static_cast<std::size_t>(
+            next_assignment_random(state) % remaining);
+        std::swap(candidates[selected], candidates[remaining - 1]);
+    }
+    if (config.relay_count == 0 || config.relay_count > candidates.size()) {
+        throw std::invalid_argument("action context relay count is invalid");
+    }
+    std::size_t cursor = 0;
+    for (std::uint32_t index = 0; index < config.relay_count; ++index) {
+        result.relay_neurons.push_back(candidates[cursor++]);
+    }
+    std::vector<NeuronId> sources = result.boundary_inputs;
+    if (config.mode == ActionContextMode::combined) {
+        sources.insert(sources.end(), result.motor_inputs.begin(),
+                       result.motor_inputs.end());
+    }
+    const std::uint64_t target_count =
+        static_cast<std::uint64_t>(config.fanout_per_source) *
+        result.relay_neurons.size();
+    if (cursor + target_count > candidates.size()) {
+        throw std::invalid_argument("network is too small for action context fanout");
+    }
+    const auto connect = [&](const NeuronId sender, const NeuronId receiver) {
+        const auto existing = network.find_synapse(sender, receiver);
+        SynapseId id = 0;
+        if (existing.has_value()) {
+            id = *existing;
+            network.synapse(id).weight = config.weight;
+            ++result.adjusted_synapses;
+        } else {
+            id = network.add_synapse(sender, receiver, config.weight);
+            ++result.added_synapses;
+        }
+        result.route_synapses.push_back(id);
+    };
+    for (std::size_t index = 0; index < sources.size(); ++index) {
+        connect(sources[index], result.relay_neurons[index % result.relay_neurons.size()]);
+    }
+    for (const auto relay : result.relay_neurons) {
+        for (std::uint32_t edge = 0; edge < config.fanout_per_source; ++edge) {
+            const auto target = candidates[cursor++];
+            result.target_neurons.push_back(target);
+            connect(relay, target);
         }
     }
     return result;
