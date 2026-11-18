@@ -127,3 +127,28 @@ Ereigniszähler und Zustandsfingerabdrücke sind bei identischem Build
 deterministisch. Vorhandene Forschungsdaten werden nicht überschrieben; der
 A.1-Runner schreibt ausschließlich Dateien mit dem Präfix
 `research-stage-a1-`.
+
+## Forschungsstufe A.2 – motorische Abschlusskausalität
+
+Build, alle Kerntests und die vollständigen Explorations-, Kausalitäts-,
+Wiederholungs-, Rückkopplungs- und Performancematrizen:
+
+~~~sh
+scripts/run_research_stage_a2.sh research/results
+~~~
+
+Der Runner erzeugt ausschließlich Dateien mit dem Präfix
+`research-stage-a2-`:
+
+- `parameters.csv`: vollständige gemeinsame Versuchsparameter,
+- `exploration.csv`: E0, E4-alt und E4-neu mit 8, 16 und 32 Aktivierungen,
+- `causality.csv`: K0/K1/K2 über 32 Seeds,
+- `diagnostics.csv`: geordnete reale Feuer- und Impulsfolge eines
+  nachgewiesenen Abschlusses,
+- `repetitions.csv`: wiederhergestellte und fortgeführte Antwortphasen,
+- `feedback.csv`: nachgelagerter R0/R1-Vergleich,
+- `performance.csv`: gepaarte Messungen mit und ohne Detaildiagnose.
+
+Laufzeit und Durchsatz sind maschinenabhängig. Alle übrigen Felder sind bei
+identischem Build reproduzierbar. Temporäre Zustandsdateien der
+Wiederherstellungsprüfung werden nach dem Lauf entfernt.

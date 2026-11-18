@@ -1129,32 +1129,45 @@ void test_motor_circuit_reports_expected_connections() {
 }
 
 void test_interrupted_motor_circuit_preserves_topology_but_blocks_path() {
-    const auto setup = [](const bool enabled) {
+    const auto setup = [](const eve::brainstem::MotorCircuitMode mode,
+                          const bool enabled) {
         eve::bios::Runtime runtime(motor_test_config(), 106);
         runtime.configure_motor_output(motor_output_config());
         auto config = motor_circuit_config(
-            eve::brainstem::MotorCircuitMode::direct_completion_path, 3, 3, 1000);
+            mode,
+            mode == eve::brainstem::MotorCircuitMode::activity_dependent ? 1 : 3,
+            3, 1000);
         config.path_enabled = enabled;
         const auto circuit = runtime.configure_motor_circuit(config);
         std::vector<std::pair<eve::NeuronId, eve::NeuronId>> topology;
         for (const eve::SynapseId synapse : circuit.circuit_synapses) {
             const auto& item = runtime.network().synapse(synapse);
             topology.emplace_back(item.sender, item.receiver);
-            require_equal(item.weight, enabled ? 3 : 0,
-                          "interrupted circuit has the wrong weight");
+            require(enabled ? item.weight > 0 : item.weight == 0,
+                    "interrupted circuit has the wrong weight");
         }
-        runtime.enqueue_fire(runtime.motor_assignment().channels[2][0]);
+        const std::uint32_t activations =
+            mode == eve::brainstem::MotorCircuitMode::activity_dependent ? 3U : 1U;
+        for (std::uint32_t channel = 0; channel < activations; ++channel) {
+            runtime.enqueue_fire(runtime.motor_assignment().channels[channel][0]);
+        }
         const auto response = runtime.request_response(false);
         return std::make_pair(topology, response);
     };
-    const auto active = setup(true);
-    const auto interrupted = setup(false);
-    require_equal(active.first, interrupted.first,
-                  "K2 changed topology instead of interrupting the path");
-    require(active.second.valid(), "active M1 path did not complete");
-    require(!interrupted.second.valid(), "interrupted M1 path still completed");
-    require_equal(interrupted.second.value, std::uint8_t{0x04},
-                  "interruption removed the observed data activation");
+    for (const auto mode : {
+             eve::brainstem::MotorCircuitMode::direct_completion_path,
+             eve::brainstem::MotorCircuitMode::completion_group,
+             eve::brainstem::MotorCircuitMode::activity_dependent,
+         }) {
+        const auto active = setup(mode, true);
+        const auto interrupted = setup(mode, false);
+        require_equal(active.first, interrupted.first,
+                      "K2 changed topology instead of interrupting the path");
+        require(active.second.valid(), "active motor path did not complete");
+        require(!interrupted.second.valid(), "interrupted motor path still completed");
+        require(interrupted.second.value != 0,
+                "interruption removed the observed data activation");
+    }
 }
 
 void test_motor_causality_distinguishes_completion_without_data() {

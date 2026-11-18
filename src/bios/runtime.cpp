@@ -577,9 +577,6 @@ MotorCausality Runtime::analyze_motor_causality(
     result.technical_abort =
         response.status == brainstem::MotorResponseStatus::aborted;
     result.completed = response.valid();
-    if (!result.completed) {
-        return result;
-    }
 
     const brainstem::MotorActivation* completion = nullptr;
     const brainstem::MotorActivation* first_data = nullptr;
@@ -595,28 +592,36 @@ MotorCausality Runtime::analyze_motor_causality(
             break;
         }
     }
-    if (completion == nullptr) {
-        return result;
+    if (completion != nullptr) {
+        result.completion_event = completion->event_index;
     }
-    result.completion_event = completion->event_index;
-    if (first_data == nullptr || first_data->event_index >= completion->event_index) {
+    if (result.completed &&
+        (first_data == nullptr || first_data->event_index >= completion->event_index)) {
         result.completed_without_prior_data = true;
         return result;
     }
-    result.completed_after_data = true;
+    if (first_data == nullptr) {
+        return result;
+    }
     result.first_data_event = first_data->event_index;
-    result.events_between_data_and_completion =
-        completion->event_index - first_data->event_index - 1U;
+    if (result.completed) {
+        result.completed_after_data = true;
+        result.events_between_data_and_completion =
+            completion->event_index - first_data->event_index - 1U;
+    }
 
     const std::set<SynapseId> circuit_synapses(
         circuit.circuit_synapses.begin(), circuit.circuit_synapses.end());
     for (const ImpulseObservation& impulse : impulses) {
         if (impulse.event_index <= first_data->event_index ||
-            impulse.event_index >= completion->event_index ||
+            (completion != nullptr && impulse.event_index >= completion->event_index) ||
             circuit_synapses.find(impulse.synapse) == circuit_synapses.end()) {
             continue;
         }
         ++result.observed_circuit_impulses;
+        if (impulse.firing_suppressed) {
+            ++result.suppressed_circuit_impulses;
+        }
         if (!impulse.receiver_fired) {
             continue;
         }
@@ -625,7 +630,7 @@ MotorCausality Runtime::analyze_motor_causality(
             continue;
         }
         causally_reached.insert(impulse.receiver);
-        if (impulse.receiver == completion->neuron) {
+        if (result.completed_after_data && impulse.receiver == completion->neuron) {
             result.proven_circuit_path = true;
         }
     }
@@ -908,10 +913,15 @@ void Runtime::process_fire(const NeuronId neuron) {
 
 void Runtime::process_impulse(const SynapseId synapse) {
     const neural::Synapse before = network_.synapse(synapse);
-    const neural::Neuron receiver_before = network_.neuron(before.receiver);
+    std::int64_t membrane_before = 0;
+    std::uint32_t refractory_before = 0;
+    if (impulse_observer_) {
+        const neural::Neuron& receiver = network_.neuron(before.receiver);
+        membrane_before = receiver.membrane_potential;
+        refractory_before = receiver.refractory_events_remaining;
+    }
     const brainstem::ImpulseResult result =
         brainstem_.receive_impulse(network_, synapse, config_, &rng_);
-    const neural::Neuron& receiver_after = network_.neuron(before.receiver);
     if (result.strengthened) {
         ++metrics_.synaptic_strengthenings;
     }
@@ -939,15 +949,16 @@ void Runtime::process_impulse(const SynapseId synapse) {
         trace(line.str());
     }
     if (impulse_observer_) {
+        const neural::Neuron& receiver_after = network_.neuron(before.receiver);
         impulse_observer_(ImpulseObservation{
             metrics_.processed_events,
             synapse,
             before.sender,
             before.receiver,
             result.applied_weight,
-            receiver_before.membrane_potential,
+            membrane_before,
             receiver_after.membrane_potential,
-            receiver_before.refractory_events_remaining,
+            refractory_before,
             receiver_after.refractory_events_remaining,
             result.fired,
             result.firing_suppressed,

@@ -87,6 +87,7 @@ struct MotorCausality {
     std::uint64_t events_between_data_and_completion{};
     std::uint32_t observed_circuit_impulses{};
     std::uint32_t firing_circuit_impulses{};
+    std::uint32_t suppressed_circuit_impulses{};
 };
 
 class Runtime {

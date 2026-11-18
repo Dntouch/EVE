@@ -578,6 +578,21 @@ Umsetzung und Ergebnisse:
 - [Forschungsbericht](../experimente/005-forschungsbericht-forschungsstufe-a1.md)
 - [Entscheidungsvorlage](../entscheidungen/0005-vorlage-stammhirnentwicklung-nach-a1.md)
 
+### Forschungsstufe A.2 – Kausalität motorischer Abschlüsse
+
+Vor der lokalen Ereigniszuordnung wird geprüft, ob ein Abschluss tatsächlich
+aus vorausgegangener Motoraktivität und einer konkreten neuronalen Schaltung
+entsteht. Exploration schließt alle konfigurierten Sensor-, Motor-, Pfad- und
+Schaltungsneuronen als direkte Ziele aus. Aktive und identisch aufgebaute,
+gezielt unterbrochene Motorschaltungen werden mit realen Impulsfolgen
+verglichen.
+
+Umsetzung und Ergebnisse:
+
+- [Entwicklungsauftrag](../experimente/006-entwicklungsauftrag-forschungsstufe-a2.md)
+- [Forschungsbericht](../experimente/006-forschungsbericht-forschungsstufe-a2.md)
+- [Entscheidungsvorlage](../entscheidungen/0006-vorlage-uebergang-zu-forschungsstufe-b.md)
+
 ### Forschungsstufe B – Lokale Ereigniszuordnung
 
 Untersuchen, wie ein Neuron vorausgegangene Eingangsaktivität berücksichtigen kann, ohne Zeitstempel oder globale Aktualisierungen.
