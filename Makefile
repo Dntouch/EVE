@@ -20,7 +20,8 @@ all: $(BUILD_DIR)/eve_experiment $(BUILD_DIR)/eve_sequence_experiment \
 	$(BUILD_DIR)/eve_research_stage_b $(BUILD_DIR)/eve_research_stage_b1 \
 	$(BUILD_DIR)/eve_research_stage_b2 $(BUILD_DIR)/eve_research_stage_b3 \
 	$(BUILD_DIR)/eve_research_stage_b31 $(BUILD_DIR)/eve_research_stage_b4 \
-	$(BUILD_DIR)/eve_research_stage_b41 $(BUILD_DIR)/eve_research_stage_b42
+	$(BUILD_DIR)/eve_research_stage_b41 $(BUILD_DIR)/eve_research_stage_b42 \
+	$(BUILD_DIR)/eve_research_stage_b43
 
 test: $(BUILD_DIR)/eve_tests
 	$(BUILD_DIR)/eve_tests
@@ -91,6 +92,10 @@ $(BUILD_DIR)/eve_research_stage_b42: $(CORE_OBJECTS) \
 		$(BUILD_DIR)/src/research_stage_b42.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
+$(BUILD_DIR)/eve_research_stage_b43: $(CORE_OBJECTS) \
+		$(BUILD_DIR)/src/research_stage_b43.o
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
 $(BUILD_DIR)/eve_tests: $(CORE_OBJECTS) $(BUILD_DIR)/tests/test_main.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
@@ -113,6 +118,7 @@ clean:
 		$(BUILD_DIR)/eve_research_stage_b4 \
 		$(BUILD_DIR)/eve_research_stage_b41 \
 		$(BUILD_DIR)/eve_research_stage_b42 \
+		$(BUILD_DIR)/eve_research_stage_b43 \
 		$(BUILD_DIR)/eve_tests
 
 -include $(CORE_OBJECTS:.o=.d)
@@ -134,4 +140,5 @@ clean:
 -include $(BUILD_DIR)/src/research_stage_b4.d
 -include $(BUILD_DIR)/src/research_stage_b41.d
 -include $(BUILD_DIR)/src/research_stage_b42.d
+-include $(BUILD_DIR)/src/research_stage_b43.d
 -include $(BUILD_DIR)/tests/test_main.d

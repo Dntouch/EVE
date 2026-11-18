@@ -273,3 +273,27 @@ Die Ergebnisdateien enthalten:
 - 64-/256-Neuronen-Vergleiche sowie Ressourcen- und Laufzeitdaten.
 
 B.4- und B.4.1-Daten werden nicht verändert.
+
+## Forschungsstufe B.4.3 – lokale Trennung konkurrierender Erfahrungen
+
+Build und vollständige 64-Seed-Matrix:
+
+```sh
+scripts/run-research-stage-b43.sh research/results/b43
+```
+
+Der Runner lässt die B.4.2-Daten unverändert und erzeugt getrennt:
+
+- Aufgaben- und Parameterpläne mit separaten Zufallsströmen,
+- vollständige Rohversuche und synaptische Änderungen,
+- L0–L4-, Kapazitäts-, Dauer-, Reihenfolge-, Repräsentations- und
+  Modulationsvergleiche,
+- X/Y-Verwechslungsmatrizen, Einzelseedwerte und gepaarte
+  Bootstrapintervalle,
+- Fremdreiz-Anteile in lokalen Eligibility-Kandidaten,
+- diagnostische Kausalablationen und Vergessensmaße,
+- Persistenz-, Zeit-, Stabilitäts-, Ressourcen- und 64/256-Vergleiche.
+
+Die Ablation verändert ausschließlich Zustandskopien. Sie ist kein
+Lernmechanismus. Da keine Variante beide Beziehungen erfolgreich beherrscht,
+wird der bedingte Kapazitätsversuch mit 4–16 Reizen nicht ausgeführt.

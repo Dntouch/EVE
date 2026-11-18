@@ -53,6 +53,7 @@ const char* selection_name(const eve::EligibilitySelection selection) {
     case eve::EligibilitySelection::none: return "L0";
     case eve::EligibilitySelection::all_recent: return "L1";
     case eve::EligibilitySelection::positive_weight: return "L2";
+    case eve::EligibilitySelection::active_phase: return "L3-active-phase";
     }
     return "unknown";
 }

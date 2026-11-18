@@ -28,3 +28,8 @@ durch negative Modulation.
 B.4.2 bestätigt diesen Kausalzusammenhang und weist mit geschützter Exploration
 erstmals Lernen und Umkehrlernen für einen wiederholten Einzelreiz nach. Offen
 bleibt die stabile lokale Trennung mehrerer Reiz-Handlungs-Zuordnungen.
+B.4.3 zeigt, dass alte G3-Ereignisse und überlappende Eligibility-Spuren
+konkurrierende Erfahrungen vermischen und die zuerst gelernte Beziehung
+synaptisch überschreiben. Ein lokales Feuerentscheidungsfenster reduziert
+diese Vermischung, löst die Zwei-Reiz-Aufgabe aber nicht. Offen bleibt eine
+rein lokale Koinzidenzbindung mehrerer entscheidungsrelevanter Eingänge.

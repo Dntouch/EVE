@@ -35,6 +35,9 @@ enum class EligibilitySelection : std::uint8_t {
     none = 0,
     all_recent = 1,
     positive_weight = 2,
+    // B.4.3: stimulus-agnostic inputs active in the current local fire window.
+    // Zero-weight inputs deliberately remain eligible.
+    active_phase = 3,
 };
 
 enum class EligibilityRepresentation : std::uint8_t {

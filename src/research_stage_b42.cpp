@@ -20,7 +20,12 @@ namespace {
 
 enum class Feedback { none, correct, positive, negative, random, reversed, neutral };
 enum class Exploration { baseline, window, after_negative, next_episode, continuous };
-enum class Task { two_cue, single_a, single_b, reversal_ab, reversal_ba, inverse_two_cue };
+enum class Task {
+    two_cue, single_a, single_b, single_y_b, reversal_ab, reversal_ba,
+    inverse_two_cue,
+    sequential_xy, sequential_yx, alternating_xy, blocked_xy,
+};
+enum class Representation { separate, distributed, overlapping };
 
 struct Variant {
     std::string name;
@@ -35,6 +40,14 @@ struct Variant {
     bool alternating_negative{};
     std::uint32_t negative_percent{100};
     std::uint32_t exploration_percent{60};
+    eve::EligibilitySelection eligibility_selection{
+        eve::EligibilitySelection::all_recent};
+    eve::PlasticityTraceMode trace_mode{eve::PlasticityTraceMode::g3_recent};
+    eve::ModulationMode modulation_mode{eve::ModulationMode::ternary};
+    std::uint32_t candidate_capacity{8};
+    std::uint32_t decision_capacity{8};
+    std::uint64_t eligibility_duration{16};
+    Representation representation{Representation::separate};
 };
 
 struct Plan {
@@ -66,6 +79,13 @@ struct Result {
     std::uint64_t cue0_b{};
     std::uint64_t cue1_a{};
     std::uint64_t cue1_b{};
+    std::uint64_t cue0_both{};
+    std::uint64_t cue0_none{};
+    std::uint64_t cue1_both{};
+    std::uint64_t cue1_none{};
+    std::uint64_t eligibility_decisions{};
+    std::uint64_t eligibility_candidates{};
+    std::uint64_t cross_cue_candidates{};
     std::uint32_t functional_exploration_paths{};
     std::int32_t cue0_to_a{};
     std::int32_t cue0_to_b{};
@@ -81,6 +101,10 @@ struct Circuit {
     std::array<eve::SynapseId, 4> cue_synapses{};
     std::vector<eve::SynapseId> exploration_synapses;
 };
+
+// Optional independent B.4.3 diagnosis.  It observes already-created local
+// records and never participates in candidate selection or modulation.
+std::ostream* b43_eligibility_diagnostics = nullptr;
 
 double mean(const std::vector<double>& values) {
     return values.empty() ? 0.0 :
@@ -157,15 +181,15 @@ eve::ExperimentConfig make_config(const Variant& variant, const bool large) {
     config.recovery_delay = 4;
     config.membrane_relaxation_percent = 100;
     config.local_event_memory_capacity = 8;
-    config.eligibility_selection = eve::EligibilitySelection::all_recent;
-    config.eligibility_candidate_capacity = 8;
-    config.eligibility_decision_capacity = 8;
-    config.eligibility_duration = 16;
+    config.eligibility_selection = variant.eligibility_selection;
+    config.eligibility_candidate_capacity = variant.candidate_capacity;
+    config.eligibility_decision_capacity = variant.decision_capacity;
+    config.eligibility_duration = variant.eligibility_duration;
     config.plasticity_trace_mode = variant.plasticity
-        ? eve::PlasticityTraceMode::g3_recent
+        ? variant.trace_mode
         : eve::PlasticityTraceMode::disabled;
     config.modulation_mode = variant.plasticity
-        ? eve::ModulationMode::ternary : eve::ModulationMode::none;
+        ? variant.modulation_mode : eve::ModulationMode::none;
     config.plasticity_positive_step = 1;
     config.plasticity_negative_step = 1;
     config.plasticity_maximum_weight = 3;
@@ -229,6 +253,15 @@ Circuit configure_circuit(
         ensure_synapse(runtime, 1, circuit.action_a, 0),
         ensure_synapse(runtime, 1, circuit.action_b, 0),
     };
+    if (variant.representation == Representation::distributed) {
+        static_cast<void>(ensure_synapse(runtime, 17, circuit.action_a, 0));
+        static_cast<void>(ensure_synapse(runtime, 17, circuit.action_b, 0));
+        static_cast<void>(ensure_synapse(runtime, 18, circuit.action_a, 0));
+        static_cast<void>(ensure_synapse(runtime, 18, circuit.action_b, 0));
+    } else if (variant.representation == Representation::overlapping) {
+        static_cast<void>(ensure_synapse(runtime, 17, circuit.action_a, 0));
+        static_cast<void>(ensure_synapse(runtime, 17, circuit.action_b, 0));
+    }
     const bool protect = variant.protect_exploration && variant.protection_enabled;
     if (variant.separated_exploration) {
         circuit.exploration_synapses = {
@@ -270,8 +303,30 @@ std::pair<std::uint32_t, std::uint32_t> functional_paths(
 }
 
 std::uint8_t episode_cue(const Variant& variant, const Plan& plan) {
-    return variant.task == Task::two_cue || variant.task == Task::inverse_two_cue
-        ? plan.cue : 0;
+    if (variant.task == Task::single_y_b) return 1;
+    return variant.task == Task::single_a || variant.task == Task::single_b ||
+                   variant.task == Task::reversal_ab ||
+                   variant.task == Task::reversal_ba
+        ? 0 : plan.cue;
+}
+
+std::uint8_t scheduled_cue(const Variant& variant, const Plan& plan,
+                           const std::uint32_t episode,
+                           const std::uint32_t training) {
+    if (episode >= training) {
+        return variant.task == Task::sequential_xy ||
+                       variant.task == Task::sequential_yx ||
+                       variant.task == Task::alternating_xy ||
+                       variant.task == Task::blocked_xy
+            ? plan.cue : episode_cue(variant, plan);
+    }
+    switch (variant.task) {
+        case Task::sequential_xy: return episode < training / 2 ? 0 : 1;
+        case Task::sequential_yx: return episode < training / 2 ? 1 : 0;
+        case Task::alternating_xy: return static_cast<std::uint8_t>(episode & 1U);
+        case Task::blocked_xy: return static_cast<std::uint8_t>((episode / 16U) & 1U);
+        default: return episode_cue(variant, plan);
+    }
 }
 
 bool target_a(const Variant& variant, const std::uint8_t cue,
@@ -279,9 +334,14 @@ bool target_a(const Variant& variant, const std::uint8_t cue,
     switch (variant.task) {
         case Task::single_a: return true;
         case Task::single_b: return false;
+        case Task::single_y_b: return false;
         case Task::reversal_ab: return episode < training / 2;
         case Task::reversal_ba: return episode >= training / 2;
         case Task::inverse_two_cue: return cue != 0;
+        case Task::sequential_xy:
+        case Task::sequential_yx:
+        case Task::alternating_xy:
+        case Task::blocked_xy: return cue == 0;
         case Task::two_cue: return cue == 0;
     }
     return true;
@@ -298,11 +358,42 @@ Result run_seed(
     const Circuit circuit = configure_circuit(runtime, variant, seed, large);
     bool fired_a = false;
     bool fired_b = false;
+    std::uint8_t diagnostic_cue = 0;
+    std::uint32_t diagnostic_episode = 0;
     runtime.set_fire_observer([&](const eve::bios::FireObservation& event) {
         fired_a = fired_a || event.neuron == circuit.action_a;
         fired_b = fired_b || event.neuron == circuit.action_b;
     });
     Result result;
+    runtime.set_impulse_observer([&](const eve::bios::ImpulseObservation& event) {
+        if (event.eligibility_generation == 0) return;
+        ++result.eligibility_decisions;
+        result.eligibility_candidates += event.eligibility_candidates.size();
+        std::uint32_t order = 0;
+        for (const auto id : event.eligibility_candidates) {
+            const auto sender = runtime.network().synapse(id).sender;
+            if ((diagnostic_cue == 0 && sender == 1) ||
+                (diagnostic_cue == 1 && sender == 0)) {
+                ++result.cross_cue_candidates;
+            }
+            if (b43_eligibility_diagnostics != nullptr) {
+                const auto position = std::find(
+                    event.local_event_snapshot.begin(),
+                    event.local_event_snapshot.end(), id);
+                *b43_eligibility_diagnostics << variant.name << ',' << seed << ','
+                    << diagnostic_episode << ',' << static_cast<unsigned>(diagnostic_cue)
+                    << ',' << event.receiver << ',' << event.eligibility_generation << ','
+                    << event.simulated_time << ',' << event.simulated_time + 1 << ','
+                    << id << ',' << sender << ','
+                    << runtime.network().synapse(id).weight << ','
+                    << (position == event.local_event_snapshot.end()
+                            ? -1 : static_cast<std::int64_t>(std::distance(
+                                event.local_event_snapshot.begin(), position)))
+                    << ',' << order << '\n';
+            }
+            ++order;
+        }
+    });
     std::vector<double> first;
     std::vector<double> last;
     std::vector<double> evaluation;
@@ -344,11 +435,19 @@ Result run_seed(
         const auto before = runtime.metrics();
         const auto before_synapses = runtime.network().synapses();
         const Plan& plan = plans[episode];
-        const std::uint8_t cue = episode_cue(variant, plan);
+        const std::uint8_t cue = scheduled_cue(
+            variant, plan, episode, training_episodes);
+        diagnostic_cue = cue;
+        diagnostic_episode = episode;
         fired_a = fired_b = false;
         bool explored = false;
         if (!variant.suppress_action) {
             runtime.enqueue_fire(cue);
+            if (variant.representation == Representation::distributed) {
+                runtime.enqueue_fire(static_cast<eve::NeuronId>(17 + cue));
+            } else if (variant.representation == Representation::overlapping) {
+                runtime.enqueue_fire(17);
+            }
             static_cast<void>(runtime.run());
             const bool general_window =
                 variant.exploration == Exploration::window ||
@@ -443,9 +542,13 @@ Result run_seed(
             if (cue == 0) {
                 result.cue0_a += decision_a && !decision_b ? 1U : 0U;
                 result.cue0_b += decision_b && !decision_a ? 1U : 0U;
+                result.cue0_both += decision_a && decision_b ? 1U : 0U;
+                result.cue0_none += !decision_a && !decision_b ? 1U : 0U;
             } else {
                 result.cue1_a += decision_a && !decision_b ? 1U : 0U;
                 result.cue1_b += decision_b && !decision_a ? 1U : 0U;
+                result.cue1_both += decision_a && decision_b ? 1U : 0U;
+                result.cue1_none += !decision_a && !decision_b ? 1U : 0U;
             }
         }
         if (trials != nullptr) {
@@ -897,4 +1000,5 @@ int main(int argc, char** argv) {
                  "maximum_queue\n";
     stability << "0,0,0,0," << maximum_queue << '\n';
     std::cout << "B.4.2 research data written to " << output << '\n';
+    return 0;
 }

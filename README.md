@@ -12,9 +12,9 @@ vorgegebene Semantik aus.
 
 **Stand:** 18. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.4.2 – Erhalt explorativer Handlungsfähigkeit
+**Jüngste abgeschlossene Forschungsstufe:** B.4.3 – lokale Trennung konkurrierender Erfahrungen
 
-**Aktueller Forschungsschwerpunkt:** lokale Trennung mehrerer Reiz-Handlungs-Zuordnungen
+**Aktueller Forschungsschwerpunkt:** lokale Koinzidenzbindung ohne globale Reizkennung
 
 EVE ist inzwischen ein ausführbarer Forschungsprototyp. Er besitzt eine
 deterministische, ereignisgesteuerte Laufzeit, ein eigenes neuronales Netz,
@@ -26,6 +26,12 @@ nach. Ein allgemeiner Schutz angeborener Explorationssynapsen erhält beide
 Handlungsalternativen. Damit lernt EVE einen wiederholten Einzelreiz für Ziel A
 wie B und passt die Präferenz nach Umweltumkehr an. Die Zwei-Reiz-Aufgabe bleibt
 trotz Verbesserung gegenüber der Nullkontrolle ungelöst.
+
+B.4.3 lokalisiert den verbleibenden Engpass: Im unveränderten G3-Fenster
+stammten 30,15 % der sensorisch klassifizierbaren Lernkandidaten aus der
+jeweils anderen Erfahrung. Sequenzielles Lernen überschreibt die erste
+Beziehung kausal. Engere lokale Fenster reduzieren die Vermischung, genügen
+aber noch nicht für gleichzeitiges Mehrfachlernen.
 
 EVE ist damit weder eine fertige allgemeine Intelligenz noch ein Nachweis, dass
 eigenständige Intelligenz bereits entstanden ist. Der Prototyp dient dazu,
@@ -67,6 +73,7 @@ deaktiviert, damit beobachtete Effekte eindeutig zugeordnet werden können.
 | B.4 | erste rückmeldungsabhängige Plastizität | abgeschlossen, Lernkriterium verfehlt |
 | B.4.1 | methodische Validierung des Lernversuchs | abgeschlossen, kausale Wirkung ja, Lernen nein |
 | B.4.2 | Erhalt angeborener Exploration | abgeschlossen, Einzelreiz-Lernen ja, Zwei-Reiz-Lernen nein |
+| B.4.3 | lokale Trennung konkurrierender Erfahrungen | abgeschlossen, Interferenz kausal, Mehrfachlernen nein |
 
 Ausführliche Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen unter
 [`docs/experimente`](docs/experimente/). Die zugehörigen maschinenlesbaren
@@ -147,8 +154,8 @@ Eingabestrom deterministisch.
 
 - [Projektkonzept](docs/konzept/EVE-Konzept.md)
 - [Stammhirnkonzept](docs/konzept/EVE-Stammhirnkonzept.md)
-- [Bericht zur Forschungsstufe B.4.2](docs/experimente/014-forschungsbericht-forschungsstufe-b42.md)
-- [Entscheidung zum begrenzten Lernnachweis](docs/entscheidungen/0014-begrenztes-einzelreiz-lernen-nach-b42.md)
+- [Bericht zur Forschungsstufe B.4.3](docs/experimente/015-forschungsbericht-forschungsstufe-b43.md)
+- [Entscheidung nach B.4.3](docs/entscheidungen/0015-keine-freigabe-mehrfachlernen-nach-b43.md)
 - [Forschungsfragen](docs/FORSCHUNGSFRAGEN.md)
 - [Glossar](docs/GLOSSAR.md)
 - [Hinweise für Beiträge](CONTRIBUTING.md)

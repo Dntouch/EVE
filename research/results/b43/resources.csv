@@ -1,0 +1,6 @@
+neurons,synapses,estimated_bytes,bytes_per_neuron,bytes_per_synapse,eligibility_entry_bytes,active_traces,scheduled_expiries,kind
+64,23,45840,716,1993,64,0,0,measured
+256,1072,230832,901,215,64,0,0,measured
+10000,0,9010000,901,0,64,0,0,linear_projection_from_256
+100000,0,90100000,901,0,64,0,0,linear_projection_from_256
+1000000,0,901000000,901,0,64,0,0,linear_projection_from_256

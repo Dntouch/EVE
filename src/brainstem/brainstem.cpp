@@ -272,7 +272,10 @@ ImpulseResult Brainstem::receive_impulse(
     if (neuron.input_event_count >= config.activity_phase_limit) {
         result.phase_completed = true;
         neuron.input_event_count = 0;
-        network.reset_incoming_activity(synapse.receiver);
+        if (!(result.fired && config.eligibility_selection ==
+                                EligibilitySelection::active_phase)) {
+            network.reset_incoming_activity(synapse.receiver);
+        }
     }
     result.membrane_after = neuron.membrane_potential;
     return result;
@@ -334,6 +337,10 @@ EligibilityResult Brainstem::create_eligibility(
         const auto& synapse = network.synapse(candidate);
         if (config.eligibility_selection == EligibilitySelection::positive_weight &&
             synapse.weight <= 0) {
+            continue;
+        }
+        if (config.eligibility_selection == EligibilitySelection::active_phase &&
+            synapse.activity_count == 0) {
             continue;
         }
         if (config.eligibility_representation == EligibilityRepresentation::unique &&

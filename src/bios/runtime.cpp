@@ -177,7 +177,7 @@ ExperimentConfig read_config(std::istream& stream, const std::uint32_t version) 
         const std::uint8_t selection = read_u8(stream);
         const std::uint8_t representation = read_u8(stream);
         const std::uint8_t history = read_u8(stream);
-        if (selection > static_cast<std::uint8_t>(EligibilitySelection::positive_weight) ||
+        if (selection > static_cast<std::uint8_t>(EligibilitySelection::active_phase) ||
             representation > static_cast<std::uint8_t>(EligibilityRepresentation::unique) ||
             history > static_cast<std::uint8_t>(EligibilityHistory::merge_unique)) {
             throw std::runtime_error("invalid eligibility configuration in EVE state");
@@ -1759,7 +1759,7 @@ void Runtime::validate_config() const {
         throw std::invalid_argument("membrane relaxation must be between 0 and 100 percent");
     }
     if (static_cast<std::uint8_t>(config_.eligibility_selection) >
-            static_cast<std::uint8_t>(EligibilitySelection::positive_weight) ||
+            static_cast<std::uint8_t>(EligibilitySelection::active_phase) ||
         static_cast<std::uint8_t>(config_.eligibility_representation) >
             static_cast<std::uint8_t>(EligibilityRepresentation::unique) ||
         static_cast<std::uint8_t>(config_.eligibility_history) >
@@ -2180,6 +2180,11 @@ void Runtime::process_impulse(
     }
     if (result.phase_completed) {
         ++metrics_.completed_activity_phases;
+    }
+    if (result.fired && config_.eligibility_selection ==
+                            EligibilitySelection::active_phase) {
+        // Delimit the next postsynaptic decision locally.  G3 stays intact.
+        network_.reset_incoming_activity(before.receiver);
     }
 
     if (trace_stream_ != nullptr) {

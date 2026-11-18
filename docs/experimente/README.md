@@ -26,9 +26,15 @@ angepasst werden.
 - [Bericht B.4.1](013-forschungsbericht-forschungsstufe-b41.md)
 - [Auftrag B.4.2](014-entwicklungsauftrag-forschungsstufe-b42.md)
 - [Bericht B.4.2](014-forschungsbericht-forschungsstufe-b42.md)
+- [Auftrag B.4.3](015-entwicklungsauftrag-forschungsstufe-b43.md)
+- [Technische Analyse B.4.3](015-technische-analyse-g3-eligibility.md)
+- [Bericht B.4.3](015-forschungsbericht-forschungsstufe-b43.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
 Zufallsquellen, Exploration und motorische Kausalität des Versuchsaufbaus.
 B.4.2 erhält angeborene Exploration allgemein und weist dadurch begrenztes
 Einzelreiz- und Umkehrlernen nach; die Zwei-Reiz-Aufgabe bleibt offen.
+B.4.3 weist die lokale Kandidatenvermischung und das synaptische Überschreiben
+kausal nach. Kein untersuchtes lokales Fenster erreicht gleichzeitiges
+Mehrfachlernen; die allgemeine Freigabe bleibt deshalb gesperrt.

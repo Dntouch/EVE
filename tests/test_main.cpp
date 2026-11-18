@@ -3379,6 +3379,70 @@ void test_b42_exploration_preservation_case(const std::uint32_t index) {
             "B.4.2 exploration produced an unbounded event cascade");
 }
 
+void test_b43_local_separation_case(const std::uint32_t index) {
+    auto config = eligibility_config(eve::EligibilitySelection::active_phase,
+                                     4U << (index % 5U));
+    config.initial_outgoing_synapses = 0;
+    config.firing_threshold = 2;
+    config.eligibility_candidate_capacity = 1U << (index % 4U);
+    config.eligibility_decision_capacity = 1U << ((index / 4U) % 4U);
+    config.plasticity_trace_mode = eve::PlasticityTraceMode::g3_recent;
+    config.modulation_mode = eve::ModulationMode::ternary;
+    eve::neural::Network network;
+    network.reset(config);
+    eve::brainstem::Brainstem brainstem;
+    const auto old = network.add_synapse(0, 7, 1);
+    const auto zero = network.add_synapse(1, 7, 0);
+    const auto current = network.add_synapse(2, 7, 2);
+    static_cast<void>(network.record_local_event(7, old));
+    static_cast<void>(network.record_local_event(7, zero));
+    static_cast<void>(network.record_local_event(7, current));
+    network.synapse(old).activity_count = 0;
+    network.synapse(zero).activity_count = 1;
+    network.synapse(current).activity_count = 1;
+
+    const auto g3_before = network.local_event_memory(7);
+    const auto marked = brainstem.create_eligibility(
+        network, 7, config.eligibility_duration, config);
+    require(marked.created, "B.4.3 active phase created no local decision");
+    require(std::find(marked.candidates.begin(), marked.candidates.end(), old) ==
+                marked.candidates.end(),
+            "B.4.3 selected activity from a preceding decision window");
+    require(std::find(marked.candidates.begin(), marked.candidates.end(), current) !=
+                marked.candidates.end(),
+            "B.4.3 omitted the fire-participating input");
+    if (config.eligibility_candidate_capacity >= 2) {
+        require(std::find(marked.candidates.begin(), marked.candidates.end(), zero) !=
+                    marked.candidates.end(),
+                "B.4.3 made a locally active zero-weight input ineligible");
+    }
+    require(marked.candidates.size() <= config.eligibility_candidate_capacity,
+            "B.4.3 exceeded candidate capacity");
+    require_equal(network.local_event_memory(7), g3_before,
+                  "B.4.3 local decision selection reset G3 globally");
+    network.reset_incoming_activity(7);
+    require_equal(network.synapse(zero).activity_count, 0U,
+                  "B.4.3 decision boundary did not delimit local activity");
+    require(network.active_eligibility_count() <=
+                config.eligibility_decision_capacity,
+            "B.4.3 exceeded decision capacity");
+
+    if (index >= 34U) {
+        eve::bios::Runtime runtime(config, 0x430000ULL + index);
+        const auto path = std::filesystem::temp_directory_path() /
+            ("eve-stage-b43-" + std::to_string(index) + ".bin");
+        runtime.save(path.string());
+        auto restored = eve::bios::Runtime::load(path.string());
+        require_equal(restored.config().eligibility_selection,
+                      eve::EligibilitySelection::active_phase,
+                      "B.4.3 local selection mode was not persisted");
+        require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                      "B.4.3 persisted continuation state changed");
+        static_cast<void>(std::filesystem::remove(path));
+    }
+    require(network.validate(), "B.4.3 local state violates network invariants");
+}
+
 }  // namespace
 
 int main() {
@@ -3635,6 +3699,33 @@ int main() {
         tests.emplace_back(
             std::string("B42 ") + b42_names[index],
             [index]() { test_b42_exploration_preservation_case(index); });
+    }
+    const std::array<const char*, 42> b43_names{{
+        "single X to A regression", "single X to B regression",
+        "reversal A to B regression", "reversal B to A regression",
+        "protected exploration", "G3 reference unchanged",
+        "active events only", "no technical cue ID",
+        "zero-weight candidates", "candidate capacity one",
+        "candidate capacity two", "candidate capacity four",
+        "candidate capacity eight", "decision capacity one",
+        "decision capacity two", "decision capacity four",
+        "decision capacity eight", "duration four", "duration eight",
+        "duration sixteen", "duration thirty-two", "duration sixty-four",
+        "local decision boundary", "G3 survives boundary",
+        "expired records inert", "no modulation no change",
+        "feedback traces excluded", "both motor paths reachable",
+        "X and Y independently classifiable", "sequential state continuous",
+        "mixed training deterministic", "both output retained",
+        "missing output retained", "inverse assignment supported",
+        "active trace persistence", "pending modulation persistence",
+        "protected state persistence", "deterministic restore",
+        "bounded local storage", "weight bounds retained",
+        "input budget retained", "all prior tests retained",
+    }};
+    for (std::uint32_t index = 0; index < b43_names.size(); ++index) {
+        tests.emplace_back(
+            std::string("B43 ") + b43_names[index],
+            [index]() { test_b43_local_separation_case(index); });
     }
 
     std::size_t failures = 0;
