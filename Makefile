@@ -15,7 +15,8 @@ CORE_OBJECTS := $(CORE_SOURCES:%.cpp=$(BUILD_DIR)/%.o)
 all: $(BUILD_DIR)/eve_experiment $(BUILD_DIR)/eve_sequence_experiment \
 	$(BUILD_DIR)/eve_performance_benchmark $(BUILD_DIR)/eve_research_002 \
 	$(BUILD_DIR)/eve_experiment_002 $(BUILD_DIR)/eve_experiment_003 \
-	$(BUILD_DIR)/eve_experiment_003_benchmark $(BUILD_DIR)/eve_research_stage_a
+	$(BUILD_DIR)/eve_experiment_003_benchmark $(BUILD_DIR)/eve_research_stage_a \
+	$(BUILD_DIR)/eve_research_stage_a1
 
 test: $(BUILD_DIR)/eve_tests
 	$(BUILD_DIR)/eve_tests
@@ -46,6 +47,10 @@ $(BUILD_DIR)/eve_research_stage_a: $(CORE_OBJECTS) \
 		$(BUILD_DIR)/src/research_stage_a.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
+$(BUILD_DIR)/eve_research_stage_a1: $(CORE_OBJECTS) \
+		$(BUILD_DIR)/src/research_stage_a1.o
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
 $(BUILD_DIR)/eve_tests: $(CORE_OBJECTS) $(BUILD_DIR)/tests/test_main.o
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
@@ -58,7 +63,8 @@ clean:
 		$(BUILD_DIR)/eve_sequence_experiment $(BUILD_DIR)/eve_performance_benchmark \
 		$(BUILD_DIR)/eve_research_002 $(BUILD_DIR)/eve_experiment_002 \
 		$(BUILD_DIR)/eve_experiment_003 $(BUILD_DIR)/eve_experiment_003_benchmark \
-		$(BUILD_DIR)/eve_research_stage_a $(BUILD_DIR)/eve_tests
+		$(BUILD_DIR)/eve_research_stage_a $(BUILD_DIR)/eve_research_stage_a1 \
+		$(BUILD_DIR)/eve_tests
 
 -include $(CORE_OBJECTS:.o=.d)
 -include $(BUILD_DIR)/src/main.d
@@ -69,4 +75,5 @@ clean:
 -include $(BUILD_DIR)/src/experiment_003.d
 -include $(BUILD_DIR)/src/experiment_003_benchmark.d
 -include $(BUILD_DIR)/src/research_stage_a.d
+-include $(BUILD_DIR)/src/research_stage_a1.d
 -include $(BUILD_DIR)/tests/test_main.d

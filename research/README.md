@@ -105,3 +105,25 @@ Der Runner erzeugt:
 
 Die Laufzeitspalte ist maschinenabhängig. Zuordnung, Zustände, Ereigniszähler
 und neuronale Ausgaben sind bei identischem Build deterministisch.
+
+## Forschungsstufe A.1 – sensomotorische Grundlage
+
+Build, alle Kerntests und die vollständige Matrix aus vier Phasen,
+Integrationsstufen und Abschaltkontrollen:
+
+~~~sh
+scripts/run_research_stage_a1.sh research/results
+~~~
+
+Der Runner verwendet alle sechs festgelegten Seeds und erzeugt:
+
+- `research-stage-a1-parameters.csv`: 28 vollständig dokumentierte
+  Konfigurationen,
+- `research-stage-a1-paths.csv`: angeborene Pfade der Varianten V1 bis V3,
+- `research-stage-a1-results.csv`: 168 Einzelmessungen.
+
+Laufzeit und Durchsatz sind maschinenabhängig. Pfade, Aktivierungen, Antworten,
+Ereigniszähler und Zustandsfingerabdrücke sind bei identischem Build
+deterministisch. Vorhandene Forschungsdaten werden nicht überschrieben; der
+A.1-Runner schreibt ausschließlich Dateien mit dem Präfix
+`research-stage-a1-`.

@@ -46,15 +46,17 @@ void MotorOutput::configure(
         throw std::invalid_argument(
             "response stimulus must be independent of the eight sensory channels");
     }
+    if (config.first_motor_neuron <= config.response_stimulus_neuron ||
+        config.first_motor_neuron >= neuron_count) {
+        throw std::invalid_argument("first motor neuron must follow sensory control channels");
+    }
 
     const std::uint64_t required =
         static_cast<std::uint64_t>(config.contacts_per_channel) * 8U + 1U;
     std::vector<NeuronId> candidates;
     candidates.reserve(neuron_count);
-    for (NeuronId neuron = 8; neuron < neuron_count; ++neuron) {
-        if (neuron != config.response_stimulus_neuron) {
-            candidates.push_back(neuron);
-        }
+    for (NeuronId neuron = config.first_motor_neuron; neuron < neuron_count; ++neuron) {
+        candidates.push_back(neuron);
     }
     if (required > candidates.size()) {
         throw std::invalid_argument("network is too small for non-overlapping motor contacts");
@@ -466,6 +468,49 @@ InnateWiringResult Brainstem::create_innate_wiring(
         ++result.structurally_reachable_motor_contacts;
         result.maximum_shortest_path =
             std::max(result.maximum_shortest_path, distance[target]);
+    }
+    return result;
+}
+
+MotorReachability Brainstem::analyze_motor_reachability(
+    const neural::Network& network,
+    const MotorAssignment& motor_assignment) const {
+    const auto unreachable = std::numeric_limits<std::uint32_t>::max();
+    std::vector<std::uint32_t> distance(network.neuron_count(), unreachable);
+    std::queue<NeuronId> pending;
+    for (NeuronId source = 0; source < 8; ++source) {
+        distance[source] = 0;
+        pending.push(source);
+    }
+    const NeuronId response_source = motor_assignment.config.response_stimulus_neuron;
+    distance[response_source] = 0;
+    pending.push(response_source);
+    while (!pending.empty()) {
+        const NeuronId sender = pending.front();
+        pending.pop();
+        for (const SynapseId synapse : network.outgoing_synapses(sender)) {
+            const NeuronId receiver = network.synapse(synapse).receiver;
+            if (distance[receiver] != unreachable) {
+                continue;
+            }
+            distance[receiver] = distance[sender] + 1U;
+            pending.push(receiver);
+        }
+    }
+
+    MotorReachability result;
+    for (const auto& channel : motor_assignment.channels) {
+        for (const NeuronId target : channel) {
+            result.shortest_paths.push_back(distance[target]);
+        }
+    }
+    result.shortest_paths.push_back(distance[motor_assignment.completion_contact]);
+    for (const std::uint32_t path : result.shortest_paths) {
+        if (path == unreachable) {
+            continue;
+        }
+        ++result.reachable_contacts;
+        result.maximum_shortest_path = std::max(result.maximum_shortest_path, path);
     }
     return result;
 }

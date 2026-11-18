@@ -57,11 +57,13 @@ eve::ExperimentConfig motor_test_config() {
 
 eve::brainstem::MotorOutputConfig motor_output_config(
     const std::uint32_t contacts = 1,
-    const std::uint64_t seed = 20261118) {
+    const std::uint64_t seed = 20261118,
+    const eve::NeuronId first_motor_neuron = 9) {
     eve::brainstem::MotorOutputConfig config;
     config.contacts_per_channel = contacts;
     config.assignment_seed = seed;
     config.response_stimulus_neuron = 8;
+    config.first_motor_neuron = first_motor_neuron;
     return config;
 }
 
@@ -689,6 +691,9 @@ void test_innate_wiring_counts_and_reachability() {
                   "not all M1 motor contacts are structurally reachable");
     require_equal(result.maximum_shortest_path, 3U, "innate path length differs from three");
     require(runtime.network().validate(), "innate wiring violates network invariants");
+    const auto analyzed = runtime.motor_reachability();
+    require_equal(analyzed.reachable_contacts, 9U,
+                  "independent reachability analysis disagrees");
 }
 
 void test_structural_zero_weight_path_does_not_transmit() {
@@ -975,6 +980,208 @@ void test_disabled_motor_circuit_preserves_reference() {
                   "disabled motor circuit changed reference state");
 }
 
+eve::brainstem::FeedbackConfig feedback_config(
+    const eve::brainstem::FeedbackMode mode,
+    const std::uint64_t budget = 1000,
+    const std::uint8_t environment = 0) {
+    eve::brainstem::FeedbackConfig config;
+    config.mode = mode;
+    config.first_feedback_neuron = 9;
+    config.event_budget = budget;
+    config.environment_state = environment;
+    return config;
+}
+
+eve::brainstem::MotorResponse completed_test_response(
+    eve::bios::Runtime& runtime,
+    const std::vector<std::size_t>& channels) {
+    static_cast<void>(runtime.configure_motor_circuit(motor_circuit_config(
+        eve::brainstem::MotorCircuitMode::direct_completion_path, 3, 3)));
+    for (const std::size_t channel : channels) {
+        runtime.enqueue_fire(runtime.motor_assignment().channels[channel][0]);
+    }
+    return runtime.request_response(false);
+}
+
+void test_feedback_after_completed_motor_response() {
+    eve::bios::Runtime runtime(motor_test_config(), 35);
+    runtime.configure_motor_output(motor_output_config(1, 100, 18));
+    const auto response = completed_test_response(runtime, {0, 2});
+    require(response.valid(), "feedback test response did not complete");
+    static_cast<void>(runtime.run());
+    const auto feedback = runtime.process_motor_feedback(
+        response, feedback_config(eve::brainstem::FeedbackMode::after_completion));
+    require_equal(feedback.sensory_events.size(), std::size_t{3},
+                  "feedback did not encode two bits plus marker");
+    require_equal(feedback.sensory_events[0].sensory_neuron, 9U,
+                  "motor bit zero mapped to wrong feedback neuron");
+    require_equal(feedback.sensory_events[1].sensory_neuron, 11U,
+                  "motor bit two mapped to wrong feedback neuron");
+    require_equal(feedback.sensory_events[2].sensory_neuron, 17U,
+                  "feedback marker mapped to wrong neuron");
+    require_equal(feedback.processed_events, 3ULL,
+                  "feedback processing did not use regular fire events");
+}
+
+void test_feedback_requires_observed_activity() {
+    eve::bios::Runtime runtime(motor_test_config(), 36);
+    runtime.configure_motor_output(motor_output_config(1, 100, 18));
+    const auto missing = runtime.request_response(false);
+    const auto feedback = runtime.process_motor_feedback(
+        missing, feedback_config(eve::brainstem::FeedbackMode::after_completion));
+    require(feedback.sensory_events.empty(),
+            "missing motor response produced sensory feedback");
+    require_equal(feedback.processed_events, 0ULL,
+                  "missing response processed feedback events");
+}
+
+void test_per_motor_event_feedback_preserves_sequence() {
+    eve::bios::Runtime runtime(motor_test_config(), 37);
+    runtime.configure_motor_output(motor_output_config(1, 100, 18));
+    runtime.enqueue_fire(runtime.motor_assignment().channels[3][0]);
+    runtime.enqueue_fire(runtime.motor_assignment().channels[3][0]);
+    const auto incomplete = runtime.request_response(false);
+    const auto feedback = runtime.process_motor_feedback(
+        incomplete, feedback_config(eve::brainstem::FeedbackMode::per_motor_event));
+    require_equal(feedback.sensory_events.size(), std::size_t{2},
+                  "per-event feedback lost repeated motor activation");
+    require_equal(feedback.sensory_events[0].sensory_neuron, 12U,
+                  "per-event feedback mapped wrong channel");
+    require_equal(feedback.sensory_events[1].sensory_neuron, 12U,
+                  "per-event feedback changed repeated channel");
+}
+
+void test_virtual_environment_feedback_is_distinct() {
+    eve::bios::Runtime runtime(motor_test_config(), 38);
+    runtime.configure_motor_output(motor_output_config(1, 100, 18));
+    const auto response = completed_test_response(runtime, {0, 2});
+    const auto feedback = runtime.process_motor_feedback(
+        response,
+        feedback_config(eve::brainstem::FeedbackMode::virtual_environment, 1000, 0x80));
+    require_equal(feedback.environment_before, std::uint8_t{0x80},
+                  "virtual environment lost prior state");
+    require_equal(feedback.environment_after, std::uint8_t{0x04},
+                  "virtual environment transition is wrong");
+    require_equal(feedback.mode, eve::brainstem::FeedbackMode::virtual_environment,
+                  "environment feedback is not distinguishable from self-feedback");
+}
+
+void test_feedback_event_budget_aborts_cascade() {
+    eve::bios::Runtime runtime(motor_test_config(), 39);
+    runtime.configure_motor_output(motor_output_config(1, 100, 18));
+    const auto response = completed_test_response(runtime, {0, 1});
+    const auto feedback = runtime.process_motor_feedback(
+        response, feedback_config(eve::brainstem::FeedbackMode::after_completion, 1));
+    require(feedback.aborted, "feedback ignored event budget");
+    require_equal(feedback.processed_events, 1ULL,
+                  "feedback processed beyond event budget");
+}
+
+void test_feedback_rejects_motor_channel_overlap() {
+    eve::bios::Runtime runtime(motor_test_config(), 40);
+    runtime.configure_motor_output(motor_output_config());
+    eve::brainstem::MotorResponse response;
+    response.status = eve::brainstem::MotorResponseStatus::completed;
+    const eve::NeuronId contact = runtime.motor_assignment().channels[0][0];
+    auto overlapping = feedback_config(eve::brainstem::FeedbackMode::after_completion);
+    overlapping.first_feedback_neuron = contact <= 247 ? contact : contact - 8;
+    bool rejected = false;
+    try {
+        static_cast<void>(runtime.process_motor_feedback(
+            response, overlapping));
+    } catch (const std::invalid_argument&) {
+        rejected = true;
+    }
+    require(rejected, "overlapping feedback and motor channels were accepted");
+}
+
+void test_disabled_feedback_preserves_reference() {
+    eve::bios::Runtime runtime(motor_test_config(), 41);
+    runtime.configure_motor_output(motor_output_config(1, 100, 18));
+    const auto fingerprint = runtime.state_fingerprint();
+    eve::brainstem::MotorResponse response;
+    static_cast<void>(runtime.process_motor_feedback(
+        response, feedback_config(eve::brainstem::FeedbackMode::none)));
+    require_equal(runtime.state_fingerprint(), fingerprint,
+                  "disabled feedback changed runtime state");
+}
+
+void test_integrated_sensorimotor_cycle() {
+    eve::bios::Runtime runtime(motor_test_config(), 42);
+    runtime.configure_motor_output(motor_output_config(1, 100, 18));
+    static_cast<void>(runtime.configure_innate_wiring(innate_config(
+        eve::brainstem::InnateTopology::functional_paths, 3)));
+    static_cast<void>(runtime.configure_motor_circuit(motor_circuit_config(
+        eve::brainstem::MotorCircuitMode::direct_completion_path, 3, 3)));
+
+    eve::brainstem::ExplorationConfig exploration = exploration_config(
+        eve::brainstem::ExplorationMode::localized, 1, 999);
+    const eve::NeuronId motor_neuron = runtime.motor_assignment().channels[5][0];
+    exploration.center = runtime.network().coordinate(motor_neuron);
+    exploration.radius = 0;
+    static_cast<void>(runtime.enqueue_exploration(exploration));
+    const auto response = runtime.request_response(false);
+    require(response.valid(), "integrated exploration did not complete motor response");
+    require_equal(response.value, std::uint8_t{0x20},
+                  "integrated motor response has wrong value");
+    const auto feedback = runtime.process_motor_feedback(
+        response, feedback_config(eve::brainstem::FeedbackMode::after_completion));
+    require_equal(feedback.sensory_events.size(), std::size_t{2},
+                  "integrated response did not return bit plus marker");
+    require(!feedback.aborted, "integrated sensorimotor feedback aborted");
+}
+
+void test_integrated_sensorimotor_state_restore() {
+    const std::filesystem::path path =
+        std::filesystem::temp_directory_path() / "eve-stage-a1-test-state.bin";
+    eve::bios::Runtime original(motor_test_config(), 84);
+    const auto output_config = motor_output_config(1, 200, 18);
+    original.configure_motor_output(output_config);
+    static_cast<void>(original.configure_innate_wiring(innate_config(
+        eve::brainstem::InnateTopology::functional_paths, 3)));
+    static_cast<void>(original.configure_motor_circuit(motor_circuit_config(
+        eve::brainstem::MotorCircuitMode::direct_completion_path, 3, 3)));
+    original.save(path.string());
+
+    eve::bios::Runtime restored = eve::bios::Runtime::load(path.string());
+    restored.configure_motor_output(output_config);
+    require_equal(original.network().synapses(), restored.network().synapses(),
+                  "A.1 innate and motor synapses were not restored");
+
+    const auto execute_cycle = [](eve::bios::Runtime& runtime) {
+        eve::brainstem::ExplorationConfig exploration = exploration_config(
+            eve::brainstem::ExplorationMode::localized, 1, 1234);
+        exploration.center = runtime.network().coordinate(
+            runtime.motor_assignment().channels[3][0]);
+        exploration.radius = 0;
+        static_cast<void>(runtime.enqueue_exploration(exploration));
+        const auto response = runtime.request_response(false);
+        const auto feedback = runtime.process_motor_feedback(
+            response, feedback_config(eve::brainstem::FeedbackMode::after_completion));
+        std::vector<std::pair<std::int8_t, eve::NeuronId>> sensory_events;
+        for (const auto& event : feedback.sensory_events) {
+            sensory_events.emplace_back(event.motor_channel, event.sensory_neuron);
+        }
+        return std::make_pair(response, sensory_events);
+    };
+    const auto original_result = execute_cycle(original);
+    const auto restored_result = execute_cycle(restored);
+    require_equal(original_result.first.status, restored_result.first.status,
+                  "response status diverged after state restore");
+    require_equal(original_result.first.value, restored_result.first.value,
+                  "response value diverged after state restore");
+    require_equal(original_result.first.activated_channels,
+                  restored_result.first.activated_channels,
+                  "motor channels diverged after state restore");
+    require_equal(original_result.first.activations, restored_result.first.activations,
+                  "motor sequence diverged after state restore");
+    require_equal(original_result.second, restored_result.second,
+                  "feedback sequence diverged after state restore");
+    require_equal(original.state_fingerprint(), restored.state_fingerprint(),
+                  "sensorimotor state diverged after continued execution");
+    static_cast<void>(std::filesystem::remove(path));
+}
+
 }  // namespace
 
 int main() {
@@ -1032,6 +1239,15 @@ int main() {
         {"motor circuit reproducibility", test_motor_circuit_is_reproducible},
         {"motor circuit no sensor copy", test_motor_circuit_does_not_copy_sensory_input},
         {"disabled motor circuit", test_disabled_motor_circuit_preserves_reference},
+        {"feedback after completion", test_feedback_after_completed_motor_response},
+        {"feedback requires activity", test_feedback_requires_observed_activity},
+        {"per-event feedback", test_per_motor_event_feedback_preserves_sequence},
+        {"virtual environment feedback", test_virtual_environment_feedback_is_distinct},
+        {"feedback event budget", test_feedback_event_budget_aborts_cascade},
+        {"feedback channel separation", test_feedback_rejects_motor_channel_overlap},
+        {"disabled feedback", test_disabled_feedback_preserves_reference},
+        {"integrated sensorimotor cycle", test_integrated_sensorimotor_cycle},
+        {"integrated sensorimotor restore", test_integrated_sensorimotor_state_restore},
     };
 
     std::size_t failures = 0;

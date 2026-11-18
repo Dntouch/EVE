@@ -42,6 +42,9 @@ target_link_libraries(eve_experiment_003_benchmark PRIVATE eve_core)
 add_executable(eve_research_stage_a src/research_stage_a.cpp)
 target_link_libraries(eve_research_stage_a PRIVATE eve_core)
 
+add_executable(eve_research_stage_a1 src/research_stage_a1.cpp)
+target_link_libraries(eve_research_stage_a1 PRIVATE eve_core)
+
 include(CTest)
 if(BUILD_TESTING)
     add_executable(eve_tests tests/test_main.cpp)

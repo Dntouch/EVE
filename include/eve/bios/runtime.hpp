@@ -79,10 +79,14 @@ public:
     [[nodiscard]] const brainstem::MotorAssignment& motor_assignment() const;
     [[nodiscard]] brainstem::InnateWiringResult configure_innate_wiring(
         const brainstem::InnateWiringConfig& config);
+    [[nodiscard]] brainstem::MotorReachability motor_reachability() const;
     [[nodiscard]] brainstem::ExplorationResult enqueue_exploration(
         const brainstem::ExplorationConfig& config);
     [[nodiscard]] brainstem::MotorCircuitResult configure_motor_circuit(
         const brainstem::MotorCircuitConfig& config);
+    [[nodiscard]] brainstem::FeedbackResult process_motor_feedback(
+        const brainstem::MotorResponse& response,
+        const brainstem::FeedbackConfig& config);
 
     void set_trace_stream(std::ostream* stream) noexcept;
     void set_fire_observer(FireObserver observer);

@@ -564,6 +564,20 @@ Umsetzung und Ergebnisse:
 - [Entwicklungsauftrag](../experimente/004-entwicklungsauftrag-forschungsstufe-a.md)
 - [Forschungsbericht](../experimente/004-forschungsbericht-forschungsstufe-a.md)
 
+### Forschungsstufe A.1 – Angeborene sensomotorische Grundlage
+
+Zwischen A und der lokalen Ereigniszuordnung werden angeborene funktionale
+Pfade, begrenzte neuronale Exploration, motorische Abschlussgruppen und die
+sensorische Wahrnehmung eigener Motorereignisse getrennt untersucht. Diese
+Mechanismen stellen Wahrnehmung, Aktivität, Handlung und Rückmeldung technisch
+bereit, führen aber weder Zielbewertung noch eine neue Lernregel ein.
+
+Umsetzung und Ergebnisse:
+
+- [Entwicklungsauftrag](../experimente/005-entwicklungsauftrag-forschungsstufe-a1.md)
+- [Forschungsbericht](../experimente/005-forschungsbericht-forschungsstufe-a1.md)
+- [Entscheidungsvorlage](../entscheidungen/0005-vorlage-stammhirnentwicklung-nach-a1.md)
+
 ### Forschungsstufe B – Lokale Ereigniszuordnung
 
 Untersuchen, wie ein Neuron vorausgegangene Eingangsaktivität berücksichtigen kann, ohne Zeitstempel oder globale Aktualisierungen.

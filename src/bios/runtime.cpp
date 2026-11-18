@@ -381,6 +381,14 @@ brainstem::InnateWiringResult Runtime::configure_innate_wiring(
         network_, motor_output_.assignment(), config);
 }
 
+brainstem::MotorReachability Runtime::motor_reachability() const {
+    if (!motor_output_.configured()) {
+        throw std::logic_error("motor output must be configured before reachability analysis");
+    }
+    return brainstem_.analyze_motor_reachability(
+        network_, motor_output_.assignment());
+}
+
 brainstem::ExplorationResult Runtime::enqueue_exploration(
     const brainstem::ExplorationConfig& config) {
     brainstem::ExplorationResult result =
@@ -403,6 +411,108 @@ brainstem::MotorCircuitResult Runtime::configure_motor_circuit(
     }
     return brainstem_.create_motor_circuit(
         network_, motor_output_.assignment(), config);
+}
+
+brainstem::FeedbackResult Runtime::process_motor_feedback(
+    const brainstem::MotorResponse& response,
+    const brainstem::FeedbackConfig& config) {
+    brainstem::FeedbackResult result;
+    result.mode = config.mode;
+    result.observed_motor_value = response.value;
+    result.environment_before = config.environment_state;
+    result.environment_after = config.environment_state;
+    if (config.mode == brainstem::FeedbackMode::none) {
+        return result;
+    }
+    if (!motor_output_.configured()) {
+        throw std::logic_error("motor output must be configured before feedback");
+    }
+    if (config.event_budget == 0 || config.first_feedback_neuron < 9 ||
+        static_cast<std::uint64_t>(config.first_feedback_neuron) + 8U >=
+            network_.neuron_count()) {
+        throw std::invalid_argument("invalid sensorimotor feedback configuration");
+    }
+
+    std::vector<bool> motor_contact(network_.neuron_count(), false);
+    for (const auto& channel : motor_output_.assignment().channels) {
+        for (const NeuronId neuron : channel) {
+            motor_contact[neuron] = true;
+        }
+    }
+    motor_contact[motor_output_.assignment().completion_contact] = true;
+    for (NeuronId offset = 0; offset < 9; ++offset) {
+        const NeuronId neuron = config.first_feedback_neuron + offset;
+        if (neuron == motor_output_.assignment().config.response_stimulus_neuron ||
+            motor_contact[neuron]) {
+            throw std::invalid_argument("feedback channels overlap motor or control contacts");
+        }
+    }
+
+    const auto enqueue_feedback = [this, &result, &config](
+                                      const std::int8_t source_channel,
+                                      const NeuronId offset) {
+        const NeuronId sensory_neuron = config.first_feedback_neuron + offset;
+        result.sensory_events.push_back(
+            brainstem::FeedbackEvent{source_channel, sensory_neuron});
+        enqueue_fire(sensory_neuron);
+    };
+    const auto enqueue_value = [&enqueue_feedback](const std::uint8_t value) {
+        for (std::uint32_t bit = 0; bit < 8; ++bit) {
+            if ((value & static_cast<std::uint8_t>(1U << bit)) != 0) {
+                enqueue_feedback(static_cast<std::int8_t>(bit), bit);
+            }
+        }
+        enqueue_feedback(-1, 8);
+    };
+    const auto process_pending = [this, &result, &config]() {
+        while (!queue_.empty()) {
+            if (result.processed_events >= config.event_budget) {
+                result.aborted = true;
+                return false;
+            }
+            const Event event = queue_.front();
+            queue_.pop_front();
+            ++result.processed_events;
+            ++metrics_.processed_events;
+            update_event_hash(event);
+            if (event.kind == EventKind::fire) {
+                process_fire(event.target);
+            } else if (event.kind == EventKind::impulse) {
+                process_impulse(event.target);
+            } else {
+                throw std::logic_error("unknown event kind");
+            }
+        }
+        return true;
+    };
+
+    if (config.mode == brainstem::FeedbackMode::per_motor_event) {
+        for (const brainstem::MotorActivation& activation : response.activations) {
+            if (activation.channel < 0) {
+                continue;
+            }
+            enqueue_feedback(
+                activation.channel, static_cast<NeuronId>(activation.channel));
+            if (!process_pending()) {
+                break;
+            }
+        }
+        return result;
+    }
+
+    if (!response.valid()) {
+        return result;
+    }
+    if (config.mode == brainstem::FeedbackMode::virtual_environment) {
+        const std::uint8_t rotated = static_cast<std::uint8_t>(
+            (config.environment_state << 1U) | (config.environment_state >> 7U));
+        result.environment_after = rotated ^ response.value;
+        enqueue_value(result.environment_after);
+    } else {
+        enqueue_value(response.value);
+    }
+    static_cast<void>(process_pending());
+    return result;
 }
 
 void Runtime::set_trace_stream(std::ostream* stream) noexcept {

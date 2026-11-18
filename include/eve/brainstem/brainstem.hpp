@@ -82,6 +82,12 @@ struct InnateWiringResult {
     std::uint32_t maximum_shortest_path{};
 };
 
+struct MotorReachability {
+    std::vector<std::uint32_t> shortest_paths;
+    std::uint32_t reachable_contacts{};
+    std::uint32_t maximum_shortest_path{};
+};
+
 enum class ExplorationMode : std::uint8_t {
     none = 0,
     single = 1,
@@ -126,15 +132,46 @@ struct MotorCircuitResult {
     std::uint32_t adjusted_existing_synapses{};
 };
 
+enum class FeedbackMode : std::uint8_t {
+    none = 0,
+    after_completion = 1,
+    per_motor_event = 2,
+    virtual_environment = 3,
+};
+
+struct FeedbackConfig {
+    FeedbackMode mode{FeedbackMode::none};
+    NeuronId first_feedback_neuron{9};
+    std::uint64_t event_budget{100'000};
+    std::uint8_t environment_state{};
+};
+
+struct FeedbackEvent {
+    std::int8_t motor_channel{-1};
+    NeuronId sensory_neuron{};
+};
+
+struct FeedbackResult {
+    FeedbackMode mode{FeedbackMode::none};
+    std::uint8_t observed_motor_value{};
+    std::uint8_t environment_before{};
+    std::uint8_t environment_after{};
+    std::vector<FeedbackEvent> sensory_events;
+    std::uint64_t processed_events{};
+    bool aborted{};
+};
+
 struct MotorOutputConfig {
     std::uint32_t contacts_per_channel{1};
     std::uint64_t assignment_seed{1};
     NeuronId response_stimulus_neuron{8};
+    NeuronId first_motor_neuron{9};
 
     bool operator==(const MotorOutputConfig& other) const noexcept {
         return contacts_per_channel == other.contacts_per_channel &&
                assignment_seed == other.assignment_seed &&
-               response_stimulus_neuron == other.response_stimulus_neuron;
+               response_stimulus_neuron == other.response_stimulus_neuron &&
+               first_motor_neuron == other.first_motor_neuron;
     }
 };
 
@@ -230,6 +267,10 @@ public:
         neural::Network& network,
         const MotorAssignment& motor_assignment,
         const InnateWiringConfig& config) const;
+
+    [[nodiscard]] MotorReachability analyze_motor_reachability(
+        const neural::Network& network,
+        const MotorAssignment& motor_assignment) const;
 
     [[nodiscard]] ExplorationResult select_exploration(
         const neural::Network& network,
