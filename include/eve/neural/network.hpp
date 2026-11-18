@@ -16,6 +16,8 @@ struct Neuron {
     std::int64_t firing_threshold{};
     std::uint32_t input_event_count{};
     std::uint32_t refractory_events_remaining{};
+    std::uint64_t recovery_generation{};
+    std::uint64_t scheduled_recovery_time{};
     SynapseId first_incoming{kInvalidIndex};
     SynapseId first_outgoing{kInvalidIndex};
     std::uint32_t incoming_count{};

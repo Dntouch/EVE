@@ -249,12 +249,16 @@ ImpulseResult Brainstem::receive_impulse(
     }
 
     const bool refractory = neuron.refractory_events_remaining > 0;
-    if (refractory) {
+    if (refractory && config.recovery_mode == RecoveryMode::input_dependent) {
         --neuron.refractory_events_remaining;
     }
     if (!refractory && neuron.membrane_potential >= neuron.firing_threshold) {
         result.fired = true;
         neuron.refractory_events_remaining = config.refractory_input_events;
+        if (config.recovery_mode != RecoveryMode::input_dependent) {
+            ++neuron.recovery_generation;
+            result.recovery_generation = neuron.recovery_generation;
+        }
         if (config.reset_mode == ResetMode::to_zero) {
             neuron.membrane_potential = 0;
         } else {
@@ -270,6 +274,39 @@ ImpulseResult Brainstem::receive_impulse(
         network.reset_incoming_activity(synapse.receiver);
     }
     result.membrane_after = neuron.membrane_potential;
+    return result;
+}
+
+RecoveryResult Brainstem::recover_neuron(
+    neural::Network& network,
+    const NeuronId neuron_id,
+    const std::uint64_t generation,
+    const ExperimentConfig& config) const {
+    neural::Neuron& neuron = network.neuron(neuron_id);
+    RecoveryResult result;
+    result.membrane_before = neuron.membrane_potential;
+    result.refractory_before = neuron.refractory_events_remaining;
+    if (config.recovery_mode == RecoveryMode::input_dependent ||
+        generation != neuron.recovery_generation ||
+        neuron.refractory_events_remaining == 0) {
+        result.stale = true;
+        result.membrane_after = neuron.membrane_potential;
+        result.refractory_after = neuron.refractory_events_remaining;
+        return result;
+    }
+
+    neuron.refractory_events_remaining = 0;
+    neuron.scheduled_recovery_time = 0;
+    if (config.recovery_mode ==
+        RecoveryMode::independent_with_membrane_relaxation) {
+        const std::int64_t retained_percent =
+            100 - static_cast<std::int64_t>(config.membrane_relaxation_percent);
+        neuron.membrane_potential =
+            neuron.membrane_potential * retained_percent / 100;
+    }
+    result.recovered = true;
+    result.membrane_after = neuron.membrane_potential;
+    result.refractory_after = neuron.refractory_events_remaining;
     return result;
 }
 

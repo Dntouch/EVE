@@ -1758,6 +1758,246 @@ void test_targeted_m3_synapse_interruption() {
     require(!execute(true), "single targeted M3 interruption did not change completion");
 }
 
+eve::ExperimentConfig timed_recovery_config(
+    const eve::RecoveryMode mode,
+    const std::uint32_t relaxation = 0,
+    const std::uint64_t delay = 4) {
+    auto config = small_config();
+    config.initial_outgoing_synapses = 1;
+    config.initial_synapse_weight = 1;
+    config.firing_threshold = 2;
+    config.learning_enabled = false;
+    config.refractory_input_events = 16;
+    config.recovery_mode = mode;
+    config.recovery_delay = delay;
+    config.membrane_relaxation_percent = relaxation;
+    config.local_event_memory_capacity = 8;
+    return config;
+}
+
+struct RecoveryFixture {
+    eve::bios::Runtime runtime;
+    eve::SynapseId input{};
+    eve::NeuronId receiver{};
+
+    RecoveryFixture(
+        const eve::RecoveryMode mode,
+        const std::uint32_t relaxation = 0,
+        const std::uint64_t delay = 4)
+        : runtime(timed_recovery_config(mode, relaxation, delay), 601) {
+        input = runtime.network().outgoing_synapses(0).front();
+        receiver = runtime.network().synapse(input).receiver;
+    }
+
+    void fire_receiver() {
+        runtime.enqueue_fire(0);
+        runtime.enqueue_fire(0);
+        static_cast<void>(runtime.run());
+    }
+};
+
+void test_simulated_time_and_future_scheduling() {
+    RecoveryFixture fixture(eve::RecoveryMode::independent);
+    fixture.fire_receiver();
+    require_equal(fixture.runtime.simulated_time(), 0ULL,
+                  "immediate events advanced simulated time");
+    require_equal(fixture.runtime.future_event_count(), std::size_t{1},
+                  "fire did not schedule exactly one future recovery");
+    require_equal(fixture.runtime.run(), 0ULL,
+                  "ordinary run processed a future recovery early");
+    require_equal(fixture.runtime.network().neuron(fixture.receiver)
+                      .refractory_events_remaining,
+                  16U, "future recovery changed refractory state early");
+}
+
+void test_recovery_without_new_input() {
+    RecoveryFixture fixture(eve::RecoveryMode::independent);
+    fixture.fire_receiver();
+    const auto memory = fixture.runtime.network().local_event_memory(fixture.receiver);
+    require_equal(fixture.runtime.advance_time_to(3), 0ULL,
+                  "recovery ran before its due time");
+    require_equal(fixture.runtime.advance_time_to(4), 1ULL,
+                  "due recovery was not processed without input");
+    require_equal(fixture.runtime.network().neuron(fixture.receiver)
+                      .refractory_events_remaining,
+                  0U, "R1 did not end refractory state");
+    require_equal(fixture.runtime.network().local_event_memory(fixture.receiver), memory,
+                  "recovery erased local event memory");
+}
+
+void test_same_time_recovery_order_is_deterministic() {
+    const auto execute = []() {
+        auto config = timed_recovery_config(eve::RecoveryMode::independent);
+        eve::bios::Runtime runtime(config, 602);
+        std::vector<eve::NeuronId> recovered;
+        runtime.set_recovery_observer(
+            [&recovered](const eve::bios::RecoveryObservation& observation) {
+                if (observation.recovered) recovered.push_back(observation.neuron);
+            });
+        runtime.enqueue_fire(0);
+        runtime.enqueue_fire(0);
+        runtime.enqueue_fire(1);
+        runtime.enqueue_fire(1);
+        static_cast<void>(runtime.run());
+        static_cast<void>(runtime.advance_time_to(4));
+        return recovered;
+    };
+    const auto first = execute();
+    const auto second = execute();
+    require(!first.empty(), "same-time recovery test produced no recovery");
+    require_equal(first, second, "same-time recovery order was not deterministic");
+}
+
+void test_boundary_event_and_time_advance() {
+    eve::bios::Runtime runtime(timed_recovery_config(
+        eve::RecoveryMode::input_dependent), 603);
+    runtime.schedule_boundary(7, 11);
+    require_equal(runtime.run(), 0ULL, "future boundary was processed immediately");
+    require_equal(runtime.advance_time_to(6), 0ULL, "boundary ran too early");
+    require_equal(runtime.advance_time_by(1), 1ULL, "boundary did not run at due time");
+    require_equal(runtime.metrics().processed_boundary_events, 1ULL,
+                  "boundary metric is wrong");
+}
+
+void test_stale_recovery_is_ignored() {
+    auto config = timed_recovery_config(eve::RecoveryMode::independent);
+    eve::neural::Network network;
+    network.reset(config);
+    const auto input = network.add_synapse(0, 1, 1);
+    eve::brainstem::Brainstem brainstem;
+    static_cast<void>(brainstem.receive_impulse(network, input, config));
+    const auto firing = brainstem.receive_impulse(network, input, config);
+    require(firing.fired && firing.recovery_generation != 0,
+            "independent recovery did not create a generation");
+    const auto stale = brainstem.recover_neuron(
+        network, 1, firing.recovery_generation + 1, config);
+    require(stale.stale && !stale.recovered,
+            "outdated recovery generation changed neuron state");
+    const auto valid = brainstem.recover_neuron(
+        network, 1, firing.recovery_generation, config);
+    require(valid.recovered && !valid.stale, "valid recovery did not execute");
+    require(brainstem.recover_neuron(
+                network, 1, firing.recovery_generation, config).stale,
+            "duplicate recovery was not rejected as stale");
+}
+
+void test_r0_remains_input_dependent() {
+    RecoveryFixture fixture(eve::RecoveryMode::input_dependent);
+    fixture.fire_receiver();
+    require_equal(fixture.runtime.future_event_count(), std::size_t{0},
+                  "R0 scheduled an independent recovery");
+    static_cast<void>(fixture.runtime.advance_time_by(64));
+    require_equal(fixture.runtime.network().neuron(fixture.receiver)
+                      .refractory_events_remaining,
+                  16U, "time advance changed R0 refractory state");
+    fixture.runtime.enqueue_fire(0);
+    static_cast<void>(fixture.runtime.run());
+    require_equal(fixture.runtime.network().neuron(fixture.receiver)
+                      .refractory_events_remaining,
+                  15U, "R0 no longer decrements on incoming impulses");
+}
+
+void test_r1_does_not_relax_membrane() {
+    RecoveryFixture fixture(eve::RecoveryMode::independent);
+    fixture.fire_receiver();
+    fixture.runtime.enqueue_fire(0);
+    fixture.runtime.enqueue_fire(0);
+    static_cast<void>(fixture.runtime.run());
+    require_equal(fixture.runtime.network().neuron(fixture.receiver).membrane_potential,
+                  2LL, "refractory R1 inputs did not accumulate membrane potential");
+    static_cast<void>(fixture.runtime.advance_time_to(4));
+    require_equal(fixture.runtime.network().neuron(fixture.receiver).membrane_potential,
+                  2LL, "R1 unexpectedly relaxed membrane potential");
+}
+
+void test_r2_relaxes_only_membrane() {
+    for (const auto [percent, expected] :
+         {std::pair<std::uint32_t, std::int64_t>{50, 1}, {100, 0}}) {
+        RecoveryFixture fixture(
+            eve::RecoveryMode::independent_with_membrane_relaxation, percent);
+        fixture.fire_receiver();
+        fixture.runtime.enqueue_fire(0);
+        fixture.runtime.enqueue_fire(0);
+        static_cast<void>(fixture.runtime.run());
+        const auto synapses = fixture.runtime.network().synapses();
+        const auto memory = fixture.runtime.network().local_event_memory(fixture.receiver);
+        static_cast<void>(fixture.runtime.advance_time_to(4));
+        require_equal(
+            fixture.runtime.network().neuron(fixture.receiver).membrane_potential,
+            expected, "R2 membrane relaxation factor is wrong");
+        require_equal(fixture.runtime.network().synapses(), synapses,
+                      "R2 recovery changed synaptic state");
+        require_equal(fixture.runtime.network().local_event_memory(fixture.receiver), memory,
+                      "R2 recovery changed local memory");
+    }
+}
+
+void test_recovery_emits_no_fire_and_allows_later_refire() {
+    RecoveryFixture fixture(eve::RecoveryMode::independent);
+    fixture.fire_receiver();
+    const auto fires_before = fixture.runtime.metrics().fire_events;
+    static_cast<void>(fixture.runtime.advance_time_to(4));
+    require_equal(fixture.runtime.metrics().fire_events, fires_before,
+                  "recovery emitted its own fire event");
+    fixture.runtime.enqueue_fire(0);
+    fixture.runtime.enqueue_fire(0);
+    static_cast<void>(fixture.runtime.run());
+    require(fixture.runtime.metrics().fire_events > fires_before,
+            "recovered neuron could not fire again");
+}
+
+void test_pending_recovery_persistence() {
+    const auto path = std::filesystem::temp_directory_path() /
+                      "eve-stage-b1-pending-recovery.bin";
+    RecoveryFixture fixture(eve::RecoveryMode::independent);
+    fixture.fire_receiver();
+    fixture.runtime.save(path.string());
+    eve::bios::Runtime restored = eve::bios::Runtime::load(path.string());
+    require_equal(fixture.runtime.state_fingerprint(), restored.state_fingerprint(),
+                  "pending recovery changed during persistence");
+    static_cast<void>(fixture.runtime.advance_time_to(4));
+    static_cast<void>(restored.advance_time_to(4));
+    require_equal(fixture.runtime.state_fingerprint(), restored.state_fingerprint(),
+                  "restored recovery continuation diverged");
+    static_cast<void>(std::filesystem::remove(path));
+}
+
+void test_response_end_does_not_preprocess_recovery() {
+    auto config = motor_test_config();
+    config.recovery_mode = eve::RecoveryMode::independent;
+    config.recovery_delay = 4;
+    config.refractory_input_events = 16;
+    config.local_event_memory_capacity = 8;
+    eve::bios::Runtime runtime(config, 604);
+    runtime.configure_motor_output(motor_output_config());
+    const auto circuit = runtime.configure_motor_circuit(motor_circuit_config(
+        eve::brainstem::MotorCircuitMode::activity_dependent, 1, 3, 1604));
+    for (std::size_t channel = 0; channel < 3; ++channel) {
+        runtime.enqueue_fire(runtime.motor_assignment().channels[channel][0]);
+    }
+    const auto response = runtime.request_response(false);
+    require(response.valid(), "B.1 response test did not complete M3 path");
+    require_equal(runtime.simulated_time(), 0ULL,
+                  "response completion advanced to future recovery");
+    require(runtime.future_event_count() >= 2,
+            "response completion discarded pending recoveries");
+    require(runtime.network().neuron(circuit.relay_neurons.front())
+                .refractory_events_remaining > 0,
+            "accumulator recovered automatically at response end");
+}
+
+void test_recovery_changes_no_learning_state() {
+    RecoveryFixture fixture(eve::RecoveryMode::independent);
+    fixture.fire_receiver();
+    const auto strengthenings = fixture.runtime.metrics().synaptic_strengthenings;
+    const auto activity = fixture.runtime.network().synapse(fixture.input).activity_count;
+    static_cast<void>(fixture.runtime.advance_time_to(4));
+    require_equal(fixture.runtime.metrics().synaptic_strengthenings, strengthenings,
+                  "recovery caused a learning event");
+    require_equal(fixture.runtime.network().synapse(fixture.input).activity_count,
+                  activity, "recovery changed a synaptic learning counter");
+}
+
 }  // namespace
 
 int main() {
@@ -1863,6 +2103,21 @@ int main() {
         {"local memory persistence", test_local_event_memory_persistence_and_lifetime},
         {"disabled local memory", test_disabled_local_event_memory_preserves_processing},
         {"targeted M3 interruption", test_targeted_m3_synapse_interruption},
+        {"simulated time and future scheduling",
+         test_simulated_time_and_future_scheduling},
+        {"recovery without new input", test_recovery_without_new_input},
+        {"same-time recovery order", test_same_time_recovery_order_is_deterministic},
+        {"boundary event and time advance", test_boundary_event_and_time_advance},
+        {"stale recovery", test_stale_recovery_is_ignored},
+        {"R0 input-dependent recovery", test_r0_remains_input_dependent},
+        {"R1 membrane preservation", test_r1_does_not_relax_membrane},
+        {"R2 membrane relaxation", test_r2_relaxes_only_membrane},
+        {"recovery refire without emitted fire",
+         test_recovery_emits_no_fire_and_allows_later_refire},
+        {"pending recovery persistence", test_pending_recovery_persistence},
+        {"response end keeps future recovery",
+         test_response_end_does_not_preprocess_recovery},
+        {"recovery preserves learning state", test_recovery_changes_no_learning_state},
     };
 
     std::size_t failures = 0;

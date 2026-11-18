@@ -37,6 +37,16 @@ struct ImpulseResult {
     bool local_event_overwritten{};
     std::int32_t applied_weight{};
     std::int64_t membrane_after{};
+    std::uint64_t recovery_generation{};
+};
+
+struct RecoveryResult {
+    bool recovered{};
+    bool stale{};
+    std::int64_t membrane_before{};
+    std::int64_t membrane_after{};
+    std::uint32_t refractory_before{};
+    std::uint32_t refractory_after{};
 };
 
 enum class MotorResponseStatus : std::uint8_t {
@@ -256,6 +266,12 @@ public:
         SynapseId synapse,
         const ExperimentConfig& config,
         bios::DeterministicRng* rng = nullptr) const;
+
+    [[nodiscard]] RecoveryResult recover_neuron(
+        neural::Network& network,
+        NeuronId neuron,
+        std::uint64_t generation,
+        const ExperimentConfig& config) const;
 
     [[nodiscard]] std::optional<SynapseId> select_competing_synapse(
         const neural::Network& network,

@@ -31,14 +31,21 @@ private:
 enum class EventKind : std::uint8_t {
     fire = 0,
     impulse = 1,
+    recovery = 2,
+    boundary = 3,
 };
 
 struct Event {
     EventKind kind{EventKind::fire};
     std::uint32_t target{};
+    std::uint64_t scheduled_time{};
+    std::uint64_t sequence{};
+    std::uint64_t generation{};
 
     bool operator==(const Event& other) const noexcept {
-        return kind == other.kind && target == other.target;
+        return kind == other.kind && target == other.target &&
+               scheduled_time == other.scheduled_time && sequence == other.sequence &&
+               generation == other.generation;
     }
 };
 
@@ -47,6 +54,9 @@ struct Diagnostics {
     std::uint32_t synapse_count{};
     std::size_t estimated_memory_bytes{};
     std::size_t queued_events{};
+    std::size_t ready_events{};
+    std::size_t future_events{};
+    std::uint64_t simulated_time{};
     std::map<std::int32_t, std::uint64_t> weight_distribution;
     Metrics metrics;
     std::uint64_t state_fingerprint{};
@@ -54,6 +64,7 @@ struct Diagnostics {
 
 struct FireObservation {
     std::uint64_t event_index{};
+    std::uint64_t simulated_time{};
     NeuronId neuron{};
     std::uint32_t outgoing_count{};
 };
@@ -62,6 +73,7 @@ using FireObserver = std::function<void(const FireObservation&)>;
 
 struct ImpulseObservation {
     std::uint64_t event_index{};
+    std::uint64_t simulated_time{};
     SynapseId synapse{};
     NeuronId sender{};
     NeuronId receiver{};
@@ -75,7 +87,8 @@ struct ImpulseObservation {
     std::vector<SynapseId> local_event_snapshot;
 
     bool operator==(const ImpulseObservation& other) const noexcept {
-        return event_index == other.event_index && synapse == other.synapse &&
+        return event_index == other.event_index &&
+               simulated_time == other.simulated_time && synapse == other.synapse &&
                sender == other.sender && receiver == other.receiver &&
                applied_weight == other.applied_weight &&
                membrane_before == other.membrane_before &&
@@ -89,6 +102,21 @@ struct ImpulseObservation {
 };
 
 using ImpulseObserver = std::function<void(const ImpulseObservation&)>;
+
+struct RecoveryObservation {
+    std::uint64_t event_index{};
+    std::uint64_t simulated_time{};
+    NeuronId neuron{};
+    std::uint64_t generation{};
+    std::int64_t membrane_before{};
+    std::int64_t membrane_after{};
+    std::uint32_t refractory_before{};
+    std::uint32_t refractory_after{};
+    bool recovered{};
+    bool stale{};
+};
+
+using RecoveryObserver = std::function<void(const RecoveryObservation&)>;
 
 struct MotorCausality {
     bool technical_abort{};
@@ -123,6 +151,13 @@ public:
 
     void enqueue_fire(NeuronId neuron);
     [[nodiscard]] std::uint64_t run();
+    [[nodiscard]] std::uint64_t advance_time_to(
+        std::uint64_t target_time,
+        std::uint64_t event_limit = 0);
+    [[nodiscard]] std::uint64_t advance_time_by(
+        std::uint64_t duration,
+        std::uint64_t event_limit = 0);
+    void schedule_boundary(std::uint64_t time, std::uint32_t marker = 0);
     [[nodiscard]] std::vector<brainstem::EncodedByte> process_utf8_bytes(
         const std::vector<std::uint8_t>& bytes);
     [[nodiscard]] std::vector<brainstem::EncodedByte> process_utf8_text(
@@ -149,6 +184,7 @@ public:
     void set_trace_stream(std::ostream* stream) noexcept;
     void set_fire_observer(FireObserver observer);
     void set_impulse_observer(ImpulseObserver observer);
+    void set_recovery_observer(RecoveryObserver observer);
     [[nodiscard]] static MotorCausality analyze_motor_causality(
         const brainstem::MotorResponse& response,
         const brainstem::MotorCircuitResult& circuit,
@@ -164,6 +200,8 @@ public:
     [[nodiscard]] const Metrics& metrics() const noexcept;
     [[nodiscard]] Diagnostics diagnostics() const;
     [[nodiscard]] std::uint64_t state_fingerprint() const noexcept;
+    [[nodiscard]] std::uint64_t simulated_time() const noexcept;
+    [[nodiscard]] std::size_t future_event_count() const noexcept;
 
     void save(const std::string& path) const;
     [[nodiscard]] static Runtime load(const std::string& path);
@@ -175,6 +213,15 @@ private:
     void validate_config() const;
     void process_fire(NeuronId neuron);
     void process_impulse(SynapseId synapse);
+    void process_recovery(const Event& event);
+    void process_event(const Event& event);
+    void enqueue_event(
+        EventKind kind,
+        std::uint32_t target,
+        std::uint64_t scheduled_time,
+        std::uint64_t generation = 0);
+    [[nodiscard]] bool has_ready_event() const noexcept;
+    [[nodiscard]] Event pop_next_event();
     void update_event_hash(const Event& event) noexcept;
     void update_queue_watermark() noexcept;
     void trace(const std::string& line);
@@ -188,9 +235,12 @@ private:
     std::ostream* trace_stream_{};
     FireObserver fire_observer_;
     ImpulseObserver impulse_observer_;
+    RecoveryObserver recovery_observer_;
     brainstem::MotorOutput motor_output_;
     std::vector<NeuronId> innate_reservations_;
     std::vector<NeuronId> motor_circuit_reservations_;
+    std::uint64_t simulated_time_{};
+    std::uint64_t next_event_sequence_{};
 };
 
 }  // namespace eve::bios

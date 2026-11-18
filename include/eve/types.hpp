@@ -25,6 +25,12 @@ enum class ResetMode : std::uint8_t {
     subtract_threshold = 1,
 };
 
+enum class RecoveryMode : std::uint8_t {
+    input_dependent = 0,
+    independent = 1,
+    independent_with_membrane_relaxation = 2,
+};
+
 struct ExperimentConfig {
     std::uint32_t neuron_count{256};
     std::uint32_t width{8};
@@ -38,6 +44,9 @@ struct ExperimentConfig {
     std::int32_t maximum_synapse_weight{std::numeric_limits<std::int32_t>::max()};
     std::uint64_t input_weight_budget{std::numeric_limits<std::uint64_t>::max()};
     std::uint32_t refractory_input_events{};
+    RecoveryMode recovery_mode{RecoveryMode::input_dependent};
+    std::uint64_t recovery_delay{16};
+    std::uint32_t membrane_relaxation_percent{};
     std::uint32_t local_event_memory_capacity{};
     std::uint64_t maximum_events_per_run{1'000'000};
     bool learning_enabled{true};
@@ -56,6 +65,10 @@ struct Metrics {
     std::uint64_t refractory_suppressed_firings{};
     std::uint64_t local_event_memory_records{};
     std::uint64_t local_event_memory_overwrites{};
+    std::uint64_t scheduled_recovery_events{};
+    std::uint64_t processed_recovery_events{};
+    std::uint64_t stale_recovery_events{};
+    std::uint64_t processed_boundary_events{};
     std::uint64_t growth_attempts{};
     std::uint64_t grown_synapses{};
     std::uint64_t processed_sensor_bytes{};
@@ -74,6 +87,10 @@ struct Metrics {
                refractory_suppressed_firings == other.refractory_suppressed_firings &&
                local_event_memory_records == other.local_event_memory_records &&
                local_event_memory_overwrites == other.local_event_memory_overwrites &&
+               scheduled_recovery_events == other.scheduled_recovery_events &&
+               processed_recovery_events == other.processed_recovery_events &&
+               stale_recovery_events == other.stale_recovery_events &&
+               processed_boundary_events == other.processed_boundary_events &&
                growth_attempts == other.growth_attempts &&
                grown_synapses == other.grown_synapses &&
                processed_sensor_bytes == other.processed_sensor_bytes &&

@@ -13,7 +13,7 @@ namespace eve::bios {
 namespace {
 
 constexpr std::array<char, 8> kPersistenceMagic{{'E', 'V', 'E', '0', '0', '1', '\r', '\n'}};
-constexpr std::uint32_t kPersistenceVersion = 4;
+constexpr std::uint32_t kPersistenceVersion = 5;
 constexpr std::uint64_t kNonZeroRngState = 0x9e3779b97f4a7c15ULL;
 constexpr std::uint64_t kFnvPrime = 1099511628211ULL;
 
@@ -117,6 +117,9 @@ void write_config(std::ostream& stream, const ExperimentConfig& config) {
     write_i32(stream, config.maximum_synapse_weight);
     write_u64(stream, config.input_weight_budget);
     write_u32(stream, config.refractory_input_events);
+    write_u8(stream, static_cast<std::uint8_t>(config.recovery_mode));
+    write_u64(stream, config.recovery_delay);
+    write_u32(stream, config.membrane_relaxation_percent);
     write_u32(stream, config.local_event_memory_capacity);
     write_u64(stream, config.maximum_events_per_run);
     write_u8(stream, config.learning_enabled ? 1 : 0);
@@ -139,6 +142,16 @@ ExperimentConfig read_config(std::istream& stream, const std::uint32_t version) 
     if (version >= 2) {
         config.input_weight_budget = read_u64(stream);
         config.refractory_input_events = read_u32(stream);
+    }
+    if (version >= 5) {
+        const std::uint8_t recovery_mode = read_u8(stream);
+        if (recovery_mode > static_cast<std::uint8_t>(
+                                RecoveryMode::independent_with_membrane_relaxation)) {
+            throw std::runtime_error("invalid recovery mode in EVE state");
+        }
+        config.recovery_mode = static_cast<RecoveryMode>(recovery_mode);
+        config.recovery_delay = read_u64(stream);
+        config.membrane_relaxation_percent = read_u32(stream);
     }
     if (version >= 4) {
         config.local_event_memory_capacity = read_u32(stream);
@@ -165,6 +178,10 @@ void write_metrics(std::ostream& stream, const Metrics& metrics) {
     write_u64(stream, metrics.refractory_suppressed_firings);
     write_u64(stream, metrics.local_event_memory_records);
     write_u64(stream, metrics.local_event_memory_overwrites);
+    write_u64(stream, metrics.scheduled_recovery_events);
+    write_u64(stream, metrics.processed_recovery_events);
+    write_u64(stream, metrics.stale_recovery_events);
+    write_u64(stream, metrics.processed_boundary_events);
     write_u64(stream, metrics.growth_attempts);
     write_u64(stream, metrics.grown_synapses);
     write_u64(stream, metrics.processed_sensor_bytes);
@@ -189,6 +206,12 @@ Metrics read_metrics(std::istream& stream, const std::uint32_t version) {
     if (version >= 4) {
         metrics.local_event_memory_records = read_u64(stream);
         metrics.local_event_memory_overwrites = read_u64(stream);
+    }
+    if (version >= 5) {
+        metrics.scheduled_recovery_events = read_u64(stream);
+        metrics.processed_recovery_events = read_u64(stream);
+        metrics.stale_recovery_events = read_u64(stream);
+        metrics.processed_boundary_events = read_u64(stream);
     }
     metrics.growth_attempts = read_u64(stream);
     metrics.grown_synapses = read_u64(stream);
@@ -261,34 +284,58 @@ Runtime::Runtime(
 
 void Runtime::enqueue_fire(const NeuronId neuron) {
     static_cast<void>(network_.neuron(neuron));
-    queue_.push_back(Event{EventKind::fire, neuron});
-    update_queue_watermark();
+    enqueue_event(EventKind::fire, neuron, simulated_time_);
 }
 
 std::uint64_t Runtime::run() {
     std::uint64_t processed = 0;
-    while (!queue_.empty()) {
+    while (has_ready_event()) {
         if (processed >= config_.maximum_events_per_run) {
             throw std::runtime_error(
                 "event processing limit reached with " + std::to_string(queue_.size()) +
                 " events still queued");
         }
-
-        const Event event = queue_.front();
-        queue_.pop_front();
+        const Event event = pop_next_event();
         ++processed;
-        ++metrics_.processed_events;
-        update_event_hash(event);
-
-        if (event.kind == EventKind::fire) {
-            process_fire(event.target);
-        } else if (event.kind == EventKind::impulse) {
-            process_impulse(event.target);
-        } else {
-            throw std::logic_error("unknown event kind");
-        }
+        process_event(event);
     }
     return processed;
+}
+
+std::uint64_t Runtime::advance_time_to(
+    const std::uint64_t target_time, const std::uint64_t event_limit) {
+    if (target_time < simulated_time_) {
+        throw std::invalid_argument("simulated time cannot move backwards");
+    }
+    const std::uint64_t limit =
+        event_limit == 0 ? config_.maximum_events_per_run : event_limit;
+    std::uint64_t processed = 0;
+    while (!queue_.empty() && queue_.front().scheduled_time <= target_time) {
+        if (processed >= limit) {
+            throw std::runtime_error("time advance event limit reached");
+        }
+        const Event event = pop_next_event();
+        simulated_time_ = event.scheduled_time;
+        ++processed;
+        process_event(event);
+    }
+    simulated_time_ = target_time;
+    return processed;
+}
+
+std::uint64_t Runtime::advance_time_by(
+    const std::uint64_t duration, const std::uint64_t event_limit) {
+    if (duration > std::numeric_limits<std::uint64_t>::max() - simulated_time_) {
+        throw std::overflow_error("simulated time overflow");
+    }
+    return advance_time_to(simulated_time_ + duration, event_limit);
+}
+
+void Runtime::schedule_boundary(const std::uint64_t time, const std::uint32_t marker) {
+    if (time < simulated_time_) {
+        throw std::invalid_argument("boundary cannot be scheduled in the past");
+    }
+    enqueue_event(EventKind::boundary, marker, time);
 }
 
 std::vector<brainstem::EncodedByte> Runtime::process_utf8_bytes(
@@ -348,23 +395,14 @@ brainstem::MotorResponse Runtime::request_response(
     }
 
     std::uint64_t processed = 0;
-    while (!queue_.empty() && motor_output_.active()) {
+    while (has_ready_event() && motor_output_.active()) {
         if (processed >= limit) {
             motor_output_.abort();
             break;
         }
-        const Event event = queue_.front();
-        queue_.pop_front();
+        const Event event = pop_next_event();
         ++processed;
-        ++metrics_.processed_events;
-        update_event_hash(event);
-        if (event.kind == EventKind::fire) {
-            process_fire(event.target);
-        } else if (event.kind == EventKind::impulse) {
-            process_impulse(event.target);
-        } else {
-            throw std::logic_error("unknown event kind");
-        }
+        process_event(event);
     }
     if (motor_output_.active()) {
         motor_output_.finish_without_completion();
@@ -517,23 +555,14 @@ brainstem::FeedbackResult Runtime::process_motor_feedback(
         enqueue_feedback(-1, 8);
     };
     const auto process_pending = [this, &result, &config]() {
-        while (!queue_.empty()) {
+        while (has_ready_event()) {
             if (result.processed_events >= config.event_budget) {
                 result.aborted = true;
                 return false;
             }
-            const Event event = queue_.front();
-            queue_.pop_front();
+            const Event event = pop_next_event();
             ++result.processed_events;
-            ++metrics_.processed_events;
-            update_event_hash(event);
-            if (event.kind == EventKind::fire) {
-                process_fire(event.target);
-            } else if (event.kind == EventKind::impulse) {
-                process_impulse(event.target);
-            } else {
-                throw std::logic_error("unknown event kind");
-            }
+            process_event(event);
         }
         return true;
     };
@@ -577,6 +606,10 @@ void Runtime::set_fire_observer(FireObserver observer) {
 
 void Runtime::set_impulse_observer(ImpulseObserver observer) {
     impulse_observer_ = std::move(observer);
+}
+
+void Runtime::set_recovery_observer(RecoveryObserver observer) {
+    recovery_observer_ = std::move(observer);
 }
 
 MotorCausality Runtime::analyze_motor_causality(
@@ -756,6 +789,11 @@ Diagnostics Runtime::diagnostics() const {
                                     queue_.size() * sizeof(Event) +
                                     motor_output_.estimated_memory_bytes();
     result.queued_events = queue_.size();
+    result.ready_events = static_cast<std::size_t>(std::count_if(
+        queue_.begin(), queue_.end(),
+        [this](const Event& event) { return event.scheduled_time <= simulated_time_; }));
+    result.future_events = result.queued_events - result.ready_events;
+    result.simulated_time = simulated_time_;
     result.weight_distribution = network_.weight_distribution();
     result.metrics = metrics_;
     result.state_fingerprint = state_fingerprint();
@@ -777,6 +815,9 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
     mix_hash(hash, static_cast<std::uint32_t>(config_.maximum_synapse_weight));
     mix_hash(hash, config_.input_weight_budget);
     mix_hash(hash, config_.refractory_input_events);
+    mix_hash(hash, static_cast<std::uint8_t>(config_.recovery_mode));
+    mix_hash(hash, config_.recovery_delay);
+    mix_hash(hash, config_.membrane_relaxation_percent);
     mix_hash(hash, config_.local_event_memory_capacity);
     mix_hash(hash, config_.maximum_events_per_run);
     mix_hash(hash, config_.learning_enabled ? 1 : 0);
@@ -792,16 +833,35 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
     mix_hash(hash, metrics_.refractory_suppressed_firings);
     mix_hash(hash, metrics_.local_event_memory_records);
     mix_hash(hash, metrics_.local_event_memory_overwrites);
+    mix_hash(hash, metrics_.scheduled_recovery_events);
+    mix_hash(hash, metrics_.processed_recovery_events);
+    mix_hash(hash, metrics_.stale_recovery_events);
+    mix_hash(hash, metrics_.processed_boundary_events);
     mix_hash(hash, metrics_.growth_attempts);
     mix_hash(hash, metrics_.grown_synapses);
     mix_hash(hash, metrics_.processed_sensor_bytes);
     mix_hash(hash, metrics_.maximum_queue_size);
     mix_hash(hash, metrics_.event_trace_hash);
+    mix_hash(hash, simulated_time_);
+    mix_hash(hash, next_event_sequence_);
     for (const Event& event : queue_) {
         mix_hash(hash, static_cast<std::uint8_t>(event.kind));
         mix_hash(hash, event.target);
+        mix_hash(hash, event.scheduled_time);
+        mix_hash(hash, event.sequence);
+        mix_hash(hash, event.generation);
     }
     return hash;
+}
+
+std::uint64_t Runtime::simulated_time() const noexcept {
+    return simulated_time_;
+}
+
+std::size_t Runtime::future_event_count() const noexcept {
+    return static_cast<std::size_t>(std::count_if(
+        queue_.begin(), queue_.end(),
+        [this](const Event& event) { return event.scheduled_time > simulated_time_; }));
 }
 
 void Runtime::save(const std::string& path) const {
@@ -828,6 +888,8 @@ void Runtime::save(const std::string& path) const {
         write_i64(stream, neuron.firing_threshold);
         write_u32(stream, neuron.input_event_count);
         write_u32(stream, neuron.refractory_events_remaining);
+        write_u64(stream, neuron.recovery_generation);
+        write_u64(stream, neuron.scheduled_recovery_time);
         write_u32(stream, neuron.first_incoming);
         write_u32(stream, neuron.first_outgoing);
         write_u32(stream, neuron.incoming_count);
@@ -853,10 +915,15 @@ void Runtime::save(const std::string& path) const {
         write_u64(stream, network_.local_event_overwrites(neuron));
     }
 
+    write_u64(stream, simulated_time_);
+    write_u64(stream, next_event_sequence_);
     write_u64(stream, queue_.size());
     for (const Event& event : queue_) {
         write_u8(stream, static_cast<std::uint8_t>(event.kind));
         write_u32(stream, event.target);
+        write_u64(stream, event.scheduled_time);
+        write_u64(stream, event.sequence);
+        write_u64(stream, event.generation);
     }
     stream.flush();
     if (!stream) {
@@ -903,6 +970,10 @@ Runtime Runtime::load(const std::string& path) {
         neuron.input_event_count = read_u32(stream);
         if (version >= 2) {
             neuron.refractory_events_remaining = read_u32(stream);
+        }
+        if (version >= 5) {
+            neuron.recovery_generation = read_u64(stream);
+            neuron.scheduled_recovery_time = read_u64(stream);
         }
         neuron.first_incoming = read_u32(stream);
         neuron.first_outgoing = read_u32(stream);
@@ -954,20 +1025,38 @@ Runtime Runtime::load(const std::string& path) {
             std::vector<std::uint64_t>(neuron_count));
     }
 
+    if (version >= 5) {
+        runtime.simulated_time_ = read_u64(stream);
+        runtime.next_event_sequence_ = read_u64(stream);
+    }
     const std::uint64_t queue_size = read_u64(stream);
     if (queue_size > config.maximum_events_per_run) {
         throw std::runtime_error("persisted event queue exceeds the configured event limit");
     }
     for (std::uint64_t index = 0; index < queue_size; ++index) {
         const std::uint8_t kind_value = read_u8(stream);
-        if (kind_value > static_cast<std::uint8_t>(EventKind::impulse)) {
+        const std::uint8_t maximum_kind = version >= 5
+            ? static_cast<std::uint8_t>(EventKind::boundary)
+            : static_cast<std::uint8_t>(EventKind::impulse);
+        if (kind_value > maximum_kind) {
             throw std::runtime_error("invalid event kind in EVE state");
         }
-        const Event event{static_cast<EventKind>(kind_value), read_u32(stream)};
+        Event event;
+        event.kind = static_cast<EventKind>(kind_value);
+        event.target = read_u32(stream);
+        if (version >= 5) {
+            event.scheduled_time = read_u64(stream);
+            event.sequence = read_u64(stream);
+            event.generation = read_u64(stream);
+        } else {
+            event.sequence = runtime.next_event_sequence_++;
+        }
         if (event.kind == EventKind::fire) {
             static_cast<void>(runtime.network_.neuron(event.target));
-        } else {
+        } else if (event.kind == EventKind::impulse) {
             static_cast<void>(runtime.network_.synapse(event.target));
+        } else if (event.kind == EventKind::recovery) {
+            static_cast<void>(runtime.network_.neuron(event.target));
         }
         runtime.queue_.push_back(event);
     }
@@ -1004,6 +1093,18 @@ void Runtime::validate_config() const {
     if (config_.input_weight_budget == 0) {
         throw std::invalid_argument("input weight budget must be positive or unlimited");
     }
+    if (config_.recovery_mode != RecoveryMode::input_dependent &&
+        config_.recovery_delay == 0) {
+        throw std::invalid_argument("independent recovery delay must be positive");
+    }
+    if (config_.membrane_relaxation_percent > 100) {
+        throw std::invalid_argument("membrane relaxation must be between 0 and 100 percent");
+    }
+    if (config_.recovery_mode !=
+            RecoveryMode::independent_with_membrane_relaxation &&
+        config_.membrane_relaxation_percent != 0) {
+        throw std::invalid_argument("membrane relaxation requires recovery mode R2");
+    }
 }
 
 void Runtime::process_fire(const NeuronId neuron) {
@@ -1013,6 +1114,7 @@ void Runtime::process_fire(const NeuronId neuron) {
     if (fire_observer_) {
         fire_observer_(FireObservation{
             metrics_.processed_events,
+            simulated_time_,
             neuron,
             static_cast<std::uint32_t>(outgoing.size()),
         });
@@ -1023,10 +1125,9 @@ void Runtime::process_fire(const NeuronId neuron) {
     }
 
     for (const SynapseId synapse : outgoing) {
-        queue_.push_back(Event{EventKind::impulse, synapse});
+        enqueue_event(EventKind::impulse, synapse, simulated_time_);
         ++metrics_.transmitted_impulses;
     }
-    update_queue_watermark();
 
     if (config_.growth_enabled) {
         ++metrics_.growth_attempts;
@@ -1090,6 +1191,7 @@ void Runtime::process_impulse(const SynapseId synapse) {
         const neural::Neuron& receiver_after = network_.neuron(before.receiver);
         impulse_observer_(ImpulseObservation{
             metrics_.processed_events,
+            simulated_time_,
             synapse,
             before.sender,
             before.receiver,
@@ -1105,9 +1207,98 @@ void Runtime::process_impulse(const SynapseId synapse) {
     }
 
     if (result.fired) {
-        queue_.push_back(Event{EventKind::fire, before.receiver});
-        update_queue_watermark();
+        enqueue_event(EventKind::fire, before.receiver, simulated_time_);
+        if (config_.recovery_mode != RecoveryMode::input_dependent) {
+            if (config_.recovery_delay >
+                std::numeric_limits<std::uint64_t>::max() - simulated_time_) {
+                throw std::overflow_error("recovery time overflow");
+            }
+            const std::uint64_t recovery_time = simulated_time_ + config_.recovery_delay;
+            network_.neuron(before.receiver).scheduled_recovery_time = recovery_time;
+            enqueue_event(
+                EventKind::recovery, before.receiver, recovery_time,
+                result.recovery_generation);
+            ++metrics_.scheduled_recovery_events;
+        }
     }
+}
+
+void Runtime::process_recovery(const Event& event) {
+    const brainstem::RecoveryResult result = brainstem_.recover_neuron(
+        network_, event.target, event.generation, config_);
+    if (result.recovered) {
+        ++metrics_.processed_recovery_events;
+    }
+    if (result.stale) {
+        ++metrics_.stale_recovery_events;
+    }
+    if (recovery_observer_) {
+        recovery_observer_(RecoveryObservation{
+            metrics_.processed_events,
+            simulated_time_,
+            event.target,
+            event.generation,
+            result.membrane_before,
+            result.membrane_after,
+            result.refractory_before,
+            result.refractory_after,
+            result.recovered,
+            result.stale,
+        });
+    }
+}
+
+void Runtime::process_event(const Event& event) {
+    if (event.scheduled_time > simulated_time_) {
+        throw std::logic_error("attempted to process a future event");
+    }
+    ++metrics_.processed_events;
+    update_event_hash(event);
+    switch (event.kind) {
+    case EventKind::fire:
+        process_fire(event.target);
+        break;
+    case EventKind::impulse:
+        process_impulse(event.target);
+        break;
+    case EventKind::recovery:
+        process_recovery(event);
+        break;
+    case EventKind::boundary:
+        ++metrics_.processed_boundary_events;
+        break;
+    }
+}
+
+void Runtime::enqueue_event(
+    const EventKind kind,
+    const std::uint32_t target,
+    const std::uint64_t scheduled_time,
+    const std::uint64_t generation) {
+    Event event{kind, target, scheduled_time, next_event_sequence_++, generation};
+    const auto position = std::upper_bound(
+        queue_.begin(), queue_.end(), event,
+        [](const Event& left, const Event& right) {
+            if (left.scheduled_time != right.scheduled_time) {
+                return left.scheduled_time < right.scheduled_time;
+            }
+            return left.sequence < right.sequence;
+        });
+    queue_.insert(position, event);
+    update_queue_watermark();
+}
+
+bool Runtime::has_ready_event() const noexcept {
+    return !queue_.empty() && queue_.front().scheduled_time <= simulated_time_;
+}
+
+Event Runtime::pop_next_event() {
+    if (queue_.empty()) {
+        throw std::logic_error("cannot pop an empty event queue");
+    }
+    const Event event = queue_.front();
+    queue_.pop_front();
+    return event;
 }
 
 void Runtime::update_queue_watermark() noexcept {
@@ -1117,12 +1308,11 @@ void Runtime::update_queue_watermark() noexcept {
 }
 
 void Runtime::update_event_hash(const Event& event) noexcept {
-    metrics_.event_trace_hash ^= static_cast<std::uint8_t>(event.kind);
-    metrics_.event_trace_hash *= kFnvPrime;
-    for (unsigned shift = 0; shift < 32; shift += 8) {
-        metrics_.event_trace_hash ^= (event.target >> shift) & 0xffU;
-        metrics_.event_trace_hash *= kFnvPrime;
-    }
+    mix_hash(metrics_.event_trace_hash, static_cast<std::uint8_t>(event.kind));
+    mix_hash(metrics_.event_trace_hash, event.target);
+    mix_hash(metrics_.event_trace_hash, event.scheduled_time);
+    mix_hash(metrics_.event_trace_hash, event.sequence);
+    mix_hash(metrics_.event_trace_hash, event.generation);
 }
 
 void Runtime::trace(const std::string& line) {
