@@ -34,6 +34,7 @@ struct Synapse {
     SynapseId next_incoming{kInvalidIndex};
     SynapseId next_outgoing{kInvalidIndex};
     bool plasticity_protected{};
+    SynapticEffect effect{SynapticEffect::excitatory};
 
     bool operator==(const Synapse& other) const noexcept;
 };
@@ -96,7 +97,8 @@ public:
     [[nodiscard]] SynapseId add_synapse(
         NeuronId sender,
         NeuronId receiver,
-        std::int32_t weight);
+        std::int32_t weight,
+        SynapticEffect effect = SynapticEffect::excitatory);
     [[nodiscard]] bool has_synapse(NeuronId sender, NeuronId receiver) const;
     [[nodiscard]] std::optional<SynapseId> find_synapse(
         NeuronId sender,

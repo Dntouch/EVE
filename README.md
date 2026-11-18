@@ -12,9 +12,9 @@ vorgegebene Semantik aus.
 
 **Stand:** 18. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.4.5 – lokale Entscheidungsbindung und motorische Konkurrenz
+**Jüngste abgeschlossene Forschungsstufe:** B.4.6 – lokale neuronale Hemmung und erfahrungsabhängige Konkurrenz
 
-**Aktueller Forschungsschwerpunkt:** ereignisgetriebene lokale motorische Konkurrenz ohne technische Handlungsauswahl
+**Aktueller Forschungsschwerpunkt:** verbleibender Handlungsbias bei vertauschter neuronaler Zuordnung
 
 EVE ist inzwischen ein ausführbarer Forschungsprototyp. Er besitzt eine
 deterministische, ereignisgesteuerte Laufzeit, ein eigenes neuronales Netz,
@@ -45,6 +45,13 @@ dagegen wirksame Korrektur. Gezielte negative Ambiguitätsrückmeldung verbesser
 die Mischleistung stark, bleibt aber asymmetrisch und weit unter dem
 Robustheitsziel. Eine technische Winner-take-all-Auswahl wird nicht eingeführt.
 
+B.4.6 weist allgemeine lokale Hemmung technisch nach. Eine getrennte
+synaptische Wirkungsart und gleichzeitige lokale Integration bleiben bei
+vertauschter Queue-Reihenfolge deterministisch. Lernbare Hemmung verbessert
+die Mischleistung auf 83,85 %, erreicht aber nur 35/64 robuste Seeds und in
+der unabhängigen Bestätigung 30/64. Die vertauschte Motorzuordnung legt einen
+verbleibenden Handlungsbias offen; die allgemeine Lernfreigabe bleibt gesperrt.
+
 EVE ist damit weder eine fertige allgemeine Intelligenz noch ein Nachweis, dass
 eigenständige Intelligenz bereits entstanden ist. Der Prototyp dient dazu,
 einzelne Mechanismen kontrolliert zu implementieren, zu messen und auch
@@ -54,6 +61,8 @@ negative Ergebnisse nachvollziehbar festzuhalten.
 
 - deterministische Ereignisverarbeitung mit simulierter Zeit,
 - Neuronen, gewichtete Synapsen, Feuerereignisse und Erholungsmechanismen,
+- getrennte erregende und experimentelle inhibitorische Synapsenwirkung,
+- optionale lokale Integration technisch gleichzeitiger Eingänge,
 - konfigurierbare synaptische Verstärkung, Aktivitätsregulation und Wachstum,
 - UTF-8-Sensoreingabe sowie angeborene sensorische und motorische Pfade,
 - neuronale Ausgaben, motorische Abschlüsse und sensorische Rückkopplung,
@@ -88,6 +97,7 @@ deaktiviert, damit beobachtete Effekte eindeutig zugeordnet werden können.
 | B.4.3 | lokale Trennung konkurrierender Erfahrungen | abgeschlossen, Interferenz kausal, Mehrfachlernen nein |
 | B.4.4 | strukturelles Lernen und synaptische Interferenz | abgeschlossen, Struktur für Sequenzen ausreichend, Wachstum wirkungslos |
 | B.4.5 | lokale Entscheidungsbindung und motorische Konkurrenz | abgeschlossen, H2 kausal, robustes Mischlernen nein |
+| B.4.6 | lokale neuronale Hemmung und erfahrungsabhängige Konkurrenz | abgeschlossen, technische Hemmung ja, robustes biasfreies Lernen nein |
 
 Ausführliche Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen unter
 [`docs/experimente`](docs/experimente/). Die zugehörigen maschinenlesbaren
@@ -133,7 +143,7 @@ Die jüngste abgeschlossene Versuchsmatrix wird mit folgendem Runner neu
 erzeugt:
 
 ```sh
-./scripts/run-research-stage-b45.sh research/results/b45
+./scripts/run-research-stage-b46.sh research/results/b46
 ```
 
 Weitere Runner und die Bedeutung aller Ergebnisdateien sind in der
@@ -174,6 +184,8 @@ Eingabestrom deterministisch.
 - [Entscheidung nach B.4.4](docs/entscheidungen/0016-strukturelle-kapazitaet-ausreichend-nach-b44.md)
 - [Bericht zur Forschungsstufe B.4.5](docs/experimente/017-forschungsbericht-forschungsstufe-b45.md)
 - [Entscheidung nach B.4.5](docs/entscheidungen/0017-motorische-konkurrenz-nach-b45.md)
+- [Bericht zur Forschungsstufe B.4.6](docs/experimente/018-forschungsbericht-forschungsstufe-b46.md)
+- [Entscheidung nach B.4.6](docs/entscheidungen/0018-inhibitorische-grundfunktion-bleibt-experimentell.md)
 - [Forschungsfragen](docs/FORSCHUNGSFRAGEN.md)
 - [Glossar](docs/GLOSSAR.md)
 - [Hinweise für Beiträge](CONTRIBUTING.md)

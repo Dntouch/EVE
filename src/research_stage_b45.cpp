@@ -36,7 +36,7 @@ std::uint32_t b45_training(const std::string& task) {
     return task == "only_X" || task == "only_Y" ? 64U : 128U;
 }
 
-std::vector<B45Variant> b45_matrix() {
+[[maybe_unused]] std::vector<B45Variant> b45_matrix() {
     std::vector<B45Variant> rows;
     const std::array<std::string, 6> tasks{{
         "only_X", "only_Y", "X_then_Y", "Y_then_X", "alternating", "mixed"}};
@@ -152,7 +152,8 @@ double b45_x(const Result& row) { return b45_ratio(row.cue0_a, b45_total_x(row))
 double b45_y(const Result& row) { return b45_ratio(row.cue1_b, b45_total_y(row)); }
 double b45_score(const Result& row) { return (b45_x(row) + b45_y(row)) / 2.0; }
 
-double b45_first_relation_drift(const Result& row, const std::string& task) {
+[[maybe_unused]] double b45_first_relation_drift(
+    const Result& row, const std::string& task) {
     if (task == "X_then_Y") {
         return std::abs(row.cue0_to_a - row.block_boundary_cue0_to_a) +
                std::abs(row.cue0_to_b - row.block_boundary_cue0_to_b);
@@ -216,7 +217,7 @@ B45Aggregate b45_aggregate(const std::vector<Result>& rows) {
     return value;
 }
 
-std::vector<double> b45_differences(
+[[maybe_unused]] std::vector<double> b45_differences(
     const std::vector<Result>& left, const std::vector<Result>& right) {
     std::vector<double> values;
     for (std::size_t index = 0; index < left.size(); ++index) {
@@ -227,6 +228,7 @@ std::vector<double> b45_differences(
 
 }  // namespace
 
+#ifndef EVE_RESEARCH_STAGE_B45_EMBEDDED
 int main(int argc, char** argv) {
     const std::filesystem::path output = argc > 1
         ? std::filesystem::path(argv[1])
@@ -548,3 +550,4 @@ int main(int argc, char** argv) {
     std::cout << "B.4.5 research data written to " << output << '\n';
     return 0;
 }
+#endif

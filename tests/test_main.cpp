@@ -3558,6 +3558,196 @@ void test_b45_competing_activity_case(const std::uint32_t index) {
     require(runtime.network().validate(), "B.4.5 intervention broke invariants");
 }
 
+void test_b46_local_inhibition_case(const std::uint32_t index) {
+    eve::ExperimentConfig config;
+    config.neuron_count = 32;
+    config.width = 4;
+    config.height = 4;
+    config.depth = 2;
+    config.initial_outgoing_synapses = 0;
+    config.firing_threshold = 2;
+    config.maximum_synapse_weight = 3;
+    config.input_weight_budget = 16;
+    config.learning_enabled = false;
+    config.growth_enabled = false;
+    config.local_event_memory_capacity = 8;
+    config.eligibility_selection = eve::EligibilitySelection::active_phase;
+    config.eligibility_candidate_capacity = 8;
+    config.eligibility_decision_capacity = 4;
+    config.eligibility_duration = 16;
+    config.plasticity_trace_mode = eve::PlasticityTraceMode::g3_recent;
+    config.modulation_mode = eve::ModulationMode::ternary;
+    config.batch_simultaneous_inputs = true;
+    config.inhibitory_plasticity_mode = index % 2U == 0
+        ? eve::InhibitoryPlasticityMode::shared
+        : eve::InhibitoryPlasticityMode::contribution_aware;
+
+    const auto run_order = [&](const bool reverse) {
+        eve::bios::Runtime runtime(config, 0x460000ULL + index);
+        eve::brainstem::EvaluationRouteConfig route;
+        route.mode = eve::brainstem::EvaluationRouteMode::sensory_input;
+        route.first_input_neuron = 10;
+        route.graded_channel_count = 5;
+        route.fanout_per_source = 1;
+        route.weight = 1;
+        const auto evaluation = runtime.configure_evaluation_route(route);
+        for (const auto input : evaluation.input_neurons) {
+            static_cast<void>(runtime.add_experimental_synapse(
+                input, 4, 0, true, eve::SynapticEffect::excitatory));
+        }
+        const auto excitatory = runtime.add_experimental_synapse(
+            0, 4, 3, false, eve::SynapticEffect::excitatory);
+        const auto inhibitory = runtime.add_experimental_synapse(
+            1, 4, 1, false, eve::SynapticEffect::inhibitory);
+        const std::vector<eve::SynapseId> inputs = reverse
+            ? std::vector<eve::SynapseId>{inhibitory, excitatory}
+            : std::vector<eve::SynapseId>{excitatory, inhibitory};
+        const auto batch = runtime.process_simultaneous_impulses(inputs);
+        static_cast<void>(runtime.run());
+        return std::make_tuple(
+            std::move(runtime), excitatory, inhibitory, batch);
+    };
+
+    auto [forward, forward_excitatory, forward_inhibitory, forward_batch] =
+        run_order(false);
+    auto [reverse, reverse_excitatory, reverse_inhibitory, reverse_batch] =
+        run_order(true);
+    require(forward_batch.fired, "B.4.6 net local excitation did not fire");
+    require_equal(forward_batch.excitatory_contribution, 3LL,
+                  "B.4.6 excitatory contribution is wrong");
+    require_equal(forward_batch.inhibitory_contribution, 1LL,
+                  "B.4.6 inhibitory contribution is wrong");
+    require_equal(forward_batch.membrane_after, 0LL,
+                  "B.4.6 firing reset did not follow net integration");
+    require_equal(forward_batch.fired, reverse_batch.fired,
+                  "B.4.6 queue order selected the firing result");
+    require_equal(forward.state_fingerprint(), reverse.state_fingerprint(),
+                  "B.4.6 canonical batch state depends on input order");
+    require_equal(forward.metrics().inhibitory_impulses, 1ULL,
+                  "B.4.6 inhibitory impulse metric is wrong");
+    require_equal(forward.metrics().inhibitory_applied_strength, 1ULL,
+                  "B.4.6 inhibitory strength metric is wrong");
+    require_equal(forward.metrics().simultaneous_input_batches, 1ULL,
+                  "B.4.6 simultaneous batch metric is wrong");
+    require(forward.network().eligibility_records(4).front().candidates.end() !=
+                std::find(
+                    forward.network().eligibility_records(4).front().candidates.begin(),
+                    forward.network().eligibility_records(4).front().candidates.end(),
+                    forward_inhibitory),
+            "B.4.6 inhibitory causal input is absent from eligibility");
+
+    const auto before_inhibitory =
+        forward.network().synapse(forward_inhibitory).weight;
+    const std::int8_t polarity = index % 3U == 0 ? -1 : 1;
+    static_cast<void>(forward.process_modulatory_feedback(polarity));
+    const auto after_inhibitory =
+        forward.network().synapse(forward_inhibitory).weight;
+    if (config.inhibitory_plasticity_mode ==
+        eve::InhibitoryPlasticityMode::shared) {
+        require(polarity > 0 ? after_inhibitory > before_inhibitory
+                             : after_inhibitory < before_inhibitory,
+                "B.4.6 shared three-factor rule changed inhibition incorrectly");
+    } else {
+        require(polarity > 0 ? after_inhibitory < before_inhibitory
+                             : after_inhibitory > before_inhibitory,
+                "B.4.6 contribution-aware rule changed inhibition incorrectly");
+    }
+    require(forward.network().synapse(forward_inhibitory).weight >= 0 &&
+                forward.network().synapse(forward_inhibitory).weight <= 3,
+            "B.4.6 inhibitory efficacy escaped bounds");
+
+    eve::bios::Runtime inhibited(config, 0x461000ULL + index);
+    const auto only_inhibitory = inhibited.add_experimental_synapse(
+        1, 4, 3, true, eve::SynapticEffect::inhibitory);
+    const auto inhibited_batch =
+        inhibited.process_simultaneous_impulses({only_inhibitory});
+    require(!inhibited_batch.fired,
+            "B.4.6 isolated inhibition generated a fire decision");
+    require_equal(inhibited.network().neuron(4).membrane_potential, 0LL,
+                  "B.4.6 inhibition created a negative membrane value");
+    require_equal(inhibited.network().synapse(only_inhibitory).effect,
+                  eve::SynapticEffect::inhibitory,
+                  "B.4.6 synaptic effect was not stored separately from weight");
+    const auto other_receiver = inhibited.add_experimental_synapse(
+        0, 5, 1, true, eve::SynapticEffect::excitatory);
+    bool mixed_receivers_rejected = false;
+    try {
+        static_cast<void>(inhibited.process_simultaneous_impulses(
+            {only_inhibitory, other_receiver}));
+    } catch (const std::invalid_argument&) {
+        mixed_receivers_rejected = true;
+    }
+    require(mixed_receivers_rejected,
+            "B.4.6 simultaneous integration crossed local receivers");
+
+    if (index == 0) {
+        auto recovery_config = config;
+        recovery_config.refractory_input_events = 1;
+        recovery_config.recovery_mode =
+            eve::RecoveryMode::independent_with_membrane_relaxation;
+        recovery_config.recovery_delay = 2;
+        recovery_config.membrane_relaxation_percent = 100;
+        eve::bios::Runtime recovery(recovery_config, 0x463000ULL);
+        const auto excitation = recovery.add_experimental_synapse(
+            0, 4, 3, true, eve::SynapticEffect::excitatory);
+        const auto inhibition = recovery.add_experimental_synapse(
+            1, 4, 1, true, eve::SynapticEffect::inhibitory);
+        require(recovery.process_simultaneous_impulses({excitation, inhibition}).fired,
+                "B.4.6 inhibition broke an R2 fire decision");
+        static_cast<void>(recovery.run());
+        static_cast<void>(recovery.advance_time_to(2));
+        require_equal(recovery.network().neuron(4).refractory_events_remaining, 0U,
+                      "B.4.6 R2 did not recover after inhibitory competition");
+        require(recovery.network().neuron(4).membrane_potential >= 0,
+                "B.4.6 R2 created a negative membrane after inhibition");
+    }
+
+    if (index >= 16U) {
+        const auto path = std::filesystem::temp_directory_path() /
+            ("eve-stage-b46-" + std::to_string(index) + ".bin");
+        forward.save(path.string());
+        auto restored = eve::bios::Runtime::load(path.string());
+        require(restored.config().batch_simultaneous_inputs,
+                "B.4.6 batch integration mode was not persisted");
+        require_equal(
+            restored.config().inhibitory_plasticity_mode,
+            config.inhibitory_plasticity_mode,
+            "B.4.6 inhibitory plasticity mode was not persisted");
+        require_equal(
+            restored.network().synapse(forward_inhibitory).effect,
+            eve::SynapticEffect::inhibitory,
+            "B.4.6 inhibitory synaptic effect was not persisted");
+        require_equal(forward.state_fingerprint(), restored.state_fingerprint(),
+                      "B.4.6 persistence changed the complete state");
+        static_cast<void>(std::filesystem::remove(path));
+    }
+
+    eve::ExperimentConfig disabled = config;
+    disabled.batch_simultaneous_inputs = false;
+    eve::bios::Runtime disabled_runtime(disabled, 0x462000ULL + index);
+    const auto disabled_synapse = disabled_runtime.add_experimental_synapse(
+        0, 4, 1, false, eve::SynapticEffect::excitatory);
+    bool disabled_rejected = false;
+    try {
+        static_cast<void>(disabled_runtime.process_simultaneous_impulses(
+            {disabled_synapse}));
+    } catch (const std::logic_error&) {
+        disabled_rejected = true;
+    }
+    require(disabled_rejected,
+            "B.4.6 disabled simultaneous integration accepted a batch");
+    require_equal(forward.network().synapse(forward_excitatory).effect,
+                  eve::SynapticEffect::excitatory,
+                  "B.4.6 changed an existing excitatory effect");
+    require(forward.network().validate() && reverse.network().validate() &&
+                inhibited.network().validate(),
+            "B.4.6 inhibition violated network invariants");
+    require_equal(forward.metrics().grown_synapses, 0ULL,
+                  "B.4.6 inhibition triggered structural growth");
+    static_cast<void>(reverse_excitatory);
+    static_cast<void>(reverse_inhibitory);
+}
+
 }  // namespace
 
 int main() {
@@ -3877,6 +4067,28 @@ int main() {
         tests.emplace_back(
             std::string("B45 ") + b45_names[index],
             [index]() { test_b45_competing_activity_case(index); });
+    }
+    const std::array<const char*, 28> b46_names{{
+        "separate inhibitory effect", "single inhibitory event",
+        "bounded nonnegative membrane", "net simultaneous integration",
+        "order independent firing", "order independent state",
+        "inhibitory metric", "applied strength metric",
+        "simultaneous batch metric", "binary fire preserved",
+        "inhibition creates no motor decision", "local receiver only",
+        "G3 records inhibitory input", "eligibility binds inhibition",
+        "zero weight remains learnable", "shared plasticity examined",
+        "contribution-aware positive modulation",
+        "contribution-aware negative modulation", "inhibitory weight bounds",
+        "excitatory compatibility", "disabled batching compatibility",
+        "configuration persistence", "effect persistence",
+        "metric persistence", "fingerprint persistence",
+        "growth remains disabled", "network validity",
+        "B45 regression retained",
+    }};
+    for (std::uint32_t index = 0; index < b46_names.size(); ++index) {
+        tests.emplace_back(
+            std::string("B46 ") + b46_names[index],
+            [index]() { test_b46_local_inhibition_case(index); });
     }
 
     std::size_t failures = 0;

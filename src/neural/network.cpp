@@ -42,7 +42,7 @@ bool Synapse::operator==(const Synapse& other) const noexcept {
     return sender == other.sender && receiver == other.receiver && weight == other.weight &&
            activity_count == other.activity_count &&
            next_incoming == other.next_incoming && next_outgoing == other.next_outgoing &&
-           plasticity_protected == other.plasticity_protected;
+           plasticity_protected == other.plasticity_protected && effect == other.effect;
 }
 
 void Network::reset(const ExperimentConfig& config) {
@@ -131,7 +131,8 @@ void Network::reset(const ExperimentConfig& config) {
 SynapseId Network::add_synapse(
     const NeuronId sender,
     const NeuronId receiver,
-    const std::int32_t weight) {
+    const std::int32_t weight,
+    const SynapticEffect effect) {
     require_neuron(sender);
     require_neuron(receiver);
     if (sender == receiver) {
@@ -155,6 +156,7 @@ SynapseId Network::add_synapse(
         target.first_incoming,
         source.first_outgoing,
         false,
+        effect,
     });
     source.first_outgoing = id;
     ++source.outgoing_count;
@@ -924,6 +926,7 @@ std::uint64_t Network::state_fingerprint() const noexcept {
         hash_u64(hash, item.next_incoming);
         hash_u64(hash, item.next_outgoing);
         hash_u64(hash, item.plasticity_protected ? 1 : 0);
+        hash_u64(hash, static_cast<std::uint8_t>(item.effect));
     }
     hash_u64(hash, local_event_memory_capacity_);
     for (NeuronId id = 0; id < neurons_.size(); ++id) {
@@ -1116,6 +1119,10 @@ bool Network::validate(std::string* error) const {
         }
         if (item.next_outgoing != kInvalidIndex && item.next_outgoing >= synapses_.size()) {
             return fail("invalid outgoing link");
+        }
+        if (static_cast<std::uint8_t>(item.effect) >
+            static_cast<std::uint8_t>(SynapticEffect::inhibitory)) {
+            return fail("invalid synaptic effect");
         }
     }
 

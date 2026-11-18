@@ -190,75 +190,115 @@ ImpulseResult Brainstem::receive_impulse(
     const SynapseId synapse_id,
     const ExperimentConfig& config,
     bios::DeterministicRng* const rng) const {
-    neural::Synapse& synapse = network.synapse(synapse_id);
-    neural::Neuron& neuron = network.neuron(synapse.receiver);
+    auto batch = receive_impulse_batch(network, {synapse_id}, config, rng);
+    return batch.impulses.front();
+}
 
-    ImpulseResult result;
-    result.local_event_recorded = network.local_event_memory_capacity() != 0;
-    result.local_event_overwritten =
-        network.record_local_event(synapse.receiver, synapse_id);
+ImpulseBatchResult Brainstem::receive_impulse_batch(
+    neural::Network& network,
+    std::vector<SynapseId> synapse_ids,
+    const ExperimentConfig& config,
+    bios::DeterministicRng* const rng) const {
+    if (synapse_ids.empty()) {
+        throw std::invalid_argument("impulse batch must not be empty");
+    }
+    std::sort(synapse_ids.begin(), synapse_ids.end());
+    const NeuronId receiver = network.synapse(synapse_ids.front()).receiver;
+    for (const SynapseId id : synapse_ids) {
+        if (network.synapse(id).receiver != receiver) {
+            throw std::invalid_argument("impulse batch must target one neuron");
+        }
+    }
 
-    ++neuron.input_event_count;
-    ++synapse.activity_count;
+    neural::Neuron& neuron = network.neuron(receiver);
+    ImpulseBatchResult batch;
+    batch.synapses = synapse_ids;
+    batch.impulses.reserve(synapse_ids.size());
+    batch.membrane_before = neuron.membrane_potential;
 
-    if (config.learning_enabled && !synapse.plasticity_protected &&
-        synapse.activity_count >= config.synaptic_learning_threshold) {
-        if (synapse.weight < config.maximum_synapse_weight) {
-            if (config.input_weight_budget ==
-                std::numeric_limits<std::uint64_t>::max()) {
-                ++synapse.weight;
-                result.strengthened = true;
-            } else {
-                std::uint64_t positive_input_weight = 0;
-                for (const SynapseId incoming : network.incoming_synapses(synapse.receiver)) {
-                    const std::int32_t weight = network.synapse(incoming).weight;
-                    if (weight > 0) {
-                        positive_input_weight += static_cast<std::uint32_t>(weight);
-                    }
-                }
-                if (positive_input_weight < config.input_weight_budget) {
+    for (const SynapseId synapse_id : synapse_ids) {
+        neural::Synapse& synapse = network.synapse(synapse_id);
+        ImpulseResult result;
+        result.effect = synapse.effect;
+        result.local_event_recorded = network.local_event_memory_capacity() != 0;
+        result.local_event_overwritten = network.record_local_event(receiver, synapse_id);
+        ++neuron.input_event_count;
+        ++synapse.activity_count;
+
+        if (config.learning_enabled && !synapse.plasticity_protected &&
+            synapse.activity_count >= config.synaptic_learning_threshold) {
+            if (synapse.weight < config.maximum_synapse_weight) {
+                const bool unlimited = config.input_weight_budget ==
+                    std::numeric_limits<std::uint64_t>::max();
+                if (synapse.effect == SynapticEffect::inhibitory || unlimited) {
                     ++synapse.weight;
                     result.strengthened = true;
                 } else {
-                    if (rng == nullptr) {
-                        throw std::logic_error(
-                            "input-weight competition requires a deterministic RNG");
+                    std::uint64_t positive_input_weight = 0;
+                    for (const SynapseId incoming : network.incoming_synapses(receiver)) {
+                        const auto& item = network.synapse(incoming);
+                        if (item.effect == SynapticEffect::excitatory && item.weight > 0) {
+                            positive_input_weight += static_cast<std::uint32_t>(item.weight);
+                        }
                     }
-                    const auto competitor =
-                        select_competing_synapse(network, synapse_id, *rng);
-                    if (competitor.has_value()) {
-                        --network.synapse(*competitor).weight;
+                    if (positive_input_weight < config.input_weight_budget) {
                         ++synapse.weight;
                         result.strengthened = true;
-                        result.weakened = true;
+                    } else {
+                        if (rng == nullptr) {
+                            throw std::logic_error(
+                                "input-weight competition requires a deterministic RNG");
+                        }
+                        const auto competitor =
+                            select_competing_synapse(network, synapse_id, *rng);
+                        if (competitor.has_value()) {
+                            --network.synapse(*competitor).weight;
+                            ++synapse.weight;
+                            result.strengthened = true;
+                            result.weakened = true;
+                        }
                     }
                 }
+            } else {
+                result.strengthening_rejected_by_weight_limit = true;
             }
-        } else {
-            result.strengthening_rejected_by_weight_limit = true;
+            synapse.activity_count = 0;
         }
-        synapse.activity_count = 0;
+
+        const std::int64_t magnitude = synapse.weight;
+        if (synapse.effect == SynapticEffect::inhibitory) {
+            result.applied_weight = -synapse.weight;
+            batch.inhibitory_contribution += magnitude;
+        } else {
+            result.applied_weight = synapse.weight;
+            batch.excitatory_contribution += magnitude;
+        }
+        batch.impulses.push_back(result);
     }
 
-    result.applied_weight = synapse.weight;
-    const std::int64_t weight = result.applied_weight;
-    if (weight > 0 && neuron.membrane_potential >
-                          std::numeric_limits<std::int64_t>::max() - weight) {
+    const std::int64_t net = batch.excitatory_contribution -
+                             batch.inhibitory_contribution;
+    if (net > 0 && neuron.membrane_potential >
+                       std::numeric_limits<std::int64_t>::max() - net) {
         neuron.membrane_potential = std::numeric_limits<std::int64_t>::max();
+    } else if (net < 0 && neuron.membrane_potential < -net) {
+        neuron.membrane_potential = 0;
     } else {
-        neuron.membrane_potential += weight;
+        neuron.membrane_potential += net;
     }
 
     const bool refractory = neuron.refractory_events_remaining > 0;
     if (refractory && config.recovery_mode == RecoveryMode::input_dependent) {
-        --neuron.refractory_events_remaining;
+        const auto count = static_cast<std::uint32_t>(std::min<std::size_t>(
+            synapse_ids.size(), neuron.refractory_events_remaining));
+        neuron.refractory_events_remaining -= count;
     }
     if (!refractory && neuron.membrane_potential >= neuron.firing_threshold) {
-        result.fired = true;
+        batch.fired = true;
         neuron.refractory_events_remaining = config.refractory_input_events;
         if (config.recovery_mode != RecoveryMode::input_dependent) {
             ++neuron.recovery_generation;
-            result.recovery_generation = neuron.recovery_generation;
+            batch.recovery_generation = neuron.recovery_generation;
         }
         if (config.reset_mode == ResetMode::to_zero) {
             neuron.membrane_potential = 0;
@@ -266,19 +306,27 @@ ImpulseResult Brainstem::receive_impulse(
             neuron.membrane_potential -= neuron.firing_threshold;
         }
     } else if (refractory && neuron.membrane_potential >= neuron.firing_threshold) {
-        result.firing_suppressed = true;
+        batch.firing_suppressed = true;
     }
 
     if (neuron.input_event_count >= config.activity_phase_limit) {
-        result.phase_completed = true;
+        batch.phase_completed = true;
         neuron.input_event_count = 0;
-        if (!(result.fired && config.eligibility_selection ==
+        if (!(batch.fired && config.eligibility_selection ==
                                 EligibilitySelection::active_phase)) {
-            network.reset_incoming_activity(synapse.receiver);
+            network.reset_incoming_activity(receiver);
         }
     }
-    result.membrane_after = neuron.membrane_potential;
-    return result;
+    batch.membrane_after = neuron.membrane_potential;
+    ImpulseResult& decision = batch.impulses.back();
+    decision.fired = batch.fired;
+    decision.firing_suppressed = batch.firing_suppressed;
+    decision.phase_completed = batch.phase_completed;
+    decision.recovery_generation = batch.recovery_generation;
+    for (auto& result : batch.impulses) {
+        result.membrane_after = batch.membrane_after;
+    }
+    return batch;
 }
 
 RecoveryResult Brainstem::recover_neuron(
@@ -415,6 +463,7 @@ std::optional<SynapseId> Brainstem::select_competing_synapse(
     std::vector<SynapseId> candidates;
     for (const SynapseId incoming : network.incoming_synapses(strengthened.receiver)) {
         if (incoming != strengthened_synapse && network.synapse(incoming).weight > 0 &&
+            network.synapse(incoming).effect == strengthened.effect &&
             !network.synapse(incoming).plasticity_protected) {
             candidates.push_back(incoming);
         }

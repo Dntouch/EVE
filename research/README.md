@@ -335,3 +335,32 @@ Stabilität, Ressourcen und Performance.
 Wachstum ist in allen B.4.5-Varianten deaktiviert. Laufzeit- und RSS-Werte sind
 maschinenabhängig; alle übrigen Ergebnisdateien sind bei identischem Build
 und Seed deterministisch.
+
+## Forschungsstufe B.4.6 – lokale neuronale Hemmung
+
+Build und vollständige K0–K7-Matrix:
+
+```sh
+scripts/run-research-stage-b46.sh research/results/b46
+```
+
+Der Runner führt 100 Varianten mit je 64 gepaarten Seeds aus. Der beste
+lernbare Kandidat, eine feste Kontrolle und die No-Learning-Referenz werden
+mit Seeds 1001–1064 bestätigt. Enthalten sind isolierte Hemmungs- und
+Reihenfolgeversuche, alle acht Lernaufgaben, vertauschte Zuordnungen,
+Seedwerte, Bootstrapvergleiche, Erfolgskriterien, Fähigkeitskontrollen,
+Abschaltvergleiche, 64 Persistenzproben, Stabilität, Ressourcen und
+Performance.
+
+Die großen unveränderlichen Detaildateien `trials.csv.gz`,
+`inhibitory-events.csv.gz` und `weight-changes.csv.gz` werden deterministisch
+mit Gzip komprimiert. Kleine Zusammenfassungen bleiben als direkt lesbare CSV
+erhalten. Zum Lesen ohne Entpackdatei genügt beispielsweise:
+
+```sh
+gzip -cd research/results/b46/trials.csv.gz | less
+```
+
+Wachstum ist deaktiviert. Laufzeit, Durchsatz und RSS sind maschinenabhängig;
+alle Ergebnisinhalte und die komprimierten Bytes sind bei identischem Build
+und Seed reproduzierbar.

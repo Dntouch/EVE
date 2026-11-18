@@ -85,6 +85,19 @@ enum class ModulationMode : std::uint8_t {
     ternary = 3,
 };
 
+// B.4.6: the sign of a neural contribution is an explicit, stable synaptic
+// property.  Weight remains a non-negative efficacy magnitude and negative
+// learning modulation remains a separate third-factor signal.
+enum class SynapticEffect : std::uint8_t {
+    excitatory = 0,
+    inhibitory = 1,
+};
+
+enum class InhibitoryPlasticityMode : std::uint8_t {
+    shared = 0,
+    contribution_aware = 1,
+};
+
 struct ExperimentConfig {
     std::uint32_t neuron_count{256};
     std::uint32_t width{8};
@@ -124,6 +137,9 @@ struct ExperimentConfig {
     bool learning_enabled{true};
     bool growth_enabled{true};
     ResetMode reset_mode{ResetMode::to_zero};
+    bool batch_simultaneous_inputs{};
+    InhibitoryPlasticityMode inhibitory_plasticity_mode{
+        InhibitoryPlasticityMode::shared};
 };
 
 struct Metrics {
@@ -182,6 +198,11 @@ struct Metrics {
     std::uint64_t processed_sensor_bytes{};
     std::uint64_t maximum_queue_size{};
     std::uint64_t event_trace_hash{14695981039346656037ULL};
+    std::uint64_t inhibitory_impulses{};
+    std::uint64_t inhibitory_applied_strength{};
+    std::uint64_t simultaneous_input_batches{};
+    std::uint64_t inhibitory_positive_changes{};
+    std::uint64_t inhibitory_negative_changes{};
 
     bool operator==(const Metrics& other) const noexcept {
         return processed_events == other.processed_events &&
@@ -255,7 +276,12 @@ struct Metrics {
                grown_synapses == other.grown_synapses &&
                processed_sensor_bytes == other.processed_sensor_bytes &&
                maximum_queue_size == other.maximum_queue_size &&
-               event_trace_hash == other.event_trace_hash;
+               event_trace_hash == other.event_trace_hash &&
+               inhibitory_impulses == other.inhibitory_impulses &&
+               inhibitory_applied_strength == other.inhibitory_applied_strength &&
+               simultaneous_input_batches == other.simultaneous_input_batches &&
+               inhibitory_positive_changes == other.inhibitory_positive_changes &&
+               inhibitory_negative_changes == other.inhibitory_negative_changes;
     }
 };
 

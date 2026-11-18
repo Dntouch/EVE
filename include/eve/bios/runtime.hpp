@@ -91,6 +91,7 @@ struct ImpulseObservation {
     NeuronId sender{};
     NeuronId receiver{};
     std::int32_t applied_weight{};
+    SynapticEffect synaptic_effect{SynapticEffect::excitatory};
     std::int64_t membrane_before{};
     std::int64_t membrane_after{};
     std::uint32_t refractory_before{};
@@ -109,6 +110,7 @@ struct ImpulseObservation {
                simulated_time == other.simulated_time && synapse == other.synapse &&
                sender == other.sender && receiver == other.receiver &&
                applied_weight == other.applied_weight &&
+               synaptic_effect == other.synaptic_effect &&
                membrane_before == other.membrane_before &&
                membrane_after == other.membrane_after &&
                refractory_before == other.refractory_before &&
@@ -211,6 +213,8 @@ public:
     explicit Runtime(ExperimentConfig config = {}, std::uint64_t seed = 1);
 
     void enqueue_fire(NeuronId neuron);
+    [[nodiscard]] brainstem::ImpulseBatchResult process_simultaneous_impulses(
+        const std::vector<SynapseId>& synapses);
     [[nodiscard]] std::uint64_t run();
     [[nodiscard]] std::uint64_t advance_time_to(
         std::uint64_t target_time,
@@ -274,11 +278,13 @@ public:
         const brainstem::MotorCircuitResult& circuit,
         const std::vector<ImpulseObservation>& impulses) const;
     void set_experimental_synapse_weight(SynapseId synapse, std::int32_t weight);
+    void set_experimental_synapse_effect(SynapseId synapse, SynapticEffect effect);
     void set_experimental_synapse_protection(SynapseId synapse, bool protected_state);
     void set_structural_growth_enabled(bool enabled);
     [[nodiscard]] SynapseId add_experimental_synapse(
         NeuronId sender, NeuronId receiver, std::int32_t weight,
-        bool plasticity_protected = false);
+        bool plasticity_protected = false,
+        SynapticEffect effect = SynapticEffect::excitatory);
 
     [[nodiscard]] const ExperimentConfig& config() const noexcept;
     [[nodiscard]] const neural::Network& network() const noexcept;
@@ -325,6 +331,7 @@ private:
                                        bool feedback_origin);
     void apply_local_modulation(NeuronId neuron, std::int8_t polarity);
     [[nodiscard]] bool has_ready_event() const noexcept;
+    [[nodiscard]] std::uint64_t process_ready_wave();
     [[nodiscard]] Event pop_next_event();
     void update_event_hash(const Event& event) noexcept;
     void update_queue_watermark() noexcept;

@@ -64,6 +64,12 @@ Erfahrungen. Eine inhibitorische Erweiterung zählt weiterhin zu Phase 2
 „Lernen und Erinnerung“ und benötigt vor jeder Integration eigene lokale
 Ereignissemantik, Persistenz und Kausalablation.
 
+B.4.6 implementiert diese inhibitorische Ereignissemantik als getrennte
+synaptische Wirkungsart. Sie verbessert gemischtes Lernen, verfehlt aber das
+Robustheitsziel und bleibt bei vertauschter Motorzuordnung asymmetrisch. Die
+Funktion bleibt deshalb experimentell; B.4.7 muss zunächst den verbleibenden
+Zuordnungsbias isolieren.
+
 ## Erfolgskriterien aus dem Konzept
 
 Ein geeigneter kontrollierter Test folgt der dort beschriebenen Abfolge:

@@ -1,0 +1,7 @@
+question,status,measure,interpretation
+A_local_inhibition,demonstrated,isolated_order_invariance,batched local contributions regulate firing without action selection
+B_experience_change,demonstrated,50.9844,three-factor modulation changed local inhibitory efficacy
+C_better_discrimination,supported,0.0702607,comparison uses strongest B.4.5 competition result
+D_technical_independence,partial,0.133818,queue order is invariant but swapped assignment exposes residual action asymmetry
+E_retention,measured,0.83847,evaluation runs without further modulation
+F_brainstem_role,experimental_only,0,general inhibitory efficacy is valid but promotion requires success criteria

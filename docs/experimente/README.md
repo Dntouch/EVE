@@ -35,6 +35,9 @@ angepasst werden.
 - [Auftrag B.4.5](017-entwicklungsauftrag-forschungsstufe-b45.md)
 - [Technische Analyse B.4.5](017-technische-analyse-entscheidungsbindung.md)
 - [Bericht B.4.5](017-forschungsbericht-forschungsstufe-b45.md)
+- [Auftrag B.4.6](018-entwicklungsauftrag-forschungsstufe-b46.md)
+- [Technische Analyse B.4.6](018-technische-analyse-inhibitorische-synapsen.md)
+- [Bericht B.4.6](018-forschungsbericht-forschungsstufe-b46.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
@@ -51,3 +54,7 @@ B.4.5 schließt zeitliche Altspuren und bloße Kandidatenkapazität als
 dominante Mischfehler aus. Eine gezielte Ambiguitätsintervention weist
 motorische Konkurrenz kausal als nächsten Engpass nach, erreicht das robuste
 Lernziel aber nicht.
+B.4.6 weist lokale inhibitorische Wirkung und erfahrungsabhängige
+Gewichtsänderung nach. Die beste Variante verbessert B.4.5, verfehlt jedoch
+Robustheit und Zuordnungssymmetrie; inhibitorische Konkurrenz bleibt daher
+experimentell.

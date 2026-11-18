@@ -36,7 +36,21 @@ struct ImpulseResult {
     bool local_event_recorded{};
     bool local_event_overwritten{};
     std::int32_t applied_weight{};
+    SynapticEffect effect{SynapticEffect::excitatory};
     std::int64_t membrane_after{};
+    std::uint64_t recovery_generation{};
+};
+
+struct ImpulseBatchResult {
+    std::vector<SynapseId> synapses;
+    std::vector<ImpulseResult> impulses;
+    bool fired{};
+    bool firing_suppressed{};
+    bool phase_completed{};
+    std::int64_t membrane_before{};
+    std::int64_t membrane_after{};
+    std::int64_t excitatory_contribution{};
+    std::int64_t inhibitory_contribution{};
     std::uint64_t recovery_generation{};
 };
 
@@ -359,6 +373,11 @@ public:
     [[nodiscard]] ImpulseResult receive_impulse(
         neural::Network& network,
         SynapseId synapse,
+        const ExperimentConfig& config,
+        bios::DeterministicRng* rng = nullptr) const;
+    [[nodiscard]] ImpulseBatchResult receive_impulse_batch(
+        neural::Network& network,
+        std::vector<SynapseId> synapses,
         const ExperimentConfig& config,
         bios::DeterministicRng* rng = nullptr) const;
 

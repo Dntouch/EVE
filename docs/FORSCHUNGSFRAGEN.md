@@ -45,3 +45,10 @@ nicht löst. Dagegen verbessert ein gezielter Eingriff bei doppelter
 Motoraktivierung die Leistung stark und reduziert Doppelhandlungen kausal.
 Offen ist eine allgemeine lokale inhibitorische Konkurrenz ohne technische
 Handlungsauswahl oder Ereignisreihenfolgebias.
+B.4.6 beantwortet den technischen Teil: Eine explizite inhibitorische
+Wirkungsart reguliert Feuerbedingungen lokal, persistent und unabhängig von
+der Queue-Reihenfolge. Ihre Stärke ist über vorhandene Eligibility und
+Modulation veränderbar und verbessert die Mischaufgabe. Das Robustheitsziel
+wird dennoch verfehlt; vertauschte Motorzuordnung zeigt einen signifikanten
+Restbias. Offen bleibt deshalb eine vollständig symmetrische lokale
+Rollenbindung von Sensorik, Exploration, Handlung und Rückmeldung.

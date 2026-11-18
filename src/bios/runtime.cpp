@@ -13,7 +13,7 @@ namespace eve::bios {
 namespace {
 
 constexpr std::array<char, 8> kPersistenceMagic{{'E', 'V', 'E', '0', '0', '1', '\r', '\n'}};
-constexpr std::uint32_t kPersistenceVersion = 12;
+constexpr std::uint32_t kPersistenceVersion = 13;
 constexpr std::uint64_t kNonZeroRngState = 0x9e3779b97f4a7c15ULL;
 constexpr std::uint64_t kGrowthSeedMask = 0xd1b54a32d192ed03ULL;
 constexpr std::uint64_t kFnvPrime = 1099511628211ULL;
@@ -143,6 +143,8 @@ void write_config(std::ostream& stream, const ExperimentConfig& config) {
     write_u8(stream, config.learning_enabled ? 1 : 0);
     write_u8(stream, config.growth_enabled ? 1 : 0);
     write_u8(stream, static_cast<std::uint8_t>(config.reset_mode));
+    write_u8(stream, config.batch_simultaneous_inputs ? 1 : 0);
+    write_u8(stream, static_cast<std::uint8_t>(config.inhibitory_plasticity_mode));
 }
 
 ExperimentConfig read_config(std::istream& stream, const std::uint32_t version) {
@@ -229,6 +231,16 @@ ExperimentConfig read_config(std::istream& stream, const std::uint32_t version) 
         throw std::runtime_error("invalid reset mode in EVE state");
     }
     config.reset_mode = static_cast<ResetMode>(reset_mode);
+    if (version >= 13) {
+        config.batch_simultaneous_inputs = read_bool(stream);
+        const auto mode = read_u8(stream);
+        if (mode > static_cast<std::uint8_t>(
+                       InhibitoryPlasticityMode::contribution_aware)) {
+            throw std::runtime_error("invalid inhibitory plasticity mode");
+        }
+        config.inhibitory_plasticity_mode =
+            static_cast<InhibitoryPlasticityMode>(mode);
+    }
     return config;
 }
 
@@ -288,6 +300,11 @@ void write_metrics(std::ostream& stream, const Metrics& metrics) {
     write_u64(stream, metrics.processed_sensor_bytes);
     write_u64(stream, metrics.maximum_queue_size);
     write_u64(stream, metrics.event_trace_hash);
+    write_u64(stream, metrics.inhibitory_impulses);
+    write_u64(stream, metrics.inhibitory_applied_strength);
+    write_u64(stream, metrics.simultaneous_input_batches);
+    write_u64(stream, metrics.inhibitory_positive_changes);
+    write_u64(stream, metrics.inhibitory_negative_changes);
 }
 
 Metrics read_metrics(std::istream& stream, const std::uint32_t version) {
@@ -365,6 +382,13 @@ Metrics read_metrics(std::istream& stream, const std::uint32_t version) {
         metrics.maximum_queue_size = read_u64(stream);
     }
     metrics.event_trace_hash = read_u64(stream);
+    if (version >= 13) {
+        metrics.inhibitory_impulses = read_u64(stream);
+        metrics.inhibitory_applied_strength = read_u64(stream);
+        metrics.simultaneous_input_batches = read_u64(stream);
+        metrics.inhibitory_positive_changes = read_u64(stream);
+        metrics.inhibitory_negative_changes = read_u64(stream);
+    }
     return metrics;
 }
 
@@ -432,6 +456,112 @@ void Runtime::enqueue_fire(const NeuronId neuron) {
     enqueue_event(EventKind::fire, neuron, simulated_time_);
 }
 
+brainstem::ImpulseBatchResult Runtime::process_simultaneous_impulses(
+    const std::vector<SynapseId>& synapses) {
+    if (!config_.batch_simultaneous_inputs) {
+        throw std::logic_error("simultaneous input batching is disabled");
+    }
+    if (synapses.empty()) {
+        throw std::invalid_argument("simultaneous input batch must not be empty");
+    }
+    std::vector<SynapseId> canonical = synapses;
+    std::sort(canonical.begin(), canonical.end());
+    const NeuronId receiver = network_.synapse(canonical.front()).receiver;
+    for (const SynapseId id : canonical) {
+        if (network_.synapse(id).receiver != receiver) {
+            throw std::invalid_argument(
+                "simultaneous input batch must have one local receiver");
+        }
+    }
+
+    const auto refractory_before = network_.neuron(receiver).refractory_events_remaining;
+    const auto membrane_before = network_.neuron(receiver).membrane_potential;
+    for (const SynapseId id : canonical) {
+        Event event{EventKind::impulse, id, simulated_time_, next_event_sequence_++};
+        ++metrics_.processed_events;
+        update_event_hash(event);
+    }
+    auto batch = brainstem_.receive_impulse_batch(
+        network_, canonical, config_, &rng_);
+    ++metrics_.simultaneous_input_batches;
+
+    brainstem::EligibilityResult eligibility;
+    if (batch.fired && config_.eligibility_selection != EligibilitySelection::none) {
+        const std::uint64_t duration =
+            config_.plasticity_trace_mode != PlasticityTraceMode::disabled &&
+                    config_.plasticity_decay_mode == TraceDecayMode::immediate
+                ? 0 : config_.eligibility_duration;
+        if (duration > std::numeric_limits<std::uint64_t>::max() - simulated_time_) {
+            throw std::overflow_error("eligibility expiry time overflow");
+        }
+        eligibility = brainstem_.create_eligibility(
+            network_, receiver, simulated_time_ + duration, config_, false);
+        if (eligibility.created) {
+            ++metrics_.eligibility_decisions;
+            metrics_.eligibility_candidates += eligibility.candidates.size();
+            metrics_.eligibility_positive_candidates += eligibility.positive_candidates;
+            metrics_.eligibility_zero_weight_candidates +=
+                eligibility.zero_weight_candidates;
+            metrics_.eligibility_overwritten_decisions +=
+                eligibility.overwritten_decisions;
+        }
+    }
+
+    for (std::size_t index = 0; index < batch.impulses.size(); ++index) {
+        const auto& result = batch.impulses[index];
+        const SynapseId id = batch.synapses[index];
+        const auto& item = network_.synapse(id);
+        if (result.local_event_recorded) ++metrics_.local_event_memory_records;
+        if (result.local_event_overwritten) ++metrics_.local_event_memory_overwrites;
+        if (result.strengthened) ++metrics_.synaptic_strengthenings;
+        if (result.strengthening_rejected_by_weight_limit) {
+            ++metrics_.rejected_strengthenings_at_weight_limit;
+        }
+        if (result.weakened) ++metrics_.synaptic_weakenings;
+        if (result.effect == SynapticEffect::inhibitory) {
+            ++metrics_.inhibitory_impulses;
+            metrics_.inhibitory_applied_strength +=
+                static_cast<std::uint64_t>(
+                    -static_cast<std::int64_t>(result.applied_weight));
+        }
+        if (impulse_observer_) {
+            impulse_observer_(ImpulseObservation{
+                metrics_.processed_events - batch.impulses.size() + index + 1,
+                simulated_time_, id, item.sender, receiver,
+                result.applied_weight, result.effect, membrane_before,
+                batch.membrane_after, refractory_before,
+                network_.neuron(receiver).refractory_events_remaining,
+                result.fired, result.firing_suppressed, false, 0, false,
+                network_.local_event_memory(receiver),
+                result.fired ? eligibility.generation : 0,
+                result.fired ? eligibility.candidates : std::vector<SynapseId>{},
+            });
+        }
+    }
+    if (batch.firing_suppressed) ++metrics_.refractory_suppressed_firings;
+    if (batch.phase_completed) ++metrics_.completed_activity_phases;
+    if (batch.fired && config_.eligibility_selection ==
+                           EligibilitySelection::active_phase) {
+        network_.reset_incoming_activity(receiver);
+    }
+    if (batch.fired) {
+        enqueue_event(EventKind::fire, receiver, simulated_time_);
+        if (config_.recovery_mode != RecoveryMode::input_dependent) {
+            const std::uint64_t due = simulated_time_ + config_.recovery_delay;
+            network_.neuron(receiver).scheduled_recovery_time = due;
+            enqueue_event(EventKind::recovery, receiver, due,
+                          batch.recovery_generation);
+            ++metrics_.scheduled_recovery_events;
+        }
+        if (eligibility.created) {
+            enqueue_event(EventKind::eligibility_expiry, receiver,
+                          eligibility.expires_at, eligibility.generation);
+            ++metrics_.scheduled_eligibility_expiries;
+        }
+    }
+    return batch;
+}
+
 std::uint64_t Runtime::run() {
     std::uint64_t processed = 0;
     while (has_ready_event()) {
@@ -440,9 +570,20 @@ std::uint64_t Runtime::run() {
                 "event processing limit reached with " + std::to_string(queue_.size()) +
                 " events still queued");
         }
-        const Event event = pop_next_event();
-        ++processed;
-        process_event(event);
+        if (config_.batch_simultaneous_inputs) {
+            const auto wave_size = static_cast<std::uint64_t>(std::count_if(
+                queue_.begin(), queue_.end(), [this](const Event& event) {
+                    return event.scheduled_time == simulated_time_;
+                }));
+            if (wave_size > config_.maximum_events_per_run - processed) {
+                throw std::runtime_error("event processing limit reached inside batch");
+            }
+            processed += process_ready_wave();
+        } else {
+            const Event event = pop_next_event();
+            ++processed;
+            process_event(event);
+        }
     }
     return processed;
 }
@@ -459,10 +600,21 @@ std::uint64_t Runtime::advance_time_to(
         if (processed >= limit) {
             throw std::runtime_error("time advance event limit reached");
         }
-        const Event event = pop_next_event();
-        simulated_time_ = event.scheduled_time;
-        ++processed;
-        process_event(event);
+        simulated_time_ = queue_.front().scheduled_time;
+        if (config_.batch_simultaneous_inputs) {
+            const auto wave_size = static_cast<std::uint64_t>(std::count_if(
+                queue_.begin(), queue_.end(), [this](const Event& event) {
+                    return event.scheduled_time == simulated_time_;
+                }));
+            if (wave_size > limit - processed) {
+                throw std::runtime_error("time advance event limit reached inside batch");
+            }
+            processed += process_ready_wave();
+        } else {
+            const Event event = pop_next_event();
+            ++processed;
+            process_event(event);
+        }
     }
     simulated_time_ = target_time;
     return processed;
@@ -545,9 +697,21 @@ brainstem::MotorResponse Runtime::request_response(
             motor_output_.abort();
             break;
         }
-        const Event event = pop_next_event();
-        ++processed;
-        process_event(event);
+        if (config_.batch_simultaneous_inputs) {
+            const auto wave_size = static_cast<std::uint64_t>(std::count_if(
+                queue_.begin(), queue_.end(), [this](const Event& event) {
+                    return event.scheduled_time == simulated_time_;
+                }));
+            if (wave_size > limit - processed) {
+                motor_output_.abort();
+                break;
+            }
+            processed += process_ready_wave();
+        } else {
+            const Event event = pop_next_event();
+            ++processed;
+            process_event(event);
+        }
     }
     if (motor_output_.active()) {
         motor_output_.finish_without_completion();
@@ -1102,6 +1266,14 @@ void Runtime::set_experimental_synapse_weight(
     network_.synapse(synapse).weight = weight;
 }
 
+void Runtime::set_experimental_synapse_effect(
+    const SynapseId synapse, const SynapticEffect effect) {
+    if (motor_output_.active()) {
+        throw std::logic_error("cannot change synaptic effect during an active response");
+    }
+    network_.synapse(synapse).effect = effect;
+}
+
 void Runtime::set_experimental_synapse_protection(
     const SynapseId synapse, const bool protected_state) {
     if (motor_output_.active()) {
@@ -1119,14 +1291,14 @@ void Runtime::set_structural_growth_enabled(const bool enabled) {
 
 SynapseId Runtime::add_experimental_synapse(
     const NeuronId sender, const NeuronId receiver, const std::int32_t weight,
-    const bool plasticity_protected) {
+    const bool plasticity_protected, const SynapticEffect effect) {
     if (weight < 0 || weight > config_.maximum_synapse_weight) {
         throw std::invalid_argument("experimental weight is outside configured bounds");
     }
     if (network_.has_synapse(sender, receiver)) {
         throw std::invalid_argument("experimental synapse already exists");
     }
-    const SynapseId synapse = network_.add_synapse(sender, receiver, weight);
+    const SynapseId synapse = network_.add_synapse(sender, receiver, weight, effect);
     network_.synapse(synapse).plasticity_protected = plasticity_protected;
     return synapse;
 }
@@ -1200,6 +1372,8 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
     mix_hash(hash, static_cast<std::uint32_t>(config_.plasticity_negative_step));
     mix_hash(hash, static_cast<std::uint32_t>(config_.plasticity_maximum_weight));
     mix_hash(hash, config_.consume_trace_on_modulation ? 1 : 0);
+    mix_hash(hash, config_.batch_simultaneous_inputs ? 1 : 0);
+    mix_hash(hash, static_cast<std::uint8_t>(config_.inhibitory_plasticity_mode));
     mix_hash(hash, evaluation_route_configured_ ? 1 : 0);
     if (evaluation_route_configured_) {
         mix_hash(hash, static_cast<std::uint8_t>(evaluation_route_.config.mode));
@@ -1281,6 +1455,11 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
     mix_hash(hash, metrics_.processed_sensor_bytes);
     mix_hash(hash, metrics_.maximum_queue_size);
     mix_hash(hash, metrics_.event_trace_hash);
+    mix_hash(hash, metrics_.inhibitory_impulses);
+    mix_hash(hash, metrics_.inhibitory_applied_strength);
+    mix_hash(hash, metrics_.simultaneous_input_batches);
+    mix_hash(hash, metrics_.inhibitory_positive_changes);
+    mix_hash(hash, metrics_.inhibitory_negative_changes);
     mix_hash(hash, simulated_time_);
     mix_hash(hash, next_event_sequence_);
     for (const Event& event : queue_) {
@@ -1348,6 +1527,7 @@ void Runtime::save(const std::string& path) const {
         write_u32(stream, synapse.next_incoming);
         write_u32(stream, synapse.next_outgoing);
         write_u8(stream, synapse.plasticity_protected ? 1 : 0);
+        write_u8(stream, static_cast<std::uint8_t>(synapse.effect));
     }
 
     for (NeuronId neuron = 0; neuron < network_.neuron_count(); ++neuron) {
@@ -1505,6 +1685,13 @@ Runtime Runtime::load(const std::string& path) {
         synapse.next_outgoing = read_u32(stream);
         if (version >= 11) {
             synapse.plasticity_protected = read_bool(stream);
+        }
+        if (version >= 13) {
+            const auto effect = read_u8(stream);
+            if (effect > static_cast<std::uint8_t>(SynapticEffect::inhibitory)) {
+                throw std::runtime_error("invalid persisted synaptic effect");
+            }
+            synapse.effect = static_cast<SynapticEffect>(effect);
         }
         synapses.push_back(synapse);
     }
@@ -1783,6 +1970,11 @@ void Runtime::validate_config() const {
             static_cast<std::uint8_t>(EligibilityHistory::merge_unique)) {
         throw std::invalid_argument("invalid eligibility mode");
     }
+    if (static_cast<std::uint8_t>(config_.inhibitory_plasticity_mode) >
+        static_cast<std::uint8_t>(
+            InhibitoryPlasticityMode::contribution_aware)) {
+        throw std::invalid_argument("invalid inhibitory plasticity mode");
+    }
     if (config_.recovery_mode !=
             RecoveryMode::independent_with_membrane_relaxation &&
         config_.membrane_relaxation_percent != 0) {
@@ -1914,7 +2106,13 @@ void Runtime::apply_local_modulation(
                 auto& item = network_.synapse(candidate);
                 if (item.receiver != neuron) continue;
                 if (item.plasticity_protected) continue;
-                if (polarity > 0) {
+                const std::int8_t local_polarity =
+                    item.effect == SynapticEffect::inhibitory &&
+                            config_.inhibitory_plasticity_mode ==
+                                InhibitoryPlasticityMode::contribution_aware
+                        ? static_cast<std::int8_t>(-polarity)
+                        : polarity;
+                if (local_polarity > 0) {
                     const std::int32_t limit = std::min(
                         config_.maximum_synapse_weight,
                         config_.plasticity_maximum_weight);
@@ -1923,14 +2121,21 @@ void Runtime::apply_local_modulation(
                         continue;
                     }
                     std::uint64_t incoming_weight = 0;
-                    for (const SynapseId incoming : network_.incoming_synapses(neuron)) {
-                        const auto weight = network_.synapse(incoming).weight;
-                        if (weight > 0) incoming_weight += static_cast<std::uint64_t>(weight);
+                    if (item.effect == SynapticEffect::excitatory) {
+                        for (const SynapseId incoming : network_.incoming_synapses(neuron)) {
+                            const auto& input = network_.synapse(incoming);
+                            if (input.effect == SynapticEffect::excitatory &&
+                                input.weight > 0) {
+                                incoming_weight +=
+                                    static_cast<std::uint64_t>(input.weight);
+                            }
+                        }
                     }
                     const std::int32_t requested =
                         config_.plasticity_positive_step * record.strength;
                     const std::int32_t delta = std::min(requested, limit - item.weight);
-                    if (static_cast<std::uint64_t>(delta) >
+                    if (item.effect == SynapticEffect::excitatory &&
+                        static_cast<std::uint64_t>(delta) >
                         config_.input_weight_budget -
                             std::min(config_.input_weight_budget, incoming_weight)) {
                         ++metrics_.plasticity_rejected_by_budget;
@@ -1939,12 +2144,18 @@ void Runtime::apply_local_modulation(
                     const bool was_zero = item.weight == 0;
                     item.weight += delta;
                     ++metrics_.plasticity_positive_changes;
+                    if (item.effect == SynapticEffect::inhibitory) {
+                        ++metrics_.inhibitory_positive_changes;
+                    }
                     if (was_zero) ++metrics_.plasticity_zero_to_one_changes;
-                } else if (item.weight > 0) {
+                } else if (local_polarity < 0 && item.weight > 0) {
                     item.weight = std::max<std::int32_t>(
                         0, item.weight -
                                config_.plasticity_negative_step * record.strength);
                     ++metrics_.plasticity_negative_changes;
+                    if (item.effect == SynapticEffect::inhibitory) {
+                        ++metrics_.inhibitory_negative_changes;
+                    }
                 }
             }
             if (config_.consume_trace_on_modulation) {
@@ -2140,6 +2351,11 @@ void Runtime::process_impulse(
     }
     const brainstem::ImpulseResult result =
         brainstem_.receive_impulse(network_, synapse, config_, &rng_);
+    if (result.effect == SynapticEffect::inhibitory) {
+        ++metrics_.inhibitory_impulses;
+        metrics_.inhibitory_applied_strength +=
+            static_cast<std::uint64_t>(-static_cast<std::int64_t>(result.applied_weight));
+    }
     brainstem::EligibilityResult eligibility;
     const std::uint64_t eligibility_trace_duration =
         config_.plasticity_trace_mode != PlasticityTraceMode::disabled &&
@@ -2224,6 +2440,7 @@ void Runtime::process_impulse(
             before.sender,
             before.receiver,
             result.applied_weight,
+            result.effect,
             membrane_before,
             receiver_after.membrane_potential,
             refractory_before,
@@ -2396,6 +2613,32 @@ void Runtime::enqueue_event(
 
 bool Runtime::has_ready_event() const noexcept {
     return !queue_.empty() && queue_.front().scheduled_time <= simulated_time_;
+}
+
+std::uint64_t Runtime::process_ready_wave() {
+    std::vector<Event> wave;
+    const std::uint64_t wave_time = simulated_time_;
+    const std::size_t initial_size = queue_.size();
+    for (std::size_t index = 0; index < initial_size && has_ready_event(); ++index) {
+        if (queue_.front().scheduled_time != wave_time) break;
+        wave.push_back(pop_next_event());
+    }
+    if (wave.empty()) return 0;
+
+    std::map<NeuronId, std::vector<SynapseId>> ordinary_inputs;
+    for (const Event& event : wave) {
+        if (event.kind == EventKind::impulse) {
+            const auto& synapse = network_.synapse(event.target);
+            ordinary_inputs[synapse.receiver].push_back(event.target);
+        } else {
+            process_event(event);
+        }
+    }
+    for (auto& [receiver, synapses] : ordinary_inputs) {
+        static_cast<void>(receiver);
+        static_cast<void>(process_simultaneous_impulses(synapses));
+    }
+    return wave.size();
 }
 
 Event Runtime::pop_next_event() {
