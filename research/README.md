@@ -179,3 +179,30 @@ identischem Build reproduzierbar. Laufzeiten und Durchsatz sind
 maschinenabhängig. Der lokale Ringspeicher ist Teil des persistierten
 neuronalen Zustands; die technische Impulsdiagnose bleibt temporär und wird
 nicht persistiert.
+
+## Forschungsstufe B.1 – eigenständige neuronale Erholung
+
+Build, alle Kerntests und die vollständigen Zeit-, Erholungs-, Wiederholungs-,
+Integritäts-, Rückmeldungs- und Performancematrizen:
+
+~~~sh
+scripts/run_research_stage_b1.sh research/results
+~~~
+
+Der Runner verwendet alle 64 B-Seeds und erzeugt ausschließlich Dateien mit
+dem Präfix `research-stage-b1-`:
+
+- `parameters.csv`: gemeinsame Architektur- und Versuchsparameter,
+- `timing.csv`: R0, R1, R2H und R2F mit T1 bis T4 und fünf Abständen,
+- `repetitions.csv`: K0 bis K3, fünf Eingabefolgen sowie 2, 8, 32 und 128
+  Antwortphasen,
+- `neuron-diagnostics.csv`: relevante Impuls- und Erholungszustände,
+- `integrity.csv`: Synapsen-, Gedächtnis- und Persistenzkontrollen,
+- `feedback.csv`: F0 bis F2 über acht fortgeführte Phasen,
+- `performance.csv`: tatsächliche Läufe mit 256, 1.024 und 10.000 Neuronen
+  sowie Speicherextrapolationen.
+
+Zustände, Ereignisfolgen und simulierte Zeit sind deterministisch. Laufzeit
+und Durchsatz bleiben maschinenabhängig. Ein Antwortende verarbeitet keine
+zukünftigen Erholungen; Zeit zwischen Handlungen wird ausschließlich durch den
+Runner explizit fortgeschrieben.
