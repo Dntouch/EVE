@@ -12,20 +12,20 @@ vorgegebene Semantik aus.
 
 **Stand:** 18. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.4.1 – Validierung des Lernversuchs
+**Jüngste abgeschlossene Forschungsstufe:** B.4.2 – Erhalt explorativer Handlungsfähigkeit
 
-**Aktueller Forschungsschwerpunkt:** Explorationserhalt vor einer neuen Lernregel
+**Aktueller Forschungsschwerpunkt:** lokale Trennung mehrerer Reiz-Handlungs-Zuordnungen
 
 EVE ist inzwischen ein ausführbarer Forschungsprototyp. Er besitzt eine
 deterministische, ereignisgesteuerte Laufzeit, ein eigenes neuronales Netz,
 angeborene Stammhirnfunktionen, persistierbare Zustände und reproduzierbare
 Versuchsreihen.
 
-Die Validierungsstufe B.4.1 bestätigt, dass lokale Gewichtsänderungen eine
-spätere Handlung kausal verändern können. Unter korrigierter Zeitplanung,
-getrennten Zufallsströmen und getrennten Motor-/Modulationskontakten waren E1,
-E2 und E3 im freien Training dennoch schlechter als die Nullkontrolle. Der
-Engpass liegt derzeit im Verlust explorativer Wege durch negative Modulation.
+B.4.2 weist den Verlust explorativer Wege durch negative Modulation kausal
+nach. Ein allgemeiner Schutz angeborener Explorationssynapsen erhält beide
+Handlungsalternativen. Damit lernt EVE einen wiederholten Einzelreiz für Ziel A
+wie B und passt die Präferenz nach Umweltumkehr an. Die Zwei-Reiz-Aufgabe bleibt
+trotz Verbesserung gegenüber der Nullkontrolle ungelöst.
 
 EVE ist damit weder eine fertige allgemeine Intelligenz noch ein Nachweis, dass
 eigenständige Intelligenz bereits entstanden ist. Der Prototyp dient dazu,
@@ -44,6 +44,7 @@ negative Ergebnisse nachvollziehbar festzuhalten.
 - abgestufte Bewertungsreize und neuronale Rückmeldungsrouten,
 - standardmäßig deaktivierte, lokale Drei-Faktor-Plastizität für B.4-Versuche,
 - nicht-erregende neuronale Modulationskontakte, die weder Membran noch G3 füllen,
+- persistierbarer Plastizitätsschutz für angeborene Explorationssynapsen,
 - versionierte Speicherung und Wiederherstellung vollständiger Zustände,
 - Diagnostik, Ereignisprotokolle, Zustandsfingerabdrücke und Messdaten,
 - automatisierte Kerntests und reproduzierbare Forschungsrunner.
@@ -65,6 +66,7 @@ deaktiviert, damit beobachtete Effekte eindeutig zugeordnet werden können.
 | B.3.1 | neuronaler Kontext zur Handlungszuordnung | abgeschlossen, nicht ausreichend |
 | B.4 | erste rückmeldungsabhängige Plastizität | abgeschlossen, Lernkriterium verfehlt |
 | B.4.1 | methodische Validierung des Lernversuchs | abgeschlossen, kausale Wirkung ja, Lernen nein |
+| B.4.2 | Erhalt angeborener Exploration | abgeschlossen, Einzelreiz-Lernen ja, Zwei-Reiz-Lernen nein |
 
 Ausführliche Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen unter
 [`docs/experimente`](docs/experimente/). Die zugehörigen maschinenlesbaren
@@ -110,7 +112,7 @@ Die jüngste abgeschlossene Versuchsmatrix wird mit folgendem Runner neu
 erzeugt:
 
 ```sh
-./scripts/run-research-stage-b41.sh research/results/b41
+./scripts/run-research-stage-b42.sh research/results/b42
 ```
 
 Weitere Runner und die Bedeutung aller Ergebnisdateien sind in der
@@ -145,8 +147,8 @@ Eingabestrom deterministisch.
 
 - [Projektkonzept](docs/konzept/EVE-Konzept.md)
 - [Stammhirnkonzept](docs/konzept/EVE-Stammhirnkonzept.md)
-- [Bericht zur Forschungsstufe B.4.1](docs/experimente/013-forschungsbericht-forschungsstufe-b41.md)
-- [Entscheidung nach der Validierung](docs/entscheidungen/0013-keine-neue-lernregel-nach-b41.md)
+- [Bericht zur Forschungsstufe B.4.2](docs/experimente/014-forschungsbericht-forschungsstufe-b42.md)
+- [Entscheidung zum begrenzten Lernnachweis](docs/entscheidungen/0014-begrenztes-einzelreiz-lernen-nach-b42.md)
 - [Forschungsfragen](docs/FORSCHUNGSFRAGEN.md)
 - [Glossar](docs/GLOSSAR.md)
 - [Hinweise für Beiträge](CONTRIBUTING.md)

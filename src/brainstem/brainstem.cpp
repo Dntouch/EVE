@@ -201,7 +201,7 @@ ImpulseResult Brainstem::receive_impulse(
     ++neuron.input_event_count;
     ++synapse.activity_count;
 
-    if (config.learning_enabled &&
+    if (config.learning_enabled && !synapse.plasticity_protected &&
         synapse.activity_count >= config.synaptic_learning_threshold) {
         if (synapse.weight < config.maximum_synapse_weight) {
             if (config.input_weight_budget ==
@@ -407,7 +407,8 @@ std::optional<SynapseId> Brainstem::select_competing_synapse(
     const neural::Synapse& strengthened = network.synapse(strengthened_synapse);
     std::vector<SynapseId> candidates;
     for (const SynapseId incoming : network.incoming_synapses(strengthened.receiver)) {
-        if (incoming != strengthened_synapse && network.synapse(incoming).weight > 0) {
+        if (incoming != strengthened_synapse && network.synapse(incoming).weight > 0 &&
+            !network.synapse(incoming).plasticity_protected) {
             candidates.push_back(incoming);
         }
     }

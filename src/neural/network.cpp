@@ -41,7 +41,8 @@ bool Neuron::operator==(const Neuron& other) const noexcept {
 bool Synapse::operator==(const Synapse& other) const noexcept {
     return sender == other.sender && receiver == other.receiver && weight == other.weight &&
            activity_count == other.activity_count &&
-           next_incoming == other.next_incoming && next_outgoing == other.next_outgoing;
+           next_incoming == other.next_incoming && next_outgoing == other.next_outgoing &&
+           plasticity_protected == other.plasticity_protected;
 }
 
 void Network::reset(const ExperimentConfig& config) {
@@ -153,6 +154,7 @@ SynapseId Network::add_synapse(
         0,
         target.first_incoming,
         source.first_outgoing,
+        false,
     });
     source.first_outgoing = id;
     ++source.outgoing_count;
@@ -921,6 +923,7 @@ std::uint64_t Network::state_fingerprint() const noexcept {
         hash_u64(hash, item.activity_count);
         hash_u64(hash, item.next_incoming);
         hash_u64(hash, item.next_outgoing);
+        hash_u64(hash, item.plasticity_protected ? 1 : 0);
     }
     hash_u64(hash, local_event_memory_capacity_);
     for (NeuronId id = 0; id < neurons_.size(); ++id) {

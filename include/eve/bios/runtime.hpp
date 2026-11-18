@@ -274,8 +274,10 @@ public:
         const brainstem::MotorCircuitResult& circuit,
         const std::vector<ImpulseObservation>& impulses) const;
     void set_experimental_synapse_weight(SynapseId synapse, std::int32_t weight);
+    void set_experimental_synapse_protection(SynapseId synapse, bool protected_state);
     [[nodiscard]] SynapseId add_experimental_synapse(
-        NeuronId sender, NeuronId receiver, std::int32_t weight);
+        NeuronId sender, NeuronId receiver, std::int32_t weight,
+        bool plasticity_protected = false);
 
     [[nodiscard]] const ExperimentConfig& config() const noexcept;
     [[nodiscard]] const neural::Network& network() const noexcept;

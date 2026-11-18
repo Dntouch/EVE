@@ -13,7 +13,7 @@ namespace eve::bios {
 namespace {
 
 constexpr std::array<char, 8> kPersistenceMagic{{'E', 'V', 'E', '0', '0', '1', '\r', '\n'}};
-constexpr std::uint32_t kPersistenceVersion = 10;
+constexpr std::uint32_t kPersistenceVersion = 11;
 constexpr std::uint64_t kNonZeroRngState = 0x9e3779b97f4a7c15ULL;
 constexpr std::uint64_t kFnvPrime = 1099511628211ULL;
 
@@ -1101,15 +1101,26 @@ void Runtime::set_experimental_synapse_weight(
     network_.synapse(synapse).weight = weight;
 }
 
+void Runtime::set_experimental_synapse_protection(
+    const SynapseId synapse, const bool protected_state) {
+    if (motor_output_.active()) {
+        throw std::logic_error("cannot change synapse protection during an active response");
+    }
+    network_.synapse(synapse).plasticity_protected = protected_state;
+}
+
 SynapseId Runtime::add_experimental_synapse(
-    const NeuronId sender, const NeuronId receiver, const std::int32_t weight) {
+    const NeuronId sender, const NeuronId receiver, const std::int32_t weight,
+    const bool plasticity_protected) {
     if (weight < 0 || weight > config_.maximum_synapse_weight) {
         throw std::invalid_argument("experimental weight is outside configured bounds");
     }
     if (network_.has_synapse(sender, receiver)) {
         throw std::invalid_argument("experimental synapse already exists");
     }
-    return network_.add_synapse(sender, receiver, weight);
+    const SynapseId synapse = network_.add_synapse(sender, receiver, weight);
+    network_.synapse(synapse).plasticity_protected = plasticity_protected;
+    return synapse;
 }
 
 const ExperimentConfig& Runtime::config() const noexcept {
@@ -1326,6 +1337,7 @@ void Runtime::save(const std::string& path) const {
         write_u32(stream, synapse.activity_count);
         write_u32(stream, synapse.next_incoming);
         write_u32(stream, synapse.next_outgoing);
+        write_u8(stream, synapse.plasticity_protected ? 1 : 0);
     }
 
     for (NeuronId neuron = 0; neuron < network_.neuron_count(); ++neuron) {
@@ -1474,6 +1486,9 @@ Runtime Runtime::load(const std::string& path) {
         synapse.activity_count = read_u32(stream);
         synapse.next_incoming = read_u32(stream);
         synapse.next_outgoing = read_u32(stream);
+        if (version >= 11) {
+            synapse.plasticity_protected = read_bool(stream);
+        }
         synapses.push_back(synapse);
     }
     runtime.network_.restore(
@@ -1881,6 +1896,7 @@ void Runtime::apply_local_modulation(
             for (const SynapseId candidate : record.candidates) {
                 auto& item = network_.synapse(candidate);
                 if (item.receiver != neuron) continue;
+                if (item.plasticity_protected) continue;
                 if (polarity > 0) {
                     const std::int32_t limit = std::min(
                         config_.maximum_synapse_weight,

@@ -24,7 +24,11 @@ angepasst werden.
 - [Bericht B.4](012-forschungsbericht-forschungsstufe-b4.md)
 - [Auftrag B.4.1](013-entwicklungsauftrag-forschungsstufe-b41.md)
 - [Bericht B.4.1](013-forschungsbericht-forschungsstufe-b41.md)
+- [Auftrag B.4.2](014-entwicklungsauftrag-forschungsstufe-b42.md)
+- [Bericht B.4.2](014-forschungsbericht-forschungsstufe-b42.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
 Zufallsquellen, Exploration und motorische Kausalität des Versuchsaufbaus.
+B.4.2 erhält angeborene Exploration allgemein und weist dadurch begrenztes
+Einzelreiz- und Umkehrlernen nach; die Zwei-Reiz-Aufgabe bleibt offen.

@@ -33,6 +33,7 @@ struct Synapse {
     std::uint32_t activity_count{};
     SynapseId next_incoming{kInvalidIndex};
     SynapseId next_outgoing{kInvalidIndex};
+    bool plasticity_protected{};
 
     bool operator==(const Synapse& other) const noexcept;
 };

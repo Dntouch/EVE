@@ -25,3 +25,6 @@ minimalen Versuch aber noch keine belastbare Verhaltensverbesserung.
 B.4.1 weist zusätzlich eine kausale Handlungswirkung gelernter Gewichte nach,
 lokalisiert den freien Lernengpass aber beim Verlust explorativer Alternativen
 durch negative Modulation.
+B.4.2 bestätigt diesen Kausalzusammenhang und weist mit geschützter Exploration
+erstmals Lernen und Umkehrlernen für einen wiederholten Einzelreiz nach. Offen
+bleibt die stabile lokale Trennung mehrerer Reiz-Handlungs-Zuordnungen.

@@ -23,6 +23,10 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
   Zufallsströmen, echter Explorationskontrolle und 64-/256-Neuronen-Vergleich.
 - 45 zusätzliche B.4.1-Prüfungen sowie Kausal- und Ablationsnachweis für den
   Einfluss eines gelernten Gewichts auf eine spätere Motorhandlung.
+- Forschungsstufe B.4.2 mit K0–K24, A0–A2, N0–N5, X0–X4,
+  Einzelreiz-, Umweltumkehr- und Zwei-Reiz-Versuchen über 64 gepaarte Seeds.
+- 43 zusätzliche B.4.2-Prüfungen, Kausalwiederherstellung explorativer Wege
+  und Langläufe bis 2.048 Erfahrungen.
 
 ### Geändert
 
@@ -35,3 +39,6 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
   bereits geplanter Ereignisse weiterlernen kann.
 - Modulationskontakte werden als nicht-erregende lokale Rezeptoren behandelt
   und können weder Membran, G3 noch Motorfeuer selbst verändern.
+- Persistenzformat 11 speichert den allgemeinen Plastizitätsschutz angeborener
+  Synapsen; geschützte Verbindungen bleiben neuronisch aktiv, ändern ihr
+  Gewicht aber weder durch Drei-Faktor- noch durch alte Aktivitätsplastizität.

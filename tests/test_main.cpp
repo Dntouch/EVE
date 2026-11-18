@@ -3243,6 +3243,142 @@ void test_b41_validation_case(const std::uint32_t index) {
     require(runtime.network().validate(), "B.4.1 network invariants failed");
 }
 
+void test_b42_exploration_preservation_case(const std::uint32_t index) {
+    eve::ExperimentConfig config;
+    config.neuron_count = 64;
+    config.width = 4;
+    config.height = 4;
+    config.depth = 4;
+    config.initial_outgoing_synapses = 0;
+    config.firing_threshold = 2;
+    config.maximum_synapse_weight = 3;
+    config.input_weight_budget = 16;
+    config.learning_enabled = false;
+    config.growth_enabled = false;
+    config.refractory_input_events = 1;
+    config.recovery_mode = eve::RecoveryMode::independent_with_membrane_relaxation;
+    config.recovery_delay = 4;
+    config.membrane_relaxation_percent = 100;
+    config.local_event_memory_capacity = 8;
+    config.eligibility_selection = eve::EligibilitySelection::all_recent;
+    config.eligibility_candidate_capacity = 8;
+    config.eligibility_decision_capacity = 8;
+    config.eligibility_duration = 16;
+    config.plasticity_trace_mode = eve::PlasticityTraceMode::g3_recent;
+    config.modulation_mode = eve::ModulationMode::ternary;
+
+    eve::bios::Runtime runtime(config, 21000U + index);
+    eve::brainstem::EvaluationRouteConfig route_config;
+    route_config.mode = eve::brainstem::EvaluationRouteMode::general_wiring;
+    route_config.first_input_neuron = 11;
+    route_config.graded_channel_count = 5;
+    route_config.fanout_per_source = 1;
+    route_config.weight = 1;
+    route_config.seed = 22000U + index;
+    for (eve::NeuronId id = 0; id < 11; ++id) route_config.reserved_neurons.push_back(id);
+    const auto route = runtime.configure_evaluation_route(route_config);
+    const eve::NeuronId action_a = 7;
+    const eve::NeuronId action_b = 8;
+    for (const eve::NeuronId input : route.input_neurons) {
+        static_cast<void>(runtime.add_experimental_synapse(input, action_a, 0));
+        static_cast<void>(runtime.add_experimental_synapse(input, action_b, 0));
+    }
+    const eve::SynapseId cue_a = runtime.add_experimental_synapse(0, action_a, 0);
+    const eve::SynapseId cue_b = runtime.add_experimental_synapse(1, action_b, 0);
+    const eve::SynapseId explore_a =
+        runtime.add_experimental_synapse(2, action_a, 2, true);
+    const eve::SynapseId explore_b =
+        runtime.add_experimental_synapse(4, action_b, 2, true);
+    std::uint64_t fires_a = 0;
+    std::uint64_t fires_b = 0;
+    runtime.set_fire_observer([&](const eve::bios::FireObservation& event) {
+        if (event.neuron == action_a) ++fires_a;
+        if (event.neuron == action_b) ++fires_b;
+    });
+
+    runtime.enqueue_fire(2);
+    static_cast<void>(runtime.run());
+    static_cast<void>(runtime.advance_time_by(16));
+    runtime.enqueue_fire(4);
+    static_cast<void>(runtime.run());
+    require_equal(fires_a, std::uint64_t{1}, "protected A exploration is unreachable");
+    require_equal(fires_b, std::uint64_t{1}, "protected B exploration is unreachable");
+    require(runtime.network().synapse(explore_a).plasticity_protected &&
+                runtime.network().synapse(explore_b).plasticity_protected,
+            "innate protection is not symmetric");
+
+    static_cast<void>(runtime.advance_time_by(16));
+    runtime.enqueue_fire(0);
+    static_cast<void>(runtime.run());
+    runtime.enqueue_fire(2);
+    static_cast<void>(runtime.run());
+    const auto positive = runtime.process_modulatory_feedback(1);
+    require(positive.zero_to_one_changes > 0,
+            "protected exploration prevented ordinary positive learning");
+    require_equal(runtime.network().synapse(cue_a).weight, 1,
+                  "unprotected sensory path was not strengthened");
+    require_equal(runtime.network().synapse(explore_a).weight, 2,
+                  "positive modulation changed protected exploration");
+
+    static_cast<void>(runtime.advance_time_by(16));
+    runtime.enqueue_fire(0);
+    static_cast<void>(runtime.run());
+    runtime.enqueue_fire(2);
+    static_cast<void>(runtime.run());
+    static_cast<void>(runtime.process_modulatory_feedback(-1));
+    require_equal(runtime.network().synapse(cue_a).weight, 0,
+                  "negative modulation did not weaken an ordinary path");
+    require_equal(runtime.network().synapse(explore_a).weight, 2,
+                  "negative modulation destroyed protected exploration");
+    require_equal(runtime.network().synapse(cue_b).weight, 0,
+                  "feedback selected an unrelated motor solution");
+
+    eve::bios::DeterministicRng gate_a(23000U + index);
+    eve::bios::DeterministicRng gate_b(23000U + index);
+    for (int draw = 0; draw < 32; ++draw) {
+        require_equal(gate_a.bounded(100), gate_b.bounded(100),
+                      "reduced negative frequency is not reproducible");
+    }
+
+    if (index == 4U || index == 23U) {
+        runtime.set_experimental_synapse_protection(explore_a, false);
+        static_cast<void>(runtime.advance_time_by(16));
+        runtime.enqueue_fire(2);
+        static_cast<void>(runtime.run());
+        static_cast<void>(runtime.process_modulatory_feedback(-1));
+        require_equal(runtime.network().synapse(explore_a).weight, 1,
+                      "disabled innate protection remained active");
+        runtime.set_experimental_synapse_protection(explore_a, true);
+    }
+
+    if (index >= 34U) {
+        static_cast<void>(runtime.advance_time_by(16));
+        runtime.enqueue_fire(1);
+        static_cast<void>(runtime.run());
+        runtime.enqueue_fire(4);
+        static_cast<void>(runtime.run());
+        const std::uint64_t due = runtime.simulated_time() + 3;
+        static_cast<void>(runtime.process_modulatory_feedback(1, due));
+        const auto path = std::filesystem::temp_directory_path() /
+            ("eve-stage-b42-" + std::to_string(index) + ".bin");
+        runtime.save(path.string());
+        auto restored = eve::bios::Runtime::load(path.string());
+        require(restored.network().synapse(explore_a).plasticity_protected &&
+                    restored.network().synapse(explore_b).plasticity_protected,
+                "protected exploration was not persisted");
+        require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                      "B.4.2 persisted state changed");
+        static_cast<void>(runtime.advance_time_to(due));
+        static_cast<void>(restored.advance_time_to(due));
+        require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                      "B.4.2 restored continuation diverged");
+        static_cast<void>(std::filesystem::remove(path));
+    }
+    require(runtime.network().validate(), "B.4.2 network invariants failed");
+    require(runtime.metrics().maximum_queue_size < 64,
+            "B.4.2 exploration produced an unbounded event cascade");
+}
+
 }  // namespace
 
 int main() {
@@ -3471,6 +3607,34 @@ int main() {
         tests.emplace_back(
             std::string("B41 ") + b41_names[index],
             [index]() { test_b41_validation_case(index); });
+    }
+    const std::array<const char*, 43> b42_names{{
+        "A and B initially symmetric", "protected weights retained",
+        "unprotected paths remain plastic", "protection independent of success",
+        "protection can be disabled", "protection persists",
+        "exploration does not encode target", "exploration uses neural events",
+        "negative modulation weakens allowed path", "negative leaves innate path",
+        "positive modulation remains possible", "negative frequency reproducible",
+        "no negative change without trace", "no-action feedback controlled",
+        "budgets and bounds retained", "negative feedback can raise exploration",
+        "feedback selects no motor path", "later exploration is not retroactive",
+        "further action requires neural activity", "double output recorded",
+        "missing output retained", "bounded exploration loop",
+        "single cue control is paired", "both targets supported",
+        "no target knowledge in network", "initial preference documented",
+        "learned preference survives evaluation", "random feedback reproducible",
+        "reversal leaves architecture intact", "no episode reset",
+        "two cues processed independently", "cue outputs evaluated separately",
+        "general preference not cue learning", "paired tasks share sequence",
+        "B41 reference reproducible", "R2F regression", "G3 regression",
+        "eligibility regression", "modulatory contacts remain non-excitatory",
+        "protected connection save load", "running experiment continuation",
+        "single modulation effect", "all prior tests retained",
+    }};
+    for (std::uint32_t index = 0; index < b42_names.size(); ++index) {
+        tests.emplace_back(
+            std::string("B42 ") + b42_names[index],
+            [index]() { test_b42_exploration_preservation_case(index); });
     }
 
     std::size_t failures = 0;

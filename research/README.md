@@ -248,3 +248,28 @@ Die B.4-Dateien werden nicht verändert. B.4.1 erzeugt eigene Dateien für:
 Maschinenabhängige Laufzeiten sind nicht Teil des deterministischen
 Vergleichs. Aufgaben, Gewichte, Ereigniszähler und Ergebniszeilen sind bei
 identischem Build und Seed reproduzierbar.
+
+## Forschungsstufe B.4.2 – geschützte Exploration
+
+Build und vollständige Versuchsmatrix:
+
+```sh
+scripts/run-research-stage-b42.sh research/results/b42
+```
+
+Die Stufe führt einen persistierbaren, allgemeinen Plastizitätsschutz für
+angeborene Explorationssynapsen ein. Sie führt K0–K24 tatsächlich aus und
+vergleicht zusätzlich A0–A2, N0–N5, X0–X4, beide Einzelreiz-Zielrichtungen,
+beide Umweltumkehrungen und beide Zwei-Reiz-Zuordnungen.
+
+Die Ergebnisdateien enthalten:
+
+- vollständige Aufgabenpläne und Rohversuche,
+- jede beobachtete Gewichtsänderung einschließlich Schutzstatus,
+- Erreichbarkeit bei 0, 8, 16, 32, 64, 128 und 512 Erfahrungen,
+- diagnostische Wiederherstellung verlorener Explorationswege,
+- gepaarte Bootstrapvergleiche über 64 Seeds,
+- Langläufe mit 32, 128, 512 und 2.048 Erfahrungen,
+- 64-/256-Neuronen-Vergleiche sowie Ressourcen- und Laufzeitdaten.
+
+B.4- und B.4.1-Daten werden nicht verändert.

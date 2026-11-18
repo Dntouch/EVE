@@ -36,6 +36,12 @@ Membraneingang: Sie darf weder G3 füllen noch selbst ein Motorfeuer auslösen.
 Diese Trennung verhindert, dass Rückmeldungswege durch Plastizität unbemerkt zu
 Handlungswegen werden.
 
+Seit B.4.2 können angeborene Explorationssynapsen explizit vor
+Gewichtsänderungen geschützt werden. Der Schutz ist eine persistierte lokale
+Verbindungseigenschaft, gilt symmetrisch und unabhängig vom Lernerfolg und
+verändert weder Ereignisleitung noch Lernspurbildung. Er bewahrt die
+Handlungsalternative; er codiert keine bevorzugte Handlung.
+
 ## Geltungsbereich
 
 Die Implementierung ist eine Forschungsoption und standardmäßig ausgeschaltet.
