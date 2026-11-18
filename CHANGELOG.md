@@ -31,6 +31,10 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
   vollständigen Lernzeitpunkt-Kopien, kausalen Fortsetzungen und einer
   kontrollierten adaptiven Explorationsvariante.
 - 20 zusätzliche B.4.8-Prüfungen; insgesamt 459/459 bestandene Kerntests.
+- Forschungsstufe B.4.9 mit getrennten E1-/E2-Zustandskopien,
+  Einzelfehler-Ereignisketten, Konkurrenzablationen, Alternativbindung und
+  unabhängigen Bestätigungsläufen.
+- 14 zusätzliche B.4.9-Prüfungen; insgesamt 473/473 bestandene Kerntests.
 
 ### Geändert
 

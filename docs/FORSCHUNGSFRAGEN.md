@@ -69,3 +69,9 @@ Zusätzliche rückmeldungsabhängige Exploration löst dies nicht robust. Offen
 bleibt eine rein lokale Korrektur fehlbewerteter autonomer Entscheidungen,
 die eine konkurrierende Erfahrung ermöglicht, ohne die richtige Handlung zu
 kennen oder bloß mehr Zufallsausgaben zu erzeugen.
+B.4.9 zeigt, dass die bestehende negative Modulation eine autonome
+Fehlentscheidung bereits lokal verändern kann und dass der konkurrierende
+Pfad strukturell erreichbar bleibt. Positiv bewertete Alternativerfahrung wird
+jedoch nur unzuverlässig autonom abgerufen und stört häufig die zweite
+Reizbeziehung. Offen bleibt damit die lokale Kreditzuordnung und Stabilisierung
+erfolgreicher Alternativen ohne semantische Zielinformation.

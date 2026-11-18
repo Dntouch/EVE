@@ -86,6 +86,12 @@ in der unabhängigen Bestätigung zuverlässig. Sie bleibt Forschungsdiagnostik.
 B.4.9 muss lokale Korrektur und autonome Reizbindung untersuchen, ohne
 Explorationsmenge mit erworbener Fähigkeit gleichzusetzen.
 
+B.4.9 weist nach, dass rechtzeitige negative Modulation konkrete autonome
+Fehlantworten häufig verändert und konkurrierende Wege erreichbar bleiben.
+Der Engpass liegt nicht in anhaltender Hemmung, sondern in der selektiven und
+interferenzarmen Speicherung positiv bewerteter Alternativen. B.5.0 muss diese
+lokale Kreditzuordnung isolieren, bevor eine neue Lernfunktion zulässig ist.
+
 ## Erfolgskriterien aus dem Konzept
 
 Ein geeigneter kontrollierter Test folgt der dort beschriebenen Abfolge:

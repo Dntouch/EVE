@@ -716,6 +716,7 @@ void b48_snapshots_and_causality(
 
 }  // namespace
 
+#ifndef EVE_RESEARCH_STAGE_B48_EMBEDDED
 int main(int argc, char** argv) {
     const std::filesystem::path output = argc > 1
         ? std::filesystem::path(argv[1])
@@ -921,3 +922,4 @@ int main(int argc, char** argv) {
               << " task_runs=" << 2 * 8 * 2 * 64 << '\n';
     return 0;
 }
+#endif

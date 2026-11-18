@@ -1,0 +1,3 @@
+group,implemented,reason
+K7,0,negative modulation changes the immediate decision while inhibition and timing ablations do not; successful alternatives are not reliably consolidated and repeated negatives erode activity; no single isolated activation-state bottleneck justifies a new local state
+K8,0,no K7 state exists to deactivate

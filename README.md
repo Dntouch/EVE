@@ -12,9 +12,9 @@ vorgegebene Semantik aus.
 
 **Stand:** 18. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.4.8 – frühe Erfahrungsbindung und adaptive Exploration
+**Jüngste abgeschlossene Forschungsstufe:** B.4.9 – lokale Fehlerkorrektur und konkurrierende Handlungswege
 
-**Aktueller Forschungsschwerpunkt:** lokale Korrektur fehlbewerteter autonomer Entscheidungen
+**Aktueller Forschungsschwerpunkt:** lokale Stabilisierung positiv bewerteter Alternativerfahrung
 
 EVE ist inzwischen ein ausführbarer Forschungsprototyp. Er besitzt eine
 deterministische, ereignisgesteuerte Laufzeit, ein eigenes neuronales Netz,
@@ -71,6 +71,15 @@ Zusatzexploration erreicht höchstens 13/64 robuste Seeds und reproduziert
 ihren kleinen Entdeckungsvorteil weder über drei Stromfamilien noch in der
 Bestätigung. Sie wird nicht als Stammhirnfunktion freigegeben.
 
+B.4.9 trennt E1 und E2 methodisch in unabhängige Zustandskopien. Negative
+Modulation beseitigt eine konkrete eindeutige Fehlantwort häufig, doch 48/122
+Fälle erzeugen danach keine eindeutige Alternative. Hemmungsablationen ändern
+dies nicht, und alle konkurrierenden Wege bleiben erreichbar. Von 67 positiv
+bewerteten Alternativerprobungen werden nur 35 beim nächsten Reiz korrekt
+autonom abgerufen; beide Reizbeziehungen bleiben nur in 21 Fällen erhalten.
+Mangels eines einzelnen lokalen Aktivierungsengpasses wird keine neue
+Fehlerkorrekturfunktion eingeführt.
+
 EVE ist damit weder eine fertige allgemeine Intelligenz noch ein Nachweis, dass
 eigenständige Intelligenz bereits entstanden ist. Der Prototyp dient dazu,
 einzelne Mechanismen kontrolliert zu implementieren, zu messen und auch
@@ -119,6 +128,7 @@ deaktiviert, damit beobachtete Effekte eindeutig zugeordnet werden können.
 | B.4.6 | lokale neuronale Hemmung und erfahrungsabhängige Konkurrenz | abgeschlossen, technische Hemmung ja, robustes biasfreies Lernen nein |
 | B.4.7 | neuronale Symmetrie und robuste Entscheidungsbildung | abgeschlossen, technische Rollen invariant, Erfahrungsstromabhängigkeit bleibt |
 | B.4.8 | frühe Erfahrungsbindung und adaptive Exploration | abgeschlossen, frühe instabile Bindung nachgewiesen, adaptive Exploration nicht freigegeben |
+| B.4.9 | lokale Fehlerkorrektur und konkurrierende Handlungswege | abgeschlossen, negative Modulation wirkt, Alternativbindung bleibt instabil, keine neue Funktion |
 
 Ausführliche Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen unter
 [`docs/experimente`](docs/experimente/). Die zugehörigen maschinenlesbaren
@@ -164,7 +174,7 @@ Die jüngste abgeschlossene Versuchsmatrix wird mit folgendem Runner neu
 erzeugt:
 
 ```sh
-./scripts/run-research-stage-b46.sh research/results/b46
+./scripts/run-research-stage-b49.sh research/results/b49
 ```
 
 Weitere Runner und die Bedeutung aller Ergebnisdateien sind in der
@@ -209,6 +219,8 @@ Eingabestrom deterministisch.
 - [Entscheidung nach B.4.6](docs/entscheidungen/0018-inhibitorische-grundfunktion-bleibt-experimentell.md)
 - [Bericht zur Forschungsstufe B.4.7](docs/experimente/019-forschungsbericht-forschungsstufe-b47.md)
 - [Entscheidung nach B.4.7](docs/entscheidungen/0019-konkurrenzlernen-bleibt-erfahrungsstromabhaengig.md)
+- [Bericht zur Forschungsstufe B.4.9](docs/experimente/021-forschungsbericht-forschungsstufe-b49.md)
+- [Entscheidung nach B.4.9](docs/entscheidungen/0021-keine-neue-fehlerkorrekturfunktion-nach-b49.md)
 - [Forschungsfragen](docs/FORSCHUNGSFRAGEN.md)
 - [Glossar](docs/GLOSSAR.md)
 - [Hinweise für Beiträge](CONTRIBUTING.md)

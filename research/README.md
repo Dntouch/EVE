@@ -427,3 +427,32 @@ vollständige Seedwerte und Verwechslungsmatrizen, Bootstrapvergleiche,
 Lernkurven, Kausalinterventionen, Aufgabenmatrix, Persistenz,
 Erfolgskriterien und Ressourcen. Historische Ergebnisordner werden nicht
 verändert.
+
+## Forschungsstufe B.4.9 – lokale Fehlerkorrektur
+
+Build und vollständige Referenz-, Kontroll-, Fehler- und Kausalmatrix:
+
+```sh
+scripts/run-research-stage-b49.sh research/results/b49
+```
+
+Der Runner reproduziert K0–K6 über drei unabhängige Stromfamilien und normale
+wie inverse Zielzuordnung. E1 und E2 starten aus getrennten Kopien desselben
+vollständig trainierten Zustands; `b48-reference-reproduction.csv` weist die
+exakte Reproduktion der historischen E2-Verwechslungsmatrizen und Lerngewichte
+für 384 Referenzläufe aus. Die korrigierte E1-Auswertung ist frei von
+temporaler Beeinflussung durch E2-Exploration.
+
+`single-error-diagnostics.csv`, `competition-ablations.csv`,
+`timing-diagnostics.csv`, `repeated-negative.csv` und
+`alternative-binding.csv` enthalten die Diagnose realer autonomer
+Fehlentscheidungen, lokale Gewichtsänderungen, Zustandskopie-Eingriffe und die
+Bindung positiv bewerteter Alternativen. `event-chains.csv.gz` protokolliert
+ausgewählte vollständige neuronale Ereignisketten. Die große
+`evaluation-trials.csv.gz` ist deterministisch komprimiert.
+
+Die übrigen Dateien enthalten vollständige Seedwerte, Verwechslungsmatrizen,
+Bootstrapvergleiche, unabhängige Bestätigung, Aufgabenmatrix, Persistenz,
+Ressourcen und vorab definierte Erfolgskriterien. K7/K8 wurden nach der
+Kausaldiagnose bewusst nicht implementiert; es existiert kein neuer
+persistenter Zustand. Historische Ergebnisordner bleiben unverändert.

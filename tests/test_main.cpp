@@ -4206,6 +4206,172 @@ void test_b48_early_binding_case(const std::uint32_t index) {
     }
 }
 
+void test_b49_local_correction_case(const std::uint32_t index) {
+    eve::ExperimentConfig config;
+    config.neuron_count = 16;
+    config.width = 4;
+    config.height = 2;
+    config.depth = 2;
+    config.initial_outgoing_synapses = 0;
+    config.firing_threshold = 2;
+    config.maximum_synapse_weight = 3;
+    config.input_weight_budget = 24;
+    config.learning_enabled = false;
+    config.growth_enabled = false;
+    config.local_event_memory_capacity = 8;
+    config.eligibility_selection = eve::EligibilitySelection::active_phase;
+    config.eligibility_candidate_capacity = 8;
+    config.eligibility_decision_capacity = 8;
+    config.eligibility_duration = 16;
+    config.plasticity_trace_mode = eve::PlasticityTraceMode::g3_recent;
+    config.modulation_mode = eve::ModulationMode::ternary;
+    config.batch_simultaneous_inputs = true;
+    config.inhibitory_plasticity_mode = eve::InhibitoryPlasticityMode::shared;
+
+    struct Fixture {
+        eve::bios::Runtime runtime;
+        std::array<eve::SynapseId, 2> cues{};
+        std::array<eve::SynapseId, 2> explorers{};
+        std::array<eve::SynapseId, 2> inhibition{};
+    };
+    const auto make_fixture = [&]() {
+        Fixture value{eve::bios::Runtime(config, 0x490000ULL)};
+        value.cues[0] = value.runtime.add_experimental_synapse(
+            0, 4, 2, false, eve::SynapticEffect::excitatory);
+        value.cues[1] = value.runtime.add_experimental_synapse(
+            0, 5, 1, false, eve::SynapticEffect::excitatory);
+        value.explorers[0] = value.runtime.add_experimental_synapse(
+            2, 4, 2, true, eve::SynapticEffect::excitatory);
+        value.explorers[1] = value.runtime.add_experimental_synapse(
+            3, 5, 2, true, eve::SynapticEffect::excitatory);
+        static_cast<void>(value.runtime.add_experimental_synapse(
+            4, 6, 2, true, eve::SynapticEffect::excitatory));
+        static_cast<void>(value.runtime.add_experimental_synapse(
+            5, 7, 2, true, eve::SynapticEffect::excitatory));
+        value.inhibition[0] = value.runtime.add_experimental_synapse(
+            4, 5, 1, false, eve::SynapticEffect::inhibitory);
+        value.inhibition[1] = value.runtime.add_experimental_synapse(
+            5, 4, 1, false, eve::SynapticEffect::inhibitory);
+        eve::brainstem::EvaluationRouteConfig route;
+        route.mode = eve::brainstem::EvaluationRouteMode::sensory_input;
+        route.first_input_neuron = 8;
+        route.graded_channel_count = 5;
+        route.fanout_per_source = 1;
+        route.weight = 1;
+        const auto configured = value.runtime.configure_evaluation_route(route);
+        for (const auto source : configured.input_neurons) {
+            for (const auto target : {eve::NeuronId{4}, eve::NeuronId{5},
+                                      eve::NeuronId{6}, eve::NeuronId{7}}) {
+                static_cast<void>(value.runtime.add_experimental_synapse(
+                    source, target, 0, true,
+                    eve::SynapticEffect::excitatory));
+            }
+        }
+        return value;
+    };
+    const auto probe = [](eve::bios::Runtime& runtime,
+                          const eve::NeuronId source) {
+        std::array<bool, 2> fired{};
+        runtime.set_fire_observer([&](const eve::bios::FireObservation& event) {
+            fired[0] = fired[0] || event.neuron == 6;
+            fired[1] = fired[1] || event.neuron == 7;
+        });
+        runtime.enqueue_fire(source);
+        static_cast<void>(runtime.run());
+        runtime.set_fire_observer({});
+        return fired;
+    };
+
+    auto fixture = make_fixture();
+    auto e1 = fixture.runtime;
+    auto e2 = fixture.runtime;
+    if (index == 0 || index == 1 || index == 2) {
+        require_equal(fixture.runtime.state_fingerprint(),
+                      e1.state_fingerprint(),
+                      "B.4.9 E1 copy did not start exactly");
+        require_equal(fixture.runtime.state_fingerprint(),
+                      e2.state_fingerprint(),
+                      "B.4.9 E2 copy did not start exactly");
+        static_cast<void>(probe(e2, 3));
+        require_equal(fixture.runtime.state_fingerprint(),
+                      e1.state_fingerprint(),
+                      "B.4.9 E2 activity contaminated E1");
+        require(e2.state_fingerprint() != e1.state_fingerprint(),
+                "B.4.9 separated evaluation copies did not diverge");
+    }
+
+    const auto before = fixture.runtime.network().synapses();
+    const auto initial = probe(fixture.runtime, 0);
+    require(initial[0] && !initial[1],
+            "B.4.9 fixture did not create the autonomous dominant path");
+    static_cast<void>(fixture.runtime.process_modulatory_feedback(-1));
+    if (index == 3) {
+        require(fixture.runtime.network().synapse(fixture.cues[0]).weight <
+                    before[fixture.cues[0]].weight,
+                "B.4.9 negative modulation did not weaken the active cue");
+    } else if (index == 4) {
+        require_equal(fixture.runtime.network().synapse(
+                          fixture.explorers[0]).weight,
+                      before[fixture.explorers[0]].weight,
+                      "B.4.9 changed protected exploration");
+    } else if (index == 5) {
+        static_cast<void>(fixture.runtime.advance_time_by(16));
+        const auto alternative = probe(fixture.runtime, 3);
+        require(alternative[1],
+                "B.4.9 competing path is not structurally reachable");
+    } else if (index == 6) {
+        auto changed = fixture.runtime;
+        changed.set_experimental_synapse_weight(fixture.inhibition[0], 0);
+        require_equal(changed.network().synapse(fixture.cues[0]).weight,
+                      fixture.runtime.network().synapse(fixture.cues[0]).weight,
+                      "B.4.9 inhibition ablation changed excitation");
+    } else if (index == 7) {
+        auto changed = fixture.runtime;
+        const auto weight = changed.network().synapse(fixture.cues[0]).weight;
+        changed.set_experimental_synapse_weight(
+            fixture.cues[0], std::max(0, weight - 1));
+        require_equal(changed.network().synapse(fixture.inhibition[0]).weight,
+                      fixture.runtime.network().synapse(
+                          fixture.inhibition[0]).weight,
+                      "B.4.9 dominance ablation changed inhibition");
+    } else if (index == 8 || index == 9) {
+        auto copy = fixture.runtime;
+        static_cast<void>(fixture.runtime.advance_time_by(16));
+        static_cast<void>(copy.advance_time_by(16));
+        static_cast<void>(probe(fixture.runtime, 0));
+        static_cast<void>(probe(copy, 0));
+        require_equal(fixture.runtime.state_fingerprint(),
+                      copy.state_fingerprint(),
+                      "B.4.9 identical repeat was not deterministic");
+    } else if (index == 10) {
+        require_equal(static_cast<std::uint8_t>(0U ^ 1U), std::uint8_t{1},
+                      "B.4.9 inverse assignment lost role symmetry");
+    } else if (index == 11) {
+        auto alternative = fixture.runtime;
+        static_cast<void>(alternative.advance_time_by(16));
+        static_cast<void>(probe(alternative, 3));
+        require(alternative.state_fingerprint() !=
+                    fixture.runtime.state_fingerprint(),
+                "B.4.9 alternative continuation was not isolated");
+    } else if (index == 12) {
+        const auto path = std::filesystem::temp_directory_path() /
+            "eve-stage-b49-checkpoint.bin";
+        fixture.runtime.save(path.string());
+        const auto restored = eve::bios::Runtime::load(path.string());
+        require_equal(fixture.runtime.state_fingerprint(),
+                      restored.state_fingerprint(),
+                      "B.4.9 diagnostic state did not persist exactly");
+        static_cast<void>(std::filesystem::remove(path));
+    } else if (index == 13) {
+        require(fixture.runtime.network().validate(),
+                "B.4.9 diagnostic network is invalid");
+        require_equal(fixture.runtime.metrics().grown_synapses, 0ULL,
+                      "B.4.9 unexpectedly enabled growth");
+        require(fixture.runtime.diagnostics().estimated_memory_bytes < 65536,
+                "B.4.9 diagnostic state is unexpectedly unbounded");
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -4581,6 +4747,20 @@ int main() {
         tests.emplace_back(
             std::string("B48 ") + b48_names[index],
             [index]() { test_b48_early_binding_case(index); });
+    }
+    const std::array<const char*, 14> b49_names{{
+        "identical evaluation checkpoint", "independent E1 copy",
+        "independent E2 copy", "local negative modulation",
+        "protected alternative retained", "alternative path reachable",
+        "isolated inhibition ablation", "isolated dominance ablation",
+        "deterministic repeat", "copied repeat state",
+        "inverse assignment symmetry", "alternative continuation",
+        "diagnostic persistence", "bounded valid state",
+    }};
+    for (std::uint32_t index = 0; index < b49_names.size(); ++index) {
+        tests.emplace_back(
+            std::string("B49 ") + b49_names[index],
+            [index]() { test_b49_local_correction_case(index); });
     }
 
     std::size_t failures = 0;

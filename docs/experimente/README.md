@@ -44,6 +44,9 @@ angepasst werden.
 - [Auftrag B.4.8](020-entwicklungsauftrag-forschungsstufe-b48.md)
 - [Technische Analyse B.4.8](020-technische-analyse-fruehe-erfahrungsbindung.md)
 - [Bericht B.4.8](020-forschungsbericht-forschungsstufe-b48.md)
+- [Auftrag B.4.9](021-entwicklungsauftrag-forschungsstufe-b49.md)
+- [Technische Analyse B.4.9](021-technische-analyse-lokale-fehlerkorrektur.md)
+- [Bericht B.4.9](021-forschungsbericht-forschungsstufe-b49.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
@@ -75,3 +78,9 @@ nach 4–8 Erfahrungen, bleiben aber nicht stabil. Falsche autonome Antworten
 unterdrücken weitere Exploration. Eine minimale negative-rückmeldungsabhängige
 Exploration erhöht Aktivität, liefert jedoch keinen reproduzierbaren autonomen
 Lernvorteil und wird nicht freigegeben.
+B.4.9 zeigt, dass negative Modulation einzelne eindeutige Fehlantworten lokal
+verändert und konkurrierende Wege strukturell erreichbar bleiben. Hemmung und
+zeitliche Nachwirkung erklären den Restfehler nicht. Positiv bewertete
+Alternativen werden jedoch nicht zuverlässig unter Erhalt der zweiten
+Reizbeziehung gespeichert; deshalb wird keine neue Fehlerkorrekturfunktion
+eingeführt.

@@ -19,6 +19,7 @@ Dieser Ordner enthält bestätigte Entscheidungen zum Projekt sowie eine optiona
 | [0018](0018-inhibitorische-grundfunktion-bleibt-experimentell.md) | B.4.6 bestätigt lokale Hemmung technisch, lässt sie wegen unzureichender Robustheit und Zuordnungsbias aber experimentell. |
 | [0019](0019-konkurrenzlernen-bleibt-erfahrungsstromabhaengig.md) | B.4.7 widerlegt technische Nummernasymmetrie, weist aber eine starke Abhängigkeit gelernter Pfade vom konkreten Explorationsstrom nach. |
 | [0020](0020-adaptive-exploration-wird-nicht-freigegeben.md) | B.4.8 weist frühe instabile Pfadbindung nach; adaptive Zusatzexploration zeigt keinen reproduzierbaren autonomen Lernvorteil. |
+| [0021](0021-keine-neue-fehlerkorrekturfunktion-nach-b49.md) | B.4.9 weist lokale Fehlerwirkung und erreichbare Alternativen nach, aber keine robuste Alternativbindung; eine neue Korrekturfunktion wird nicht eingeführt. |
 
 Nummer 0002 wurde entfernt. Die vorübergehende Nichtwahl eines Technologie-Stacks
 war keine bestätigte langfristige Projektentscheidung. Die Nummern 0004 bis
