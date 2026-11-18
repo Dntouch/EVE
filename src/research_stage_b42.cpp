@@ -12,6 +12,8 @@
 #include <limits>
 #include <map>
 #include <numeric>
+#include <set>
+#include <stdexcept>
 #include <string>
 #include <sys/resource.h>
 #include <vector>
@@ -48,6 +50,8 @@ struct Variant {
     std::uint32_t decision_capacity{8};
     std::uint64_t eligibility_duration{16};
     Representation representation{Representation::separate};
+    bool structural_growth{};
+    std::uint32_t static_extra_synapses{};
 };
 
 struct Plan {
@@ -86,11 +90,28 @@ struct Result {
     std::uint64_t eligibility_decisions{};
     std::uint64_t eligibility_candidates{};
     std::uint64_t cross_cue_candidates{};
+    std::uint64_t baseline_synapses{};
+    std::uint64_t initial_synapses{};
+    std::uint64_t final_synapses{};
+    std::uint64_t grown_synapses{};
+    std::uint64_t structural_synapses_activated{};
+    std::uint64_t structural_synapses_changed{};
+    std::uint64_t structural_synapses_nonzero{};
+    std::uint64_t structural_impulses{};
+    std::uint64_t existing_synapses_changed{};
+    std::size_t final_memory_bytes{};
+    std::int32_t minimum_final_weight{};
+    std::int32_t maximum_final_weight{};
+    bool network_valid{};
     std::uint32_t functional_exploration_paths{};
     std::int32_t cue0_to_a{};
     std::int32_t cue0_to_b{};
     std::int32_t cue1_to_a{};
     std::int32_t cue1_to_b{};
+    std::int32_t block_boundary_cue0_to_a{};
+    std::int32_t block_boundary_cue0_to_b{};
+    std::int32_t block_boundary_cue1_to_a{};
+    std::int32_t block_boundary_cue1_to_b{};
 };
 
 struct Circuit {
@@ -100,11 +121,14 @@ struct Circuit {
     eve::NeuronId relay_b{10};
     std::array<eve::SynapseId, 4> cue_synapses{};
     std::vector<eve::SynapseId> exploration_synapses;
+    std::uint32_t baseline_synapse_count{};
+    std::vector<eve::SynapseId> static_synapses;
 };
 
 // Optional independent B.4.3 diagnosis.  It observes already-created local
 // records and never participates in candidate selection or modulation.
 std::ostream* b43_eligibility_diagnostics = nullptr;
+std::ostream* b44_growth_diagnostics = nullptr;
 
 double mean(const std::vector<double>& values) {
     return values.empty() ? 0.0 :
@@ -175,7 +199,7 @@ eve::ExperimentConfig make_config(const Variant& variant, const bool large) {
     config.maximum_synapse_weight = 3;
     config.input_weight_budget = 32;
     config.learning_enabled = false;
-    config.growth_enabled = false;
+    config.growth_enabled = variant.structural_growth;
     config.refractory_input_events = 1;
     config.recovery_mode = eve::RecoveryMode::independent_with_membrane_relaxation;
     config.recovery_delay = 4;
@@ -280,6 +304,20 @@ Circuit configure_circuit(
             ensure_synapse(runtime, 5, circuit.action_b, 2, protect),
         };
     }
+    circuit.baseline_synapse_count = runtime.network().synapse_count();
+    eve::bios::DeterministicRng structural_rng(0x4400000ULL + seed);
+    std::uint64_t attempts = 0;
+    while (circuit.static_synapses.size() < variant.static_extra_synapses) {
+        if (++attempts > static_cast<std::uint64_t>(runtime.network().neuron_count()) *
+                             runtime.network().neuron_count() * 4ULL) {
+            throw std::runtime_error("unable to create requested static capacity");
+        }
+        const auto sender = structural_rng.bounded(runtime.network().neuron_count());
+        const auto receiver = structural_rng.bounded(runtime.network().neuron_count());
+        if (sender == receiver || runtime.network().has_synapse(sender, receiver)) continue;
+        circuit.static_synapses.push_back(runtime.add_experimental_synapse(
+            sender, receiver, 0, false));
+    }
     return circuit;
 }
 
@@ -356,6 +394,14 @@ Result run_seed(
     const auto plans = make_plan(seed, training_episodes + evaluation_episodes);
     eve::bios::Runtime runtime(make_config(variant, large), 0x1700000ULL + seed);
     const Circuit circuit = configure_circuit(runtime, variant, seed, large);
+    const std::uint32_t initial_synapse_count = runtime.network().synapse_count();
+    std::vector<std::int32_t> initial_weights;
+    initial_weights.reserve(initial_synapse_count);
+    for (const auto& synapse : runtime.network().synapses()) {
+        initial_weights.push_back(synapse.weight);
+    }
+    std::set<eve::SynapseId> activated_structural_synapses;
+    std::set<eve::SynapseId> changed_structural_synapses;
     bool fired_a = false;
     bool fired_b = false;
     std::uint8_t diagnostic_cue = 0;
@@ -366,6 +412,10 @@ Result run_seed(
     });
     Result result;
     runtime.set_impulse_observer([&](const eve::bios::ImpulseObservation& event) {
+        if (event.synapse >= circuit.baseline_synapse_count) {
+            activated_structural_synapses.insert(event.synapse);
+            ++result.structural_impulses;
+        }
         if (event.eligibility_generation == 0) return;
         ++result.eligibility_decisions;
         result.eligibility_candidates += event.eligibility_candidates.size();
@@ -394,6 +444,14 @@ Result run_seed(
             ++order;
         }
     });
+    if (b44_growth_diagnostics != nullptr) {
+        for (const auto id : circuit.static_synapses) {
+            const auto& synapse = runtime.network().synapse(id);
+            *b44_growth_diagnostics << variant.name << ',' << seed
+                << ",-1,static," << id << ',' << synapse.sender << ','
+                << synapse.receiver << ",0\n";
+        }
+    }
     std::vector<double> first;
     std::vector<double> last;
     std::vector<double> evaluation;
@@ -428,6 +486,19 @@ Result run_seed(
     for (std::uint32_t episode = 0;
          episode < training_episodes + evaluation_episodes; ++episode) {
         const bool evaluating = episode >= training_episodes;
+        if (episode == training_episodes / 2U) {
+            result.block_boundary_cue0_to_a =
+                runtime.network().synapse(circuit.cue_synapses[0]).weight;
+            result.block_boundary_cue0_to_b =
+                runtime.network().synapse(circuit.cue_synapses[1]).weight;
+            result.block_boundary_cue1_to_a =
+                runtime.network().synapse(circuit.cue_synapses[2]).weight;
+            result.block_boundary_cue1_to_b =
+                runtime.network().synapse(circuit.cue_synapses[3]).weight;
+        }
+        if (episode == training_episodes && variant.structural_growth) {
+            runtime.set_structural_growth_enabled(false);
+        }
         const std::uint64_t episode_start = static_cast<std::uint64_t>(episode) * 16;
         if (runtime.simulated_time() < episode_start) {
             static_cast<void>(runtime.advance_time_to(episode_start));
@@ -568,11 +639,32 @@ Result run_seed(
         if (weights != nullptr && !evaluating) {
             const auto& after = runtime.network().synapses();
             for (eve::SynapseId id = 0; id < after.size(); ++id) {
-                if (before_synapses[id].weight == after[id].weight) continue;
+                const std::int32_t before_weight = id < before_synapses.size()
+                    ? before_synapses[id].weight : 0;
+                if (before_weight == after[id].weight) continue;
                 *weights << variant.name << ',' << seed << ',' << episode << ','
                          << id << ',' << after[id].sender << ',' << after[id].receiver
-                         << ',' << before_synapses[id].weight << ',' << after[id].weight
+                         << ',' << before_weight << ',' << after[id].weight
                          << ',' << (after[id].plasticity_protected ? 1 : 0) << '\n';
+            }
+        }
+        const auto& after_synapses = runtime.network().synapses();
+        for (eve::SynapseId id = circuit.baseline_synapse_count;
+             id < after_synapses.size(); ++id) {
+            const std::int32_t before_weight = id < before_synapses.size()
+                ? before_synapses[id].weight : 0;
+            if (before_weight != after_synapses[id].weight) {
+                changed_structural_synapses.insert(id);
+            }
+        }
+        if (b44_growth_diagnostics != nullptr &&
+            runtime.network().synapse_count() > before_synapses.size()) {
+            for (eve::SynapseId id = static_cast<eve::SynapseId>(before_synapses.size());
+                 id < runtime.network().synapse_count(); ++id) {
+                const auto& synapse = runtime.network().synapse(id);
+                *b44_growth_diagnostics << variant.name << ',' << seed << ','
+                    << episode << ",dynamic," << id << ',' << synapse.sender << ','
+                    << synapse.receiver << ',' << synapse.weight << '\n';
             }
         }
         if (!evaluating) write_checkpoint(episode + 1);
@@ -585,12 +677,41 @@ Result run_seed(
     result.zero_to_one = runtime.metrics().plasticity_zero_to_one_changes;
     result.processed_events = runtime.metrics().processed_events;
     result.maximum_queue = runtime.metrics().maximum_queue_size;
+    result.baseline_synapses = circuit.baseline_synapse_count;
+    result.initial_synapses = initial_synapse_count;
+    result.final_synapses = runtime.network().synapse_count();
+    result.grown_synapses = runtime.metrics().grown_synapses;
+    result.structural_synapses_activated = activated_structural_synapses.size();
+    result.structural_synapses_changed = changed_structural_synapses.size();
+    for (eve::SynapseId id = circuit.baseline_synapse_count;
+         id < runtime.network().synapse_count(); ++id) {
+        if (runtime.network().synapse(id).weight != 0) {
+            ++result.structural_synapses_nonzero;
+        }
+    }
+    for (eve::SynapseId id = 0; id < circuit.baseline_synapse_count; ++id) {
+        if (runtime.network().synapse(id).weight != initial_weights[id]) {
+            ++result.existing_synapses_changed;
+        }
+    }
     const auto paths = functional_paths(runtime, circuit, variant.separated_exploration);
     result.functional_exploration_paths = paths.first + paths.second;
     result.cue0_to_a = runtime.network().synapse(circuit.cue_synapses[0]).weight;
     result.cue0_to_b = runtime.network().synapse(circuit.cue_synapses[1]).weight;
     result.cue1_to_a = runtime.network().synapse(circuit.cue_synapses[2]).weight;
     result.cue1_to_b = runtime.network().synapse(circuit.cue_synapses[3]).weight;
+    result.final_memory_bytes = runtime.diagnostics().estimated_memory_bytes;
+    if (!runtime.network().synapses().empty()) {
+        result.minimum_final_weight = runtime.network().synapses().front().weight;
+        result.maximum_final_weight = runtime.network().synapses().front().weight;
+        for (const auto& synapse : runtime.network().synapses()) {
+            result.minimum_final_weight = std::min(
+                result.minimum_final_weight, synapse.weight);
+            result.maximum_final_weight = std::max(
+                result.maximum_final_weight, synapse.weight);
+        }
+    }
+    result.network_valid = runtime.network().validate();
     return result;
 }
 

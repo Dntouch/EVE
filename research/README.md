@@ -297,3 +297,22 @@ Der Runner lässt die B.4.2-Daten unverändert und erzeugt getrennt:
 Die Ablation verändert ausschließlich Zustandskopien. Sie ist kein
 Lernmechanismus. Da keine Variante beide Beziehungen erfolgreich beherrscht,
 wird der bedingte Kapazitätsversuch mit 4–16 Reizen nicht ausgeführt.
+
+## Forschungsstufe B.4.4 – strukturelles Lernen
+
+Build und vollständige S0–S4-Matrix mit 64 gepaarten Seeds und unabhängigen
+Bestätigungs-Seeds:
+
+```sh
+scripts/run-research-stage-b44.sh research/results/b44
+```
+
+Der Runner erzeugt getrennte Parameter-, Trial-, Gewichts- und
+Wachstumsprotokolle, Seed- und Gruppenzusammenfassungen, gepaarte
+Bootstrapvergleiche, die retrospektive Analyse erfolgreicher B.4.3-Seeds,
+Bestätigungsläufe, Kausaldiagnosen, Persistenz-, Stabilitäts-, Ressourcen- und
+Performancewerte. S0–S4 sowie plastizitätsfreie Kontrollen werden für Einzel-,
+Sequenz-, Alternierungs- und Mischaufgaben tatsächlich ausgeführt.
+
+Wachstum wird vor der Auswertung abgeschaltet. Neue Verbindungen werden strikt
+von nachgewiesenen funktionalen Gewichtsbeiträgen unterschieden.

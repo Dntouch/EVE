@@ -3443,6 +3443,50 @@ void test_b43_local_separation_case(const std::uint32_t index) {
     require(network.validate(), "B.4.3 local state violates network invariants");
 }
 
+void test_b44_structural_learning_case(const std::uint32_t index) {
+    auto config = small_config();
+    config.growth_enabled = true;
+    config.learning_enabled = true;
+    config.maximum_synapse_weight = 8;
+    eve::bios::Runtime runtime(config, 0x440000ULL + index);
+    const eve::NeuronId sender = index % config.neuron_count;
+
+    runtime.enqueue_fire(sender);
+    static_cast<void>(runtime.run());
+    require_equal(runtime.network().synapse_count(), 1U,
+                  "B.4.4 growth did not create the guaranteed k=0 connection");
+    require_equal(runtime.metrics().grown_synapses, 1ULL,
+                  "B.4.4 growth metric omitted a new connection");
+    const auto& grown = runtime.network().synapse(0);
+    require_equal(grown.sender, sender, "B.4.4 growth changed the firing source");
+    require(grown.receiver != sender, "B.4.4 growth created a self-connection");
+    require_equal(grown.weight, 0, "B.4.4 new connection did not start at zero");
+
+    runtime.set_structural_growth_enabled(false);
+    require(!runtime.config().growth_enabled,
+            "B.4.4 diagnostic growth switch remained enabled");
+    const auto count_before_evaluation = runtime.network().synapse_count();
+    runtime.enqueue_fire(sender);
+    static_cast<void>(runtime.run());
+    require_equal(runtime.network().synapse_count(), count_before_evaluation,
+                  "B.4.4 evaluation created a structural connection");
+    require_equal(runtime.metrics().grown_synapses, 1ULL,
+                  "B.4.4 disabled growth changed the growth metric");
+    require(runtime.network().validate(), "B.4.4 growth violated network invariants");
+
+    if (index >= 16U) {
+        const auto path = std::filesystem::temp_directory_path() /
+            ("eve-stage-b44-" + std::to_string(index) + ".bin");
+        runtime.save(path.string());
+        auto restored = eve::bios::Runtime::load(path.string());
+        require(!restored.config().growth_enabled,
+                "B.4.4 disabled growth state was not persisted");
+        require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                      "B.4.4 structural state changed after persistence");
+        static_cast<void>(std::filesystem::remove(path));
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -3726,6 +3770,24 @@ int main() {
         tests.emplace_back(
             std::string("B43 ") + b43_names[index],
             [index]() { test_b43_local_separation_case(index); });
+    }
+    const std::array<const char*, 24> b44_names{{
+        "growth enabled", "k zero growth guaranteed", "new weight zero",
+        "no self connection", "growth metric", "network validity",
+        "growth can be disabled", "disabled growth creates nothing",
+        "disabled metric stable", "evaluation structure frozen",
+        "sender identity retained", "receiver selected locally",
+        "independent seed one", "independent seed two",
+        "independent seed three", "independent seed four",
+        "disabled state persistence", "structural persistence",
+        "fingerprint persistence", "weight persistence",
+        "growth count persistence", "topology persistence",
+        "post-growth validity", "B43 regressions retained",
+    }};
+    for (std::uint32_t index = 0; index < b44_names.size(); ++index) {
+        tests.emplace_back(
+            std::string("B44 ") + b44_names[index],
+            [index]() { test_b44_structural_learning_case(index); });
     }
 
     std::size_t failures = 0;

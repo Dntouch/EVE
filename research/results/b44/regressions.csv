@@ -1,0 +1,5 @@
+check,value,expected,status
+S0_only_X_success,1,1,pass
+S0_only_Y_success,1,1,pass
+S1_equals_S0_X_then_Y,1,1,pass
+S4_equals_S3_X_then_Y,1,1,pass

@@ -275,6 +275,7 @@ public:
         const std::vector<ImpulseObservation>& impulses) const;
     void set_experimental_synapse_weight(SynapseId synapse, std::int32_t weight);
     void set_experimental_synapse_protection(SynapseId synapse, bool protected_state);
+    void set_structural_growth_enabled(bool enabled);
     [[nodiscard]] SynapseId add_experimental_synapse(
         NeuronId sender, NeuronId receiver, std::int32_t weight,
         bool plasticity_protected = false);
@@ -333,6 +334,7 @@ private:
     neural::Network network_;
     brainstem::Brainstem brainstem_;
     DeterministicRng rng_;
+    DeterministicRng growth_rng_;
     std::deque<Event> queue_;
     Metrics metrics_;
     std::ostream* trace_stream_{};

@@ -12,9 +12,9 @@ vorgegebene Semantik aus.
 
 **Stand:** 18. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.4.3 – lokale Trennung konkurrierender Erfahrungen
+**Jüngste abgeschlossene Forschungsstufe:** B.4.4 – strukturelles Lernen und synaptische Interferenz
 
-**Aktueller Forschungsschwerpunkt:** lokale Koinzidenzbindung ohne globale Reizkennung
+**Aktueller Forschungsschwerpunkt:** lokale zeitliche Bindung verschachtelter Erfahrungen
 
 EVE ist inzwischen ein ausführbarer Forschungsprototyp. Er besitzt eine
 deterministische, ereignisgesteuerte Laufzeit, ein eigenes neuronales Netz,
@@ -32,6 +32,12 @@ stammten 30,15 % der sensorisch klassifizierbaren Lernkandidaten aus der
 jeweils anderen Erfahrung. Sequenzielles Lernen überschreibt die erste
 Beziehung kausal. Engere lokale Fenster reduzieren die Vermischung, genügen
 aber noch nicht für gleichzeitiges Mehrfachlernen.
+
+B.4.4 zeigt, dass zusätzliches Synapsenwachstum diesen Engpass nicht löst:
+Rund 104–112 neue Verbindungen je zentralem Lauf bleiben bei Gewicht null und
+ändern das Verhalten nicht. Die bestehende `active_phase`-Auswahl erhält zwei
+sequenziell trainierte Beziehungen auch ohne Wachstum deutlich besser, bleibt
+aber bei alternierenden und gemischten Erfahrungen unzureichend.
 
 EVE ist damit weder eine fertige allgemeine Intelligenz noch ein Nachweis, dass
 eigenständige Intelligenz bereits entstanden ist. Der Prototyp dient dazu,
@@ -74,6 +80,7 @@ deaktiviert, damit beobachtete Effekte eindeutig zugeordnet werden können.
 | B.4.1 | methodische Validierung des Lernversuchs | abgeschlossen, kausale Wirkung ja, Lernen nein |
 | B.4.2 | Erhalt angeborener Exploration | abgeschlossen, Einzelreiz-Lernen ja, Zwei-Reiz-Lernen nein |
 | B.4.3 | lokale Trennung konkurrierender Erfahrungen | abgeschlossen, Interferenz kausal, Mehrfachlernen nein |
+| B.4.4 | strukturelles Lernen und synaptische Interferenz | abgeschlossen, Struktur für Sequenzen ausreichend, Wachstum wirkungslos |
 
 Ausführliche Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen unter
 [`docs/experimente`](docs/experimente/). Die zugehörigen maschinenlesbaren
@@ -119,7 +126,7 @@ Die jüngste abgeschlossene Versuchsmatrix wird mit folgendem Runner neu
 erzeugt:
 
 ```sh
-./scripts/run-research-stage-b42.sh research/results/b42
+./scripts/run-research-stage-b44.sh research/results/b44
 ```
 
 Weitere Runner und die Bedeutung aller Ergebnisdateien sind in der
@@ -156,6 +163,8 @@ Eingabestrom deterministisch.
 - [Stammhirnkonzept](docs/konzept/EVE-Stammhirnkonzept.md)
 - [Bericht zur Forschungsstufe B.4.3](docs/experimente/015-forschungsbericht-forschungsstufe-b43.md)
 - [Entscheidung nach B.4.3](docs/entscheidungen/0015-keine-freigabe-mehrfachlernen-nach-b43.md)
+- [Bericht zur Forschungsstufe B.4.4](docs/experimente/016-forschungsbericht-forschungsstufe-b44.md)
+- [Entscheidung nach B.4.4](docs/entscheidungen/0016-strukturelle-kapazitaet-ausreichend-nach-b44.md)
 - [Forschungsfragen](docs/FORSCHUNGSFRAGEN.md)
 - [Glossar](docs/GLOSSAR.md)
 - [Hinweise für Beiträge](CONTRIBUTING.md)

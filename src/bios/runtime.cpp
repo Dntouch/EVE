@@ -13,8 +13,9 @@ namespace eve::bios {
 namespace {
 
 constexpr std::array<char, 8> kPersistenceMagic{{'E', 'V', 'E', '0', '0', '1', '\r', '\n'}};
-constexpr std::uint32_t kPersistenceVersion = 11;
+constexpr std::uint32_t kPersistenceVersion = 12;
 constexpr std::uint64_t kNonZeroRngState = 0x9e3779b97f4a7c15ULL;
+constexpr std::uint64_t kGrowthSeedMask = 0xd1b54a32d192ed03ULL;
 constexpr std::uint64_t kFnvPrime = 1099511628211ULL;
 
 void write_bytes(std::ostream& stream, const char* data, const std::size_t size) {
@@ -413,7 +414,7 @@ void DeterministicRng::set_state(const std::uint64_t state) {
 }
 
 Runtime::Runtime(ExperimentConfig config, const std::uint64_t seed)
-    : config_(std::move(config)), rng_(seed) {
+    : config_(std::move(config)), rng_(seed), growth_rng_(seed ^ kGrowthSeedMask) {
     validate_config();
     brainstem_.initialize_network(network_, config_, rng_);
 }
@@ -422,7 +423,7 @@ Runtime::Runtime(
     ExperimentConfig config,
     const std::uint64_t seed,
     SkipInitializationTag)
-    : config_(std::move(config)), rng_(seed) {
+    : config_(std::move(config)), rng_(seed), growth_rng_(seed ^ kGrowthSeedMask) {
     validate_config();
 }
 
@@ -1109,6 +1110,13 @@ void Runtime::set_experimental_synapse_protection(
     network_.synapse(synapse).plasticity_protected = protected_state;
 }
 
+void Runtime::set_structural_growth_enabled(const bool enabled) {
+    if (motor_output_.active()) {
+        throw std::logic_error("cannot change structural growth during an active response");
+    }
+    config_.growth_enabled = enabled;
+}
+
 SynapseId Runtime::add_experimental_synapse(
     const NeuronId sender, const NeuronId receiver, const std::int32_t weight,
     const bool plasticity_protected) {
@@ -1158,6 +1166,7 @@ Diagnostics Runtime::diagnostics() const {
 std::uint64_t Runtime::state_fingerprint() const noexcept {
     std::uint64_t hash = network_.state_fingerprint();
     mix_hash(hash, rng_.state());
+    if (config_.growth_enabled) mix_hash(hash, growth_rng_.state());
     mix_hash(hash, config_.neuron_count);
     mix_hash(hash, config_.width);
     mix_hash(hash, config_.height);
@@ -1310,6 +1319,7 @@ void Runtime::save(const std::string& path) const {
     write_u32(stream, kPersistenceVersion);
     write_config(stream, config_);
     write_u64(stream, rng_.state());
+    write_u64(stream, growth_rng_.state());
     write_metrics(stream, metrics_);
 
     write_u32(stream, network_.width());
@@ -1443,6 +1453,13 @@ Runtime Runtime::load(const std::string& path) {
     ExperimentConfig config = read_config(stream, version);
     Runtime runtime(config, 1, SkipInitializationTag{});
     runtime.rng_.set_state(read_u64(stream));
+    if (version >= 12) {
+        runtime.growth_rng_.set_state(read_u64(stream));
+    } else {
+        const std::uint64_t growth_state = runtime.rng_.state() ^ kGrowthSeedMask;
+        runtime.growth_rng_.set_state(
+            growth_state == 0 ? kNonZeroRngState : growth_state);
+    }
     runtime.metrics_ = read_metrics(stream, version);
 
     const std::uint32_t width = read_u32(stream);
@@ -2005,7 +2022,8 @@ void Runtime::process_fire(
 
     if (config_.growth_enabled) {
         ++metrics_.growth_attempts;
-        const auto grown = brainstem_.attempt_growth(network_, neuron, config_, rng_);
+        const auto grown = brainstem_.attempt_growth(
+            network_, neuron, config_, growth_rng_);
         if (grown.has_value()) {
             ++metrics_.grown_synapses;
             const neural::Synapse& item = network_.synapse(*grown);

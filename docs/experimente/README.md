@@ -29,6 +29,9 @@ angepasst werden.
 - [Auftrag B.4.3](015-entwicklungsauftrag-forschungsstufe-b43.md)
 - [Technische Analyse B.4.3](015-technische-analyse-g3-eligibility.md)
 - [Bericht B.4.3](015-forschungsbericht-forschungsstufe-b43.md)
+- [Auftrag B.4.4](016-entwicklungsauftrag-forschungsstufe-b44.md)
+- [Technische Analyse B.4.4](016-technische-analyse-synapsenwachstum.md)
+- [Bericht B.4.4](016-forschungsbericht-forschungsstufe-b44.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
@@ -38,3 +41,6 @@ Einzelreiz- und Umkehrlernen nach; die Zwei-Reiz-Aufgabe bleibt offen.
 B.4.3 weist die lokale Kandidatenvermischung und das synaptische Überschreiben
 kausal nach. Kein untersuchtes lokales Fenster erreicht gleichzeitiges
 Mehrfachlernen; die allgemeine Freigabe bleibt deshalb gesperrt.
+B.4.4 zeigt, dass dynamisches Wachstum zwar viele Nullgewicht-Verbindungen,
+aber keine funktionalen Lernwege erzeugt. `active_phase` reproduziert einen
+starken Sequenzeffekt ohne Wachstum; gemischtes Lernen bleibt ungelöst.

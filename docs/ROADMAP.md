@@ -54,6 +54,11 @@ Praktische Integration:
 
 Der Zeitplan ist laut Konzept ein Entwicklungsziel und keine Garantie.
 
+B.4.4 prüft einen Teil von Phase 3 kontrolliert: Die Neubildung von
+Verbindungen funktioniert technisch und persistent, verbessert die
+untersuchten Lernaufgaben aber nicht. Strukturelle Änderung und funktionaler
+Lernbeitrag werden daher in weiteren Arbeiten getrennt bewertet.
+
 ## Erfolgskriterien aus dem Konzept
 
 Ein geeigneter kontrollierter Test folgt der dort beschriebenen Abfolge:

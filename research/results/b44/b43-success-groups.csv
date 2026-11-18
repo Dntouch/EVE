@@ -1,0 +1,5 @@
+order,group,seeds,success_X,success_Y,balanced,first_relation_weight_drift,positive_changes,negative_changes,cross_candidate_fraction,both,none
+X_then_Y,unsuccessful,57,0.0351384,1,0.517569,3.4386,8.50877,0.929825,0.170981,26.2807,1.05263
+X_then_Y,successful,7,1,1,1,1,6,1,0.146685,0,0
+Y_then_X,unsuccessful,58,1,0.108337,0.554168,3.36207,8.43103,0.931034,0.169568,23.7414,0.62069
+Y_then_X,successful,6,1,0.964286,0.982143,1,6.16667,0.833333,0.147548,1,0

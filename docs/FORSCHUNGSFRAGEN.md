@@ -33,3 +33,9 @@ konkurrierende Erfahrungen vermischen und die zuerst gelernte Beziehung
 synaptisch überschreiben. Ein lokales Feuerentscheidungsfenster reduziert
 diese Vermischung, löst die Zwei-Reiz-Aufgabe aber nicht. Offen bleibt eine
 rein lokale Koinzidenzbindung mehrerer entscheidungsrelevanter Eingänge.
+B.4.4 schließt fehlende Synapsenzahl als dominanten Grund für das sequenzielle
+Vergessen aus: Wachstum erzeugt viele zusätzliche, aber keine funktional
+gewichteten Wege. Die bestehende `active_phase`-Auswahl erhält zwei
+Blockbeziehungen ohne Wachstum, scheitert jedoch weiterhin bei alternierenden
+und gemischten Erfahrungen. Offen bleibt damit die lokale zeitliche Bindung
+verschachtelter Erfahrungen.
