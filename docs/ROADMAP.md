@@ -70,6 +70,15 @@ Robustheitsziel und bleibt bei vertauschter Motorzuordnung asymmetrisch. Die
 Funktion bleibt deshalb experimentell; B.4.7 muss zunächst den verbleibenden
 Zuordnungsbias isolieren.
 
+B.4.7 zeigt, dass konsistente technische Rollenabbildungen exakt invariant
+sind, entdeckt aber eine feste Kopplung der historischen binären
+Zufallsströme. Nach isolierter Seedentkopplung sinkt die Leistung und bleibt
+für normale wie inverse Beziehungen unzureichend robust. Der Restfehler
+entsteht durch die Stabilisierung konkreter früher Explorationsrollen.
+Autonome Antworten und Umkehrlernen bleiben ebenfalls unzureichend.
+B.4.8 muss deshalb zuerst diese Erfahrungsstromabhängigkeit zeitlich und kausal
+isolieren, bevor eine einzelne neue lokale Forschungsvariante zulässig ist.
+
 ## Erfolgskriterien aus dem Konzept
 
 Ein geeigneter kontrollierter Test folgt der dort beschriebenen Abfolge:

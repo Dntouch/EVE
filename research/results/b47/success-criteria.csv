@@ -1,0 +1,7 @@
+candidate,phase,E2_X,E2_Y,E2_robust,advantage_no_learning,ci_low,assignment_equivalent,retention,passes
+I2_shared_learned_mixed,discovery,0.842303,0.834637,35,0.340137,0.308411,1,0.83847,0
+I2_shared_learned_mixed,confirmation,0.813626,0.819154,30,0.31772,0.28748,1,0.81639,0
+G_decorrelated_normal_mixed,discovery,0.674841,0.726491,12,0.204579,0.165803,0,0.700666,0
+G_decorrelated_inverse_mixed,discovery,0.763714,0.71192,16,0.233903,0.194021,0,0.737817,0
+G_decorrelated_normal_mixed,confirmation,0.709378,0.737198,16,0.219569,0.177275,0,0.723288,0
+G_decorrelated_inverse_mixed,confirmation,0.690555,0.684885,10,0.191439,0.153522,0,0.68772,0

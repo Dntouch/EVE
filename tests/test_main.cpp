@@ -3748,6 +3748,254 @@ void test_b46_local_inhibition_case(const std::uint32_t index) {
     static_cast<void>(reverse_inhibitory);
 }
 
+void test_b47_neural_symmetry_case(const std::uint32_t index) {
+    eve::ExperimentConfig config;
+    config.neuron_count = 32;
+    config.width = 4;
+    config.height = 4;
+    config.depth = 2;
+    config.initial_outgoing_synapses = 0;
+    config.firing_threshold = 2;
+    config.maximum_synapse_weight = 3;
+    config.input_weight_budget = 24;
+    config.learning_enabled = false;
+    config.growth_enabled = false;
+    config.local_event_memory_capacity = 8;
+    config.eligibility_selection = eve::EligibilitySelection::active_phase;
+    config.eligibility_candidate_capacity = 8;
+    config.eligibility_decision_capacity = 8;
+    config.eligibility_duration = 16;
+    config.plasticity_trace_mode = eve::PlasticityTraceMode::g3_recent;
+    config.modulation_mode = eve::ModulationMode::ternary;
+    config.batch_simultaneous_inputs = true;
+    config.inhibitory_plasticity_mode = eve::InhibitoryPlasticityMode::shared;
+
+    struct Summary {
+        std::array<std::int32_t, 4> cue_weights{};
+        std::array<std::int32_t, 2> inhibitory_weights{};
+        bool fired_a{};
+        bool fired_b{};
+        bool valid{};
+        std::uint64_t positive_changes{};
+        std::size_t synapses{};
+    };
+    const auto run = [&](const bool transformed) {
+        eve::bios::Runtime runtime(config, 0x470000ULL + index);
+        std::array<eve::NeuronId, 2> sensors = transformed && index == 4
+            ? std::array<eve::NeuronId, 2>{17, 19}
+            : std::array<eve::NeuronId, 2>{0, 1};
+        std::array<eve::NeuronId, 2> explorers = transformed && index == 4
+            ? std::array<eve::NeuronId, 2>{21, 23}
+            : std::array<eve::NeuronId, 2>{2, 3};
+        std::array<eve::NeuronId, 2> decisions = transformed && index == 4
+            ? std::array<eve::NeuronId, 2>{25, 27}
+            : std::array<eve::NeuronId, 2>{4, 5};
+        std::array<eve::NeuronId, 2> motors = transformed && index == 4
+            ? std::array<eve::NeuronId, 2>{29, 31}
+            : std::array<eve::NeuronId, 2>{6, 7};
+        if (transformed && index == 0) std::swap(sensors[0], sensors[1]);
+        if (transformed && index == 1) {
+            std::swap(decisions[0], decisions[1]);
+            std::swap(motors[0], motors[1]);
+        }
+        if (transformed && index == 2) std::swap(explorers[0], explorers[1]);
+
+        struct Edge {
+            eve::NeuronId sender;
+            eve::NeuronId receiver;
+            std::int32_t weight;
+            bool protected_state;
+            eve::SynapticEffect effect;
+            std::size_t logical_slot;
+            bool cue;
+        };
+        std::vector<Edge> edges;
+        for (std::size_t cue = 0; cue < 2; ++cue) {
+            for (std::size_t action = 0; action < 2; ++action) {
+                edges.push_back(Edge{sensors[cue], decisions[action], 0, false,
+                    eve::SynapticEffect::excitatory, cue * 2 + action, true});
+            }
+        }
+        for (std::size_t action = 0; action < 2; ++action) {
+            edges.push_back(Edge{explorers[action], decisions[action], 2, true,
+                eve::SynapticEffect::excitatory, action, false});
+            edges.push_back(Edge{decisions[action], motors[action], 2, true,
+                eve::SynapticEffect::excitatory, action + 2, false});
+            edges.push_back(Edge{decisions[action], motors[1 - action], 0, false,
+                eve::SynapticEffect::inhibitory, action + 4, false});
+        }
+        if (transformed && index == 5) std::reverse(edges.begin(), edges.end());
+        std::array<eve::SynapseId, 4> cue_synapses{};
+        std::array<eve::SynapseId, 2> inhibitory_synapses{};
+        for (const auto& edge : edges) {
+            const auto id = runtime.add_experimental_synapse(
+                edge.sender, edge.receiver, edge.weight,
+                edge.protected_state, edge.effect);
+            if (edge.cue) cue_synapses[edge.logical_slot] = id;
+            if (!edge.cue && edge.logical_slot >= 4) {
+                inhibitory_synapses[edge.logical_slot - 4] = id;
+            }
+        }
+        eve::brainstem::EvaluationRouteConfig route;
+        route.mode = eve::brainstem::EvaluationRouteMode::sensory_input;
+        route.first_input_neuron = transformed && index == 4 ? 10 : 10;
+        route.graded_channel_count = 5;
+        route.fanout_per_source = 1;
+        route.weight = 1;
+        const auto evaluation = runtime.configure_evaluation_route(route);
+        std::vector<eve::NeuronId> sources = evaluation.input_neurons;
+        std::vector<eve::NeuronId> targets{decisions[0], decisions[1],
+                                           motors[0], motors[1]};
+        if (transformed && index == 3) {
+            std::reverse(sources.begin(), sources.end());
+            std::reverse(targets.begin(), targets.end());
+        }
+        for (const auto source : sources) {
+            for (const auto target : targets) {
+                static_cast<void>(runtime.add_experimental_synapse(
+                    source, target, 0, true,
+                    eve::SynapticEffect::excitatory));
+            }
+        }
+        bool fired_a = false;
+        bool fired_b = false;
+        runtime.set_fire_observer([&](const eve::bios::FireObservation& event) {
+            fired_a = fired_a || event.neuron == motors[0];
+            fired_b = fired_b || event.neuron == motors[1];
+        });
+        for (std::uint32_t episode = 0; episode < 3; ++episode) {
+            const auto start = static_cast<std::uint64_t>(episode) * 16ULL;
+            if (runtime.simulated_time() < start) {
+                static_cast<void>(runtime.advance_time_to(start));
+            }
+            fired_a = fired_b = false;
+            runtime.enqueue_fire(sensors[0]);
+            static_cast<void>(runtime.run());
+            if (!fired_a && !fired_b) {
+                runtime.enqueue_fire(explorers[0]);
+                static_cast<void>(runtime.run());
+            }
+            static_cast<void>(runtime.process_modulatory_feedback(1));
+            static_cast<void>(runtime.advance_time_to(start + 16));
+        }
+        fired_a = fired_b = false;
+        runtime.enqueue_fire(sensors[0]);
+        static_cast<void>(runtime.run());
+        Summary summary;
+        for (std::size_t slot = 0; slot < cue_synapses.size(); ++slot) {
+            summary.cue_weights[slot] =
+                runtime.network().synapse(cue_synapses[slot]).weight;
+        }
+        for (std::size_t slot = 0; slot < inhibitory_synapses.size(); ++slot) {
+            summary.inhibitory_weights[slot] =
+                runtime.network().synapse(inhibitory_synapses[slot]).weight;
+        }
+        summary.fired_a = fired_a;
+        summary.fired_b = fired_b;
+        summary.valid = runtime.network().validate();
+        summary.positive_changes = runtime.metrics().plasticity_positive_changes;
+        summary.synapses = runtime.network().synapse_count();
+
+        if (index == 9 && transformed) {
+            const auto path = std::filesystem::temp_directory_path() /
+                "eve-stage-b47-symmetry.bin";
+            runtime.save(path.string());
+            auto restored = eve::bios::Runtime::load(path.string());
+            require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                          "B.4.7 transformed state changed during persistence");
+            static_cast<void>(runtime.run());
+            static_cast<void>(restored.run());
+            require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                          "B.4.7 transformed continuation diverged");
+            static_cast<void>(std::filesystem::remove(path));
+        }
+        return summary;
+    };
+
+    const Summary reference = run(false);
+    const Summary transformed = run(true);
+    require_equal(reference.cue_weights, transformed.cue_weights,
+                  "B.4.7 consistent role mapping changed learned cue weights");
+    require_equal(reference.inhibitory_weights, transformed.inhibitory_weights,
+                  "B.4.7 consistent role mapping changed inhibitory weights");
+    require_equal(reference.fired_a, transformed.fired_a,
+                  "B.4.7 consistent role mapping changed logical action A");
+    require_equal(reference.fired_b, transformed.fired_b,
+                  "B.4.7 consistent role mapping changed logical action B");
+    require(reference.valid && transformed.valid,
+            "B.4.7 symmetry experiment produced an invalid network");
+    require_equal(reference.positive_changes, transformed.positive_changes,
+                  "B.4.7 symmetric modulation changed plasticity count");
+    require_equal(reference.synapses, transformed.synapses,
+                  "B.4.7 role mapping changed topology size");
+    require(reference.cue_weights[0] > 0,
+            "B.4.7 local experience did not create a learned cue path");
+    require(reference.fired_a && !reference.fired_b,
+            "B.4.7 learned logical response is not unique");
+
+    if (index == 6 || index == 7) {
+        eve::bios::Runtime forward(config, 0x471000ULL + index);
+        const auto excitation = forward.add_experimental_synapse(
+            0, 4, 3, true, eve::SynapticEffect::excitatory);
+        const auto inhibition = forward.add_experimental_synapse(
+            1, 4, 1, true, eve::SynapticEffect::inhibitory);
+        eve::bios::Runtime reverse = forward;
+        const auto first = forward.process_simultaneous_impulses(
+            {excitation, inhibition});
+        const auto second = reverse.process_simultaneous_impulses(
+            {inhibition, excitation});
+        require_equal(first.fired, second.fired,
+                      "B.4.7 queue insertion order changed the decision");
+        require_equal(forward.state_fingerprint(), reverse.state_fingerprint(),
+                      "B.4.7 queue insertion order changed the canonical state");
+    }
+    if (index == 8) {
+        for (const auto weight : transformed.cue_weights) {
+            require(weight >= 0 && weight <= 3,
+                    "B.4.7 learned cue weight escaped bounds");
+        }
+        for (const auto weight : transformed.inhibitory_weights) {
+            require(weight >= 0 && weight <= 3,
+                    "B.4.7 learned inhibitory weight escaped bounds");
+        }
+    }
+    if (index == 16 || index == 17) {
+        const auto mix_seed = [](std::uint64_t value) {
+            value += 0x9e3779b97f4a7c15ULL;
+            value = (value ^ (value >> 30U)) * 0xbf58476d1ce4e5b9ULL;
+            value = (value ^ (value >> 27U)) * 0x94d049bb133111ebULL;
+            return value ^ (value >> 31U);
+        };
+        std::set<std::uint64_t> alignment_counts;
+        for (std::uint64_t seed = 1; seed <= 64; ++seed) {
+            eve::bios::DeterministicRng cue_rng(index == 16
+                ? 0x4601000ULL + seed
+                : mix_seed(0x4701000ULL ^ seed));
+            eve::bios::DeterministicRng exploration_rng(index == 16
+                ? 0x4602000ULL + seed
+                : mix_seed(0x4702000ULL ^
+                    (seed * 0xd1342543de82ef95ULL)));
+            std::uint64_t matches = 0;
+            for (std::uint32_t episode = 0; episode < 128; ++episode) {
+                matches += cue_rng.bounded(2) == exploration_rng.bounded(2);
+            }
+            alignment_counts.insert(matches);
+        }
+        if (index == 16) {
+            require_equal(alignment_counts.size(), std::size_t{1},
+                          "B.4.7 failed to expose historical binary stream coupling");
+            require_equal(*alignment_counts.begin(), 67ULL,
+                          "B.4.7 historical coupling reference changed");
+        } else {
+            require(alignment_counts.size() > 1,
+                    "B.4.7 mixed seeds did not vary stream alignment");
+            require(*alignment_counts.begin() < 64 &&
+                        *alignment_counts.rbegin() > 64,
+                    "B.4.7 mixed streams did not span both target roles");
+        }
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -4089,6 +4337,23 @@ int main() {
         tests.emplace_back(
             std::string("B46 ") + b46_names[index],
             [index]() { test_b46_local_inhibition_case(index); });
+    }
+    const std::array<const char*, 18> b47_names{{
+        "symmetric sensory mapping", "symmetric motor mapping",
+        "symmetric exploration mapping", "equivalent modulation routes",
+        "neuron ID independence", "synapse ID independence",
+        "queue insertion independence", "simultaneous excitation inhibition",
+        "learned weight bounds", "transformed persistence",
+        "protected exploration retained", "binary logical decision",
+        "no semantic target state", "deterministic logical learning",
+        "symmetric topology size", "B46 regression retained",
+        "historical binary stream coupling exposed",
+        "decorrelated stream seed diversity",
+    }};
+    for (std::uint32_t index = 0; index < b47_names.size(); ++index) {
+        tests.emplace_back(
+            std::string("B47 ") + b47_names[index],
+            [index]() { test_b47_neural_symmetry_case(index); });
     }
 
     std::size_t failures = 0;

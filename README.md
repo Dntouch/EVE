@@ -12,9 +12,9 @@ vorgegebene Semantik aus.
 
 **Stand:** 18. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.4.6 – lokale neuronale Hemmung und erfahrungsabhängige Konkurrenz
+**Jüngste abgeschlossene Forschungsstufe:** B.4.7 – neuronale Symmetrie und robuste Entscheidungsbildung
 
-**Aktueller Forschungsschwerpunkt:** verbleibender Handlungsbias bei vertauschter neuronaler Zuordnung
+**Aktueller Forschungsschwerpunkt:** lokale Pfadbindung an frühe Explorationsrollen
 
 EVE ist inzwischen ein ausführbarer Forschungsprototyp. Er besitzt eine
 deterministische, ereignisgesteuerte Laufzeit, ein eigenes neuronales Netz,
@@ -51,6 +51,17 @@ vertauschter Queue-Reihenfolge deterministisch. Lernbare Hemmung verbessert
 die Mischleistung auf 83,85 %, erreicht aber nur 35/64 robuste Seeds und in
 der unabhängigen Bestätigung 30/64. Die vertauschte Motorzuordnung legt einen
 verbleibenden Handlungsbias offen; die allgemeine Lernfreigabe bleibt gesperrt.
+
+B.4.7 widerlegt eine technische Nummernpräferenz: 1.088/1.088 konsistente
+Sensor-, Motor-, Explorations-, Modulations-, Neuronen- und
+Synapsenabbildungen sind logisch exakt gleich. Der verbleibende Fehler hängt
+stattdessen stark vom konkreten Explorationsstrom ab. E1 ohne zusätzliche
+Exploration erreicht nur 68,41 %, die inverse Zielzuordnung mit unverändertem
+Strom 59,00 %. Lernbare Hemmung wirkt kausal, ist fester Hemmung aber weiterhin
+nicht statistisch überlegen. Zugleich wird eine feste 67:61-Kopplung der
+historischen binären Zufallsströme entdeckt. Nach ihrer isolierten Korrektur
+fallen normale und inverse Mischleistung auf 70,07 % und 73,78 % bei höchstens
+16/64 robusten Seeds. Das Robustheitsziel bleibt verfehlt.
 
 EVE ist damit weder eine fertige allgemeine Intelligenz noch ein Nachweis, dass
 eigenständige Intelligenz bereits entstanden ist. Der Prototyp dient dazu,
@@ -98,6 +109,7 @@ deaktiviert, damit beobachtete Effekte eindeutig zugeordnet werden können.
 | B.4.4 | strukturelles Lernen und synaptische Interferenz | abgeschlossen, Struktur für Sequenzen ausreichend, Wachstum wirkungslos |
 | B.4.5 | lokale Entscheidungsbindung und motorische Konkurrenz | abgeschlossen, H2 kausal, robustes Mischlernen nein |
 | B.4.6 | lokale neuronale Hemmung und erfahrungsabhängige Konkurrenz | abgeschlossen, technische Hemmung ja, robustes biasfreies Lernen nein |
+| B.4.7 | neuronale Symmetrie und robuste Entscheidungsbildung | abgeschlossen, technische Rollen invariant, Erfahrungsstromabhängigkeit bleibt |
 
 Ausführliche Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen unter
 [`docs/experimente`](docs/experimente/). Die zugehörigen maschinenlesbaren
@@ -186,6 +198,8 @@ Eingabestrom deterministisch.
 - [Entscheidung nach B.4.5](docs/entscheidungen/0017-motorische-konkurrenz-nach-b45.md)
 - [Bericht zur Forschungsstufe B.4.6](docs/experimente/018-forschungsbericht-forschungsstufe-b46.md)
 - [Entscheidung nach B.4.6](docs/entscheidungen/0018-inhibitorische-grundfunktion-bleibt-experimentell.md)
+- [Bericht zur Forschungsstufe B.4.7](docs/experimente/019-forschungsbericht-forschungsstufe-b47.md)
+- [Entscheidung nach B.4.7](docs/entscheidungen/0019-konkurrenzlernen-bleibt-erfahrungsstromabhaengig.md)
 - [Forschungsfragen](docs/FORSCHUNGSFRAGEN.md)
 - [Glossar](docs/GLOSSAR.md)
 - [Hinweise für Beiträge](CONTRIBUTING.md)

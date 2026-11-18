@@ -52,3 +52,12 @@ Modulation veränderbar und verbessert die Mischaufgabe. Das Robustheitsziel
 wird dennoch verfehlt; vertauschte Motorzuordnung zeigt einen signifikanten
 Restbias. Offen bleibt deshalb eine vollständig symmetrische lokale
 Rollenbindung von Sensorik, Exploration, Handlung und Rückmeldung.
+B.4.7 beantwortet diesen Symmetrieteil: Vollständig konsistente technische
+Rollenabbildungen bleiben über 1.088 gepaarte Seed-Versuche exakt invariant.
+Die historische Seedplanung besitzt jedoch in allen Seeds dieselbe binäre
+67:61-Stromkopplung. Nach isolierter Entkopplung werden normale und inverse
+Aufgabe ähnlicher, aber deutlich schwächer. Eine handlungskomplementierte
+Gegenprobe reproduziert exakt die jeweils gespiegelte Leistung. Offen bleibt damit
+eine lokale Lernorganisation, die zufällige frühe Explorationsrollen nicht
+dauerhaft verstärkt und nach Umweltumkehr konkurrierende Pfade zuverlässig
+wieder erreichbar macht.

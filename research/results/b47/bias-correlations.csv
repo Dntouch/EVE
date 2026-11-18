@@ -1,0 +1,5 @@
+predictor,outcome,pearson_r,causal_interpretation
+exploration_A_fraction,final_X_minus_Y,-0.0463565,diagnostic association only
+training_exploration_preference,final_score,0.115707,diagnostic association only
+normal_stream_target_alignment,normal_E2_score,0,diagnostic association; complemented-stream control is causal
+inverse_stream_target_alignment,inverse_E2_score,0,diagnostic association; complemented-stream control is causal

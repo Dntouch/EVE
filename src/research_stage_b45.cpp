@@ -186,7 +186,7 @@ struct B45Aggregate {
     std::uint64_t robust{};
 };
 
-B45Aggregate b45_aggregate(const std::vector<Result>& rows) {
+[[maybe_unused]] B45Aggregate b45_aggregate(const std::vector<Result>& rows) {
     B45Aggregate value;
     for (const auto& row : rows) {
         value.x += b45_x(row); value.y += b45_y(row);

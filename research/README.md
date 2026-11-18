@@ -364,3 +364,37 @@ gzip -cd research/results/b46/trials.csv.gz | less
 Wachstum ist deaktiviert. Laufzeit, Durchsatz und RSS sind maschinenabhängig;
 alle Ergebnisinhalte und die komprimierten Bytes sind bei identischem Build
 und Seed reproduzierbar.
+
+## Forschungsstufe B.4.7 – neuronale Symmetrie
+
+Build und vollständige Diagnosematrix:
+
+```sh
+scripts/run-research-stage-b47.sh research/results/b47
+```
+
+Der Runner reproduziert sechs B.4.6-Referenzen, führt I0–I6 in einer
+gemeinsamen Umgebung aus und prüft 17 reine Rollenabbildungen, normale und
+inverse Zielbeziehungen, neun Lernaufgaben, E1/E2, längeres Umkehrtraining und
+kausale Zustandskopien. Eine einzelne Phase-G-Gruppe entkoppelt die
+nachgewiesene historische RNG-Kopplung und vergleicht lernbare, feste und
+deaktivierte Plastizität für beide Zielzuordnungen. Zentrale Gruppen werden
+mit Seeds 1001–1064 bestätigt.
+
+Maschinenlesbar enthalten sind Architektur- und Umgebungsvergleich,
+Vorlernzustand, Zufallsstromanalyse, Verwechslungsmatrizen,
+Symmetrieäquivalenz, Explorations- und Modulationsbilanz,
+Inhibitionskontrollen, Lernverläufe, Kausalablationen, Umkehranalyse,
+Persistenz, Stabilität, Ressourcen und Erfolgskriterien.
+
+Die Detaildateien `learning-trajectories.csv.gz`, `event-traces.csv.gz`,
+`weight-changes.csv.gz` und `evaluation-trials.csv.gz` sind deterministisch
+komprimiert. Beispiel:
+
+```sh
+gzip -cd research/results/b47/event-traces.csv.gz | less
+```
+
+Wachstum und globale Handlungswahl sind deaktiviert. Laufzeit, Durchsatz und
+RSS sind maschinenabhängig; alle übrigen Inhalte und komprimierten Bytes sind
+bei identischem Build und Seed reproduzierbar.

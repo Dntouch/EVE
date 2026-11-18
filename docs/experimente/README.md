@@ -38,6 +38,9 @@ angepasst werden.
 - [Auftrag B.4.6](018-entwicklungsauftrag-forschungsstufe-b46.md)
 - [Technische Analyse B.4.6](018-technische-analyse-inhibitorische-synapsen.md)
 - [Bericht B.4.6](018-forschungsbericht-forschungsstufe-b46.md)
+- [Auftrag B.4.7](019-entwicklungsauftrag-forschungsstufe-b47.md)
+- [Technische Analyse B.4.7](019-technische-analyse-neuronale-symmetrie.md)
+- [Bericht B.4.7](019-forschungsbericht-forschungsstufe-b47.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
@@ -58,3 +61,9 @@ B.4.6 weist lokale inhibitorische Wirkung und erfahrungsabhängige
 Gewichtsänderung nach. Die beste Variante verbessert B.4.5, verfehlt jedoch
 Robustheit und Zuordnungssymmetrie; inhibitorische Konkurrenz bleibt daher
 experimentell.
+B.4.7 weist nach, dass konsistente technische Rollenabbildungen exakt
+invariant sind, entdeckt aber eine feste Kopplung der historischen binären
+Zufallsströme. Nach deren isolierter Entkopplung bleiben normale und inverse
+Aufgaben deutlich unter dem Robustheitsziel. Gelernte Pfade binden stark an
+konkrete frühe Explorationsrollen; autonome und umzulernende Entscheidungen
+bleiben unzureichend.

@@ -448,7 +448,7 @@ B46Aggregate b46_aggregate(const std::vector<B46Result>& rows) {
     return value;
 }
 
-B46Result b46_b45_reference(
+[[maybe_unused]] B46Result b46_b45_reference(
     const B46Variant& variant, const std::uint64_t seed) {
     Variant reference = b45_base(variant.name);
     reference.task = Task::two_cue;
@@ -542,7 +542,7 @@ std::vector<B46Variant> b46_matrix() {
     return result;
 }
 
-void b46_isolated(const std::filesystem::path& output) {
+[[maybe_unused]] void b46_isolated(const std::filesystem::path& output) {
     std::ofstream file(output / "isolated-inhibition.csv");
     file << "mode,order,excitation,inhibition,membrane,fired,inhibitory_contribution\n";
     for (const std::int32_t excitation : {1, 2, 3}) {
@@ -593,7 +593,7 @@ void b46_isolated(const std::filesystem::path& output) {
     }
 }
 
-void b46_persistence(const std::filesystem::path& output) {
+[[maybe_unused]] void b46_persistence(const std::filesystem::path& output) {
     std::ofstream file(output / "persistence.csv");
     file << "seed,exact_restore,exact_continuation,effect_persisted,batching_persisted,valid\n";
     for (std::uint64_t seed = 1; seed <= 64; ++seed) {
@@ -629,6 +629,7 @@ void b46_persistence(const std::filesystem::path& output) {
 
 }  // namespace
 
+#ifndef EVE_RESEARCH_STAGE_B46_EMBEDDED
 int main(int argc, char** argv) {
     const std::filesystem::path output = argc > 1
         ? std::filesystem::path(argv[1])
@@ -928,3 +929,4 @@ int main(int argc, char** argv) {
               << " pass=" << (discovery_pass && confirmation_pass) << '\n';
     return 0;
 }
+#endif

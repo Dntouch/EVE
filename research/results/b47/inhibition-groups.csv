@@ -1,0 +1,8 @@
+group,description,E1_score,E2_score,E2_robust,positive_changes,negative_changes
+I0,I0_no_inhibition_mixed,0.794867,0.794867,14,67.8281,61.1406
+I1,I1_fixed_inhibition_mixed,0.635285,0.815571,31,74.8438,68.2656
+I2,I2_shared_learned_mixed,0.684101,0.83847,35,101.547,90.8594
+I3,I3_aware_learned_mixed,0.679612,0.792574,21,104.109,94.5469
+I6,I6_no_plasticity_mixed,0,0.498333,0,0,0
+I4,freeze_learned,0.684101,0.83847,35,101.547,90.8594
+I5,disable_inhibition,0.672338,0.704903,6,101.547,90.8594

@@ -1,0 +1,9 @@
+property,B45_historical,B46_historical,B47_controlled,causal_use
+neuron_count,64,32,32,B45/B46 historical scores are context only
+firing_threshold,2,2,2,held constant across I0-I6
+recovery,input_dependent,input_dependent,input_dependent,held constant
+exploration,motor competition apparatus,symmetric decision input,symmetric decision input,held constant
+batching,disabled,true,true,held constant
+inhibition,none,variant,I0-I6 toggle only,controlled causal comparison
+training/evaluation,128/64,128/64,128/64,held constant for primary mixed task
+feedback,ternary scalar,ternary scalar,ternary scalar,held constant

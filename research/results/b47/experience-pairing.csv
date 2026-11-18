@@ -1,0 +1,6 @@
+variant,target_assignment,exploration_stream,E1_score,E2_score,E2_robust,difference_from_normal,ci_low,ci_high
+I2_shared_learned_mixed,normal,original,0.684101,0.83847,35,0,0,0
+E_inverse_mixed,inverse,original,0.177685,0.590026,1,-0.248444,-0.290171,-0.20581
+C_inverse_complemented_exploration_mixed,inverse,action_complemented,0.684101,0.83847,35,0,0,0
+G_decorrelated_normal_mixed,normal,decorrelated,0.438233,0.700666,12,0,0,0
+G_decorrelated_inverse_mixed,inverse,decorrelated,0.501361,0.737817,16,0.0371509,-0.0164161,0.0923689
