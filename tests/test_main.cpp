@@ -752,6 +752,119 @@ void test_disabled_innate_wiring_preserves_reference() {
                   "disabled innate wiring changed reference state");
 }
 
+eve::brainstem::ExplorationConfig exploration_config(
+    const eve::brainstem::ExplorationMode mode,
+    const std::uint32_t count,
+    const std::uint64_t seed = 12345) {
+    eve::brainstem::ExplorationConfig config;
+    config.mode = mode;
+    config.activation_count = count;
+    config.activation_budget = count == 0 ? 1 : count;
+    config.seed = seed;
+    config.center = eve::Coordinate{3, 3, 1};
+    config.radius = 1;
+    return config;
+}
+
+void test_exploration_is_reproducible_and_rng_independent() {
+    eve::bios::Runtime first(motor_test_config(), 21);
+    eve::bios::Runtime second(motor_test_config(), 21);
+    const auto network_before = first.network().state_fingerprint();
+    const auto a = first.enqueue_exploration(exploration_config(
+        eve::brainstem::ExplorationMode::multiple, 6, 777));
+    const auto b = second.enqueue_exploration(exploration_config(
+        eve::brainstem::ExplorationMode::multiple, 6, 777));
+    require_equal(a.activated_neurons, b.activated_neurons,
+                  "exploration selection is not reproducible");
+    require_equal(first.network().state_fingerprint(), network_before,
+                  "exploration selection changed neural state before processing");
+    require_equal(first.network().state_fingerprint(), second.network().state_fingerprint(),
+                  "exploration RNG changed network initialization");
+}
+
+void test_single_and_multiple_exploration_counts() {
+    eve::bios::Runtime runtime(motor_test_config(), 22);
+    auto single = exploration_config(eve::brainstem::ExplorationMode::single, 99);
+    single.activation_budget = 1;
+    const auto one = runtime.enqueue_exploration(single);
+    const auto many = runtime.enqueue_exploration(exploration_config(
+        eve::brainstem::ExplorationMode::multiple, 5));
+    require_equal(one.activated_neurons.size(), std::size_t{1},
+                  "single exploration did not select one neuron");
+    require_equal(many.activated_neurons.size(), std::size_t{5},
+                  "multiple exploration selected wrong count");
+    require_equal(runtime.diagnostics().queued_events, std::size_t{6},
+                  "exploration did not enqueue exactly its selected fires");
+}
+
+void test_exploration_budget_is_enforced() {
+    eve::bios::Runtime runtime(motor_test_config(), 23);
+    auto config = exploration_config(eve::brainstem::ExplorationMode::multiple, 5);
+    config.activation_budget = 4;
+    bool rejected = false;
+    try {
+        static_cast<void>(runtime.enqueue_exploration(config));
+    } catch (const std::invalid_argument&) {
+        rejected = true;
+    }
+    require(rejected, "exploration exceeded activation budget");
+    require_equal(runtime.diagnostics().queued_events, std::size_t{0},
+                  "rejected exploration enqueued events");
+}
+
+void test_localized_exploration_stays_in_region() {
+    eve::bios::Runtime runtime(motor_test_config(), 24);
+    const auto config = exploration_config(
+        eve::brainstem::ExplorationMode::localized, 12);
+    const auto result = runtime.enqueue_exploration(config);
+    for (const eve::NeuronId neuron : result.activated_neurons) {
+        const eve::Coordinate coordinate = runtime.network().coordinate(neuron);
+        const auto difference = [](const std::uint32_t left, const std::uint32_t right) {
+            return left > right ? left - right : right - left;
+        };
+        require(difference(coordinate.x, config.center.x) <= config.radius &&
+                    difference(coordinate.y, config.center.y) <= config.radius &&
+                    difference(coordinate.z, config.center.z) <= config.radius,
+                "localized exploration escaped configured region");
+    }
+}
+
+void test_distributed_exploration_covers_regions() {
+    eve::bios::Runtime runtime(motor_test_config(), 25);
+    const auto result = runtime.enqueue_exploration(exploration_config(
+        eve::brainstem::ExplorationMode::distributed, 8));
+    std::set<std::size_t> regions;
+    for (const eve::NeuronId neuron : result.activated_neurons) {
+        const eve::Coordinate coordinate = runtime.network().coordinate(neuron);
+        regions.insert((coordinate.x >= 4 ? 1U : 0U) |
+                       (coordinate.y >= 4 ? 2U : 0U) |
+                       (coordinate.z >= 2 ? 4U : 0U));
+    }
+    require_equal(regions.size(), std::size_t{8},
+                  "distributed exploration did not cover all spatial regions");
+}
+
+void test_exploration_respects_response_event_limit() {
+    eve::bios::Runtime runtime(motor_test_config(), 26);
+    runtime.configure_motor_output(motor_output_config());
+    static_cast<void>(runtime.enqueue_exploration(exploration_config(
+        eve::brainstem::ExplorationMode::multiple, 4)));
+    const auto response = runtime.request_response(false, 2);
+    require_equal(response.status, eve::brainstem::MotorResponseStatus::aborted,
+                  "explorative response ignored event safety limit");
+    require_equal(response.processed_events, 2ULL,
+                  "explorative response processed beyond event limit");
+}
+
+void test_disabled_exploration_preserves_reference() {
+    eve::bios::Runtime reference(motor_test_config(), 27);
+    eve::bios::Runtime disabled(motor_test_config(), 27);
+    static_cast<void>(disabled.enqueue_exploration(exploration_config(
+        eve::brainstem::ExplorationMode::none, 0)));
+    require_equal(reference.state_fingerprint(), disabled.state_fingerprint(),
+                  "disabled exploration changed reference state");
+}
+
 }  // namespace
 
 int main() {
@@ -795,6 +908,13 @@ int main() {
         {"functional innate path", test_functional_innate_path_transmits_neurally},
         {"varied innate topology", test_varied_innate_topology_changes_paths},
         {"disabled innate wiring", test_disabled_innate_wiring_preserves_reference},
+        {"exploration determinism", test_exploration_is_reproducible_and_rng_independent},
+        {"exploration activation counts", test_single_and_multiple_exploration_counts},
+        {"exploration budget", test_exploration_budget_is_enforced},
+        {"localized exploration", test_localized_exploration_stays_in_region},
+        {"distributed exploration", test_distributed_exploration_covers_regions},
+        {"exploration response limit", test_exploration_respects_response_event_limit},
+        {"disabled exploration", test_disabled_exploration_preserves_reference},
     };
 
     std::size_t failures = 0;

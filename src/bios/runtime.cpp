@@ -381,6 +381,16 @@ brainstem::InnateWiringResult Runtime::configure_innate_wiring(
         network_, motor_output_.assignment(), config);
 }
 
+brainstem::ExplorationResult Runtime::enqueue_exploration(
+    const brainstem::ExplorationConfig& config) {
+    brainstem::ExplorationResult result =
+        brainstem_.select_exploration(network_, config);
+    for (const NeuronId neuron : result.activated_neurons) {
+        enqueue_fire(neuron);
+    }
+    return result;
+}
+
 void Runtime::set_trace_stream(std::ostream* stream) noexcept {
     trace_stream_ = stream;
 }

@@ -470,4 +470,70 @@ InnateWiringResult Brainstem::create_innate_wiring(
     return result;
 }
 
+ExplorationResult Brainstem::select_exploration(
+    const neural::Network& network,
+    const ExplorationConfig& config) const {
+    ExplorationResult result;
+    result.config = config;
+    if (config.mode == ExplorationMode::none) {
+        return result;
+    }
+
+    const std::uint32_t requested =
+        config.mode == ExplorationMode::single ? 1U : config.activation_count;
+    if (requested == 0) {
+        throw std::invalid_argument("exploration requires at least one activation");
+    }
+    if (config.activation_budget == 0 || requested > config.activation_budget) {
+        throw std::invalid_argument("exploration exceeds its activation budget");
+    }
+
+    std::vector<NeuronId> candidates;
+    candidates.reserve(network.neuron_count());
+    for (NeuronId neuron = 0; neuron < network.neuron_count(); ++neuron) {
+        if (config.mode == ExplorationMode::localized &&
+            chebyshev_distance(network.coordinate(neuron), config.center) > config.radius) {
+            continue;
+        }
+        candidates.push_back(neuron);
+    }
+    if (requested > candidates.size()) {
+        throw std::invalid_argument("exploration request exceeds available neurons");
+    }
+
+    std::uint64_t random_state =
+        config.seed == 0 ? 0x9e3779b97f4a7c15ULL : config.seed;
+    if (config.mode != ExplorationMode::distributed) {
+        for (std::size_t remaining = candidates.size(); remaining > 1; --remaining) {
+            const std::size_t selected = static_cast<std::size_t>(
+                next_assignment_random(random_state) % remaining);
+            std::swap(candidates[remaining - 1], candidates[selected]);
+        }
+        result.activated_neurons.assign(
+            candidates.begin(), candidates.begin() + requested);
+        return result;
+    }
+
+    std::array<std::vector<NeuronId>, 8> regions;
+    for (const NeuronId neuron : candidates) {
+        const Coordinate coordinate = network.coordinate(neuron);
+        const std::size_t region =
+            (coordinate.x >= network.width() / 2U ? 1U : 0U) |
+            (coordinate.y >= network.height() / 2U ? 2U : 0U) |
+            (coordinate.z >= network.depth() / 2U ? 4U : 0U);
+        regions[region].push_back(neuron);
+    }
+    for (std::uint32_t index = 0; index < requested; ++index) {
+        auto& region = regions[index % regions.size()];
+        if (region.empty()) {
+            throw std::logic_error("distributed exploration region is empty");
+        }
+        const std::size_t selected = static_cast<std::size_t>(
+            next_assignment_random(random_state) % region.size());
+        result.activated_neurons.push_back(region[selected]);
+        region.erase(region.begin() + static_cast<std::ptrdiff_t>(selected));
+    }
+    return result;
+}
+
 }  // namespace eve::brainstem

@@ -82,6 +82,28 @@ struct InnateWiringResult {
     std::uint32_t maximum_shortest_path{};
 };
 
+enum class ExplorationMode : std::uint8_t {
+    none = 0,
+    single = 1,
+    multiple = 2,
+    localized = 3,
+    distributed = 4,
+};
+
+struct ExplorationConfig {
+    ExplorationMode mode{ExplorationMode::none};
+    std::uint32_t activation_count{};
+    std::uint32_t activation_budget{};
+    std::uint64_t seed{1};
+    Coordinate center{};
+    std::uint32_t radius{1};
+};
+
+struct ExplorationResult {
+    ExplorationConfig config;
+    std::vector<NeuronId> activated_neurons;
+};
+
 struct MotorOutputConfig {
     std::uint32_t contacts_per_channel{1};
     std::uint64_t assignment_seed{1};
@@ -186,6 +208,10 @@ public:
         neural::Network& network,
         const MotorAssignment& motor_assignment,
         const InnateWiringConfig& config) const;
+
+    [[nodiscard]] ExplorationResult select_exploration(
+        const neural::Network& network,
+        const ExplorationConfig& config) const;
 };
 
 }  // namespace eve::brainstem
