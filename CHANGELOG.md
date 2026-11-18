@@ -10,6 +10,8 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
 
 - Initiale Projekt- und Git-Struktur.
 - Vollständiges EVE-Konzept mit Stand vom 15. November 2026.
+- Übergeordnetes Stammhirnkonzept zur angeborenen Lernfähigkeit durch
+  Erfahrung, Erwartung, Handlung und Rückmeldung.
 - Roadmap, Forschungsfragen, Glossar und Risikoregister.
 - Prozess für Entscheidungen und reproduzierbare Experimente.
 - Vorlagen für Issues und Pull Requests.

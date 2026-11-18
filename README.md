@@ -57,7 +57,9 @@ spätere Entwicklung. Ein Technologie-Stack ist noch nicht festgelegt.
 
 ## Einstieg
 
-1. Das [vollständige Konzept](docs/konzept/EVE-Konzept.md) lesen.
+1. Das [vollständige Konzept](docs/konzept/EVE-Konzept.md) und das
+   [übergeordnete Stammhirnkonzept](docs/konzept/EVE-Stammhirnkonzept.md)
+   lesen.
 2. Offene Punkte in den [Forschungsfragen](docs/FORSCHUNGSFRAGEN.md) prüfen.
 3. Neue Grundsatzentscheidungen vor der Umsetzung im
    [Entscheidungsprotokoll](docs/entscheidungen/README.md) festhalten.

@@ -196,6 +196,10 @@ EVE erhält ein angeborenes funktionales Nervensystem.
 
 Wir bezeichnen diesen Bereich vereinfacht als Stammhirn.
 
+Die übergeordnete Architektur seiner angeborenen Lernfähigkeit, des
+neuronalen Lernkreislaufs und der Rückmeldungsmechanismen wird im
+[Stammhirnkonzept](EVE-Stammhirnkonzept.md) beschrieben.
+
 Biologisch orientiert sich seine Funktion nicht ausschließlich am menschlichen Hirnstamm, sondern auch an Mechanismen des Hypothalamus, der Basalganglien und weiterer Regulationssysteme.
 
 Das Stammhirn soll EVE vom ersten Moment an handlungsfähig machen.
