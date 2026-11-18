@@ -831,6 +831,7 @@ void b47_persistence(const std::filesystem::path& output) {
 
 }  // namespace
 
+#ifndef EVE_RESEARCH_STAGE_B47_EMBEDDED
 int main(int argc, char** argv) {
     const std::filesystem::path output = argc > 1
         ? std::filesystem::path(argv[1])
@@ -1524,3 +1525,4 @@ int main(int argc, char** argv) {
               << " pass=" << (discovery_pass && confirmation_pass) << '\n';
     return 0;
 }
+#endif

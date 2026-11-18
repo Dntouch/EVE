@@ -1,0 +1,13 @@
+phase,variant,family,assignment,E1_X,E1_Y,E1_robust,paired_advantage,ci_low,ci_high,passes
+discovery,adaptive,0,normal,0.564048,0.470026,13,0.517037,0.431622,0.601538,0
+confirmation,adaptive,0,normal,0.4042,0.419317,3,0.411758,0.341663,0.485934,0
+discovery,adaptive,0,inverse,0.570721,0.397807,3,0.484264,0.422291,0.549632,0
+confirmation,adaptive,0,inverse,0.461258,0.441158,3,0.451208,0.381441,0.517296,0
+discovery,adaptive,1,normal,0.415813,0.461613,4,0.438713,0.366699,0.509213,0
+confirmation,adaptive,1,normal,0.402275,0.356647,3,0.379461,0.301351,0.462916,0
+discovery,adaptive,1,inverse,0.432855,0.52628,4,0.479568,0.409032,0.54826,0
+confirmation,adaptive,1,inverse,0.500487,0.408063,2,0.454275,0.386895,0.520176,0
+discovery,adaptive,2,normal,0.435305,0.470639,6,0.452972,0.372652,0.52924,0
+confirmation,adaptive,2,normal,0.359396,0.534977,2,0.447187,0.371064,0.518577,0
+discovery,adaptive,2,inverse,0.476625,0.272645,4,0.374635,0.30278,0.446876,0
+confirmation,adaptive,2,inverse,0.392108,0.435666,3,0.413887,0.337675,0.485722,0

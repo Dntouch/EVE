@@ -3996,6 +3996,216 @@ void test_b47_neural_symmetry_case(const std::uint32_t index) {
     }
 }
 
+void test_b48_early_binding_case(const std::uint32_t index) {
+    const auto mix_seed = [](std::uint64_t value) {
+        value += 0x9e3779b97f4a7c15ULL;
+        value = (value ^ (value >> 30U)) * 0xbf58476d1ce4e5b9ULL;
+        value = (value ^ (value >> 27U)) * 0x94d049bb133111ebULL;
+        return value ^ (value >> 31U);
+    };
+    const auto stream = [&](const std::uint64_t seed, const std::uint64_t role) {
+        eve::bios::DeterministicRng rng(mix_seed(seed ^ role));
+        std::array<std::uint8_t, 128> values{};
+        for (auto& value : values) {
+            value = static_cast<std::uint8_t>(rng.bounded(2));
+        }
+        return values;
+    };
+
+    const auto cues = stream(48, 0x4801000ULL);
+    const auto exploration = stream(48, 0x4802000ULL);
+    if (index == 0) {
+        require_equal(cues, stream(48, 0x4801000ULL),
+                      "B.4.8 cue stream is not reproducible");
+    } else if (index == 1) {
+        require_equal(cues, stream(48, 0x4801000ULL),
+                      "B.4.8 changing exploration changed cue stream");
+        require(exploration != stream(49, 0x4802000ULL),
+                "B.4.8 exploration revision did not change exploration");
+    } else if (index == 2) {
+        require_equal(exploration, stream(48, 0x4802000ULL),
+                      "B.4.8 changing cues changed exploration stream");
+        require(cues != stream(49, 0x4801000ULL),
+                "B.4.8 cue revision did not change cues");
+    } else if (index == 3) {
+        std::array<std::uint8_t, 128> complement{};
+        for (std::size_t i = 0; i < complement.size(); ++i) {
+            complement[i] = static_cast<std::uint8_t>(exploration[i] ^ 1U);
+            require(complement[i] != exploration[i],
+                    "B.4.8 complemented exploration retained a bit");
+        }
+    } else if (index == 4) {
+        require(stream(48, 0x4811000ULL) != cues &&
+                    stream(48, 0x4812000ULL) != exploration,
+                "B.4.8 independent stream family reproduced both streams");
+    }
+
+    eve::ExperimentConfig config;
+    config.neuron_count = 32;
+    config.width = 4;
+    config.height = 4;
+    config.depth = 2;
+    config.initial_outgoing_synapses = 0;
+    config.firing_threshold = 2;
+    config.maximum_synapse_weight = 3;
+    config.input_weight_budget = 24;
+    config.learning_enabled = false;
+    config.growth_enabled = false;
+    config.local_event_memory_capacity = 8;
+    config.eligibility_selection = eve::EligibilitySelection::active_phase;
+    config.eligibility_candidate_capacity = 8;
+    config.eligibility_decision_capacity = 8;
+    config.eligibility_duration = 16;
+    config.plasticity_trace_mode = eve::PlasticityTraceMode::g3_recent;
+    config.modulation_mode = eve::ModulationMode::ternary;
+    config.batch_simultaneous_inputs = true;
+    config.inhibitory_plasticity_mode = eve::InhibitoryPlasticityMode::shared;
+
+    struct Fixture {
+        eve::bios::Runtime runtime;
+        std::array<eve::SynapseId, 4> cues{};
+        std::array<eve::SynapseId, 2> innate{};
+        std::array<eve::SynapseId, 2> inhibition{};
+    };
+    const auto fixture = [&]() {
+        Fixture value{eve::bios::Runtime(config, 0x480000ULL + index)};
+        for (std::size_t cue = 0; cue < 2; ++cue) {
+            for (std::size_t action = 0; action < 2; ++action) {
+                value.cues[cue * 2 + action] =
+                    value.runtime.add_experimental_synapse(
+                        cue, 4 + action, 0, false,
+                        eve::SynapticEffect::excitatory);
+            }
+        }
+        for (std::size_t action = 0; action < 2; ++action) {
+            value.innate[action] = value.runtime.add_experimental_synapse(
+                2 + action, 4 + action, 2, true,
+                eve::SynapticEffect::excitatory);
+            static_cast<void>(value.runtime.add_experimental_synapse(
+                4 + action, 6 + action, 2, true,
+                eve::SynapticEffect::excitatory));
+            value.inhibition[action] = value.runtime.add_experimental_synapse(
+                4 + action, 7 - action, 0, false,
+                eve::SynapticEffect::inhibitory);
+        }
+        eve::brainstem::EvaluationRouteConfig route;
+        route.mode = eve::brainstem::EvaluationRouteMode::sensory_input;
+        route.first_input_neuron = 10;
+        route.graded_channel_count = 5;
+        route.fanout_per_source = 1;
+        route.weight = 1;
+        const auto configured = value.runtime.configure_evaluation_route(route);
+        for (const auto source : configured.input_neurons) {
+            for (const auto target : {eve::NeuronId{4}, eve::NeuronId{5},
+                                      eve::NeuronId{6}, eve::NeuronId{7}}) {
+                static_cast<void>(value.runtime.add_experimental_synapse(
+                    source, target, 0, true,
+                    eve::SynapticEffect::excitatory));
+            }
+        }
+        return value;
+    };
+    const auto experience = [](Fixture& value, const std::uint8_t cue,
+                               const std::uint8_t action,
+                               const std::int8_t feedback) {
+        value.runtime.enqueue_fire(cue);
+        static_cast<void>(value.runtime.run());
+        value.runtime.enqueue_fire(2 + action);
+        static_cast<void>(value.runtime.run());
+        static_cast<void>(value.runtime.process_modulatory_feedback(feedback));
+        static_cast<void>(value.runtime.advance_time_by(16));
+    };
+
+    auto original = fixture();
+    experience(original, 0, 0, 1);
+    experience(original, 1, 1, 1);
+    auto copied = original;
+    if (index == 5 || index == 7 || index == 8) {
+        require_equal(original.runtime.state_fingerprint(),
+                      copied.runtime.state_fingerprint(),
+                      "B.4.8 checkpoint copy is not exact");
+        experience(original, 0, 0, 1);
+        experience(copied, 0, 0, 1);
+        require_equal(original.runtime.state_fingerprint(),
+                      copied.runtime.state_fingerprint(),
+                      "B.4.8 identical checkpoint continuation diverged");
+    }
+    if (index == 6 || index == 9) {
+        auto alternative = copied;
+        experience(copied, 0, 0, 1);
+        experience(alternative, 0, 1, 1);
+        require(copied.runtime.network().synapse(copied.cues[0]).weight !=
+                    alternative.runtime.network().synapse(
+                        alternative.cues[0]).weight ||
+                    copied.runtime.network().synapse(copied.cues[1]).weight !=
+                    alternative.runtime.network().synapse(
+                        alternative.cues[1]).weight,
+                "B.4.8 different future experience produced identical binding");
+    }
+    if (index == 10) {
+        for (const auto synapse : original.innate) {
+            require(original.runtime.network().synapse(
+                        synapse).plasticity_protected,
+                    "B.4.8 changed protected innate exploration");
+        }
+    }
+    if (index == 11 || index == 12 || index == 18) {
+        bool readiness = false;
+        const auto observe = [&](const std::int8_t feedback) {
+            readiness = feedback < 0;
+        };
+        observe(-1);
+        require(readiness, "B.4.8 negative feedback did not enable readiness");
+        const auto selected = exploration[index % exploration.size()];
+        require(selected <= 1,
+                "B.4.8 adaptive exploration selected a nonlocal action");
+        observe(1);
+        require(!readiness,
+                "B.4.8 positive feedback did not clear readiness");
+    }
+    if (index == 13) {
+        for (std::uint8_t cue = 0; cue < 2; ++cue) {
+            require_equal(static_cast<std::uint8_t>((cue == 0) ^ 1U),
+                          static_cast<std::uint8_t>(cue != 0),
+                          "B.4.8 inverse assignment is not symmetric");
+        }
+    }
+    if (index == 14) {
+        for (const auto synapse : original.inhibition) {
+            require_equal(original.runtime.network().synapse(synapse).effect,
+                          eve::SynapticEffect::inhibitory,
+                          "B.4.8 lost inhibitory effect");
+        }
+    }
+    if (index == 15) {
+        require(original.runtime.network().validate(),
+                "B.4.8 checkpoint network is invalid");
+    }
+    if (index == 16) {
+        require(original.runtime.diagnostics().estimated_memory_bytes < 65536,
+                "B.4.8 checkpoint memory is unexpectedly unbounded");
+    }
+    if (index == 17) {
+        require_equal(original.runtime.metrics().grown_synapses, 0ULL,
+                      "B.4.8 unexpectedly enabled structural growth");
+    }
+    if (index == 19) {
+        const auto path = std::filesystem::temp_directory_path() /
+            "eve-stage-b48-checkpoint.bin";
+        original.runtime.save(path.string());
+        auto restored = eve::bios::Runtime::load(path.string());
+        require_equal(original.runtime.state_fingerprint(),
+                      restored.state_fingerprint(),
+                      "B.4.8 checkpoint persistence changed state");
+        static_cast<void>(original.runtime.run());
+        static_cast<void>(restored.run());
+        require_equal(original.runtime.state_fingerprint(),
+                      restored.state_fingerprint(),
+                      "B.4.8 restored checkpoint continuation diverged");
+        static_cast<void>(std::filesystem::remove(path));
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -4354,6 +4564,23 @@ int main() {
         tests.emplace_back(
             std::string("B47 ") + b47_names[index],
             [index]() { test_b47_neural_symmetry_case(index); });
+    }
+    const std::array<const char*, 20> b48_names{{
+        "reproducible cue stream", "independent exploration revision",
+        "independent cue revision", "complemented exploration stream",
+        "independent stream families", "checkpoint exact copy",
+        "different future exploration", "identical continuation",
+        "copied temporal state", "alternative continuation binding",
+        "protected exploration retained", "negative readiness",
+        "target-free adaptive action", "normal inverse symmetry",
+        "inhibitory effect retained", "network validity",
+        "bounded checkpoint memory", "growth remains disabled",
+        "deterministic adaptive state", "checkpoint persistence",
+    }};
+    for (std::uint32_t index = 0; index < b48_names.size(); ++index) {
+        tests.emplace_back(
+            std::string("B48 ") + b48_names[index],
+            [index]() { test_b48_early_binding_case(index); });
     }
 
     std::size_t failures = 0;

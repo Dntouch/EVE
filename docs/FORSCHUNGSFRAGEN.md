@@ -61,3 +61,11 @@ Gegenprobe reproduziert exakt die jeweils gespiegelte Leistung. Offen bleibt dam
 eine lokale Lernorganisation, die zufällige frühe Explorationsrollen nicht
 dauerhaft verstärkt und nach Umweltumkehr konkurrierende Pfade zuverlässig
 wieder erreichbar macht.
+B.4.8 zeigt, dass autonome Pfadpräferenzen bereits nach 4–8 Erfahrungen
+entstehen, durch weitere gemischte Erfahrungen aber wieder geschwächt werden.
+Eine falsche eindeutige Antwort verhindert die bisherige geschützte
+Exploration; negative Modulation allein ruft die Alternative nicht hervor.
+Zusätzliche rückmeldungsabhängige Exploration löst dies nicht robust. Offen
+bleibt eine rein lokale Korrektur fehlbewerteter autonomer Entscheidungen,
+die eine konkurrierende Erfahrung ermöglicht, ohne die richtige Handlung zu
+kennen oder bloß mehr Zufallsausgaben zu erzeugen.

@@ -41,6 +41,9 @@ angepasst werden.
 - [Auftrag B.4.7](019-entwicklungsauftrag-forschungsstufe-b47.md)
 - [Technische Analyse B.4.7](019-technische-analyse-neuronale-symmetrie.md)
 - [Bericht B.4.7](019-forschungsbericht-forschungsstufe-b47.md)
+- [Auftrag B.4.8](020-entwicklungsauftrag-forschungsstufe-b48.md)
+- [Technische Analyse B.4.8](020-technische-analyse-fruehe-erfahrungsbindung.md)
+- [Bericht B.4.8](020-forschungsbericht-forschungsstufe-b48.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
@@ -67,3 +70,8 @@ Zufallsströme. Nach deren isolierter Entkopplung bleiben normale und inverse
 Aufgaben deutlich unter dem Robustheitsziel. Gelernte Pfade binden stark an
 konkrete frühe Explorationsrollen; autonome und umzulernende Entscheidungen
 bleiben unzureichend.
+B.4.8 lokalisiert diese Bindung zeitlich: autonome Antworten entstehen schon
+nach 4–8 Erfahrungen, bleiben aber nicht stabil. Falsche autonome Antworten
+unterdrücken weitere Exploration. Eine minimale negative-rückmeldungsabhängige
+Exploration erhöht Aktivität, liefert jedoch keinen reproduzierbaren autonomen
+Lernvorteil und wird nicht freigegeben.

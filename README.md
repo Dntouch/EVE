@@ -12,9 +12,9 @@ vorgegebene Semantik aus.
 
 **Stand:** 18. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.4.7 – neuronale Symmetrie und robuste Entscheidungsbildung
+**Jüngste abgeschlossene Forschungsstufe:** B.4.8 – frühe Erfahrungsbindung und adaptive Exploration
 
-**Aktueller Forschungsschwerpunkt:** lokale Pfadbindung an frühe Explorationsrollen
+**Aktueller Forschungsschwerpunkt:** lokale Korrektur fehlbewerteter autonomer Entscheidungen
 
 EVE ist inzwischen ein ausführbarer Forschungsprototyp. Er besitzt eine
 deterministische, ereignisgesteuerte Laufzeit, ein eigenes neuronales Netz,
@@ -63,6 +63,14 @@ historischen binären Zufallsströme entdeckt. Nach ihrer isolierten Korrektur
 fallen normale und inverse Mischleistung auf 70,07 % und 73,78 % bei höchstens
 16/64 robusten Seeds. Das Robustheitsziel bleibt verfehlt.
 
+B.4.8 zeigt mit vollständigen Zustandskopien, dass autonome Bindung bereits
+nach 4–8 Erfahrungen entsteht, danach aber nicht stabil bleibt. Gelernte
+Reizgewichte tragen E1 kausal; falsche eindeutige Antworten verhindern jedoch
+weitere geschützte Exploration. Eine minimale negative-rückmeldungsabhängige
+Zusatzexploration erreicht höchstens 13/64 robuste Seeds und reproduziert
+ihren kleinen Entdeckungsvorteil weder über drei Stromfamilien noch in der
+Bestätigung. Sie wird nicht als Stammhirnfunktion freigegeben.
+
 EVE ist damit weder eine fertige allgemeine Intelligenz noch ein Nachweis, dass
 eigenständige Intelligenz bereits entstanden ist. Der Prototyp dient dazu,
 einzelne Mechanismen kontrolliert zu implementieren, zu messen und auch
@@ -110,6 +118,7 @@ deaktiviert, damit beobachtete Effekte eindeutig zugeordnet werden können.
 | B.4.5 | lokale Entscheidungsbindung und motorische Konkurrenz | abgeschlossen, H2 kausal, robustes Mischlernen nein |
 | B.4.6 | lokale neuronale Hemmung und erfahrungsabhängige Konkurrenz | abgeschlossen, technische Hemmung ja, robustes biasfreies Lernen nein |
 | B.4.7 | neuronale Symmetrie und robuste Entscheidungsbildung | abgeschlossen, technische Rollen invariant, Erfahrungsstromabhängigkeit bleibt |
+| B.4.8 | frühe Erfahrungsbindung und adaptive Exploration | abgeschlossen, frühe instabile Bindung nachgewiesen, adaptive Exploration nicht freigegeben |
 
 Ausführliche Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen unter
 [`docs/experimente`](docs/experimente/). Die zugehörigen maschinenlesbaren

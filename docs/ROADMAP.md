@@ -79,6 +79,13 @@ Autonome Antworten und Umkehrlernen bleiben ebenfalls unzureichend.
 B.4.8 muss deshalb zuerst diese Erfahrungsstromabhängigkeit zeitlich und kausal
 isolieren, bevor eine einzelne neue lokale Forschungsvariante zulässig ist.
 
+B.4.8 lokalisiert wirksame frühe Bindung nach 4–8 Erfahrungen, zeigt aber
+keine monotone Stabilisierung. Rückmeldungsabhängige Zusatzexploration erhöht
+die Handlungsversuche, verbessert E1 jedoch weder über drei Stromfamilien noch
+in der unabhängigen Bestätigung zuverlässig. Sie bleibt Forschungsdiagnostik.
+B.4.9 muss lokale Korrektur und autonome Reizbindung untersuchen, ohne
+Explorationsmenge mit erworbener Fähigkeit gleichzusetzen.
+
 ## Erfolgskriterien aus dem Konzept
 
 Ein geeigneter kontrollierter Test folgt der dort beschriebenen Abfolge:

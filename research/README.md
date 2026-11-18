@@ -398,3 +398,32 @@ gzip -cd research/results/b47/event-traces.csv.gz | less
 Wachstum und globale Handlungswahl sind deaktiviert. Laufzeit, Durchsatz und
 RSS sind maschinenabhängig; alle übrigen Inhalte und komprimierten Bytes sind
 bei identischem Build und Seed reproduzierbar.
+
+## Forschungsstufe B.4.8 – frühe Erfahrungsbindung
+
+Build und vollständige Ursachen-, Checkpoint- und Explorationsmatrix:
+
+```sh
+scripts/run-research-stage-b48.sh research/results/b48
+```
+
+Der Runner reproduziert die entkoppelten B.4.7-Referenzen, prüft drei
+unabhängige Zufallsstromfamilien, erzeugt Zustandskopien nach 0, 4, 8, 16, 32,
+64, 96 und 128 Erfahrungen und führt alternative Fortsetzungen sowie
+Gewichts-, Hemmungs- und Einfrierinterventionen aus. Referenz, feste Hemmung,
+No-Learning, allgemeine Zufallsexploration, adaptive Exploration und eine
+zeitlich umverteilte Mengenkontrolle werden für normale und inverse Aufgaben
+mit 64 Entdeckungs- und 64 Bestätigungs-Seeds ausgewertet.
+
+Die Detaildateien `training-episodes.csv.gz`, `negative-events.csv.gz` und
+`evaluation-trials.csv.gz` sind deterministisch komprimiert. Lesebeispiel:
+
+```sh
+gzip -cd research/results/b48/negative-events.csv.gz | less
+```
+
+Die kleinen CSV-Dateien enthalten Stromtests, E1/E2-Zusammenfassungen,
+vollständige Seedwerte und Verwechslungsmatrizen, Bootstrapvergleiche,
+Lernkurven, Kausalinterventionen, Aufgabenmatrix, Persistenz,
+Erfolgskriterien und Ressourcen. Historische Ergebnisordner werden nicht
+verändert.

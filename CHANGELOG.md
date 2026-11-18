@@ -27,6 +27,10 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
   Einzelreiz-, Umweltumkehr- und Zwei-Reiz-Versuchen über 64 gepaarte Seeds.
 - 43 zusätzliche B.4.2-Prüfungen, Kausalwiederherstellung explorativer Wege
   und Langläufe bis 2.048 Erfahrungen.
+- Forschungsstufe B.4.8 mit drei unabhängigen Erfahrungsstromfamilien,
+  vollständigen Lernzeitpunkt-Kopien, kausalen Fortsetzungen und einer
+  kontrollierten adaptiven Explorationsvariante.
+- 20 zusätzliche B.4.8-Prüfungen; insgesamt 459/459 bestandene Kerntests.
 
 ### Geändert
 
