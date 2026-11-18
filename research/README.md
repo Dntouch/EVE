@@ -152,3 +152,30 @@ Der Runner erzeugt ausschließlich Dateien mit dem Präfix
 Laufzeit und Durchsatz sind maschinenabhängig. Alle übrigen Felder sind bei
 identischem Build reproduzierbar. Temporäre Zustandsdateien der
 Wiederherstellungsprüfung werden nach dem Lauf entfernt.
+
+## Forschungsstufe B – lokales neuronales Ereignisgedächtnis
+
+Build, alle Kerntests und die vollständigen Gedächtnis-, Kausalitäts-,
+Haltbarkeits-, Unterbrechungs-, Wiederholungs- und Performancematrizen:
+
+~~~sh
+scripts/run_research_stage_b.sh research/results
+~~~
+
+Der Runner verwendet die 32 A.2-Seeds und 32 zusätzliche Seeds. Er erzeugt
+ausschließlich Dateien mit dem Präfix `research-stage-b-`:
+
+- `parameters.csv`: Architektur- und Versuchsparameter,
+- `primary.csv`: G0 bis G4 mit aktiver und unterbrochener M3-Schaltung,
+- `fire-snapshots.csv`: lokale Momentaufnahmen am Feuerentscheid,
+- `retention.csv`: Zustand nach Abschluss, weiteren Eingängen und
+  Eigenrückmeldung,
+- `interruptions.csv`: K4-Vergleiche aus identischem Ausgangszustand,
+- `repetitions.csv`: wiederhergestellte und fortgeführte Zustände,
+- `performance.csv`: Speicher- und Diagnoseaufwand.
+
+Neuronale Zustände, Antworten, Ereigniszähler und Fingerabdrücke sind bei
+identischem Build reproduzierbar. Laufzeiten und Durchsatz sind
+maschinenabhängig. Der lokale Ringspeicher ist Teil des persistierten
+neuronalen Zustands; die technische Impulsdiagnose bleibt temporär und wird
+nicht persistiert.
