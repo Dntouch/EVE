@@ -42,6 +42,32 @@ eigenständige Intelligenz bereits entstanden ist. Der Prototyp dient dazu,
 einzelne Mechanismen kontrolliert zu implementieren, zu messen und auch
 negative Ergebnisse nachvollziehbar festzuhalten.
 
+## Meilenstein 001: Die erste erlernte Fähigkeit
+
+Am 18. November 2026 hat EVE erstmals nachweislich eine Fähigkeit durch eigene
+Erfahrungen erworben. In Forschungsstufe B.4.2 lernte das neuronale Netzwerk,
+bei einem wiederholten sensorischen Reiz die von seiner Umwelt positiv
+bewertete Handlung auszuführen.
+
+- 64 von 64 Ausgangszuständen erlernten erfolgreich Handlung A.
+- 64 von 64 erlernten erfolgreich Handlung B, wenn die Umwelt sie bevorzugte.
+- Nach einer Umkehr der Bewertung veränderte EVE ihre erworbene Präferenz.
+- Der Lernerfolg blieb ohne weitere synaptische Gewichtsänderungen bestehen.
+- Kontrollgruppen bestätigten, dass der Effekt erfahrungsabhängig war.
+
+Der Durchbruch entstand durch die Trennung angeborener Explorationsfähigkeit
+von erlernbaren neuronalen Verbindungen. EVE erhielt dabei keine vorgegebene
+richtige Antwort. Kein vortrainiertes Modell, kein LLM und kein
+einprogrammierter Lösungsweg waren Teil des neuronalen Lernprozesses. Die Grenze
+bleibt klar: Nachgewiesen ist bislang das Lernen einer einzelnen
+Reiz-Handlungs-Beziehung, nicht die zuverlässige Unterscheidung mehrerer
+konkurrierender Reize.
+
+**Eine kleine neuronale Struktur, die durch Erfahrung ihr Verhalten
+verändert.**
+
+[Meilenstein 001 vollständig lesen](docs/meilensteine/001-erste-erlernte-faehigkeit.md)
+
 ## Was bereits implementiert ist
 
 - deterministische Ereignisverarbeitung mit simulierter Zeit,
@@ -154,6 +180,7 @@ Eingabestrom deterministisch.
 │   ├── konzept/               Projekt- und Teilkonzepte
 │   ├── experimente/           Aufträge und Forschungsberichte
 │   ├── entscheidungen/        Architektur- und Projektentscheidungen
+│   ├── meilensteine/           zentrale nachgewiesene Fortschritte
 │   └── philosophie-und-ethik/ philosophische und ethische Grundlagen
 ├── CMakeLists.txt             CMake-Build
 ├── Makefile                   direkter Make-Build
@@ -164,6 +191,7 @@ Eingabestrom deterministisch.
 
 - [Projektkonzept](docs/konzept/EVE-Konzept.md)
 - [Stammhirnkonzept](docs/konzept/EVE-Stammhirnkonzept.md)
+- [Meilenstein 001 – Die erste erlernte Fähigkeit](docs/meilensteine/001-erste-erlernte-faehigkeit.md)
 - [Bericht zur Forschungsstufe B.4.2](https://github.com/Dntouch/EVE/blob/codex/research-stage-b42-exploration-preservation/docs/experimente/014-forschungsbericht-forschungsstufe-b42.md)
 - [Entscheidung zum begrenzten Lernnachweis](https://github.com/Dntouch/EVE/blob/codex/research-stage-b42-exploration-preservation/docs/entscheidungen/0014-begrenztes-einzelreiz-lernen-nach-b42.md)
 - [Forschungsfragen](docs/FORSCHUNGSFRAGEN.md)
