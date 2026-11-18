@@ -194,6 +194,52 @@ struct FeedbackResult {
     bool aborted{};
 };
 
+enum class EvaluationSignalKind : std::uint8_t {
+    simple = 0,
+    graded = 1,
+};
+
+struct TechnicalEvaluation {
+    std::uint8_t actual{};
+    std::uint8_t target{};
+    std::uint8_t matching_bits{};
+    std::uint8_t success_percent{};
+};
+
+struct EvaluationEncoding {
+    EvaluationSignalKind kind{EvaluationSignalKind::graded};
+    std::uint8_t success_percent{};
+    std::vector<std::uint8_t> active_channels;
+};
+
+enum class EvaluationRouteMode : std::uint8_t {
+    none = 0,
+    sensory_input = 1,
+    general_wiring = 2,
+    relay_wiring = 3,
+};
+
+struct EvaluationRouteConfig {
+    EvaluationRouteMode mode{EvaluationRouteMode::none};
+    NeuronId first_input_neuron{9};
+    std::uint32_t graded_channel_count{5};
+    std::uint32_t relay_count{4};
+    std::uint32_t fanout_per_source{4};
+    std::int32_t weight{3};
+    std::uint64_t seed{1};
+    std::vector<NeuronId> reserved_neurons;
+};
+
+struct EvaluationRouteResult {
+    EvaluationRouteConfig config;
+    std::vector<NeuronId> input_neurons;
+    std::vector<NeuronId> relay_neurons;
+    std::vector<NeuronId> target_neurons;
+    std::vector<SynapseId> route_synapses;
+    std::uint32_t added_synapses{};
+    std::uint32_t adjusted_synapses{};
+};
+
 struct MotorOutputConfig {
     std::uint32_t contacts_per_channel{1};
     std::uint64_t assignment_seed{1};
@@ -287,7 +333,8 @@ public:
         neural::Network& network,
         NeuronId neuron,
         std::uint64_t expires_at,
-        const ExperimentConfig& config) const;
+        const ExperimentConfig& config,
+        bool feedback_origin = false) const;
 
     [[nodiscard]] bool expire_eligibility(
         neural::Network& network,
@@ -331,6 +378,15 @@ public:
         neural::Network& network,
         const MotorAssignment& motor_assignment,
         const MotorCircuitConfig& config) const;
+
+    [[nodiscard]] static TechnicalEvaluation evaluate_binary(
+        std::uint8_t actual, std::uint8_t target) noexcept;
+    [[nodiscard]] static EvaluationEncoding encode_evaluation(
+        std::uint8_t success_percent,
+        EvaluationSignalKind kind = EvaluationSignalKind::graded);
+    [[nodiscard]] EvaluationRouteResult create_evaluation_route(
+        neural::Network& network,
+        const EvaluationRouteConfig& config) const;
 };
 
 }  // namespace eve::brainstem

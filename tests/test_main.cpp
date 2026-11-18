@@ -2379,6 +2379,250 @@ void test_eligibility_storage_validates() {
             "eligibility storage is absent from memory estimate");
 }
 
+eve::ExperimentConfig evaluation_test_config() {
+    eve::ExperimentConfig config;
+    config.neuron_count = 32;
+    config.width = 4;
+    config.height = 4;
+    config.depth = 2;
+    config.initial_outgoing_synapses = 0;
+    config.initial_synapse_weight = 0;
+    config.maximum_synapse_weight = 3;
+    config.learning_enabled = false;
+    config.growth_enabled = false;
+    config.local_event_memory_capacity = 8;
+    config.eligibility_selection = eve::EligibilitySelection::positive_weight;
+    config.eligibility_candidate_capacity = 2;
+    config.eligibility_decision_capacity = 2;
+    config.eligibility_duration = 16;
+    return config;
+}
+
+eve::brainstem::EvaluationRouteConfig evaluation_route_config(
+    const eve::brainstem::EvaluationRouteMode mode) {
+    eve::brainstem::EvaluationRouteConfig config;
+    config.mode = mode;
+    config.first_input_neuron = 9;
+    config.graded_channel_count = 5;
+    config.relay_count = 2;
+    config.fanout_per_source = 2;
+    config.weight = 3;
+    config.seed = 7301;
+    for (eve::NeuronId id = 0; id < 9; ++id) config.reserved_neurons.push_back(id);
+    return config;
+}
+
+void test_binary_evaluation_values() {
+    const auto full = eve::brainstem::Brainstem::evaluate_binary(0xaa, 0xaa);
+    const auto half = eve::brainstem::Brainstem::evaluate_binary(0x0f, 0x33);
+    const auto none = eve::brainstem::Brainstem::evaluate_binary(0x00, 0xff);
+    require_equal(full.matching_bits, std::uint8_t{8}, "full match bit count is wrong");
+    require_equal(full.success_percent, std::uint8_t{100}, "full match score is wrong");
+    require_equal(half.success_percent, std::uint8_t{50}, "half match score is wrong");
+    require_equal(none.success_percent, std::uint8_t{0}, "zero match score is wrong");
+}
+
+void test_evaluation_encoding_contains_no_target() {
+    const auto first = eve::brainstem::Brainstem::encode_evaluation(75);
+    const auto second = eve::brainstem::Brainstem::encode_evaluation(75);
+    require_equal(first.active_channels, second.active_channels,
+                  "same score encoding depends on hidden target data");
+    require_equal(first.active_channels, std::vector<std::uint8_t>{3},
+                  "graded score is not one-hot encoded");
+}
+
+void test_graded_evaluation_encodings_are_distinct() {
+    std::set<std::uint8_t> channels;
+    for (const std::uint8_t score : {0, 25, 50, 75, 100}) {
+        channels.insert(eve::brainstem::Brainstem::encode_evaluation(score)
+                            .active_channels.front());
+    }
+    require_equal(channels.size(), std::size_t{5},
+                  "graded evaluations are not distinguishable");
+}
+
+void test_f0_emits_no_neural_feedback() {
+    eve::bios::Runtime runtime(evaluation_test_config(), 7302);
+    static_cast<void>(runtime.configure_evaluation_route(
+        evaluation_route_config(eve::brainstem::EvaluationRouteMode::none)));
+    const auto result = runtime.process_evaluation_feedback(100);
+    require_equal(result.processed_events, 0ULL, "F0 processed a neural event");
+    require_equal(runtime.metrics().feedback_fire_events, 0ULL,
+                  "F0 emitted feedback fire");
+}
+
+void test_f1_emits_sensor_feedback_fire() {
+    eve::bios::Runtime runtime(evaluation_test_config(), 7303);
+    const auto route = runtime.configure_evaluation_route(
+        evaluation_route_config(eve::brainstem::EvaluationRouteMode::sensory_input));
+    const auto result = runtime.process_evaluation_feedback(50);
+    require_equal(result.feedback_fires, 1ULL, "F1 emitted no feedback fire");
+    require_equal(route.added_synapses, 0U, "F1 unexpectedly added special wiring");
+}
+
+void test_f2_uses_general_preconfigured_wiring() {
+    eve::bios::Runtime runtime(evaluation_test_config(), 7304);
+    const auto route = runtime.configure_evaluation_route(
+        evaluation_route_config(eve::brainstem::EvaluationRouteMode::general_wiring));
+    require_equal(route.route_synapses.size(), std::size_t{10},
+                  "F2 general fanout count is wrong");
+    require(route.relay_neurons.empty(), "F2 unexpectedly created relays");
+    const auto result = runtime.process_evaluation_feedback(25);
+    require(result.feedback_impulses >= 2, "F2 produced no functional impulses");
+}
+
+void test_f3_uses_regular_relays() {
+    eve::bios::Runtime runtime(evaluation_test_config(), 7305);
+    const auto route = runtime.configure_evaluation_route(
+        evaluation_route_config(eve::brainstem::EvaluationRouteMode::relay_wiring));
+    require_equal(route.relay_neurons.size(), std::size_t{2},
+                  "F3 relay count is wrong");
+    const auto result = runtime.process_evaluation_feedback(75);
+    require(result.feedback_fires >= 2 && result.feedback_impulses >= 3,
+            "F3 did not traverse regular relay events");
+}
+
+void test_evaluation_route_is_reproducible() {
+    eve::bios::Runtime first(evaluation_test_config(), 7306);
+    eve::bios::Runtime second(evaluation_test_config(), 7306);
+    const auto left = first.configure_evaluation_route(
+        evaluation_route_config(eve::brainstem::EvaluationRouteMode::relay_wiring));
+    const auto right = second.configure_evaluation_route(
+        evaluation_route_config(eve::brainstem::EvaluationRouteMode::relay_wiring));
+    require_equal(left.route_synapses, right.route_synapses,
+                  "feedback route synapses are not reproducible");
+    require_equal(left.target_neurons, right.target_neurons,
+                  "feedback route targets are not reproducible");
+}
+
+void test_feedback_functional_reachability_is_observed() {
+    eve::bios::Runtime runtime(evaluation_test_config(), 7307);
+    const auto route = runtime.configure_evaluation_route(
+        evaluation_route_config(eve::brainstem::EvaluationRouteMode::general_wiring));
+    const auto result = runtime.process_evaluation_feedback(0);
+    require(!route.target_neurons.empty(), "F2 has no structural targets");
+    require(result.feedback_impulses > 0,
+            "structural feedback route produced no functional impulses");
+}
+
+void test_feedback_reaches_preexisting_eligibility() {
+    eve::bios::Runtime runtime(evaluation_test_config(), 7308);
+    const auto route = runtime.configure_evaluation_route(
+        evaluation_route_config(eve::brainstem::EvaluationRouteMode::general_wiring));
+    runtime.enqueue_fire(route.input_neurons[4]);
+    static_cast<void>(runtime.run());
+    require(runtime.network().active_eligibility_count() > 0,
+            "setup action created no eligibility");
+    const auto result = runtime.process_evaluation_feedback(100);
+    require(result.receipts_with_eligibility > 0,
+            "feedback did not observe preexisting eligibility");
+}
+
+void test_feedback_without_eligibility_is_counted() {
+    eve::bios::Runtime runtime(evaluation_test_config(), 7309);
+    static_cast<void>(runtime.configure_evaluation_route(
+        evaluation_route_config(eve::brainstem::EvaluationRouteMode::general_wiring)));
+    const auto result = runtime.process_evaluation_feedback(50);
+    require(result.receipts_without_eligibility > 0,
+            "feedback without eligibility was not diagnosed");
+}
+
+void test_expired_eligibility_is_not_reactivated_by_feedback() {
+    auto config = evaluation_test_config();
+    config.eligibility_duration = 4;
+    eve::bios::Runtime runtime(config, 7310);
+    const auto route = runtime.configure_evaluation_route(
+        evaluation_route_config(eve::brainstem::EvaluationRouteMode::general_wiring));
+    runtime.enqueue_fire(route.input_neurons[0]);
+    static_cast<void>(runtime.run());
+    static_cast<void>(runtime.advance_time_to(4));
+    const auto result = runtime.process_evaluation_feedback(0);
+    require_equal(result.receipts_with_eligibility, 0ULL,
+                  "expired eligibility was treated as valid");
+}
+
+void test_feedback_created_eligibility_is_separate() {
+    eve::bios::Runtime runtime(evaluation_test_config(), 7311);
+    static_cast<void>(runtime.configure_evaluation_route(
+        evaluation_route_config(eve::brainstem::EvaluationRouteMode::general_wiring)));
+    const auto result = runtime.process_evaluation_feedback(25);
+    require(result.created_eligibilities > 0,
+            "feedback-created eligibility was not separately counted");
+    require(result.receipts_without_eligibility > 0,
+            "new eligibility was incorrectly counted as preexisting");
+}
+
+void test_local_generations_are_not_global_action_ids() {
+    EligibilityNetworkFixture fixture;
+    static_cast<void>(fixture.network.record_local_event(7, fixture.positive));
+    const auto first = fixture.brainstem.create_eligibility(
+        fixture.network, 7, 16, fixture.config);
+    const auto second_synapse = fixture.network.add_synapse(3, 6, 3);
+    static_cast<void>(fixture.network.record_local_event(6, second_synapse));
+    const auto second = fixture.brainstem.create_eligibility(
+        fixture.network, 6, 16, fixture.config);
+    require_equal(first.generation, second.generation,
+                  "local first generations should be allowed to collide");
+}
+
+void test_delayed_feedback_is_scheduled() {
+    eve::bios::Runtime runtime(evaluation_test_config(), 7312);
+    static_cast<void>(runtime.configure_evaluation_route(
+        evaluation_route_config(eve::brainstem::EvaluationRouteMode::sensory_input)));
+    const auto result = runtime.process_evaluation_feedback(75,
+        eve::brainstem::EvaluationSignalKind::graded, 8);
+    require_equal(result.processed_events, 0ULL, "future feedback ran immediately");
+    require_equal(runtime.advance_time_to(7), 0ULL, "future feedback ran too early");
+    require(runtime.advance_time_to(8) > 0, "due feedback did not run");
+}
+
+void test_reordered_feedback_follows_due_time() {
+    eve::bios::Runtime runtime(evaluation_test_config(), 7313);
+    static_cast<void>(runtime.configure_evaluation_route(
+        evaluation_route_config(eve::brainstem::EvaluationRouteMode::sensory_input)));
+    static_cast<void>(runtime.process_evaluation_feedback(25,
+        eve::brainstem::EvaluationSignalKind::graded, 12));
+    static_cast<void>(runtime.process_evaluation_feedback(100,
+        eve::brainstem::EvaluationSignalKind::graded, 4));
+    static_cast<void>(runtime.advance_time_to(4));
+    require_equal(runtime.metrics().feedback_fire_events, 1ULL,
+                  "later action feedback did not arrive first");
+    static_cast<void>(runtime.advance_time_to(12));
+    require_equal(runtime.metrics().feedback_fire_events, 2ULL,
+                  "earlier action feedback was lost");
+}
+
+void test_pending_feedback_persistence() {
+    const auto path = std::filesystem::temp_directory_path() /
+                      "eve-stage-b3-pending-feedback.bin";
+    eve::bios::Runtime runtime(evaluation_test_config(), 7314);
+    static_cast<void>(runtime.configure_evaluation_route(
+        evaluation_route_config(eve::brainstem::EvaluationRouteMode::relay_wiring)));
+    static_cast<void>(runtime.process_evaluation_feedback(100,
+        eve::brainstem::EvaluationSignalKind::graded, 8));
+    runtime.save(path.string());
+    auto restored = eve::bios::Runtime::load(path.string());
+    require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                  "pending feedback changed while saving");
+    static_cast<void>(runtime.advance_time_to(8));
+    static_cast<void>(restored.advance_time_to(8));
+    require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                  "restored feedback continuation diverged");
+    static_cast<void>(std::filesystem::remove(path));
+}
+
+void test_feedback_never_changes_weights() {
+    eve::bios::Runtime runtime(evaluation_test_config(), 7315);
+    static_cast<void>(runtime.configure_evaluation_route(
+        evaluation_route_config(eve::brainstem::EvaluationRouteMode::relay_wiring)));
+    const auto before = runtime.network().weight_distribution();
+    static_cast<void>(runtime.process_evaluation_feedback(100));
+    require_equal(runtime.network().weight_distribution(), before,
+                  "B.3 feedback changed a synaptic weight");
+    require_equal(runtime.metrics().synaptic_strengthenings, 0ULL,
+                  "B.3 feedback triggered learning");
+}
+
 }  // namespace
 
 int main() {
@@ -2524,6 +2768,24 @@ int main() {
         {"eligibility merge history", test_merge_history_combines_unique_candidates},
         {"feedback probe without action", test_feedback_probe_without_action_finds_no_eligibility},
         {"eligibility storage invariants", test_eligibility_storage_validates},
+        {"binary evaluation values", test_binary_evaluation_values},
+        {"evaluation encoding hides target", test_evaluation_encoding_contains_no_target},
+        {"graded evaluation encoding", test_graded_evaluation_encodings_are_distinct},
+        {"F0 evaluation route", test_f0_emits_no_neural_feedback},
+        {"F1 evaluation input", test_f1_emits_sensor_feedback_fire},
+        {"F2 general evaluation wiring", test_f2_uses_general_preconfigured_wiring},
+        {"F3 evaluation relays", test_f3_uses_regular_relays},
+        {"evaluation route reproducibility", test_evaluation_route_is_reproducible},
+        {"feedback functional reachability", test_feedback_functional_reachability_is_observed},
+        {"feedback reaches eligibility", test_feedback_reaches_preexisting_eligibility},
+        {"feedback without eligibility", test_feedback_without_eligibility_is_counted},
+        {"feedback cannot revive expiry", test_expired_eligibility_is_not_reactivated_by_feedback},
+        {"feedback-created eligibility separation", test_feedback_created_eligibility_is_separate},
+        {"local generations are not action IDs", test_local_generations_are_not_global_action_ids},
+        {"delayed evaluation feedback", test_delayed_feedback_is_scheduled},
+        {"reordered evaluation feedback", test_reordered_feedback_follows_due_time},
+        {"pending feedback persistence", test_pending_feedback_persistence},
+        {"feedback has no learning effect", test_feedback_never_changes_weights},
     };
 
     std::size_t failures = 0;

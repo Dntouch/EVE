@@ -34,6 +34,8 @@ enum class EventKind : std::uint8_t {
     recovery = 2,
     boundary = 3,
     eligibility_expiry = 4,
+    feedback_fire = 5,
+    feedback_impulse = 6,
 };
 
 struct Event {
@@ -85,6 +87,7 @@ struct ImpulseObservation {
     std::uint32_t refractory_after{};
     bool receiver_fired{};
     bool firing_suppressed{};
+    bool feedback_context{};
     std::vector<SynapseId> local_event_snapshot;
     std::uint64_t eligibility_generation{};
     std::vector<SynapseId> eligibility_candidates;
@@ -100,6 +103,7 @@ struct ImpulseObservation {
                refractory_after == other.refractory_after &&
                receiver_fired == other.receiver_fired &&
                firing_suppressed == other.firing_suppressed &&
+               feedback_context == other.feedback_context &&
                local_event_snapshot == other.local_event_snapshot &&
                eligibility_generation == other.eligibility_generation &&
                eligibility_candidates == other.eligibility_candidates;
@@ -119,6 +123,17 @@ struct RecoveryObservation {
     std::uint32_t refractory_after{};
     bool recovered{};
     bool stale{};
+};
+
+struct EvaluationFeedbackResult {
+    brainstem::EvaluationEncoding encoding;
+    std::uint64_t processed_events{};
+    std::uint64_t feedback_fires{};
+    std::uint64_t feedback_impulses{};
+    std::uint64_t receipts_with_eligibility{};
+    std::uint64_t receipts_without_eligibility{};
+    std::uint64_t receipts_with_multiple_eligibilities{};
+    std::uint64_t created_eligibilities{};
 };
 
 using RecoveryObserver = std::function<void(const RecoveryObservation&)>;
@@ -185,6 +200,14 @@ public:
     [[nodiscard]] brainstem::FeedbackResult process_motor_feedback(
         const brainstem::MotorResponse& response,
         const brainstem::FeedbackConfig& config);
+    [[nodiscard]] brainstem::EvaluationRouteResult configure_evaluation_route(
+        const brainstem::EvaluationRouteConfig& config);
+    [[nodiscard]] EvaluationFeedbackResult process_evaluation_feedback(
+        std::uint8_t success_percent,
+        brainstem::EvaluationSignalKind kind =
+            brainstem::EvaluationSignalKind::graded,
+        std::uint64_t scheduled_time = 0);
+    [[nodiscard]] bool evaluation_route_configured() const noexcept;
 
     void set_trace_stream(std::ostream* stream) noexcept;
     void set_fire_observer(FireObserver observer);
@@ -216,8 +239,8 @@ private:
     Runtime(ExperimentConfig config, std::uint64_t seed, SkipInitializationTag);
 
     void validate_config() const;
-    void process_fire(NeuronId neuron);
-    void process_impulse(SynapseId synapse);
+    void process_fire(NeuronId neuron, bool feedback_context = false);
+    void process_impulse(SynapseId synapse, bool feedback_context = false);
     void process_recovery(const Event& event);
     void process_eligibility_expiry(const Event& event);
     void process_event(const Event& event);
@@ -245,6 +268,8 @@ private:
     brainstem::MotorOutput motor_output_;
     std::vector<NeuronId> innate_reservations_;
     std::vector<NeuronId> motor_circuit_reservations_;
+    brainstem::EvaluationRouteResult evaluation_route_;
+    bool evaluation_route_configured_{};
     std::uint64_t simulated_time_{};
     std::uint64_t next_event_sequence_{};
 };

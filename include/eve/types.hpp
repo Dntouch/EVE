@@ -101,6 +101,12 @@ struct Metrics {
     std::uint64_t scheduled_eligibility_expiries{};
     std::uint64_t processed_eligibility_expiries{};
     std::uint64_t stale_eligibility_expiries{};
+    std::uint64_t feedback_fire_events{};
+    std::uint64_t feedback_impulses{};
+    std::uint64_t feedback_receipts_with_eligibility{};
+    std::uint64_t feedback_receipts_without_eligibility{};
+    std::uint64_t feedback_receipts_with_multiple_eligibilities{};
+    std::uint64_t feedback_created_eligibilities{};
     std::uint64_t growth_attempts{};
     std::uint64_t grown_synapses{};
     std::uint64_t processed_sensor_bytes{};
@@ -135,6 +141,16 @@ struct Metrics {
                processed_eligibility_expiries ==
                    other.processed_eligibility_expiries &&
                stale_eligibility_expiries == other.stale_eligibility_expiries &&
+               feedback_fire_events == other.feedback_fire_events &&
+               feedback_impulses == other.feedback_impulses &&
+               feedback_receipts_with_eligibility ==
+                   other.feedback_receipts_with_eligibility &&
+               feedback_receipts_without_eligibility ==
+                   other.feedback_receipts_without_eligibility &&
+               feedback_receipts_with_multiple_eligibilities ==
+                   other.feedback_receipts_with_multiple_eligibilities &&
+               feedback_created_eligibilities ==
+                   other.feedback_created_eligibilities &&
                growth_attempts == other.growth_attempts &&
                grown_synapses == other.grown_synapses &&
                processed_sensor_bytes == other.processed_sensor_bytes &&

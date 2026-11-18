@@ -315,7 +315,8 @@ EligibilityResult Brainstem::create_eligibility(
     neural::Network& network,
     const NeuronId neuron,
     const std::uint64_t expires_at,
-    const ExperimentConfig& config) const {
+    const ExperimentConfig& config,
+    const bool feedback_origin) const {
     EligibilityResult result;
     if (config.eligibility_selection == EligibilitySelection::none ||
         config.eligibility_candidate_capacity == 0 ||
@@ -347,7 +348,7 @@ EligibilityResult Brainstem::create_eligibility(
     std::reverse(selected.begin(), selected.end());
 
     const auto stored = network.store_eligibility(
-        neuron, selected, expires_at, config.eligibility_history);
+        neuron, selected, expires_at, config.eligibility_history, feedback_origin);
     result.created = stored.record.generation != 0;
     result.generation = stored.record.generation;
     result.expires_at = stored.record.expires_at;
@@ -803,6 +804,127 @@ MotorCircuitResult Brainstem::create_motor_circuit(
     }
     connect(accumulator, motor_assignment.completion_contact,
             config.completion_weight);
+    return result;
+}
+
+TechnicalEvaluation Brainstem::evaluate_binary(
+    const std::uint8_t actual, const std::uint8_t target) noexcept {
+    TechnicalEvaluation result;
+    result.actual = actual;
+    result.target = target;
+    const std::uint8_t differences = static_cast<std::uint8_t>(actual ^ target);
+    for (unsigned bit = 0; bit < 8; ++bit) {
+        result.matching_bits += ((differences >> bit) & 1U) == 0 ? 1U : 0U;
+    }
+    result.success_percent = static_cast<std::uint8_t>(result.matching_bits * 25U / 2U);
+    return result;
+}
+
+EvaluationEncoding Brainstem::encode_evaluation(
+    const std::uint8_t success_percent,
+    const EvaluationSignalKind kind) {
+    if (success_percent > 100 || success_percent % 25 != 0) {
+        throw std::invalid_argument("evaluation must be one of 0, 25, 50, 75 or 100 percent");
+    }
+    EvaluationEncoding result;
+    result.kind = kind;
+    result.success_percent = success_percent;
+    result.active_channels.push_back(
+        kind == EvaluationSignalKind::simple ? 0U : success_percent / 25U);
+    return result;
+}
+
+EvaluationRouteResult Brainstem::create_evaluation_route(
+    neural::Network& network,
+    const EvaluationRouteConfig& config) const {
+    if (config.graded_channel_count < 5 ||
+        static_cast<std::uint64_t>(config.first_input_neuron) +
+                config.graded_channel_count > network.neuron_count()) {
+        throw std::invalid_argument("evaluation input range is invalid");
+    }
+    if (config.weight <= 0 || config.fanout_per_source == 0) {
+        throw std::invalid_argument("evaluation route requires positive weight and fanout");
+    }
+
+    EvaluationRouteResult result;
+    result.config = config;
+    for (std::uint32_t channel = 0; channel < config.graded_channel_count; ++channel) {
+        result.input_neurons.push_back(config.first_input_neuron + channel);
+    }
+    if (config.mode == EvaluationRouteMode::none ||
+        config.mode == EvaluationRouteMode::sensory_input) {
+        return result;
+    }
+
+    std::vector<bool> excluded(network.neuron_count(), false);
+    for (const NeuronId neuron : result.input_neurons) excluded.at(neuron) = true;
+    for (const NeuronId neuron : config.reserved_neurons) {
+        if (neuron < excluded.size()) excluded[neuron] = true;
+    }
+    std::vector<NeuronId> candidates;
+    for (NeuronId neuron = 0; neuron < network.neuron_count(); ++neuron) {
+        if (!excluded[neuron]) candidates.push_back(neuron);
+    }
+    std::uint64_t state = config.seed == 0 ? 0x9e3779b97f4a7c15ULL : config.seed;
+    for (std::size_t remaining = candidates.size(); remaining > 1; --remaining) {
+        const std::size_t selected = static_cast<std::size_t>(
+            next_assignment_random(state) % remaining);
+        std::swap(candidates[selected], candidates[remaining - 1]);
+    }
+
+    std::size_t cursor = 0;
+    if (config.mode == EvaluationRouteMode::relay_wiring) {
+        if (config.relay_count == 0 || config.relay_count > candidates.size()) {
+            throw std::invalid_argument("evaluation relay count is invalid");
+        }
+        for (std::uint32_t index = 0; index < config.relay_count; ++index) {
+            result.relay_neurons.push_back(candidates[cursor++]);
+        }
+    }
+    const std::uint64_t target_count =
+        static_cast<std::uint64_t>(config.fanout_per_source) *
+        (config.mode == EvaluationRouteMode::relay_wiring
+             ? result.relay_neurons.size() : result.input_neurons.size());
+    if (cursor + target_count > candidates.size()) {
+        throw std::invalid_argument("network is too small for evaluation route fanout");
+    }
+
+    const auto connect = [&](const NeuronId sender, const NeuronId receiver,
+                             EvaluationRouteResult& output) {
+        const auto existing = network.find_synapse(sender, receiver);
+        SynapseId id = 0;
+        if (existing.has_value()) {
+            id = *existing;
+            network.synapse(id).weight = config.weight;
+            ++output.adjusted_synapses;
+        } else {
+            id = network.add_synapse(sender, receiver, config.weight);
+            ++output.added_synapses;
+        }
+        output.route_synapses.push_back(id);
+    };
+
+    if (config.mode == EvaluationRouteMode::general_wiring) {
+        for (const NeuronId input : result.input_neurons) {
+            for (std::uint32_t edge = 0; edge < config.fanout_per_source; ++edge) {
+                const NeuronId target = candidates[cursor++];
+                result.target_neurons.push_back(target);
+                connect(input, target, result);
+            }
+        }
+    } else {
+        for (std::size_t index = 0; index < result.input_neurons.size(); ++index) {
+            connect(result.input_neurons[index],
+                    result.relay_neurons[index % result.relay_neurons.size()], result);
+        }
+        for (const NeuronId relay : result.relay_neurons) {
+            for (std::uint32_t edge = 0; edge < config.fanout_per_source; ++edge) {
+                const NeuronId target = candidates[cursor++];
+                result.target_neurons.push_back(target);
+                connect(relay, target, result);
+            }
+        }
+    }
     return result;
 }
 

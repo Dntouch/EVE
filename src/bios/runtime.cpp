@@ -13,7 +13,7 @@ namespace eve::bios {
 namespace {
 
 constexpr std::array<char, 8> kPersistenceMagic{{'E', 'V', 'E', '0', '0', '1', '\r', '\n'}};
-constexpr std::uint32_t kPersistenceVersion = 6;
+constexpr std::uint32_t kPersistenceVersion = 7;
 constexpr std::uint64_t kNonZeroRngState = 0x9e3779b97f4a7c15ULL;
 constexpr std::uint64_t kFnvPrime = 1099511628211ULL;
 
@@ -213,6 +213,12 @@ void write_metrics(std::ostream& stream, const Metrics& metrics) {
     write_u64(stream, metrics.scheduled_eligibility_expiries);
     write_u64(stream, metrics.processed_eligibility_expiries);
     write_u64(stream, metrics.stale_eligibility_expiries);
+    write_u64(stream, metrics.feedback_fire_events);
+    write_u64(stream, metrics.feedback_impulses);
+    write_u64(stream, metrics.feedback_receipts_with_eligibility);
+    write_u64(stream, metrics.feedback_receipts_without_eligibility);
+    write_u64(stream, metrics.feedback_receipts_with_multiple_eligibilities);
+    write_u64(stream, metrics.feedback_created_eligibilities);
     write_u64(stream, metrics.growth_attempts);
     write_u64(stream, metrics.grown_synapses);
     write_u64(stream, metrics.processed_sensor_bytes);
@@ -253,6 +259,14 @@ Metrics read_metrics(std::istream& stream, const std::uint32_t version) {
         metrics.scheduled_eligibility_expiries = read_u64(stream);
         metrics.processed_eligibility_expiries = read_u64(stream);
         metrics.stale_eligibility_expiries = read_u64(stream);
+    }
+    if (version >= 7) {
+        metrics.feedback_fire_events = read_u64(stream);
+        metrics.feedback_impulses = read_u64(stream);
+        metrics.feedback_receipts_with_eligibility = read_u64(stream);
+        metrics.feedback_receipts_without_eligibility = read_u64(stream);
+        metrics.feedback_receipts_with_multiple_eligibilities = read_u64(stream);
+        metrics.feedback_created_eligibilities = read_u64(stream);
     }
     metrics.growth_attempts = read_u64(stream);
     metrics.grown_synapses = read_u64(stream);
@@ -637,6 +651,63 @@ brainstem::FeedbackResult Runtime::process_motor_feedback(
     return result;
 }
 
+brainstem::EvaluationRouteResult Runtime::configure_evaluation_route(
+    const brainstem::EvaluationRouteConfig& config) {
+    if (config.weight > config_.maximum_synapse_weight) {
+        throw std::invalid_argument("evaluation route weight exceeds configured maximum");
+    }
+    evaluation_route_ = brainstem_.create_evaluation_route(network_, config);
+    evaluation_route_configured_ = true;
+    return evaluation_route_;
+}
+
+EvaluationFeedbackResult Runtime::process_evaluation_feedback(
+    const std::uint8_t success_percent,
+    const brainstem::EvaluationSignalKind kind,
+    const std::uint64_t scheduled_time) {
+    if (!evaluation_route_configured_) {
+        throw std::logic_error("evaluation route is not configured");
+    }
+    EvaluationFeedbackResult result;
+    result.encoding = brainstem::Brainstem::encode_evaluation(success_percent, kind);
+    if (evaluation_route_.config.mode == brainstem::EvaluationRouteMode::none) {
+        return result;
+    }
+    const std::uint64_t due = scheduled_time == 0 ? simulated_time_ : scheduled_time;
+    if (due < simulated_time_) {
+        throw std::invalid_argument("evaluation feedback cannot be scheduled in the past");
+    }
+    const Metrics before = metrics_;
+    for (const std::uint8_t channel : result.encoding.active_channels) {
+        if (channel >= evaluation_route_.input_neurons.size()) {
+            throw std::logic_error("evaluation encoding exceeds configured input channels");
+        }
+        enqueue_event(EventKind::feedback_fire,
+                      evaluation_route_.input_neurons[channel], due);
+    }
+    if (due == simulated_time_) {
+        result.processed_events = run();
+    }
+    result.feedback_fires = metrics_.feedback_fire_events - before.feedback_fire_events;
+    result.feedback_impulses = metrics_.feedback_impulses - before.feedback_impulses;
+    result.receipts_with_eligibility =
+        metrics_.feedback_receipts_with_eligibility -
+        before.feedback_receipts_with_eligibility;
+    result.receipts_without_eligibility =
+        metrics_.feedback_receipts_without_eligibility -
+        before.feedback_receipts_without_eligibility;
+    result.receipts_with_multiple_eligibilities =
+        metrics_.feedback_receipts_with_multiple_eligibilities -
+        before.feedback_receipts_with_multiple_eligibilities;
+    result.created_eligibilities = metrics_.feedback_created_eligibilities -
+                                   before.feedback_created_eligibilities;
+    return result;
+}
+
+bool Runtime::evaluation_route_configured() const noexcept {
+    return evaluation_route_configured_;
+}
+
 void Runtime::set_trace_stream(std::ostream* stream) noexcept {
     trace_stream_ = stream;
 }
@@ -892,6 +963,12 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
     mix_hash(hash, metrics_.scheduled_eligibility_expiries);
     mix_hash(hash, metrics_.processed_eligibility_expiries);
     mix_hash(hash, metrics_.stale_eligibility_expiries);
+    mix_hash(hash, metrics_.feedback_fire_events);
+    mix_hash(hash, metrics_.feedback_impulses);
+    mix_hash(hash, metrics_.feedback_receipts_with_eligibility);
+    mix_hash(hash, metrics_.feedback_receipts_without_eligibility);
+    mix_hash(hash, metrics_.feedback_receipts_with_multiple_eligibilities);
+    mix_hash(hash, metrics_.feedback_created_eligibilities);
     mix_hash(hash, metrics_.growth_attempts);
     mix_hash(hash, metrics_.grown_synapses);
     mix_hash(hash, metrics_.processed_sensor_bytes);
@@ -978,6 +1055,7 @@ void Runtime::save(const std::string& path) const {
         for (const auto& record : records) {
             write_u64(stream, record.generation);
             write_u64(stream, record.expires_at);
+            write_u8(stream, record.feedback_origin ? 1 : 0);
             write_u32(stream, static_cast<std::uint32_t>(record.candidates.size()));
             for (const SynapseId candidate : record.candidates) {
                 write_u32(stream, candidate);
@@ -1112,6 +1190,9 @@ Runtime Runtime::load(const std::string& path) {
                 neural::EligibilityRecord record;
                 record.generation = read_u64(stream);
                 record.expires_at = read_u64(stream);
+                if (version >= 7) {
+                    record.feedback_origin = read_bool(stream);
+                }
                 const std::uint32_t candidate_count = read_u32(stream);
                 if (candidate_count > config.eligibility_candidate_capacity) {
                     throw std::runtime_error(
@@ -1146,8 +1227,9 @@ Runtime Runtime::load(const std::string& path) {
     }
     for (std::uint64_t index = 0; index < queue_size; ++index) {
         const std::uint8_t kind_value = read_u8(stream);
-        const std::uint8_t maximum_kind = version >= 6
-            ? static_cast<std::uint8_t>(EventKind::eligibility_expiry)
+        const std::uint8_t maximum_kind = version >= 7
+            ? static_cast<std::uint8_t>(EventKind::feedback_impulse)
+            : version >= 6 ? static_cast<std::uint8_t>(EventKind::eligibility_expiry)
             : version >= 5 ? static_cast<std::uint8_t>(EventKind::boundary)
             : static_cast<std::uint8_t>(EventKind::impulse);
         if (kind_value > maximum_kind) {
@@ -1163,9 +1245,10 @@ Runtime Runtime::load(const std::string& path) {
         } else {
             event.sequence = runtime.next_event_sequence_++;
         }
-        if (event.kind == EventKind::fire) {
+        if (event.kind == EventKind::fire || event.kind == EventKind::feedback_fire) {
             static_cast<void>(runtime.network_.neuron(event.target));
-        } else if (event.kind == EventKind::impulse) {
+        } else if (event.kind == EventKind::impulse ||
+                   event.kind == EventKind::feedback_impulse) {
             static_cast<void>(runtime.network_.synapse(event.target));
         } else if (event.kind == EventKind::recovery ||
                    event.kind == EventKind::eligibility_expiry) {
@@ -1244,9 +1327,10 @@ void Runtime::validate_config() const {
     }
 }
 
-void Runtime::process_fire(const NeuronId neuron) {
+void Runtime::process_fire(const NeuronId neuron, const bool feedback_context) {
     const auto outgoing = network_.outgoing_synapses(neuron);
     ++metrics_.fire_events;
+    if (feedback_context) ++metrics_.feedback_fire_events;
     motor_output_.observe_fire(neuron, metrics_.processed_events);
     if (fire_observer_) {
         fire_observer_(FireObservation{
@@ -1262,7 +1346,8 @@ void Runtime::process_fire(const NeuronId neuron) {
     }
 
     for (const SynapseId synapse : outgoing) {
-        enqueue_event(EventKind::impulse, synapse, simulated_time_);
+        enqueue_event(feedback_context ? EventKind::feedback_impulse : EventKind::impulse,
+                      synapse, simulated_time_);
         ++metrics_.transmitted_impulses;
     }
 
@@ -1281,8 +1366,27 @@ void Runtime::process_fire(const NeuronId neuron) {
     }
 }
 
-void Runtime::process_impulse(const SynapseId synapse) {
+void Runtime::process_impulse(const SynapseId synapse, const bool feedback_context) {
     const neural::Synapse before = network_.synapse(synapse);
+    std::size_t eligibility_before = 0;
+    if (feedback_context) {
+        const auto records = network_.eligibility_records(before.receiver);
+        eligibility_before = static_cast<std::size_t>(std::count_if(
+            records.begin(), records.end(), [](const auto& record) {
+                return !record.feedback_origin;
+            }));
+    }
+    if (feedback_context) {
+        ++metrics_.feedback_impulses;
+        if (eligibility_before == 0) {
+            ++metrics_.feedback_receipts_without_eligibility;
+        } else {
+            ++metrics_.feedback_receipts_with_eligibility;
+            if (eligibility_before > 1) {
+                ++metrics_.feedback_receipts_with_multiple_eligibilities;
+            }
+        }
+    }
     std::int64_t membrane_before = 0;
     std::uint32_t refractory_before = 0;
     if (impulse_observer_) {
@@ -1301,7 +1405,7 @@ void Runtime::process_impulse(const SynapseId synapse) {
         }
         eligibility = brainstem_.create_eligibility(
             network_, before.receiver,
-            simulated_time_ + config_.eligibility_duration, config_);
+            simulated_time_ + config_.eligibility_duration, config_, feedback_context);
         if (eligibility.created) {
             ++metrics_.eligibility_decisions;
             metrics_.eligibility_candidates += eligibility.candidates.size();
@@ -1311,6 +1415,7 @@ void Runtime::process_impulse(const SynapseId synapse) {
                 eligibility.zero_weight_candidates;
             metrics_.eligibility_overwritten_decisions +=
                 eligibility.overwritten_decisions;
+            if (feedback_context) ++metrics_.feedback_created_eligibilities;
         }
     }
     if (result.local_event_recorded) {
@@ -1360,6 +1465,7 @@ void Runtime::process_impulse(const SynapseId synapse) {
             receiver_after.refractory_events_remaining,
             result.fired,
             result.firing_suppressed,
+            feedback_context,
             network_.local_event_memory(before.receiver),
             eligibility.generation,
             eligibility.candidates,
@@ -1367,7 +1473,8 @@ void Runtime::process_impulse(const SynapseId synapse) {
     }
 
     if (result.fired) {
-        enqueue_event(EventKind::fire, before.receiver, simulated_time_);
+        enqueue_event(feedback_context ? EventKind::feedback_fire : EventKind::fire,
+                      before.receiver, simulated_time_);
         if (config_.recovery_mode != RecoveryMode::input_dependent) {
             if (config_.recovery_delay >
                 std::numeric_limits<std::uint64_t>::max() - simulated_time_) {
@@ -1431,10 +1538,10 @@ void Runtime::process_event(const Event& event) {
     update_event_hash(event);
     switch (event.kind) {
     case EventKind::fire:
-        process_fire(event.target);
+        process_fire(event.target, false);
         break;
     case EventKind::impulse:
-        process_impulse(event.target);
+        process_impulse(event.target, false);
         break;
     case EventKind::recovery:
         process_recovery(event);
@@ -1444,6 +1551,12 @@ void Runtime::process_event(const Event& event) {
         break;
     case EventKind::eligibility_expiry:
         process_eligibility_expiry(event);
+        break;
+    case EventKind::feedback_fire:
+        process_fire(event.target, true);
+        break;
+    case EventKind::feedback_impulse:
+        process_impulse(event.target, true);
         break;
     }
 }

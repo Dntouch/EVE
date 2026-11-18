@@ -89,6 +89,7 @@ void Network::reset(const ExperimentConfig& config) {
     eligibility_sizes_.assign(record_count, 0);
     eligibility_record_generations_.assign(record_count, 0);
     eligibility_expiry_times_.assign(record_count, 0);
+    eligibility_feedback_origins_.assign(record_count, 0);
     if (record_count == 0 || eligibility_candidate_capacity_ == 0) {
         eligibility_write_positions_.clear();
         eligibility_generations_.clear();
@@ -305,7 +306,8 @@ EligibilityStoreResult Network::store_eligibility(
     const NeuronId id,
     const std::vector<SynapseId>& input_candidates,
     const std::uint64_t expires_at,
-    const EligibilityHistory history) {
+    const EligibilityHistory history,
+    const bool feedback_origin) {
     require_neuron(id);
     if (eligibility_candidate_capacity_ == 0 || eligibility_decision_capacity_ == 0) {
         return {};
@@ -344,6 +346,7 @@ EligibilityStoreResult Network::store_eligibility(
             eligibility_record_generations_[record] = 0;
             eligibility_sizes_[record] = 0;
             eligibility_expiry_times_[record] = 0;
+            eligibility_feedback_origins_[record] = 0;
         }
         for (const SynapseId candidate : candidates) {
             const auto found = std::find(merged.begin(), merged.end(), candidate);
@@ -366,6 +369,7 @@ EligibilityStoreResult Network::store_eligibility(
             eligibility_record_generations_[record] = 0;
             eligibility_sizes_[record] = 0;
             eligibility_expiry_times_[record] = 0;
+            eligibility_feedback_origins_[record] = 0;
         }
     }
 
@@ -402,9 +406,11 @@ EligibilityStoreResult Network::store_eligibility(
     eligibility_sizes_[record] = static_cast<std::uint32_t>(candidates.size());
     eligibility_record_generations_[record] = generation;
     eligibility_expiry_times_[record] = expires_at;
+    eligibility_feedback_origins_[record] = feedback_origin ? 1U : 0U;
     eligibility_write_positions_[id] = (selected + 1U) % eligibility_decision_capacity_;
     eligibility_overwrites_[id] += result.overwritten_decisions;
-    result.record = EligibilityRecord{generation, expires_at, std::move(candidates)};
+    result.record = EligibilityRecord{
+        generation, expires_at, feedback_origin, std::move(candidates)};
     return result;
 }
 
@@ -420,6 +426,7 @@ bool Network::expire_eligibility(const NeuronId id, const std::uint64_t generati
             eligibility_record_generations_[record] = 0;
             eligibility_sizes_[record] = 0;
             eligibility_expiry_times_[record] = 0;
+            eligibility_feedback_origins_[record] = 0;
             return true;
         }
     }
@@ -442,6 +449,7 @@ std::vector<EligibilityRecord> Network::eligibility_records(const NeuronId id) c
         EligibilityRecord item;
         item.generation = generation;
         item.expires_at = eligibility_expiry_times_[record];
+        item.feedback_origin = eligibility_feedback_origins_[record] != 0;
         const std::size_t candidate_base = record * eligibility_candidate_capacity_;
         item.candidates.assign(
             eligibility_slots_.begin() + static_cast<std::ptrdiff_t>(candidate_base),
@@ -501,6 +509,7 @@ void Network::restore_eligibility(
     eligibility_sizes_.assign(record_count, 0);
     eligibility_record_generations_.assign(record_count, 0);
     eligibility_expiry_times_.assign(record_count, 0);
+    eligibility_feedback_origins_.assign(record_count, 0);
     if (candidate_capacity == 0 || decision_capacity == 0) {
         for (std::size_t id = 0; id < records.size(); ++id) {
             if (!records[id].empty() || generations[id] != 0 || overwrites[id] != 0) {
@@ -528,6 +537,7 @@ void Network::restore_eligibility(
             const std::size_t record = static_cast<std::size_t>(id) * decision_capacity + slot;
             eligibility_record_generations_[record] = item.generation;
             eligibility_expiry_times_[record] = item.expires_at;
+            eligibility_feedback_origins_[record] = item.feedback_origin ? 1U : 0U;
             eligibility_sizes_[record] = static_cast<std::uint32_t>(item.candidates.size());
             const std::size_t base = record * candidate_capacity;
             for (std::size_t index = 0; index < item.candidates.size(); ++index) {
@@ -582,6 +592,7 @@ std::size_t Network::estimated_memory_bytes() const noexcept {
            eligibility_sizes_.capacity() * sizeof(std::uint32_t) +
            eligibility_record_generations_.capacity() * sizeof(std::uint64_t) +
            eligibility_expiry_times_.capacity() * sizeof(std::uint64_t) +
+           eligibility_feedback_origins_.capacity() * sizeof(std::uint8_t) +
            eligibility_write_positions_.capacity() * sizeof(std::uint32_t) +
            eligibility_generations_.capacity() * sizeof(std::uint64_t) +
            eligibility_overwrites_.capacity() * sizeof(std::uint64_t);
@@ -641,6 +652,7 @@ std::uint64_t Network::state_fingerprint() const noexcept {
         for (const auto& record : records) {
             hash_u64(hash, record.generation);
             hash_u64(hash, record.expires_at);
+            hash_u64(hash, record.feedback_origin ? 1 : 0);
             hash_u64(hash, record.candidates.size());
             for (const SynapseId candidate : record.candidates) {
                 hash_u64(hash, candidate);
@@ -695,6 +707,7 @@ bool Network::validate(std::string* error) const {
         eligibility_sizes_.size() != expected_eligibility_records ||
         eligibility_record_generations_.size() != expected_eligibility_records ||
         eligibility_expiry_times_.size() != expected_eligibility_records ||
+        eligibility_feedback_origins_.size() != expected_eligibility_records ||
         eligibility_write_positions_.size() != expected_eligibility_management ||
         eligibility_generations_.size() != expected_eligibility_management ||
         eligibility_overwrites_.size() != expected_eligibility_management) {
@@ -703,7 +716,8 @@ bool Network::validate(std::string* error) const {
     for (std::size_t index = 0; index < expected_eligibility_records; ++index) {
         if (eligibility_sizes_[index] > eligibility_candidate_capacity_ ||
             (eligibility_record_generations_[index] == 0 &&
-             (eligibility_sizes_[index] != 0 || eligibility_expiry_times_[index] != 0))) {
+             (eligibility_sizes_[index] != 0 || eligibility_expiry_times_[index] != 0 ||
+              eligibility_feedback_origins_[index] != 0))) {
             return fail("invalid eligibility record");
         }
         if (eligibility_record_generations_[index] != 0) {
@@ -836,6 +850,7 @@ void Network::restore(
     eligibility_sizes_.clear();
     eligibility_record_generations_.clear();
     eligibility_expiry_times_.clear();
+    eligibility_feedback_origins_.clear();
     eligibility_write_positions_.clear();
     eligibility_generations_.clear();
     eligibility_overwrites_.clear();

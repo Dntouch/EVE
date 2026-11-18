@@ -40,10 +40,12 @@ struct Synapse {
 struct EligibilityRecord {
     std::uint64_t generation{};
     std::uint64_t expires_at{};
+    bool feedback_origin{};
     std::vector<SynapseId> candidates;
 
     bool operator==(const EligibilityRecord& other) const noexcept {
         return generation == other.generation && expires_at == other.expires_at &&
+               feedback_origin == other.feedback_origin &&
                candidates == other.candidates;
     }
 };
@@ -84,7 +86,8 @@ public:
         NeuronId neuron,
         const std::vector<SynapseId>& candidates,
         std::uint64_t expires_at,
-        EligibilityHistory history);
+        EligibilityHistory history,
+        bool feedback_origin = false);
     [[nodiscard]] bool expire_eligibility(NeuronId neuron, std::uint64_t generation);
     [[nodiscard]] std::vector<EligibilityRecord> eligibility_records(
         NeuronId neuron) const;
@@ -145,6 +148,7 @@ private:
     std::vector<std::uint32_t> eligibility_sizes_;
     std::vector<std::uint64_t> eligibility_record_generations_;
     std::vector<std::uint64_t> eligibility_expiry_times_;
+    std::vector<std::uint8_t> eligibility_feedback_origins_;
     std::vector<std::uint32_t> eligibility_write_positions_;
     std::vector<std::uint64_t> eligibility_generations_;
     std::vector<std::uint64_t> eligibility_overwrites_;
