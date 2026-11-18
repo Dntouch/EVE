@@ -61,9 +61,15 @@ void Network::reset(const ExperimentConfig& config) {
         throw std::overflow_error("local event memory size overflow");
     }
     local_event_slots_.assign(slot_count, kInvalidIndex);
-    local_event_write_positions_.assign(config.neuron_count, 0);
-    local_event_sizes_.assign(config.neuron_count, 0);
-    local_event_overwrites_.assign(config.neuron_count, 0);
+    if (local_event_memory_capacity_ == 0) {
+        local_event_write_positions_.clear();
+        local_event_sizes_.clear();
+        local_event_overwrites_.clear();
+    } else {
+        local_event_write_positions_.assign(config.neuron_count, 0);
+        local_event_sizes_.assign(config.neuron_count, 0);
+        local_event_overwrites_.assign(config.neuron_count, 0);
+    }
 }
 
 SynapseId Network::add_synapse(
@@ -192,6 +198,9 @@ bool Network::record_local_event(const NeuronId id, const SynapseId synapse_id) 
 
 std::vector<SynapseId> Network::local_event_memory(const NeuronId id) const {
     require_neuron(id);
+    if (local_event_memory_capacity_ == 0) {
+        return {};
+    }
     const std::uint32_t size = local_event_sizes_[id];
     std::vector<SynapseId> result;
     result.reserve(size);
@@ -211,6 +220,9 @@ std::vector<SynapseId> Network::local_event_memory(const NeuronId id) const {
 
 std::uint64_t Network::local_event_overwrites(const NeuronId id) const {
     require_neuron(id);
+    if (local_event_memory_capacity_ == 0) {
+        return 0;
+    }
     return local_event_overwrites_[id];
 }
 
@@ -226,6 +238,18 @@ void Network::restore_local_event_memory(
         throw std::runtime_error("local event memory count does not match neurons");
     }
     local_event_memory_capacity_ = capacity;
+    if (capacity == 0) {
+        for (std::size_t index = 0; index < events.size(); ++index) {
+            if (!events[index].empty() || overwrites[index] != 0) {
+                throw std::runtime_error("disabled local event memory contains state");
+            }
+        }
+        local_event_slots_.clear();
+        local_event_write_positions_.clear();
+        local_event_sizes_.clear();
+        local_event_overwrites_.clear();
+        return;
+    }
     const std::size_t slot_count = neurons_.size() * static_cast<std::size_t>(capacity);
     if (capacity != 0 && slot_count / capacity != neurons_.size()) {
         throw std::runtime_error("restored local event memory size overflow");
@@ -326,7 +350,7 @@ std::uint64_t Network::state_fingerprint() const noexcept {
         for (const SynapseId synapse_id : events) {
             hash_u64(hash, synapse_id);
         }
-        hash_u64(hash, local_event_overwrites_[id]);
+        hash_u64(hash, local_event_overwrites(id));
     }
     return hash;
 }
@@ -348,17 +372,20 @@ bool Network::validate(std::string* error) const {
     }
     const std::size_t expected_slots =
         neurons_.size() * static_cast<std::size_t>(local_event_memory_capacity_);
+    const std::size_t expected_management =
+        local_event_memory_capacity_ == 0 ? 0 : neurons_.size();
     if (local_event_slots_.size() != expected_slots ||
-        local_event_write_positions_.size() != neurons_.size() ||
-        local_event_sizes_.size() != neurons_.size() ||
-        local_event_overwrites_.size() != neurons_.size()) {
+        local_event_write_positions_.size() != expected_management ||
+        local_event_sizes_.size() != expected_management ||
+        local_event_overwrites_.size() != expected_management) {
         return fail("local event memory storage mismatch");
     }
-    for (std::size_t index = 0; index < neurons_.size(); ++index) {
-        if (local_event_sizes_[index] > local_event_memory_capacity_ ||
-            (local_event_memory_capacity_ != 0 &&
-             local_event_write_positions_[index] >= local_event_memory_capacity_)) {
-            return fail("invalid local event memory cursor");
+    if (local_event_memory_capacity_ != 0) {
+        for (std::size_t index = 0; index < neurons_.size(); ++index) {
+            if (local_event_sizes_[index] > local_event_memory_capacity_ ||
+                local_event_write_positions_[index] >= local_event_memory_capacity_) {
+                return fail("invalid local event memory cursor");
+            }
         }
     }
 
@@ -457,9 +484,9 @@ void Network::restore(
     synapses_ = std::move(synapses);
     local_event_memory_capacity_ = 0;
     local_event_slots_.clear();
-    local_event_write_positions_.assign(neurons_.size(), 0);
-    local_event_sizes_.assign(neurons_.size(), 0);
-    local_event_overwrites_.assign(neurons_.size(), 0);
+    local_event_write_positions_.clear();
+    local_event_sizes_.clear();
+    local_event_overwrites_.clear();
     std::string error;
     if (!validate(&error)) {
         throw std::runtime_error("invalid restored network: " + error);
