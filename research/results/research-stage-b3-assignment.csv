@@ -1,0 +1,4 @@
+variant,neural_information,global_action_id,assessment
+Z0,current-valid-eligibility,0,temporally-ambiguous
+Z1,regular-boundary-stimulus,0,boundary-observable-but-not-shared-identity
+Z2,local-context-hypothesis,0,not-reliable-without-new-neural-context-route

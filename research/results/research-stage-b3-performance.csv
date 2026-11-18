@@ -1,0 +1,8 @@
+neurons,measured,route,added_synapses,feedback_events,maximum_queue,memory_bytes,seconds,events_per_second,estimated_route_bytes
+256,1,F0,0,0,0,97520,1.4e-07,0,0
+256,1,F1,0,17,9,97648,2.8e-06,6071428.57,0
+256,1,F2,19,41,30,97904,5.57e-06,7360861.76,480
+256,1,F3,21,47,35,97968,6.83e-06,6881405.56,504
+10000,0,F3,21,0,0,0,0,0,504
+100000,0,F3,21,0,0,0,0,0,504
+1000000,0,F3,21,0,0,0,0,0,504

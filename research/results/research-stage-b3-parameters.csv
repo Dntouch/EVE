@@ -1,0 +1,13 @@
+parameter,value
+base_branch,codex/research-stage-b2-local-eligibility
+neurons,256
+regular_synapses,1024
+innate,V2:3
+motor,M3:1:3
+memory,G3:8
+recovery,R2F:16
+eligibility,L2:2:2:64
+routes,F0|F1|F2|F3
+encoding,one-hot:0|25|50|75|100
+feedback_learning,disabled
+seeds,64
