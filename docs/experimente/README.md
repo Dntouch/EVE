@@ -1,35 +1,19 @@
 # Experimente
 
-Experimente sollen nachweisen, ob EVE durch eigene Erfahrung dauerhaft lernt.
-Eine korrekte Ausgabe allein ist kein ausreichender Beleg.
+**Grundlage:** Abschnitte 19 und 23 des EVE-Konzepts
 
-## Grundregeln
+Das Konzept fordert reproduzierbare Versuche, mit denen sich tatsächliches
+Lernen von fest programmierten Lösungswegen, zufälligen Treffern und verdeckten
+LLM-Entscheidungen unterscheiden lässt.
 
-- Hypothese und mögliche Widerlegung werden vor der Durchführung formuliert.
-- Ausgangszustand, Ereignisfolge und Zufallszustände werden erfasst.
-- Messgrößen und Erfolgskriterien stehen vor Sichtung des Ergebnisses fest.
-- Mindestens eine geeignete Kontrolle trennt Lernen von Zufall, fest
-  programmiertem Verhalten oder Lehrerentscheidungen.
-- Fehlgeschlagene und negative Ergebnisse werden ebenfalls dokumentiert.
-- Änderungen am Versuchsaufbau nach Beginn werden sichtbar protokolliert.
-- Interne Aktivitätskosten und reale Leistungsaufnahme bleiben getrennte Größen.
+Als zu speichernde Bestandteile nennt das Konzept:
 
-## Benennung
+- Ausgangszustand
+- zeitliche Abfolge externer Ereignisse
+- relevante Zufallszustände
+- getroffene Entscheidungen
+- Veränderungen des neuronalen Systems
 
-```text
-EXP-JJJJ-NNN-kurzer-titel.md
-```
-
-Beispiel: `EXP-2027-001-unbekannte-entscheidungsaufgabe.md`
-
-## Lebenszyklus
-
-1. Entwurf
-2. In Prüfung
-3. Freigegeben
-4. Laufend
-5. Ausgewertet
-6. Reproduziert oder nicht reproduziert
-7. Archiviert
-
-Für jeden Versuch wird die [Vorlage](VORLAGE.md) verwendet.
+Die [Experimentvorlage](VORLAGE.md) ist ein Arbeitsmittel. Ihre Felder sind keine
+bereits beschlossene Versuchsmethodik und können für den jeweiligen Versuch
+angepasst werden.

@@ -18,10 +18,5 @@ Desktop.ini
 .env.*
 !.env.example
 
-# Lokale Versuchsdaten und sensible Artefakte
-/artifacts/
-/data/local/
-/scratch/
-
 # Protokolle
 *.log

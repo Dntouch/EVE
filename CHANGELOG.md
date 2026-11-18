@@ -12,16 +12,11 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
 - Vollständiges EVE-Konzept mit Stand vom 15. November 2026.
 - Übergeordnetes Stammhirnkonzept zur angeborenen Lernfähigkeit durch
   Erfahrung, Erwartung, Handlung und Rückmeldung.
-- Roadmap, Forschungsfragen, Glossar und Risikoregister.
-- Prozess für Entscheidungen und reproduzierbare Experimente.
+- Roadmap, Forschungsfragen und Glossar.
+- Vorlagen für Entscheidungen und Experimente.
 - Vorlagen für Issues und Pull Requests.
 
 ### Geändert
 
 - Der offizielle Projektname wurde von „EVE – Emergent Virtual Evolution“ auf
   „EVE“ verkürzt.
-
-### Offen
-
-- Lizenz und Veröffentlichungsmodell.
-- Technologie-Stack und Implementierungsarchitektur.
