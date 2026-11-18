@@ -33,6 +33,7 @@ enum class EventKind : std::uint8_t {
     impulse = 1,
     recovery = 2,
     boundary = 3,
+    eligibility_expiry = 4,
 };
 
 struct Event {
@@ -85,6 +86,8 @@ struct ImpulseObservation {
     bool receiver_fired{};
     bool firing_suppressed{};
     std::vector<SynapseId> local_event_snapshot;
+    std::uint64_t eligibility_generation{};
+    std::vector<SynapseId> eligibility_candidates;
 
     bool operator==(const ImpulseObservation& other) const noexcept {
         return event_index == other.event_index &&
@@ -97,7 +100,9 @@ struct ImpulseObservation {
                refractory_after == other.refractory_after &&
                receiver_fired == other.receiver_fired &&
                firing_suppressed == other.firing_suppressed &&
-               local_event_snapshot == other.local_event_snapshot;
+               local_event_snapshot == other.local_event_snapshot &&
+               eligibility_generation == other.eligibility_generation &&
+               eligibility_candidates == other.eligibility_candidates;
     }
 };
 
@@ -214,6 +219,7 @@ private:
     void process_fire(NeuronId neuron);
     void process_impulse(SynapseId synapse);
     void process_recovery(const Event& event);
+    void process_eligibility_expiry(const Event& event);
     void process_event(const Event& event);
     void enqueue_event(
         EventKind kind,

@@ -49,6 +49,16 @@ struct RecoveryResult {
     std::uint32_t refractory_after{};
 };
 
+struct EligibilityResult {
+    bool created{};
+    std::uint64_t generation{};
+    std::uint64_t expires_at{};
+    std::uint32_t overwritten_decisions{};
+    std::uint32_t positive_candidates{};
+    std::uint32_t zero_weight_candidates{};
+    std::vector<SynapseId> candidates;
+};
+
 enum class MotorResponseStatus : std::uint8_t {
     no_response = 0,
     completed = 1,
@@ -272,6 +282,17 @@ public:
         NeuronId neuron,
         std::uint64_t generation,
         const ExperimentConfig& config) const;
+
+    [[nodiscard]] EligibilityResult create_eligibility(
+        neural::Network& network,
+        NeuronId neuron,
+        std::uint64_t expires_at,
+        const ExperimentConfig& config) const;
+
+    [[nodiscard]] bool expire_eligibility(
+        neural::Network& network,
+        NeuronId neuron,
+        std::uint64_t generation) const;
 
     [[nodiscard]] std::optional<SynapseId> select_competing_synapse(
         const neural::Network& network,

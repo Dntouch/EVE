@@ -37,6 +37,22 @@ struct Synapse {
     bool operator==(const Synapse& other) const noexcept;
 };
 
+struct EligibilityRecord {
+    std::uint64_t generation{};
+    std::uint64_t expires_at{};
+    std::vector<SynapseId> candidates;
+
+    bool operator==(const EligibilityRecord& other) const noexcept {
+        return generation == other.generation && expires_at == other.expires_at &&
+               candidates == other.candidates;
+    }
+};
+
+struct EligibilityStoreResult {
+    EligibilityRecord record;
+    std::uint32_t overwritten_decisions{};
+};
+
 class Network {
 public:
     void reset(const ExperimentConfig& config);
@@ -62,6 +78,26 @@ public:
     void restore_local_event_memory(
         std::uint32_t capacity,
         const std::vector<std::vector<SynapseId>>& events,
+        const std::vector<std::uint64_t>& overwrites);
+
+    [[nodiscard]] EligibilityStoreResult store_eligibility(
+        NeuronId neuron,
+        const std::vector<SynapseId>& candidates,
+        std::uint64_t expires_at,
+        EligibilityHistory history);
+    [[nodiscard]] bool expire_eligibility(NeuronId neuron, std::uint64_t generation);
+    [[nodiscard]] std::vector<EligibilityRecord> eligibility_records(
+        NeuronId neuron) const;
+    [[nodiscard]] std::uint64_t eligibility_generation(NeuronId neuron) const;
+    [[nodiscard]] std::uint64_t eligibility_overwrites(NeuronId neuron) const;
+    [[nodiscard]] std::uint32_t eligibility_candidate_capacity() const noexcept;
+    [[nodiscard]] std::uint32_t eligibility_decision_capacity() const noexcept;
+    [[nodiscard]] std::size_t active_eligibility_count() const noexcept;
+    void restore_eligibility(
+        std::uint32_t candidate_capacity,
+        std::uint32_t decision_capacity,
+        const std::vector<std::vector<EligibilityRecord>>& records,
+        const std::vector<std::uint64_t>& generations,
         const std::vector<std::uint64_t>& overwrites);
 
     [[nodiscard]] const Neuron& neuron(NeuronId id) const;
@@ -103,6 +139,15 @@ private:
     std::vector<std::uint32_t> local_event_write_positions_;
     std::vector<std::uint32_t> local_event_sizes_;
     std::vector<std::uint64_t> local_event_overwrites_;
+    std::uint32_t eligibility_candidate_capacity_{};
+    std::uint32_t eligibility_decision_capacity_{};
+    std::vector<SynapseId> eligibility_slots_;
+    std::vector<std::uint32_t> eligibility_sizes_;
+    std::vector<std::uint64_t> eligibility_record_generations_;
+    std::vector<std::uint64_t> eligibility_expiry_times_;
+    std::vector<std::uint32_t> eligibility_write_positions_;
+    std::vector<std::uint64_t> eligibility_generations_;
+    std::vector<std::uint64_t> eligibility_overwrites_;
 };
 
 }  // namespace eve::neural

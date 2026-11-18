@@ -13,7 +13,7 @@ namespace eve::bios {
 namespace {
 
 constexpr std::array<char, 8> kPersistenceMagic{{'E', 'V', 'E', '0', '0', '1', '\r', '\n'}};
-constexpr std::uint32_t kPersistenceVersion = 5;
+constexpr std::uint32_t kPersistenceVersion = 6;
 constexpr std::uint64_t kNonZeroRngState = 0x9e3779b97f4a7c15ULL;
 constexpr std::uint64_t kFnvPrime = 1099511628211ULL;
 
@@ -121,6 +121,12 @@ void write_config(std::ostream& stream, const ExperimentConfig& config) {
     write_u64(stream, config.recovery_delay);
     write_u32(stream, config.membrane_relaxation_percent);
     write_u32(stream, config.local_event_memory_capacity);
+    write_u8(stream, static_cast<std::uint8_t>(config.eligibility_selection));
+    write_u8(stream, static_cast<std::uint8_t>(config.eligibility_representation));
+    write_u8(stream, static_cast<std::uint8_t>(config.eligibility_history));
+    write_u32(stream, config.eligibility_candidate_capacity);
+    write_u32(stream, config.eligibility_decision_capacity);
+    write_u64(stream, config.eligibility_duration);
     write_u64(stream, config.maximum_events_per_run);
     write_u8(stream, config.learning_enabled ? 1 : 0);
     write_u8(stream, config.growth_enabled ? 1 : 0);
@@ -156,6 +162,23 @@ ExperimentConfig read_config(std::istream& stream, const std::uint32_t version) 
     if (version >= 4) {
         config.local_event_memory_capacity = read_u32(stream);
     }
+    if (version >= 6) {
+        const std::uint8_t selection = read_u8(stream);
+        const std::uint8_t representation = read_u8(stream);
+        const std::uint8_t history = read_u8(stream);
+        if (selection > static_cast<std::uint8_t>(EligibilitySelection::positive_weight) ||
+            representation > static_cast<std::uint8_t>(EligibilityRepresentation::unique) ||
+            history > static_cast<std::uint8_t>(EligibilityHistory::merge_unique)) {
+            throw std::runtime_error("invalid eligibility configuration in EVE state");
+        }
+        config.eligibility_selection = static_cast<EligibilitySelection>(selection);
+        config.eligibility_representation =
+            static_cast<EligibilityRepresentation>(representation);
+        config.eligibility_history = static_cast<EligibilityHistory>(history);
+        config.eligibility_candidate_capacity = read_u32(stream);
+        config.eligibility_decision_capacity = read_u32(stream);
+        config.eligibility_duration = read_u64(stream);
+    }
     config.maximum_events_per_run = read_u64(stream);
     config.learning_enabled = read_bool(stream);
     config.growth_enabled = read_bool(stream);
@@ -182,6 +205,14 @@ void write_metrics(std::ostream& stream, const Metrics& metrics) {
     write_u64(stream, metrics.processed_recovery_events);
     write_u64(stream, metrics.stale_recovery_events);
     write_u64(stream, metrics.processed_boundary_events);
+    write_u64(stream, metrics.eligibility_decisions);
+    write_u64(stream, metrics.eligibility_candidates);
+    write_u64(stream, metrics.eligibility_positive_candidates);
+    write_u64(stream, metrics.eligibility_zero_weight_candidates);
+    write_u64(stream, metrics.eligibility_overwritten_decisions);
+    write_u64(stream, metrics.scheduled_eligibility_expiries);
+    write_u64(stream, metrics.processed_eligibility_expiries);
+    write_u64(stream, metrics.stale_eligibility_expiries);
     write_u64(stream, metrics.growth_attempts);
     write_u64(stream, metrics.grown_synapses);
     write_u64(stream, metrics.processed_sensor_bytes);
@@ -212,6 +243,16 @@ Metrics read_metrics(std::istream& stream, const std::uint32_t version) {
         metrics.processed_recovery_events = read_u64(stream);
         metrics.stale_recovery_events = read_u64(stream);
         metrics.processed_boundary_events = read_u64(stream);
+    }
+    if (version >= 6) {
+        metrics.eligibility_decisions = read_u64(stream);
+        metrics.eligibility_candidates = read_u64(stream);
+        metrics.eligibility_positive_candidates = read_u64(stream);
+        metrics.eligibility_zero_weight_candidates = read_u64(stream);
+        metrics.eligibility_overwritten_decisions = read_u64(stream);
+        metrics.scheduled_eligibility_expiries = read_u64(stream);
+        metrics.processed_eligibility_expiries = read_u64(stream);
+        metrics.stale_eligibility_expiries = read_u64(stream);
     }
     metrics.growth_attempts = read_u64(stream);
     metrics.grown_synapses = read_u64(stream);
@@ -819,6 +860,12 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
     mix_hash(hash, config_.recovery_delay);
     mix_hash(hash, config_.membrane_relaxation_percent);
     mix_hash(hash, config_.local_event_memory_capacity);
+    mix_hash(hash, static_cast<std::uint8_t>(config_.eligibility_selection));
+    mix_hash(hash, static_cast<std::uint8_t>(config_.eligibility_representation));
+    mix_hash(hash, static_cast<std::uint8_t>(config_.eligibility_history));
+    mix_hash(hash, config_.eligibility_candidate_capacity);
+    mix_hash(hash, config_.eligibility_decision_capacity);
+    mix_hash(hash, config_.eligibility_duration);
     mix_hash(hash, config_.maximum_events_per_run);
     mix_hash(hash, config_.learning_enabled ? 1 : 0);
     mix_hash(hash, config_.growth_enabled ? 1 : 0);
@@ -837,6 +884,14 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
     mix_hash(hash, metrics_.processed_recovery_events);
     mix_hash(hash, metrics_.stale_recovery_events);
     mix_hash(hash, metrics_.processed_boundary_events);
+    mix_hash(hash, metrics_.eligibility_decisions);
+    mix_hash(hash, metrics_.eligibility_candidates);
+    mix_hash(hash, metrics_.eligibility_positive_candidates);
+    mix_hash(hash, metrics_.eligibility_zero_weight_candidates);
+    mix_hash(hash, metrics_.eligibility_overwritten_decisions);
+    mix_hash(hash, metrics_.scheduled_eligibility_expiries);
+    mix_hash(hash, metrics_.processed_eligibility_expiries);
+    mix_hash(hash, metrics_.stale_eligibility_expiries);
     mix_hash(hash, metrics_.growth_attempts);
     mix_hash(hash, metrics_.grown_synapses);
     mix_hash(hash, metrics_.processed_sensor_bytes);
@@ -913,6 +968,21 @@ void Runtime::save(const std::string& path) const {
             write_u32(stream, synapse);
         }
         write_u64(stream, network_.local_event_overwrites(neuron));
+    }
+
+    for (NeuronId neuron = 0; neuron < network_.neuron_count(); ++neuron) {
+        write_u64(stream, network_.eligibility_generation(neuron));
+        write_u64(stream, network_.eligibility_overwrites(neuron));
+        const auto records = network_.eligibility_records(neuron);
+        write_u32(stream, static_cast<std::uint32_t>(records.size()));
+        for (const auto& record : records) {
+            write_u64(stream, record.generation);
+            write_u64(stream, record.expires_at);
+            write_u32(stream, static_cast<std::uint32_t>(record.candidates.size()));
+            for (const SynapseId candidate : record.candidates) {
+                write_u32(stream, candidate);
+            }
+        }
     }
 
     write_u64(stream, simulated_time_);
@@ -1025,6 +1095,47 @@ Runtime Runtime::load(const std::string& path) {
             std::vector<std::uint64_t>(neuron_count));
     }
 
+    if (version >= 6) {
+        std::vector<std::vector<neural::EligibilityRecord>> records(neuron_count);
+        std::vector<std::uint64_t> generations(neuron_count);
+        std::vector<std::uint64_t> overwrites(neuron_count);
+        for (NeuronId neuron = 0; neuron < neuron_count; ++neuron) {
+            generations[neuron] = read_u64(stream);
+            overwrites[neuron] = read_u64(stream);
+            const std::uint32_t record_count = read_u32(stream);
+            if (record_count > config.eligibility_decision_capacity) {
+                throw std::runtime_error("persisted eligibility exceeds decision capacity");
+            }
+            records[neuron].reserve(record_count);
+            for (std::uint32_t record_index = 0; record_index < record_count;
+                 ++record_index) {
+                neural::EligibilityRecord record;
+                record.generation = read_u64(stream);
+                record.expires_at = read_u64(stream);
+                const std::uint32_t candidate_count = read_u32(stream);
+                if (candidate_count > config.eligibility_candidate_capacity) {
+                    throw std::runtime_error(
+                        "persisted eligibility exceeds candidate capacity");
+                }
+                record.candidates.reserve(candidate_count);
+                for (std::uint32_t index = 0; index < candidate_count; ++index) {
+                    record.candidates.push_back(read_u32(stream));
+                }
+                records[neuron].push_back(std::move(record));
+            }
+        }
+        runtime.network_.restore_eligibility(
+            config.eligibility_candidate_capacity,
+            config.eligibility_decision_capacity,
+            records, generations, overwrites);
+    } else {
+        runtime.network_.restore_eligibility(
+            0, 0,
+            std::vector<std::vector<neural::EligibilityRecord>>(neuron_count),
+            std::vector<std::uint64_t>(neuron_count),
+            std::vector<std::uint64_t>(neuron_count));
+    }
+
     if (version >= 5) {
         runtime.simulated_time_ = read_u64(stream);
         runtime.next_event_sequence_ = read_u64(stream);
@@ -1035,8 +1146,9 @@ Runtime Runtime::load(const std::string& path) {
     }
     for (std::uint64_t index = 0; index < queue_size; ++index) {
         const std::uint8_t kind_value = read_u8(stream);
-        const std::uint8_t maximum_kind = version >= 5
-            ? static_cast<std::uint8_t>(EventKind::boundary)
+        const std::uint8_t maximum_kind = version >= 6
+            ? static_cast<std::uint8_t>(EventKind::eligibility_expiry)
+            : version >= 5 ? static_cast<std::uint8_t>(EventKind::boundary)
             : static_cast<std::uint8_t>(EventKind::impulse);
         if (kind_value > maximum_kind) {
             throw std::runtime_error("invalid event kind in EVE state");
@@ -1055,7 +1167,8 @@ Runtime Runtime::load(const std::string& path) {
             static_cast<void>(runtime.network_.neuron(event.target));
         } else if (event.kind == EventKind::impulse) {
             static_cast<void>(runtime.network_.synapse(event.target));
-        } else if (event.kind == EventKind::recovery) {
+        } else if (event.kind == EventKind::recovery ||
+                   event.kind == EventKind::eligibility_expiry) {
             static_cast<void>(runtime.network_.neuron(event.target));
         }
         runtime.queue_.push_back(event);
@@ -1100,10 +1213,34 @@ void Runtime::validate_config() const {
     if (config_.membrane_relaxation_percent > 100) {
         throw std::invalid_argument("membrane relaxation must be between 0 and 100 percent");
     }
+    if (static_cast<std::uint8_t>(config_.eligibility_selection) >
+            static_cast<std::uint8_t>(EligibilitySelection::positive_weight) ||
+        static_cast<std::uint8_t>(config_.eligibility_representation) >
+            static_cast<std::uint8_t>(EligibilityRepresentation::unique) ||
+        static_cast<std::uint8_t>(config_.eligibility_history) >
+            static_cast<std::uint8_t>(EligibilityHistory::merge_unique)) {
+        throw std::invalid_argument("invalid eligibility mode");
+    }
     if (config_.recovery_mode !=
             RecoveryMode::independent_with_membrane_relaxation &&
         config_.membrane_relaxation_percent != 0) {
         throw std::invalid_argument("membrane relaxation requires recovery mode R2");
+    }
+    const bool eligibility_enabled =
+        config_.eligibility_selection != EligibilitySelection::none;
+    if (eligibility_enabled &&
+        (config_.local_event_memory_capacity == 0 ||
+         config_.eligibility_candidate_capacity == 0 ||
+         config_.eligibility_decision_capacity == 0)) {
+        throw std::invalid_argument(
+            "eligibility requires local memory and positive candidate/decision capacities");
+    }
+    if (!eligibility_enabled &&
+        (config_.eligibility_candidate_capacity != 0 ||
+         config_.eligibility_decision_capacity != 0 ||
+         config_.eligibility_duration != 0)) {
+        throw std::invalid_argument(
+            "disabled eligibility must not allocate candidate or decision state");
     }
 }
 
@@ -1155,6 +1292,27 @@ void Runtime::process_impulse(const SynapseId synapse) {
     }
     const brainstem::ImpulseResult result =
         brainstem_.receive_impulse(network_, synapse, config_, &rng_);
+    brainstem::EligibilityResult eligibility;
+    if (result.fired &&
+        config_.eligibility_selection != EligibilitySelection::none) {
+        if (config_.eligibility_duration >
+            std::numeric_limits<std::uint64_t>::max() - simulated_time_) {
+            throw std::overflow_error("eligibility expiry time overflow");
+        }
+        eligibility = brainstem_.create_eligibility(
+            network_, before.receiver,
+            simulated_time_ + config_.eligibility_duration, config_);
+        if (eligibility.created) {
+            ++metrics_.eligibility_decisions;
+            metrics_.eligibility_candidates += eligibility.candidates.size();
+            metrics_.eligibility_positive_candidates +=
+                eligibility.positive_candidates;
+            metrics_.eligibility_zero_weight_candidates +=
+                eligibility.zero_weight_candidates;
+            metrics_.eligibility_overwritten_decisions +=
+                eligibility.overwritten_decisions;
+        }
+    }
     if (result.local_event_recorded) {
         ++metrics_.local_event_memory_records;
     }
@@ -1203,6 +1361,8 @@ void Runtime::process_impulse(const SynapseId synapse) {
             result.fired,
             result.firing_suppressed,
             network_.local_event_memory(before.receiver),
+            eligibility.generation,
+            eligibility.candidates,
         });
     }
 
@@ -1219,6 +1379,12 @@ void Runtime::process_impulse(const SynapseId synapse) {
                 EventKind::recovery, before.receiver, recovery_time,
                 result.recovery_generation);
             ++metrics_.scheduled_recovery_events;
+        }
+        if (eligibility.created) {
+            enqueue_event(
+                EventKind::eligibility_expiry, before.receiver,
+                eligibility.expires_at, eligibility.generation);
+            ++metrics_.scheduled_eligibility_expiries;
         }
     }
 }
@@ -1248,6 +1414,15 @@ void Runtime::process_recovery(const Event& event) {
     }
 }
 
+void Runtime::process_eligibility_expiry(const Event& event) {
+    if (brainstem_.expire_eligibility(
+            network_, event.target, event.generation)) {
+        ++metrics_.processed_eligibility_expiries;
+    } else {
+        ++metrics_.stale_eligibility_expiries;
+    }
+}
+
 void Runtime::process_event(const Event& event) {
     if (event.scheduled_time > simulated_time_) {
         throw std::logic_error("attempted to process a future event");
@@ -1266,6 +1441,9 @@ void Runtime::process_event(const Event& event) {
         break;
     case EventKind::boundary:
         ++metrics_.processed_boundary_events;
+        break;
+    case EventKind::eligibility_expiry:
+        process_eligibility_expiry(event);
         break;
     }
 }

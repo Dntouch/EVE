@@ -1,6 +1,7 @@
 #include "eve/neural/network.hpp"
 
 #include <limits>
+#include <algorithm>
 #include <sstream>
 #include <stdexcept>
 #include <unordered_set>
@@ -71,6 +72,31 @@ void Network::reset(const ExperimentConfig& config) {
         local_event_write_positions_.assign(config.neuron_count, 0);
         local_event_sizes_.assign(config.neuron_count, 0);
         local_event_overwrites_.assign(config.neuron_count, 0);
+    }
+
+    eligibility_candidate_capacity_ = config.eligibility_candidate_capacity;
+    eligibility_decision_capacity_ = config.eligibility_decision_capacity;
+    const auto record_count = static_cast<std::size_t>(config.neuron_count) *
+                              eligibility_decision_capacity_;
+    const auto candidate_count = record_count * eligibility_candidate_capacity_;
+    if ((eligibility_decision_capacity_ != 0 &&
+         record_count / eligibility_decision_capacity_ != config.neuron_count) ||
+        (eligibility_candidate_capacity_ != 0 &&
+         candidate_count / eligibility_candidate_capacity_ != record_count)) {
+        throw std::overflow_error("eligibility storage size overflow");
+    }
+    eligibility_slots_.assign(candidate_count, kInvalidIndex);
+    eligibility_sizes_.assign(record_count, 0);
+    eligibility_record_generations_.assign(record_count, 0);
+    eligibility_expiry_times_.assign(record_count, 0);
+    if (record_count == 0 || eligibility_candidate_capacity_ == 0) {
+        eligibility_write_positions_.clear();
+        eligibility_generations_.clear();
+        eligibility_overwrites_.clear();
+    } else {
+        eligibility_write_positions_.assign(config.neuron_count, 0);
+        eligibility_generations_.assign(config.neuron_count, 0);
+        eligibility_overwrites_.assign(config.neuron_count, 0);
     }
 }
 
@@ -275,6 +301,248 @@ void Network::restore_local_event_memory(
     }
 }
 
+EligibilityStoreResult Network::store_eligibility(
+    const NeuronId id,
+    const std::vector<SynapseId>& input_candidates,
+    const std::uint64_t expires_at,
+    const EligibilityHistory history) {
+    require_neuron(id);
+    if (eligibility_candidate_capacity_ == 0 || eligibility_decision_capacity_ == 0) {
+        return {};
+    }
+
+    std::vector<SynapseId> candidates = input_candidates;
+    if (candidates.size() > eligibility_candidate_capacity_) {
+        candidates.erase(
+            candidates.begin(), candidates.end() - eligibility_candidate_capacity_);
+    }
+    for (const SynapseId candidate : candidates) {
+        require_synapse(candidate);
+        if (synapses_[candidate].receiver != id) {
+            throw std::invalid_argument("eligibility candidate has wrong receiver");
+        }
+    }
+
+    const std::size_t record_base =
+        static_cast<std::size_t>(id) * eligibility_decision_capacity_;
+    EligibilityStoreResult result;
+    if (history == EligibilityHistory::merge_unique) {
+        std::vector<SynapseId> merged;
+        for (std::uint32_t slot = 0; slot < eligibility_decision_capacity_; ++slot) {
+            const std::size_t record = record_base + slot;
+            if (eligibility_record_generations_[record] == 0) {
+                continue;
+            }
+            ++result.overwritten_decisions;
+            const std::size_t candidate_base = record * eligibility_candidate_capacity_;
+            for (std::uint32_t index = 0; index < eligibility_sizes_[record]; ++index) {
+                const SynapseId candidate = eligibility_slots_[candidate_base + index];
+                if (std::find(merged.begin(), merged.end(), candidate) == merged.end()) {
+                    merged.push_back(candidate);
+                }
+            }
+            eligibility_record_generations_[record] = 0;
+            eligibility_sizes_[record] = 0;
+            eligibility_expiry_times_[record] = 0;
+        }
+        for (const SynapseId candidate : candidates) {
+            const auto found = std::find(merged.begin(), merged.end(), candidate);
+            if (found != merged.end()) {
+                merged.erase(found);
+            }
+            merged.push_back(candidate);
+        }
+        if (merged.size() > eligibility_candidate_capacity_) {
+            merged.erase(
+                merged.begin(), merged.end() - eligibility_candidate_capacity_);
+        }
+        candidates = std::move(merged);
+    } else if (history == EligibilityHistory::overwrite) {
+        for (std::uint32_t slot = 0; slot < eligibility_decision_capacity_; ++slot) {
+            const std::size_t record = record_base + slot;
+            if (eligibility_record_generations_[record] != 0) {
+                ++result.overwritten_decisions;
+            }
+            eligibility_record_generations_[record] = 0;
+            eligibility_sizes_[record] = 0;
+            eligibility_expiry_times_[record] = 0;
+        }
+    }
+
+    std::uint32_t selected = history == EligibilityHistory::retain
+                                 ? eligibility_write_positions_[id]
+                                 : 0U;
+    if (history == EligibilityHistory::retain) {
+        bool found_empty = false;
+        for (std::uint32_t offset = 0; offset < eligibility_decision_capacity_; ++offset) {
+            const std::uint32_t probe =
+                (eligibility_write_positions_[id] + offset) % eligibility_decision_capacity_;
+            if (eligibility_record_generations_[record_base + probe] == 0) {
+                selected = probe;
+                found_empty = true;
+                break;
+            }
+        }
+        if (!found_empty) {
+            ++result.overwritten_decisions;
+        }
+    }
+
+    std::uint64_t generation = ++eligibility_generations_[id];
+    if (generation == 0) {
+        generation = ++eligibility_generations_[id];
+    }
+    const std::size_t record = record_base + selected;
+    const std::size_t candidate_base = record * eligibility_candidate_capacity_;
+    std::fill_n(
+        eligibility_slots_.begin() + static_cast<std::ptrdiff_t>(candidate_base),
+        eligibility_candidate_capacity_, kInvalidIndex);
+    std::copy(candidates.begin(), candidates.end(),
+              eligibility_slots_.begin() + static_cast<std::ptrdiff_t>(candidate_base));
+    eligibility_sizes_[record] = static_cast<std::uint32_t>(candidates.size());
+    eligibility_record_generations_[record] = generation;
+    eligibility_expiry_times_[record] = expires_at;
+    eligibility_write_positions_[id] = (selected + 1U) % eligibility_decision_capacity_;
+    eligibility_overwrites_[id] += result.overwritten_decisions;
+    result.record = EligibilityRecord{generation, expires_at, std::move(candidates)};
+    return result;
+}
+
+bool Network::expire_eligibility(const NeuronId id, const std::uint64_t generation) {
+    require_neuron(id);
+    if (eligibility_decision_capacity_ == 0 || generation == 0) {
+        return false;
+    }
+    const std::size_t base = static_cast<std::size_t>(id) * eligibility_decision_capacity_;
+    for (std::uint32_t slot = 0; slot < eligibility_decision_capacity_; ++slot) {
+        const std::size_t record = base + slot;
+        if (eligibility_record_generations_[record] == generation) {
+            eligibility_record_generations_[record] = 0;
+            eligibility_sizes_[record] = 0;
+            eligibility_expiry_times_[record] = 0;
+            return true;
+        }
+    }
+    return false;
+}
+
+std::vector<EligibilityRecord> Network::eligibility_records(const NeuronId id) const {
+    require_neuron(id);
+    std::vector<EligibilityRecord> result;
+    if (eligibility_decision_capacity_ == 0) {
+        return result;
+    }
+    const std::size_t base = static_cast<std::size_t>(id) * eligibility_decision_capacity_;
+    for (std::uint32_t slot = 0; slot < eligibility_decision_capacity_; ++slot) {
+        const std::size_t record = base + slot;
+        const std::uint64_t generation = eligibility_record_generations_[record];
+        if (generation == 0) {
+            continue;
+        }
+        EligibilityRecord item;
+        item.generation = generation;
+        item.expires_at = eligibility_expiry_times_[record];
+        const std::size_t candidate_base = record * eligibility_candidate_capacity_;
+        item.candidates.assign(
+            eligibility_slots_.begin() + static_cast<std::ptrdiff_t>(candidate_base),
+            eligibility_slots_.begin() + static_cast<std::ptrdiff_t>(
+                candidate_base + eligibility_sizes_[record]));
+        result.push_back(std::move(item));
+    }
+    std::sort(result.begin(), result.end(), [](const auto& left, const auto& right) {
+        return left.generation < right.generation;
+    });
+    return result;
+}
+
+std::uint64_t Network::eligibility_generation(const NeuronId id) const {
+    require_neuron(id);
+    return eligibility_generations_.empty() ? 0 : eligibility_generations_[id];
+}
+
+std::uint64_t Network::eligibility_overwrites(const NeuronId id) const {
+    require_neuron(id);
+    return eligibility_overwrites_.empty() ? 0 : eligibility_overwrites_[id];
+}
+
+std::uint32_t Network::eligibility_candidate_capacity() const noexcept {
+    return eligibility_candidate_capacity_;
+}
+
+std::uint32_t Network::eligibility_decision_capacity() const noexcept {
+    return eligibility_decision_capacity_;
+}
+
+std::size_t Network::active_eligibility_count() const noexcept {
+    return static_cast<std::size_t>(std::count_if(
+        eligibility_record_generations_.begin(), eligibility_record_generations_.end(),
+        [](const std::uint64_t generation) { return generation != 0; }));
+}
+
+void Network::restore_eligibility(
+    const std::uint32_t candidate_capacity,
+    const std::uint32_t decision_capacity,
+    const std::vector<std::vector<EligibilityRecord>>& records,
+    const std::vector<std::uint64_t>& generations,
+    const std::vector<std::uint64_t>& overwrites) {
+    if (records.size() != neurons_.size() || generations.size() != neurons_.size() ||
+        overwrites.size() != neurons_.size()) {
+        throw std::runtime_error("eligibility state count does not match neurons");
+    }
+    eligibility_candidate_capacity_ = candidate_capacity;
+    eligibility_decision_capacity_ = decision_capacity;
+    const std::size_t record_count = neurons_.size() * decision_capacity;
+    const std::size_t candidate_count = record_count * candidate_capacity;
+    if ((decision_capacity != 0 && record_count / decision_capacity != neurons_.size()) ||
+        (candidate_capacity != 0 && candidate_count / candidate_capacity != record_count)) {
+        throw std::runtime_error("restored eligibility storage size overflow");
+    }
+    eligibility_slots_.assign(candidate_count, kInvalidIndex);
+    eligibility_sizes_.assign(record_count, 0);
+    eligibility_record_generations_.assign(record_count, 0);
+    eligibility_expiry_times_.assign(record_count, 0);
+    if (candidate_capacity == 0 || decision_capacity == 0) {
+        for (std::size_t id = 0; id < records.size(); ++id) {
+            if (!records[id].empty() || generations[id] != 0 || overwrites[id] != 0) {
+                throw std::runtime_error("disabled eligibility storage contains state");
+            }
+        }
+        eligibility_write_positions_.clear();
+        eligibility_generations_.clear();
+        eligibility_overwrites_.clear();
+        return;
+    }
+    eligibility_write_positions_.assign(neurons_.size(), 0);
+    eligibility_generations_ = generations;
+    eligibility_overwrites_ = overwrites;
+    for (NeuronId id = 0; id < neurons_.size(); ++id) {
+        if (records[id].size() > decision_capacity) {
+            throw std::runtime_error("restored eligibility exceeds decision capacity");
+        }
+        std::uint32_t slot = 0;
+        for (const EligibilityRecord& item : records[id]) {
+            if (item.generation == 0 || item.generation > generations[id] ||
+                item.candidates.size() > candidate_capacity) {
+                throw std::runtime_error("invalid restored eligibility record");
+            }
+            const std::size_t record = static_cast<std::size_t>(id) * decision_capacity + slot;
+            eligibility_record_generations_[record] = item.generation;
+            eligibility_expiry_times_[record] = item.expires_at;
+            eligibility_sizes_[record] = static_cast<std::uint32_t>(item.candidates.size());
+            const std::size_t base = record * candidate_capacity;
+            for (std::size_t index = 0; index < item.candidates.size(); ++index) {
+                require_synapse(item.candidates[index]);
+                if (synapses_[item.candidates[index]].receiver != id) {
+                    throw std::runtime_error("restored eligibility has wrong receiver");
+                }
+                eligibility_slots_[base + index] = item.candidates[index];
+            }
+            ++slot;
+        }
+        eligibility_write_positions_[id] = slot % decision_capacity;
+    }
+}
+
 const Neuron& Network::neuron(const NeuronId id) const {
     require_neuron(id);
     return neurons_[id];
@@ -309,7 +577,14 @@ std::size_t Network::estimated_memory_bytes() const noexcept {
            local_event_slots_.capacity() * sizeof(SynapseId) +
            local_event_write_positions_.capacity() * sizeof(std::uint32_t) +
            local_event_sizes_.capacity() * sizeof(std::uint32_t) +
-           local_event_overwrites_.capacity() * sizeof(std::uint64_t);
+           local_event_overwrites_.capacity() * sizeof(std::uint64_t) +
+           eligibility_slots_.capacity() * sizeof(SynapseId) +
+           eligibility_sizes_.capacity() * sizeof(std::uint32_t) +
+           eligibility_record_generations_.capacity() * sizeof(std::uint64_t) +
+           eligibility_expiry_times_.capacity() * sizeof(std::uint64_t) +
+           eligibility_write_positions_.capacity() * sizeof(std::uint32_t) +
+           eligibility_generations_.capacity() * sizeof(std::uint64_t) +
+           eligibility_overwrites_.capacity() * sizeof(std::uint64_t);
 }
 
 std::map<std::int32_t, std::uint64_t> Network::weight_distribution() const {
@@ -356,6 +631,22 @@ std::uint64_t Network::state_fingerprint() const noexcept {
         }
         hash_u64(hash, local_event_overwrites(id));
     }
+    hash_u64(hash, eligibility_candidate_capacity_);
+    hash_u64(hash, eligibility_decision_capacity_);
+    for (NeuronId id = 0; id < neurons_.size(); ++id) {
+        hash_u64(hash, eligibility_generation(id));
+        hash_u64(hash, eligibility_overwrites(id));
+        const auto records = eligibility_records(id);
+        hash_u64(hash, records.size());
+        for (const auto& record : records) {
+            hash_u64(hash, record.generation);
+            hash_u64(hash, record.expires_at);
+            hash_u64(hash, record.candidates.size());
+            for (const SynapseId candidate : record.candidates) {
+                hash_u64(hash, candidate);
+            }
+        }
+    }
     return hash;
 }
 
@@ -390,6 +681,54 @@ bool Network::validate(std::string* error) const {
                 local_event_write_positions_[index] >= local_event_memory_capacity_) {
                 return fail("invalid local event memory cursor");
             }
+        }
+    }
+    const std::size_t expected_eligibility_records =
+        neurons_.size() * static_cast<std::size_t>(eligibility_decision_capacity_);
+    const std::size_t expected_eligibility_candidates =
+        expected_eligibility_records * eligibility_candidate_capacity_;
+    const std::size_t expected_eligibility_management =
+        eligibility_candidate_capacity_ == 0 || eligibility_decision_capacity_ == 0
+            ? 0
+            : neurons_.size();
+    if (eligibility_slots_.size() != expected_eligibility_candidates ||
+        eligibility_sizes_.size() != expected_eligibility_records ||
+        eligibility_record_generations_.size() != expected_eligibility_records ||
+        eligibility_expiry_times_.size() != expected_eligibility_records ||
+        eligibility_write_positions_.size() != expected_eligibility_management ||
+        eligibility_generations_.size() != expected_eligibility_management ||
+        eligibility_overwrites_.size() != expected_eligibility_management) {
+        return fail("eligibility storage mismatch");
+    }
+    for (std::size_t index = 0; index < expected_eligibility_records; ++index) {
+        if (eligibility_sizes_[index] > eligibility_candidate_capacity_ ||
+            (eligibility_record_generations_[index] == 0 &&
+             (eligibility_sizes_[index] != 0 || eligibility_expiry_times_[index] != 0))) {
+            return fail("invalid eligibility record");
+        }
+        if (eligibility_record_generations_[index] != 0) {
+            const std::size_t neuron_index =
+                index / eligibility_decision_capacity_;
+            if (eligibility_record_generations_[index] >
+                eligibility_generations_[neuron_index]) {
+                return fail("eligibility record exceeds local generation");
+            }
+            const std::size_t candidate_base =
+                index * eligibility_candidate_capacity_;
+            for (std::uint32_t candidate = 0;
+                 candidate < eligibility_sizes_[index]; ++candidate) {
+                const SynapseId synapse_id =
+                    eligibility_slots_[candidate_base + candidate];
+                if (synapse_id >= synapses_.size() ||
+                    synapses_[synapse_id].receiver != neuron_index) {
+                    return fail("eligibility candidate has invalid receiver");
+                }
+            }
+        }
+    }
+    for (std::size_t index = 0; index < expected_eligibility_management; ++index) {
+        if (eligibility_write_positions_[index] >= eligibility_decision_capacity_) {
+            return fail("invalid eligibility write cursor");
         }
     }
 
@@ -491,6 +830,15 @@ void Network::restore(
     local_event_write_positions_.clear();
     local_event_sizes_.clear();
     local_event_overwrites_.clear();
+    eligibility_candidate_capacity_ = 0;
+    eligibility_decision_capacity_ = 0;
+    eligibility_slots_.clear();
+    eligibility_sizes_.clear();
+    eligibility_record_generations_.clear();
+    eligibility_expiry_times_.clear();
+    eligibility_write_positions_.clear();
+    eligibility_generations_.clear();
+    eligibility_overwrites_.clear();
     std::string error;
     if (!validate(&error)) {
         throw std::runtime_error("invalid restored network: " + error);

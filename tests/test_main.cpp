@@ -1998,6 +1998,387 @@ void test_recovery_changes_no_learning_state() {
                   activity, "recovery changed a synaptic learning counter");
 }
 
+eve::ExperimentConfig eligibility_config(
+    const eve::EligibilitySelection selection =
+        eve::EligibilitySelection::all_recent,
+    const std::uint64_t duration = 4) {
+    auto config = small_config();
+    config.initial_outgoing_synapses = 1;
+    config.initial_synapse_weight = 0;
+    config.firing_threshold = 3;
+    config.learning_enabled = false;
+    config.local_event_memory_capacity = 8;
+    config.eligibility_selection = selection;
+    config.eligibility_representation = eve::EligibilityRepresentation::unique;
+    config.eligibility_history = eve::EligibilityHistory::retain;
+    config.eligibility_candidate_capacity = 8;
+    config.eligibility_decision_capacity = 2;
+    config.eligibility_duration = duration;
+    return config;
+}
+
+struct EligibilityRuntimeFixture {
+    eve::bios::Runtime runtime;
+    eve::SynapseId input{};
+    eve::NeuronId receiver{};
+
+    explicit EligibilityRuntimeFixture(
+        const std::uint64_t duration = 4,
+        const eve::EligibilitySelection selection =
+            eve::EligibilitySelection::all_recent)
+        : runtime(eligibility_config(selection, duration), 701) {
+        input = runtime.network().outgoing_synapses(0).front();
+        receiver = runtime.network().synapse(input).receiver;
+        for (eve::SynapseId id = 0; id < runtime.network().synapse_count(); ++id) {
+            runtime.set_experimental_synapse_weight(id, 0);
+        }
+        runtime.set_experimental_synapse_weight(input, 3);
+    }
+
+    void fire() {
+        runtime.enqueue_fire(0);
+        static_cast<void>(runtime.run());
+    }
+};
+
+struct EligibilityNetworkFixture {
+    eve::ExperimentConfig config{eligibility_config()};
+    eve::neural::Network network;
+    eve::brainstem::Brainstem brainstem;
+    eve::SynapseId positive{};
+    eve::SynapseId zero{};
+    eve::SynapseId other{};
+
+    EligibilityNetworkFixture() {
+        config.initial_outgoing_synapses = 0;
+        network.reset(config);
+        positive = network.add_synapse(0, 7, 3);
+        zero = network.add_synapse(1, 7, 0);
+        other = network.add_synapse(2, 7, 1);
+    }
+};
+
+void test_disabled_eligibility_creates_no_state() {
+    auto config = small_config();
+    config.initial_outgoing_synapses = 1;
+    config.initial_synapse_weight = 3;
+    config.learning_enabled = false;
+    config.local_event_memory_capacity = 8;
+    eve::bios::Runtime runtime(config, 700);
+    const auto input = runtime.network().outgoing_synapses(0).front();
+    for (eve::SynapseId id = 0; id < runtime.network().synapse_count(); ++id) {
+        runtime.set_experimental_synapse_weight(id, 0);
+    }
+    runtime.set_experimental_synapse_weight(input, 3);
+    runtime.enqueue_fire(0);
+    static_cast<void>(runtime.run());
+    require_equal(runtime.network().active_eligibility_count(), std::size_t{0},
+                  "disabled eligibility created state");
+    require_equal(runtime.metrics().eligibility_decisions, 0ULL,
+                  "disabled eligibility changed metrics");
+}
+
+void test_eligibility_is_created_at_fire_decision() {
+    EligibilityRuntimeFixture fixture;
+    std::uint64_t observed_generation = 0;
+    fixture.runtime.set_impulse_observer(
+        [&observed_generation](const eve::bios::ImpulseObservation& observation) {
+            if (observation.receiver_fired) {
+                observed_generation = observation.eligibility_generation;
+            }
+        });
+    fixture.fire();
+    require(observed_generation != 0, "fire-decision observer saw no eligibility");
+    require_equal(fixture.runtime.network().eligibility_records(fixture.receiver).size(),
+                  std::size_t{1}, "fire decision did not store one record");
+}
+
+void test_eligibility_snapshot_precedes_queued_fire() {
+    EligibilityRuntimeFixture fixture;
+    std::vector<eve::SynapseId> snapshot;
+    fixture.runtime.set_impulse_observer(
+        [&snapshot](const eve::bios::ImpulseObservation& observation) {
+            if (observation.receiver_fired) snapshot = observation.eligibility_candidates;
+        });
+    fixture.fire();
+    require_equal(snapshot, std::vector<eve::SynapseId>{fixture.input},
+                  "queued fire changed the original candidate snapshot");
+}
+
+void test_g3_and_eligibility_are_separate() {
+    EligibilityNetworkFixture fixture;
+    static_cast<void>(fixture.network.record_local_event(7, fixture.positive));
+    const auto marked = fixture.brainstem.create_eligibility(
+        fixture.network, 7, 4, fixture.config);
+    static_cast<void>(fixture.network.record_local_event(7, fixture.zero));
+    require_equal(marked.candidates, std::vector<eve::SynapseId>{fixture.positive},
+                  "eligibility aliased the changing G3 ring");
+    require_equal(fixture.network.local_event_memory(7).size(), std::size_t{2},
+                  "eligibility creation changed G3");
+}
+
+void test_l1_selects_recent_ring_entries() {
+    EligibilityNetworkFixture fixture;
+    for (const auto id : {fixture.positive, fixture.zero, fixture.other}) {
+        static_cast<void>(fixture.network.record_local_event(7, id));
+    }
+    const auto result = fixture.brainstem.create_eligibility(
+        fixture.network, 7, 8, fixture.config);
+    require_equal(result.candidates,
+                  std::vector<eve::SynapseId>{fixture.positive, fixture.zero, fixture.other},
+                  "L1 did not preserve recent ring order");
+}
+
+void test_l2_selects_only_positive_inputs() {
+    EligibilityNetworkFixture fixture;
+    fixture.config.eligibility_selection = eve::EligibilitySelection::positive_weight;
+    for (const auto id : {fixture.positive, fixture.zero, fixture.other}) {
+        static_cast<void>(fixture.network.record_local_event(7, id));
+    }
+    const auto result = fixture.brainstem.create_eligibility(
+        fixture.network, 7, 8, fixture.config);
+    require_equal(result.candidates,
+                  std::vector<eve::SynapseId>{fixture.positive, fixture.other},
+                  "L2 retained a non-contributing input");
+    require_equal(result.zero_weight_candidates, 0U,
+                  "L2 classified a zero-weight candidate as selected");
+}
+
+void test_zero_weight_selection_differs_between_l1_and_l2() {
+    EligibilityNetworkFixture l1;
+    static_cast<void>(l1.network.record_local_event(7, l1.zero));
+    require_equal(l1.brainstem.create_eligibility(l1.network, 7, 4, l1.config)
+                      .zero_weight_candidates,
+                  1U, "L1 omitted zero-weight input");
+    EligibilityNetworkFixture l2;
+    l2.config.eligibility_selection = eve::EligibilitySelection::positive_weight;
+    static_cast<void>(l2.network.record_local_event(7, l2.zero));
+    require(l2.brainstem.create_eligibility(l2.network, 7, 4, l2.config)
+                .candidates.empty(),
+            "L2 retained zero-weight input");
+}
+
+void test_repeated_and_unique_eligibility_representations() {
+    EligibilityNetworkFixture fixture;
+    for (int index = 0; index < 3; ++index) {
+        static_cast<void>(fixture.network.record_local_event(7, fixture.positive));
+    }
+    fixture.config.eligibility_representation = eve::EligibilityRepresentation::repeated;
+    require_equal(fixture.brainstem.create_eligibility(
+                      fixture.network, 7, 4, fixture.config).candidates.size(),
+                  std::size_t{3}, "repeated representation collapsed duplicates");
+    fixture.config.eligibility_representation = eve::EligibilityRepresentation::unique;
+    require_equal(fixture.brainstem.create_eligibility(
+                      fixture.network, 7, 4, fixture.config).candidates.size(),
+                  std::size_t{1}, "unique representation retained duplicates");
+}
+
+void test_eligibility_candidate_capacity() {
+    EligibilityNetworkFixture fixture;
+    fixture.config.eligibility_candidate_capacity = 2;
+    for (const auto id : {fixture.positive, fixture.zero, fixture.other}) {
+        static_cast<void>(fixture.network.record_local_event(7, id));
+    }
+    const auto result = fixture.brainstem.create_eligibility(
+        fixture.network, 7, 4, fixture.config);
+    require_equal(result.candidates,
+                  std::vector<eve::SynapseId>{fixture.zero, fixture.other},
+                  "capacity did not retain the newest candidates");
+}
+
+void test_eligibility_overwrite_history() {
+    EligibilityNetworkFixture fixture;
+    fixture.config.eligibility_history = eve::EligibilityHistory::overwrite;
+    static_cast<void>(fixture.network.record_local_event(7, fixture.positive));
+    const auto first = fixture.brainstem.create_eligibility(
+        fixture.network, 7, 4, fixture.config);
+    static_cast<void>(fixture.network.record_local_event(7, fixture.other));
+    const auto second = fixture.brainstem.create_eligibility(
+        fixture.network, 7, 5, fixture.config);
+    require(second.generation > first.generation && second.overwritten_decisions == 1,
+            "overwrite did not replace and count prior decision");
+    require_equal(fixture.network.eligibility_records(7).size(), std::size_t{1},
+                  "overwrite retained multiple decisions");
+}
+
+void test_eligibility_generations_distinguish_fires() {
+    EligibilityNetworkFixture fixture;
+    static_cast<void>(fixture.network.record_local_event(7, fixture.positive));
+    const auto first = fixture.brainstem.create_eligibility(
+        fixture.network, 7, 4, fixture.config);
+    const auto second = fixture.brainstem.create_eligibility(
+        fixture.network, 7, 5, fixture.config);
+    require(first.generation != second.generation,
+            "two decisions received the same local generation");
+    require_equal(fixture.network.eligibility_records(7).size(), std::size_t{2},
+                  "bounded retain history lost a decision too early");
+}
+
+void test_eligibility_remains_without_inputs_until_expiry() {
+    EligibilityRuntimeFixture fixture;
+    fixture.fire();
+    static_cast<void>(fixture.runtime.advance_time_to(3));
+    require_equal(fixture.runtime.network().active_eligibility_count(), std::size_t{1},
+                  "eligibility expired before its deadline");
+}
+
+void test_eligibility_expires_at_due_time() {
+    EligibilityRuntimeFixture fixture;
+    fixture.fire();
+    static_cast<void>(fixture.runtime.advance_time_to(4));
+    require_equal(fixture.runtime.network().active_eligibility_count(), std::size_t{0},
+                  "eligibility did not expire at its deadline");
+    require_equal(fixture.runtime.metrics().processed_eligibility_expiries, 1ULL,
+                  "expiry metric is wrong");
+}
+
+void test_stale_eligibility_expiry_is_harmless() {
+    EligibilityNetworkFixture fixture;
+    fixture.config.eligibility_history = eve::EligibilityHistory::overwrite;
+    static_cast<void>(fixture.network.record_local_event(7, fixture.positive));
+    const auto first = fixture.brainstem.create_eligibility(
+        fixture.network, 7, 4, fixture.config);
+    const auto second = fixture.brainstem.create_eligibility(
+        fixture.network, 7, 8, fixture.config);
+    require(!fixture.brainstem.expire_eligibility(
+                fixture.network, 7, first.generation),
+            "stale expiry removed a replacement record");
+    require_equal(fixture.network.eligibility_records(7).front().generation,
+                  second.generation, "stale expiry changed active generation");
+}
+
+void test_expiry_emits_no_fire() {
+    EligibilityRuntimeFixture fixture;
+    fixture.fire();
+    const auto fires = fixture.runtime.metrics().fire_events;
+    static_cast<void>(fixture.runtime.advance_time_to(4));
+    require_equal(fixture.runtime.metrics().fire_events, fires,
+                  "eligibility expiry emitted a fire");
+}
+
+void test_expiry_changes_no_synapse_weight() {
+    EligibilityRuntimeFixture fixture;
+    fixture.fire();
+    const auto synapses = fixture.runtime.network().synapses();
+    static_cast<void>(fixture.runtime.advance_time_to(4));
+    require_equal(fixture.runtime.network().synapses(), synapses,
+                  "eligibility expiry changed synaptic state");
+}
+
+void test_expiry_changes_no_membrane_or_g3() {
+    EligibilityRuntimeFixture fixture;
+    fixture.fire();
+    const auto membrane = fixture.runtime.network().neuron(fixture.receiver)
+                              .membrane_potential;
+    const auto memory = fixture.runtime.network().local_event_memory(fixture.receiver);
+    static_cast<void>(fixture.runtime.advance_time_to(4));
+    require_equal(fixture.runtime.network().neuron(fixture.receiver).membrane_potential,
+                  membrane, "eligibility expiry changed membrane");
+    require_equal(fixture.runtime.network().local_event_memory(fixture.receiver), memory,
+                  "eligibility expiry changed G3");
+}
+
+void test_recovery_preserves_eligibility() {
+    auto config = eligibility_config(eve::EligibilitySelection::all_recent, 16);
+    config.recovery_mode = eve::RecoveryMode::independent_with_membrane_relaxation;
+    config.recovery_delay = 4;
+    config.membrane_relaxation_percent = 100;
+    config.refractory_input_events = 8;
+    eve::bios::Runtime runtime(config, 702);
+    const auto input = runtime.network().outgoing_synapses(0).front();
+    const auto receiver = runtime.network().synapse(input).receiver;
+    for (eve::SynapseId id = 0; id < runtime.network().synapse_count(); ++id) {
+        runtime.set_experimental_synapse_weight(id, 0);
+    }
+    runtime.set_experimental_synapse_weight(input, 3);
+    runtime.enqueue_fire(0);
+    static_cast<void>(runtime.run());
+    static_cast<void>(runtime.advance_time_to(4));
+    require_equal(runtime.network().eligibility_records(receiver).size(),
+                  std::size_t{1}, "R2F recovery erased valid eligibility");
+}
+
+void test_zero_duration_eligibility_exists_only_in_fire_turn() {
+    EligibilityRuntimeFixture fixture(0);
+    std::uint64_t generation = 0;
+    fixture.runtime.set_impulse_observer(
+        [&generation](const eve::bios::ImpulseObservation& observation) {
+            if (observation.receiver_fired) generation = observation.eligibility_generation;
+        });
+    fixture.fire();
+    require(generation != 0, "D0 was not visible at the decision");
+    require_equal(fixture.runtime.network().active_eligibility_count(), std::size_t{0},
+                  "D0 survived completion of same-time events");
+}
+
+void test_eligibility_persistence_and_continuation() {
+    const auto path = std::filesystem::temp_directory_path() /
+                      "eve-stage-b2-active-eligibility.bin";
+    EligibilityRuntimeFixture fixture;
+    fixture.fire();
+    fixture.runtime.save(path.string());
+    auto restored = eve::bios::Runtime::load(path.string());
+    require_equal(fixture.runtime.state_fingerprint(), restored.state_fingerprint(),
+                  "active eligibility changed during persistence");
+    static_cast<void>(fixture.runtime.advance_time_to(4));
+    static_cast<void>(restored.advance_time_to(4));
+    require_equal(fixture.runtime.state_fingerprint(), restored.state_fingerprint(),
+                  "restored expiry continuation diverged");
+    static_cast<void>(std::filesystem::remove(path));
+}
+
+void test_eligibility_is_reproducible() {
+    EligibilityRuntimeFixture first;
+    EligibilityRuntimeFixture second;
+    first.fire();
+    second.fire();
+    require_equal(first.runtime.state_fingerprint(), second.runtime.state_fingerprint(),
+                  "identical eligibility runs diverged");
+}
+
+void test_eligibility_never_changes_weights() {
+    EligibilityRuntimeFixture fixture;
+    const auto before = fixture.runtime.network().weight_distribution();
+    fixture.fire();
+    require_equal(fixture.runtime.network().weight_distribution(), before,
+                  "eligibility creation caused a weight change");
+    require_equal(fixture.runtime.metrics().synaptic_strengthenings, 0ULL,
+                  "eligibility caused learning");
+}
+
+void test_merge_history_combines_unique_candidates() {
+    EligibilityNetworkFixture fixture;
+    fixture.config.eligibility_history = eve::EligibilityHistory::merge_unique;
+    static_cast<void>(fixture.network.record_local_event(7, fixture.positive));
+    static_cast<void>(fixture.brainstem.create_eligibility(
+        fixture.network, 7, 4, fixture.config));
+    static_cast<void>(fixture.network.record_local_event(7, fixture.other));
+    const auto merged = fixture.brainstem.create_eligibility(
+        fixture.network, 7, 8, fixture.config);
+    require_equal(merged.candidates,
+                  std::vector<eve::SynapseId>{fixture.positive, fixture.other},
+                  "merge history did not preserve unique candidates");
+    require_equal(fixture.network.eligibility_records(7).size(), std::size_t{1},
+                  "merge history retained separate decisions");
+}
+
+void test_feedback_probe_without_action_finds_no_eligibility() {
+    EligibilityRuntimeFixture fixture;
+    static_cast<void>(fixture.runtime.advance_time_to(3));
+    require_equal(fixture.runtime.network().active_eligibility_count(), std::size_t{0},
+                  "technical probe without action found eligibility");
+}
+
+void test_eligibility_storage_validates() {
+    EligibilityNetworkFixture fixture;
+    static_cast<void>(fixture.network.record_local_event(7, fixture.positive));
+    static_cast<void>(fixture.brainstem.create_eligibility(
+        fixture.network, 7, 4, fixture.config));
+    require(fixture.network.validate(), "eligibility storage violates network invariants");
+    require(fixture.network.estimated_memory_bytes() > sizeof(eve::neural::Network),
+            "eligibility storage is absent from memory estimate");
+}
+
 }  // namespace
 
 int main() {
@@ -2118,6 +2499,31 @@ int main() {
         {"response end keeps future recovery",
          test_response_end_does_not_preprocess_recovery},
         {"recovery preserves learning state", test_recovery_changes_no_learning_state},
+        {"disabled eligibility", test_disabled_eligibility_creates_no_state},
+        {"eligibility at fire decision", test_eligibility_is_created_at_fire_decision},
+        {"eligibility precedes queued fire", test_eligibility_snapshot_precedes_queued_fire},
+        {"G3 and eligibility separation", test_g3_and_eligibility_are_separate},
+        {"L1 recent selection", test_l1_selects_recent_ring_entries},
+        {"L2 positive selection", test_l2_selects_only_positive_inputs},
+        {"zero-weight selection", test_zero_weight_selection_differs_between_l1_and_l2},
+        {"repeated eligibility candidates", test_repeated_and_unique_eligibility_representations},
+        {"eligibility candidate capacity", test_eligibility_candidate_capacity},
+        {"eligibility overwrite", test_eligibility_overwrite_history},
+        {"eligibility generations", test_eligibility_generations_distinguish_fires},
+        {"eligibility lifetime", test_eligibility_remains_without_inputs_until_expiry},
+        {"eligibility due expiry", test_eligibility_expires_at_due_time},
+        {"stale eligibility expiry", test_stale_eligibility_expiry_is_harmless},
+        {"eligibility expiry emits no fire", test_expiry_emits_no_fire},
+        {"eligibility expiry preserves synapses", test_expiry_changes_no_synapse_weight},
+        {"eligibility expiry preserves neuron", test_expiry_changes_no_membrane_or_g3},
+        {"recovery preserves eligibility", test_recovery_preserves_eligibility},
+        {"D0 eligibility", test_zero_duration_eligibility_exists_only_in_fire_turn},
+        {"eligibility persistence", test_eligibility_persistence_and_continuation},
+        {"eligibility reproducibility", test_eligibility_is_reproducible},
+        {"eligibility has no learning effect", test_eligibility_never_changes_weights},
+        {"eligibility merge history", test_merge_history_combines_unique_candidates},
+        {"feedback probe without action", test_feedback_probe_without_action_finds_no_eligibility},
+        {"eligibility storage invariants", test_eligibility_storage_validates},
     };
 
     std::size_t failures = 0;

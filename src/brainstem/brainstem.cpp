@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <limits>
 #include <queue>
+#include <unordered_set>
 #include <stdexcept>
 #include <utility>
 #include <vector>
@@ -308,6 +309,65 @@ RecoveryResult Brainstem::recover_neuron(
     result.membrane_after = neuron.membrane_potential;
     result.refractory_after = neuron.refractory_events_remaining;
     return result;
+}
+
+EligibilityResult Brainstem::create_eligibility(
+    neural::Network& network,
+    const NeuronId neuron,
+    const std::uint64_t expires_at,
+    const ExperimentConfig& config) const {
+    EligibilityResult result;
+    if (config.eligibility_selection == EligibilitySelection::none ||
+        config.eligibility_candidate_capacity == 0 ||
+        config.eligibility_decision_capacity == 0) {
+        return result;
+    }
+
+    const auto memory = network.local_event_memory(neuron);
+    std::vector<SynapseId> selected;
+    selected.reserve(std::min<std::size_t>(
+        memory.size(), config.eligibility_candidate_capacity));
+    std::unordered_set<SynapseId> seen;
+    for (auto iterator = memory.rbegin(); iterator != memory.rend(); ++iterator) {
+        const SynapseId candidate = *iterator;
+        const auto& synapse = network.synapse(candidate);
+        if (config.eligibility_selection == EligibilitySelection::positive_weight &&
+            synapse.weight <= 0) {
+            continue;
+        }
+        if (config.eligibility_representation == EligibilityRepresentation::unique &&
+            !seen.insert(candidate).second) {
+            continue;
+        }
+        selected.push_back(candidate);
+        if (selected.size() == config.eligibility_candidate_capacity) {
+            break;
+        }
+    }
+    std::reverse(selected.begin(), selected.end());
+
+    const auto stored = network.store_eligibility(
+        neuron, selected, expires_at, config.eligibility_history);
+    result.created = stored.record.generation != 0;
+    result.generation = stored.record.generation;
+    result.expires_at = stored.record.expires_at;
+    result.overwritten_decisions = stored.overwritten_decisions;
+    result.candidates = stored.record.candidates;
+    for (const SynapseId candidate : result.candidates) {
+        if (network.synapse(candidate).weight > 0) {
+            ++result.positive_candidates;
+        } else {
+            ++result.zero_weight_candidates;
+        }
+    }
+    return result;
+}
+
+bool Brainstem::expire_eligibility(
+    neural::Network& network,
+    const NeuronId neuron,
+    const std::uint64_t generation) const {
+    return network.expire_eligibility(neuron, generation);
 }
 
 std::optional<SynapseId> Brainstem::select_competing_synapse(
