@@ -92,6 +92,13 @@ Der Engpass liegt nicht in anhaltender Hemmung, sondern in der selektiven und
 interferenzarmen Speicherung positiv bewerteter Alternativen. B.5.0 muss diese
 lokale Kreditzuordnung isolieren, bevor eine neue Lernfunktion zulässig ist.
 
+B.5.0 zeigt, dass die vorhandene Kreditzuordnung die richtige sensorische
+Nullgewicht-Verbindung erreicht. Eine erste positive Änderung bleibt bei
+Gewicht 1 unter der Feuergrenze 2; eine zweite Änderung auf 2 ist im
+isolierten Zustand notwendig und hinreichend. Offen bleiben die natürliche
+Wiederholung erfolgreicher Erfahrung und der Erhalt dieses Schwellenzustands
+in gemischten Strömen. Dies ist der Schwerpunkt von B.5.1.
+
 ## Erfolgskriterien aus dem Konzept
 
 Ein geeigneter kontrollierter Test folgt der dort beschriebenen Abfolge:

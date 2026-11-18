@@ -1,0 +1,3 @@
+group,implemented,reason
+K9,0,the target cue receives local eligibility; a second positive increment from weight one to threshold two is necessary and sufficient in 364 paired copies; no missing candidate-assignment mechanism is isolated
+K10,0,no K9 mechanism exists to deactivate

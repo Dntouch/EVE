@@ -35,6 +35,10 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
   Einzelfehler-Ereignisketten, Konkurrenzablationen, Alternativbindung und
   unabhängigen Bestätigungsläufen.
 - 14 zusätzliche B.4.9-Prüfungen; insgesamt 473/473 bestandene Kerntests.
+- Forschungsstufe B.5.0 mit prospektiver Positivereignis-Stichprobe,
+  vollständiger Eligibility-Inventur, Einzelgewichtsablationen,
+  Wiederholungs- und Interferenzdiagnose.
+- 18 zusätzliche B.5.0-Prüfungen; insgesamt 491/491 bestandene Kerntests.
 
 ### Geändert
 

@@ -47,6 +47,9 @@ angepasst werden.
 - [Auftrag B.4.9](021-entwicklungsauftrag-forschungsstufe-b49.md)
 - [Technische Analyse B.4.9](021-technische-analyse-lokale-fehlerkorrektur.md)
 - [Bericht B.4.9](021-forschungsbericht-forschungsstufe-b49.md)
+- [Auftrag B.5.0](022-entwicklungsauftrag-forschungsstufe-b50.md)
+- [Technische Analyse B.5.0](022-technische-analyse-lokale-kreditzuordnung.md)
+- [Bericht B.5.0](022-forschungsbericht-forschungsstufe-b50.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
@@ -84,3 +87,9 @@ zeitliche Nachwirkung erklären den Restfehler nicht. Positiv bewertete
 Alternativen werden jedoch nicht zuverlässig unter Erhalt der zweiten
 Reizbeziehung gespeichert; deshalb wird keine neue Fehlerkorrekturfunktion
 eingeführt.
+B.5.0 weist prospektiv nach, dass die vorhandene Eligibility den richtigen
+Sensorpfad einer explorativ erfolgreichen Handlung erreicht. Die erste
+Änderung von 0 auf 1 bleibt unter der Feuergrenze; der zweite Schritt auf 2
+ist in 364 Kopien notwendig und hinreichend. Natürliche Wiederholung und
+Stabilität im gemischten Strom bleiben ungelöst, daher entsteht keine neue
+Kreditzuordnungsregel.

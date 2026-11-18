@@ -686,6 +686,7 @@ void b49_persistence(const std::filesystem::path& output) {
 
 }  // namespace
 
+#ifndef EVE_RESEARCH_STAGE_B49_EMBEDDED
 int main(int argc, char** argv) {
     const std::filesystem::path output = argc > 1
         ? std::filesystem::path(argv[1])
@@ -856,3 +857,4 @@ int main(int argc, char** argv) {
               << " K7=not_justified\n";
     return 0;
 }
+#endif

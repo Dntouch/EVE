@@ -12,9 +12,9 @@ vorgegebene Semantik aus.
 
 **Stand:** 18. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.4.9 – lokale Fehlerkorrektur und konkurrierende Handlungswege
+**Jüngste abgeschlossene Forschungsstufe:** B.5.0 – lokale Kreditzuordnung und Stabilisierung positiver Erfahrungen
 
-**Aktueller Forschungsschwerpunkt:** lokale Stabilisierung positiv bewerteter Alternativerfahrung
+**Aktueller Forschungsschwerpunkt:** natürliche Wiederholung und Stabilität erfolgreicher Erfahrungen
 
 EVE ist inzwischen ein ausführbarer Forschungsprototyp. Er besitzt eine
 deterministische, ereignisgesteuerte Laufzeit, ein eigenes neuronales Netz,
@@ -80,6 +80,15 @@ autonom abgerufen; beide Reizbeziehungen bleiben nur in 21 Fällen erhalten.
 Mangels eines einzelnen lokalen Aktivierungsengpasses wird keine neue
 Fehlerkorrekturfunktion eingeführt.
 
+B.5.0 zeigt prospektiv, dass die bestehende Eligibility den zunächst
+wirkungslosen Sensorpfad einer explorativ erfolgreichen Handlung korrekt
+erreicht. Eine erste positive Erfahrung erhöht ihn nur von Gewicht 0 auf 1
+und bleibt unter der Feuergrenze 2. Nach der zweiten real erfolgreichen
+Wiederholung ist der Schritt auf 2 in 364 Kopien notwendig und hinreichend;
+nach drei Wiederholungen sind 384/384 Diagnosekopien korrekt. Zusätzliche
+nichtursächliche Hemmänderungen und gemischte spätere Erfahrung verhindern
+weiterhin robuste Stabilität. Eine neue Kreditzuordnung wird nicht eingeführt.
+
 EVE ist damit weder eine fertige allgemeine Intelligenz noch ein Nachweis, dass
 eigenständige Intelligenz bereits entstanden ist. Der Prototyp dient dazu,
 einzelne Mechanismen kontrolliert zu implementieren, zu messen und auch
@@ -129,6 +138,7 @@ deaktiviert, damit beobachtete Effekte eindeutig zugeordnet werden können.
 | B.4.7 | neuronale Symmetrie und robuste Entscheidungsbildung | abgeschlossen, technische Rollen invariant, Erfahrungsstromabhängigkeit bleibt |
 | B.4.8 | frühe Erfahrungsbindung und adaptive Exploration | abgeschlossen, frühe instabile Bindung nachgewiesen, adaptive Exploration nicht freigegeben |
 | B.4.9 | lokale Fehlerkorrektur und konkurrierende Handlungswege | abgeschlossen, negative Modulation wirkt, Alternativbindung bleibt instabil, keine neue Funktion |
+| B.5.0 | lokale Kreditzuordnung und positive Erfahrungen | abgeschlossen, Zielpfad erhält Kredit, erste Änderung bleibt unterschwellig, keine neue Regel |
 
 Ausführliche Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen unter
 [`docs/experimente`](docs/experimente/). Die zugehörigen maschinenlesbaren
@@ -174,7 +184,7 @@ Die jüngste abgeschlossene Versuchsmatrix wird mit folgendem Runner neu
 erzeugt:
 
 ```sh
-./scripts/run-research-stage-b49.sh research/results/b49
+./scripts/run-research-stage-b50.sh research/results/b50
 ```
 
 Weitere Runner und die Bedeutung aller Ergebnisdateien sind in der
@@ -221,6 +231,8 @@ Eingabestrom deterministisch.
 - [Entscheidung nach B.4.7](docs/entscheidungen/0019-konkurrenzlernen-bleibt-erfahrungsstromabhaengig.md)
 - [Bericht zur Forschungsstufe B.4.9](docs/experimente/021-forschungsbericht-forschungsstufe-b49.md)
 - [Entscheidung nach B.4.9](docs/entscheidungen/0021-keine-neue-fehlerkorrekturfunktion-nach-b49.md)
+- [Bericht zur Forschungsstufe B.5.0](docs/experimente/022-forschungsbericht-forschungsstufe-b50.md)
+- [Entscheidung nach B.5.0](docs/entscheidungen/0022-bestehende-kreditzuordnung-grundsaetzlich-ausreichend.md)
 - [Forschungsfragen](docs/FORSCHUNGSFRAGEN.md)
 - [Glossar](docs/GLOSSAR.md)
 - [Hinweise für Beiträge](CONTRIBUTING.md)

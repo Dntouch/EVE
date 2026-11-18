@@ -75,3 +75,9 @@ Pfad strukturell erreichbar bleibt. Positiv bewertete Alternativerfahrung wird
 jedoch nur unzuverlässig autonom abgerufen und stört häufig die zweite
 Reizbeziehung. Offen bleibt damit die lokale Kreditzuordnung und Stabilisierung
 erfolgreicher Alternativen ohne semantische Zielinformation.
+B.5.0 beantwortet den Zuordnungsteil: Die sensorische Nullgewicht-Synapse des
+explorativ erfolgreichen Weges erhält lokale Eligibility und wird verstärkt.
+Der erste Schritt auf Gewicht 1 bleibt jedoch unterschwellig; der zweite
+Schritt auf 2 ist kausal notwendig und hinreichend. Offen ist, warum natürliche
+Erfahrungsströme diese Wiederholung und den anschließenden Erhalt beider
+Beziehungen nicht zuverlässig bereitstellen.

@@ -456,3 +456,31 @@ Bootstrapvergleiche, unabhängige Bestätigung, Aufgabenmatrix, Persistenz,
 Ressourcen und vorab definierte Erfolgskriterien. K7/K8 wurden nach der
 Kausaldiagnose bewusst nicht implementiert; es existiert kein neuer
 persistenter Zustand. Historische Ergebnisordner bleiben unverändert.
+
+## Forschungsstufe B.5.0 – lokale Kreditzuordnung
+
+Build und vollständige Referenz-, Ereignis- und Kausalmatrix:
+
+```sh
+scripts/run-research-stage-b50.sh research/results/b50
+```
+
+Der Runner reproduziert K0–K3 und die B.4.8-Explorationskontrollen über drei
+Stromfamilien sowie normale und inverse Zuordnung. E1 und E2 starten aus
+getrennten fingerprint-identischen Zustandskopien. Die prospektive Population
+umfasst alle 49.152 Trainingsereignisse; je Seed-Cluster wird das erste
+positive Explorationsereignis nach autonomer Stille kausal untersucht.
+
+`eligibility-inventory.csv.gz`, `weight-changes.csv.gz` und
+`event-chains.csv.gz` enthalten lokale Generationen, Kandidaten, Phasen,
+Gewichte und Ereignisse. `causal-copies.csv`,
+`single-weight-ablations.csv.gz`, `repeated-weight-ablations.csv`,
+`timing-credit.csv` und `interference-ablations.csv` dokumentieren die
+diagnostischen K4–K8-Eingriffe. Diese selektiven Eingriffe sind keine
+Lernregeln.
+
+`diagnostic-summary.csv` enthält clusterbewusste Bootstrapintervalle.
+Bestätigung, Aufgabenmatrix, Persistenz und allgemeine Erfolgskriterien werden
+separat ausgewiesen. K9/K10 wurden mangels eines fehlenden lokalen
+Zuordnungsmechanismus nicht implementiert. Historische Ergebnisordner bleiben
+unverändert.

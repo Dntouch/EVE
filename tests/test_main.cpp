@@ -4372,6 +4372,210 @@ void test_b49_local_correction_case(const std::uint32_t index) {
     }
 }
 
+void test_b50_positive_credit_case(const std::uint32_t index) {
+    eve::ExperimentConfig config;
+    config.neuron_count = 16;
+    config.width = 4;
+    config.height = 2;
+    config.depth = 2;
+    config.initial_outgoing_synapses = 0;
+    config.firing_threshold = 2;
+    config.maximum_synapse_weight = 3;
+    config.input_weight_budget = 24;
+    config.learning_enabled = false;
+    config.growth_enabled = false;
+    config.local_event_memory_capacity = 8;
+    config.eligibility_selection = eve::EligibilitySelection::active_phase;
+    config.eligibility_candidate_capacity = 8;
+    config.eligibility_decision_capacity = 8;
+    config.eligibility_duration = 16;
+    config.plasticity_trace_mode = eve::PlasticityTraceMode::g3_recent;
+    config.modulation_mode = eve::ModulationMode::ternary;
+    config.batch_simultaneous_inputs = true;
+    config.inhibitory_plasticity_mode = eve::InhibitoryPlasticityMode::shared;
+
+    struct Fixture {
+        eve::bios::Runtime runtime;
+        std::array<eve::SynapseId, 4> cues{};
+        std::array<eve::SynapseId, 2> explorers{};
+        std::array<eve::SynapseId, 2> inhibition{};
+    };
+    const auto make_fixture = [&]() {
+        Fixture value{eve::bios::Runtime(config, 0x500000ULL)};
+        for (std::size_t cue = 0; cue < 2; ++cue) {
+            for (std::size_t action = 0; action < 2; ++action) {
+                value.cues[cue * 2 + action] =
+                    value.runtime.add_experimental_synapse(
+                        cue, 4 + action, 0, false,
+                        eve::SynapticEffect::excitatory);
+            }
+        }
+        for (std::size_t action = 0; action < 2; ++action) {
+            value.explorers[action] =
+                value.runtime.add_experimental_synapse(
+                    2 + action, 4 + action, 2, true,
+                    eve::SynapticEffect::excitatory);
+            static_cast<void>(value.runtime.add_experimental_synapse(
+                4 + action, 6 + action, 2, true,
+                eve::SynapticEffect::excitatory));
+            value.inhibition[action] =
+                value.runtime.add_experimental_synapse(
+                    4 + action, 7 - action, 0, false,
+                    eve::SynapticEffect::inhibitory);
+        }
+        eve::brainstem::EvaluationRouteConfig route;
+        route.mode = eve::brainstem::EvaluationRouteMode::sensory_input;
+        route.first_input_neuron = 8;
+        route.graded_channel_count = 5;
+        route.fanout_per_source = 1;
+        route.weight = 1;
+        const auto configured = value.runtime.configure_evaluation_route(route);
+        for (const auto source : configured.input_neurons) {
+            for (const auto target : {eve::NeuronId{4}, eve::NeuronId{5},
+                                      eve::NeuronId{6}, eve::NeuronId{7}}) {
+                static_cast<void>(value.runtime.add_experimental_synapse(
+                    source, target, 0, true,
+                    eve::SynapticEffect::excitatory));
+            }
+        }
+        return value;
+    };
+    const auto probe = [](eve::bios::Runtime& runtime,
+                          const eve::NeuronId source) {
+        std::array<bool, 2> fired{};
+        runtime.set_fire_observer([&](const eve::bios::FireObservation& event) {
+            fired[0] = fired[0] || event.neuron == 6;
+            fired[1] = fired[1] || event.neuron == 7;
+        });
+        runtime.enqueue_fire(source);
+        static_cast<void>(runtime.run());
+        runtime.set_fire_observer({});
+        return fired;
+    };
+    const auto positive_experience = [&](Fixture& value,
+                                         const std::uint8_t cue,
+                                         const std::uint8_t action,
+                                         const std::int8_t modulation = 1) {
+        const auto autonomous = probe(value.runtime, cue);
+        const auto explored = probe(value.runtime, 2 + action);
+        static_cast<void>(value.runtime.process_modulatory_feedback(modulation));
+        static_cast<void>(value.runtime.advance_time_by(16));
+        return std::pair{autonomous, explored};
+    };
+
+    auto fixture = make_fixture();
+    if (index == 0) {
+        auto copy = fixture.runtime;
+        require_equal(fixture.runtime.state_fingerprint(), copy.state_fingerprint(),
+                      "B.5.0 initial copy is not exact");
+    }
+    const auto initial = probe(fixture.runtime, 0);
+    if (index == 1) {
+        require(!initial[0] && !initial[1],
+                "B.5.0 zero cue unexpectedly produced an autonomous answer");
+    }
+    auto exploration = probe(fixture.runtime, 2);
+    if (index == 2) {
+        require(exploration[0] && !exploration[1],
+                "B.5.0 protected exploration did not produce the action");
+    }
+    bool cue_candidate = false;
+    for (const auto& record : fixture.runtime.network().eligibility_records(4)) {
+        cue_candidate = cue_candidate || std::find(
+            record.candidates.begin(), record.candidates.end(), fixture.cues[0]) !=
+            record.candidates.end();
+    }
+    if (index == 3) {
+        require(cue_candidate,
+                "B.5.0 zero-weight sensory input did not receive eligibility");
+    }
+    const auto before_positive = fixture.runtime.network().synapses();
+    static_cast<void>(fixture.runtime.process_modulatory_feedback(1));
+    if (index == 4) {
+        require_equal(fixture.runtime.network().synapse(fixture.cues[0]).weight, 1,
+                      "B.5.0 first positive experience did not create weight one");
+    } else if (index == 5) {
+        require_equal(fixture.runtime.network().synapse(
+                          fixture.explorers[0]).weight,
+                      before_positive[fixture.explorers[0]].weight,
+                      "B.5.0 changed protected exploration");
+    }
+    static_cast<void>(fixture.runtime.advance_time_by(16));
+    const auto after_one = probe(fixture.runtime, 0);
+    if (index == 6) {
+        require(!after_one[0] && !after_one[1],
+                "B.5.0 subthreshold weight one fired autonomously");
+    }
+    static_cast<void>(fixture.runtime.advance_time_by(16));
+    static_cast<void>(positive_experience(fixture, 0, 0));
+    if (index == 7) {
+        auto isolated = make_fixture();
+        static_cast<void>(positive_experience(isolated, 0, 0));
+        const auto isolated_second = positive_experience(isolated, 0, 0);
+        require(!isolated_second.first[0] && isolated_second.second[0],
+                "B.5.0 second positive experience was not exploration-dependent");
+    } else if (index == 8) {
+        require_equal(fixture.runtime.network().synapse(fixture.cues[0]).weight, 2,
+                      "B.5.0 repeated positive experience did not reach threshold");
+    }
+    const auto after_two = probe(fixture.runtime, 0);
+    if (index == 9) {
+        require(after_two[0] && !after_two[1],
+                "B.5.0 threshold weight did not recall autonomously");
+    } else if (index == 10) {
+        auto rollback = fixture.runtime;
+        rollback.set_experimental_synapse_weight(fixture.cues[0], 1);
+        static_cast<void>(rollback.advance_time_by(16));
+        const auto outcome = probe(rollback, 0);
+        require(!outcome[0] && !outcome[1],
+                "B.5.0 rollback did not remove autonomous recall");
+    } else if (index == 11) {
+        auto isolated = make_fixture();
+        isolated.runtime.set_experimental_synapse_weight(isolated.cues[0], 2);
+        const auto outcome = probe(isolated.runtime, 0);
+        require(outcome[0] && !outcome[1],
+                "B.5.0 isolated target weight was not sufficient");
+    } else if (index == 12) {
+        auto neutral = make_fixture();
+        static_cast<void>(positive_experience(neutral, 0, 0, 0));
+        require_equal(neutral.runtime.network().synapse(neutral.cues[0]).weight, 0,
+                      "B.5.0 neutral modulation changed the cue weight");
+    } else if (index == 13) {
+        auto inverse = make_fixture();
+        static_cast<void>(positive_experience(inverse, 0, 1));
+        static_cast<void>(positive_experience(inverse, 0, 1));
+        const auto outcome = probe(inverse.runtime, 0);
+        require(!outcome[0] && outcome[1],
+                "B.5.0 inverse positive binding failed");
+    } else if (index == 14) {
+        for (const auto id : fixture.inhibition) {
+            require(fixture.runtime.network().synapse(id).weight >= 0 &&
+                        fixture.runtime.network().synapse(id).weight <= 3,
+                    "B.5.0 inhibition escaped weight bounds");
+        }
+    } else if (index == 15) {
+        const auto path = std::filesystem::temp_directory_path() /
+            "eve-stage-b50-checkpoint.bin";
+        fixture.runtime.save(path.string());
+        const auto restored = eve::bios::Runtime::load(path.string());
+        require_equal(fixture.runtime.state_fingerprint(),
+                      restored.state_fingerprint(),
+                      "B.5.0 positive state did not persist exactly");
+        static_cast<void>(std::filesystem::remove(path));
+    } else if (index == 16) {
+        auto copy = fixture.runtime;
+        static_cast<void>(probe(fixture.runtime, 1));
+        static_cast<void>(probe(copy, 1));
+        require_equal(fixture.runtime.state_fingerprint(), copy.state_fingerprint(),
+                      "B.5.0 identical event order diverged");
+    } else if (index == 17) {
+        require(fixture.runtime.network().validate(),
+                "B.5.0 positive-credit network is invalid");
+        require_equal(fixture.runtime.metrics().grown_synapses, 0ULL,
+                      "B.5.0 unexpectedly enabled growth");
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -4761,6 +4965,22 @@ int main() {
         tests.emplace_back(
             std::string("B49 ") + b49_names[index],
             [index]() { test_b49_local_correction_case(index); });
+    }
+    const std::array<const char*, 18> b50_names{{
+        "identical runtime copies", "initial autonomous silence",
+        "first positive exploration", "zero-weight cue eligibility",
+        "positive zero-to-one change", "protected exploration stability",
+        "subthreshold first experience", "second exploration dependence",
+        "repeated positive threshold", "autonomous recall at threshold",
+        "single-weight rollback", "isolated target sufficiency",
+        "neutral modulation control", "inverse positive binding",
+        "inhibitory weight bounds", "positive-state persistence",
+        "event-order determinism", "valid bounded architecture",
+    }};
+    for (std::uint32_t index = 0; index < b50_names.size(); ++index) {
+        tests.emplace_back(
+            std::string("B50 ") + b50_names[index],
+            [index]() { test_b50_positive_credit_case(index); });
     }
 
     std::size_t failures = 0;
