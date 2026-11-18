@@ -33,6 +33,8 @@ struct ImpulseResult {
     bool weakened{};
     bool firing_suppressed{};
     bool phase_completed{};
+    bool local_event_recorded{};
+    bool local_event_overwritten{};
     std::int32_t applied_weight{};
     std::int64_t membrane_after{};
 };

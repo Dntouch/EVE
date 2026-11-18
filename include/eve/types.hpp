@@ -38,6 +38,7 @@ struct ExperimentConfig {
     std::int32_t maximum_synapse_weight{std::numeric_limits<std::int32_t>::max()};
     std::uint64_t input_weight_budget{std::numeric_limits<std::uint64_t>::max()};
     std::uint32_t refractory_input_events{};
+    std::uint32_t local_event_memory_capacity{};
     std::uint64_t maximum_events_per_run{1'000'000};
     bool learning_enabled{true};
     bool growth_enabled{true};
@@ -53,6 +54,8 @@ struct Metrics {
     std::uint64_t rejected_strengthenings_at_weight_limit{};
     std::uint64_t synaptic_weakenings{};
     std::uint64_t refractory_suppressed_firings{};
+    std::uint64_t local_event_memory_records{};
+    std::uint64_t local_event_memory_overwrites{};
     std::uint64_t growth_attempts{};
     std::uint64_t grown_synapses{};
     std::uint64_t processed_sensor_bytes{};
@@ -69,6 +72,8 @@ struct Metrics {
                    other.rejected_strengthenings_at_weight_limit &&
                synaptic_weakenings == other.synaptic_weakenings &&
                refractory_suppressed_firings == other.refractory_suppressed_firings &&
+               local_event_memory_records == other.local_event_memory_records &&
+               local_event_memory_overwrites == other.local_event_memory_overwrites &&
                growth_attempts == other.growth_attempts &&
                grown_synapses == other.grown_synapses &&
                processed_sensor_bytes == other.processed_sensor_bytes &&

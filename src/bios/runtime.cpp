@@ -13,7 +13,7 @@ namespace eve::bios {
 namespace {
 
 constexpr std::array<char, 8> kPersistenceMagic{{'E', 'V', 'E', '0', '0', '1', '\r', '\n'}};
-constexpr std::uint32_t kPersistenceVersion = 3;
+constexpr std::uint32_t kPersistenceVersion = 4;
 constexpr std::uint64_t kNonZeroRngState = 0x9e3779b97f4a7c15ULL;
 constexpr std::uint64_t kFnvPrime = 1099511628211ULL;
 
@@ -117,6 +117,7 @@ void write_config(std::ostream& stream, const ExperimentConfig& config) {
     write_i32(stream, config.maximum_synapse_weight);
     write_u64(stream, config.input_weight_budget);
     write_u32(stream, config.refractory_input_events);
+    write_u32(stream, config.local_event_memory_capacity);
     write_u64(stream, config.maximum_events_per_run);
     write_u8(stream, config.learning_enabled ? 1 : 0);
     write_u8(stream, config.growth_enabled ? 1 : 0);
@@ -139,6 +140,9 @@ ExperimentConfig read_config(std::istream& stream, const std::uint32_t version) 
         config.input_weight_budget = read_u64(stream);
         config.refractory_input_events = read_u32(stream);
     }
+    if (version >= 4) {
+        config.local_event_memory_capacity = read_u32(stream);
+    }
     config.maximum_events_per_run = read_u64(stream);
     config.learning_enabled = read_bool(stream);
     config.growth_enabled = read_bool(stream);
@@ -159,6 +163,8 @@ void write_metrics(std::ostream& stream, const Metrics& metrics) {
     write_u64(stream, metrics.rejected_strengthenings_at_weight_limit);
     write_u64(stream, metrics.synaptic_weakenings);
     write_u64(stream, metrics.refractory_suppressed_firings);
+    write_u64(stream, metrics.local_event_memory_records);
+    write_u64(stream, metrics.local_event_memory_overwrites);
     write_u64(stream, metrics.growth_attempts);
     write_u64(stream, metrics.grown_synapses);
     write_u64(stream, metrics.processed_sensor_bytes);
@@ -179,6 +185,10 @@ Metrics read_metrics(std::istream& stream, const std::uint32_t version) {
     if (version >= 2) {
         metrics.synaptic_weakenings = read_u64(stream);
         metrics.refractory_suppressed_firings = read_u64(stream);
+    }
+    if (version >= 4) {
+        metrics.local_event_memory_records = read_u64(stream);
+        metrics.local_event_memory_overwrites = read_u64(stream);
     }
     metrics.growth_attempts = read_u64(stream);
     metrics.grown_synapses = read_u64(stream);
@@ -637,6 +647,76 @@ MotorCausality Runtime::analyze_motor_causality(
     return result;
 }
 
+LocalMemoryCausality Runtime::analyze_local_motor_memory(
+    const brainstem::MotorCircuitResult& circuit,
+    const std::vector<ImpulseObservation>& impulses) const {
+    LocalMemoryCausality result;
+    if (circuit.config.mode != brainstem::MotorCircuitMode::activity_dependent ||
+        circuit.relay_neurons.empty() || !motor_output_.configured()) {
+        return result;
+    }
+
+    const NeuronId accumulator = circuit.relay_neurons.front();
+    const NeuronId completion = motor_output_.assignment().completion_contact;
+    const std::set<SynapseId> circuit_ids(
+        circuit.circuit_synapses.begin(), circuit.circuit_synapses.end());
+    const std::int64_t motor_weight = std::max<std::int32_t>(1, circuit.config.motor_weight);
+    result.required_accumulator_inputs = static_cast<std::uint32_t>(
+        (config_.firing_threshold + motor_weight - 1) / motor_weight);
+
+    const auto classify_snapshot = [&](const ImpulseObservation& observation,
+                                       const NeuronId receiver) {
+        std::uint32_t relevant = 0;
+        for (const SynapseId id : observation.local_event_snapshot) {
+            const neural::Synapse& item = network_.synapse(id);
+            if (item.weight <= 0) {
+                ++result.inactive_entries;
+            }
+            if (circuit_ids.find(id) != circuit_ids.end() &&
+                item.receiver == receiver && item.weight > 0) {
+                ++relevant;
+            } else {
+                ++result.unassigned_entries;
+            }
+        }
+        return relevant;
+    };
+
+    for (const ImpulseObservation& observation : impulses) {
+        if (!observation.receiver_fired) {
+            continue;
+        }
+        if (observation.receiver == accumulator) {
+            result.accumulator_fired = true;
+            result.retained_accumulator_inputs = std::max(
+                result.retained_accumulator_inputs,
+                classify_snapshot(observation, accumulator));
+        } else if (observation.receiver == completion) {
+            result.completion_fired = true;
+            result.retained_completion_inputs = std::max(
+                result.retained_completion_inputs,
+                classify_snapshot(observation, completion));
+        }
+    }
+    result.accumulator_reconstructable =
+        result.retained_accumulator_inputs >= result.required_accumulator_inputs;
+    result.completion_reconstructable = result.retained_completion_inputs >= 1;
+    result.full_path_reconstructable = result.accumulator_reconstructable &&
+                                       result.completion_reconstructable;
+    return result;
+}
+
+void Runtime::set_experimental_synapse_weight(
+    const SynapseId synapse, const std::int32_t weight) {
+    if (motor_output_.active()) {
+        throw std::logic_error("cannot interrupt a synapse during an active response");
+    }
+    if (weight < 0 || weight > config_.maximum_synapse_weight) {
+        throw std::invalid_argument("experimental weight is outside configured bounds");
+    }
+    network_.synapse(synapse).weight = weight;
+}
+
 const ExperimentConfig& Runtime::config() const noexcept {
     return config_;
 }
@@ -679,6 +759,7 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
     mix_hash(hash, static_cast<std::uint32_t>(config_.maximum_synapse_weight));
     mix_hash(hash, config_.input_weight_budget);
     mix_hash(hash, config_.refractory_input_events);
+    mix_hash(hash, config_.local_event_memory_capacity);
     mix_hash(hash, config_.maximum_events_per_run);
     mix_hash(hash, config_.learning_enabled ? 1 : 0);
     mix_hash(hash, config_.growth_enabled ? 1 : 0);
@@ -691,6 +772,8 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
     mix_hash(hash, metrics_.rejected_strengthenings_at_weight_limit);
     mix_hash(hash, metrics_.synaptic_weakenings);
     mix_hash(hash, metrics_.refractory_suppressed_firings);
+    mix_hash(hash, metrics_.local_event_memory_records);
+    mix_hash(hash, metrics_.local_event_memory_overwrites);
     mix_hash(hash, metrics_.growth_attempts);
     mix_hash(hash, metrics_.grown_synapses);
     mix_hash(hash, metrics_.processed_sensor_bytes);
@@ -741,6 +824,15 @@ void Runtime::save(const std::string& path) const {
         write_u32(stream, synapse.activity_count);
         write_u32(stream, synapse.next_incoming);
         write_u32(stream, synapse.next_outgoing);
+    }
+
+    for (NeuronId neuron = 0; neuron < network_.neuron_count(); ++neuron) {
+        const auto events = network_.local_event_memory(neuron);
+        write_u32(stream, static_cast<std::uint32_t>(events.size()));
+        for (const SynapseId synapse : events) {
+            write_u32(stream, synapse);
+        }
+        write_u64(stream, network_.local_event_overwrites(neuron));
     }
 
     write_u64(stream, queue_.size());
@@ -820,6 +912,28 @@ Runtime Runtime::load(const std::string& path) {
         if (synapse.weight < 0 || synapse.weight > config.maximum_synapse_weight) {
             throw std::runtime_error("persisted synapse weight is outside configured bounds");
         }
+    }
+
+    if (version >= 4) {
+        std::vector<std::vector<SynapseId>> memories(neuron_count);
+        std::vector<std::uint64_t> overwrites(neuron_count);
+        for (NeuronId neuron = 0; neuron < neuron_count; ++neuron) {
+            const std::uint32_t size = read_u32(stream);
+            if (size > config.local_event_memory_capacity) {
+                throw std::runtime_error("persisted local event memory exceeds capacity");
+            }
+            memories[neuron].reserve(size);
+            for (std::uint32_t index = 0; index < size; ++index) {
+                memories[neuron].push_back(read_u32(stream));
+            }
+            overwrites[neuron] = read_u64(stream);
+        }
+        runtime.network_.restore_local_event_memory(
+            config.local_event_memory_capacity, memories, overwrites);
+    } else {
+        runtime.network_.restore_local_event_memory(
+            0, std::vector<std::vector<SynapseId>>(neuron_count),
+            std::vector<std::uint64_t>(neuron_count));
     }
 
     const std::uint64_t queue_size = read_u64(stream);
@@ -922,6 +1036,12 @@ void Runtime::process_impulse(const SynapseId synapse) {
     }
     const brainstem::ImpulseResult result =
         brainstem_.receive_impulse(network_, synapse, config_, &rng_);
+    if (result.local_event_recorded) {
+        ++metrics_.local_event_memory_records;
+    }
+    if (result.local_event_overwritten) {
+        ++metrics_.local_event_memory_overwrites;
+    }
     if (result.strengthened) {
         ++metrics_.synaptic_strengthenings;
     }
@@ -962,6 +1082,7 @@ void Runtime::process_impulse(const SynapseId synapse) {
             receiver_after.refractory_events_remaining,
             result.fired,
             result.firing_suppressed,
+            network_.local_event_memory(before.receiver),
         });
     }
 

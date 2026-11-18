@@ -53,6 +53,17 @@ void Network::reset(const ExperimentConfig& config) {
     const auto expected = static_cast<std::size_t>(config.neuron_count) *
                           config.initial_outgoing_synapses;
     synapses_.reserve(expected);
+    local_event_memory_capacity_ = config.local_event_memory_capacity;
+    const auto slot_count = static_cast<std::size_t>(config.neuron_count) *
+                            local_event_memory_capacity_;
+    if (local_event_memory_capacity_ != 0 &&
+        slot_count / local_event_memory_capacity_ != config.neuron_count) {
+        throw std::overflow_error("local event memory size overflow");
+    }
+    local_event_slots_.assign(slot_count, kInvalidIndex);
+    local_event_write_positions_.assign(config.neuron_count, 0);
+    local_event_sizes_.assign(config.neuron_count, 0);
+    local_event_overwrites_.assign(config.neuron_count, 0);
 }
 
 SynapseId Network::add_synapse(
@@ -156,6 +167,88 @@ void Network::reset_incoming_activity(const NeuronId id) {
     }
 }
 
+bool Network::record_local_event(const NeuronId id, const SynapseId synapse_id) {
+    require_neuron(id);
+    require_synapse(synapse_id);
+    if (synapses_[synapse_id].receiver != id) {
+        throw std::invalid_argument("local event synapse does not target neuron");
+    }
+    if (local_event_memory_capacity_ == 0) {
+        return false;
+    }
+
+    const std::size_t base = static_cast<std::size_t>(id) * local_event_memory_capacity_;
+    const std::uint32_t write = local_event_write_positions_[id];
+    const bool overwritten = local_event_sizes_[id] == local_event_memory_capacity_;
+    local_event_slots_[base + write] = synapse_id;
+    local_event_write_positions_[id] = (write + 1U) % local_event_memory_capacity_;
+    if (overwritten) {
+        ++local_event_overwrites_[id];
+    } else {
+        ++local_event_sizes_[id];
+    }
+    return overwritten;
+}
+
+std::vector<SynapseId> Network::local_event_memory(const NeuronId id) const {
+    require_neuron(id);
+    const std::uint32_t size = local_event_sizes_[id];
+    std::vector<SynapseId> result;
+    result.reserve(size);
+    if (size == 0) {
+        return result;
+    }
+    const std::size_t base = static_cast<std::size_t>(id) * local_event_memory_capacity_;
+    const std::uint32_t oldest = size == local_event_memory_capacity_
+                                     ? local_event_write_positions_[id]
+                                     : 0U;
+    for (std::uint32_t index = 0; index < size; ++index) {
+        result.push_back(local_event_slots_[
+            base + (oldest + index) % local_event_memory_capacity_]);
+    }
+    return result;
+}
+
+std::uint64_t Network::local_event_overwrites(const NeuronId id) const {
+    require_neuron(id);
+    return local_event_overwrites_[id];
+}
+
+std::uint32_t Network::local_event_memory_capacity() const noexcept {
+    return local_event_memory_capacity_;
+}
+
+void Network::restore_local_event_memory(
+    const std::uint32_t capacity,
+    const std::vector<std::vector<SynapseId>>& events,
+    const std::vector<std::uint64_t>& overwrites) {
+    if (events.size() != neurons_.size() || overwrites.size() != neurons_.size()) {
+        throw std::runtime_error("local event memory count does not match neurons");
+    }
+    local_event_memory_capacity_ = capacity;
+    const std::size_t slot_count = neurons_.size() * static_cast<std::size_t>(capacity);
+    if (capacity != 0 && slot_count / capacity != neurons_.size()) {
+        throw std::runtime_error("restored local event memory size overflow");
+    }
+    local_event_slots_.assign(slot_count, kInvalidIndex);
+    local_event_write_positions_.assign(neurons_.size(), 0);
+    local_event_sizes_.assign(neurons_.size(), 0);
+    local_event_overwrites_ = overwrites;
+    for (NeuronId neuron_id = 0; neuron_id < neurons_.size(); ++neuron_id) {
+        if (events[neuron_id].size() > capacity) {
+            throw std::runtime_error("restored local event memory exceeds capacity");
+        }
+        for (const SynapseId synapse_id : events[neuron_id]) {
+            require_synapse(synapse_id);
+            if (synapses_[synapse_id].receiver != neuron_id) {
+                throw std::runtime_error("restored local event has wrong receiver");
+            }
+            static_cast<void>(record_local_event(neuron_id, synapse_id));
+        }
+        local_event_overwrites_[neuron_id] = overwrites[neuron_id];
+    }
+}
+
 const Neuron& Network::neuron(const NeuronId id) const {
     require_neuron(id);
     return neurons_[id];
@@ -186,7 +279,11 @@ std::uint32_t Network::synapse_count() const noexcept {
 
 std::size_t Network::estimated_memory_bytes() const noexcept {
     return sizeof(*this) + neurons_.capacity() * sizeof(Neuron) +
-           synapses_.capacity() * sizeof(Synapse);
+           synapses_.capacity() * sizeof(Synapse) +
+           local_event_slots_.capacity() * sizeof(SynapseId) +
+           local_event_write_positions_.capacity() * sizeof(std::uint32_t) +
+           local_event_sizes_.capacity() * sizeof(std::uint32_t) +
+           local_event_overwrites_.capacity() * sizeof(std::uint64_t);
 }
 
 std::map<std::int32_t, std::uint64_t> Network::weight_distribution() const {
@@ -222,6 +319,15 @@ std::uint64_t Network::state_fingerprint() const noexcept {
         hash_u64(hash, item.next_incoming);
         hash_u64(hash, item.next_outgoing);
     }
+    hash_u64(hash, local_event_memory_capacity_);
+    for (NeuronId id = 0; id < neurons_.size(); ++id) {
+        const auto events = local_event_memory(id);
+        hash_u64(hash, events.size());
+        for (const SynapseId synapse_id : events) {
+            hash_u64(hash, synapse_id);
+        }
+        hash_u64(hash, local_event_overwrites_[id]);
+    }
     return hash;
 }
 
@@ -239,6 +345,21 @@ bool Network::validate(std::string* error) const {
     }
     if (neurons_.size() >= kInvalidIndex || synapses_.size() >= kInvalidIndex) {
         return fail("index space exhausted");
+    }
+    const std::size_t expected_slots =
+        neurons_.size() * static_cast<std::size_t>(local_event_memory_capacity_);
+    if (local_event_slots_.size() != expected_slots ||
+        local_event_write_positions_.size() != neurons_.size() ||
+        local_event_sizes_.size() != neurons_.size() ||
+        local_event_overwrites_.size() != neurons_.size()) {
+        return fail("local event memory storage mismatch");
+    }
+    for (std::size_t index = 0; index < neurons_.size(); ++index) {
+        if (local_event_sizes_[index] > local_event_memory_capacity_ ||
+            (local_event_memory_capacity_ != 0 &&
+             local_event_write_positions_[index] >= local_event_memory_capacity_)) {
+            return fail("invalid local event memory cursor");
+        }
     }
 
     std::unordered_set<std::uint64_t> connections;
@@ -334,6 +455,11 @@ void Network::restore(
     depth_ = depth;
     neurons_ = std::move(neurons);
     synapses_ = std::move(synapses);
+    local_event_memory_capacity_ = 0;
+    local_event_slots_.clear();
+    local_event_write_positions_.assign(neurons_.size(), 0);
+    local_event_sizes_.assign(neurons_.size(), 0);
+    local_event_overwrites_.assign(neurons_.size(), 0);
     std::string error;
     if (!validate(&error)) {
         throw std::runtime_error("invalid restored network: " + error);

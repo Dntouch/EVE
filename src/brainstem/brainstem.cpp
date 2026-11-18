@@ -192,10 +192,14 @@ ImpulseResult Brainstem::receive_impulse(
     neural::Synapse& synapse = network.synapse(synapse_id);
     neural::Neuron& neuron = network.neuron(synapse.receiver);
 
+    ImpulseResult result;
+    result.local_event_recorded = network.local_event_memory_capacity() != 0;
+    result.local_event_overwritten =
+        network.record_local_event(synapse.receiver, synapse_id);
+
     ++neuron.input_event_count;
     ++synapse.activity_count;
 
-    ImpulseResult result;
     if (config.learning_enabled &&
         synapse.activity_count >= config.synaptic_learning_threshold) {
         if (synapse.weight < config.maximum_synapse_weight) {

@@ -53,6 +53,15 @@ public:
     [[nodiscard]] std::vector<SynapseId> incoming_synapses(NeuronId neuron) const;
     void reset_incoming_activity(NeuronId neuron);
 
+    [[nodiscard]] bool record_local_event(NeuronId neuron, SynapseId synapse);
+    [[nodiscard]] std::vector<SynapseId> local_event_memory(NeuronId neuron) const;
+    [[nodiscard]] std::uint64_t local_event_overwrites(NeuronId neuron) const;
+    [[nodiscard]] std::uint32_t local_event_memory_capacity() const noexcept;
+    void restore_local_event_memory(
+        std::uint32_t capacity,
+        const std::vector<std::vector<SynapseId>>& events,
+        const std::vector<std::uint64_t>& overwrites);
+
     [[nodiscard]] const Neuron& neuron(NeuronId id) const;
     [[nodiscard]] Neuron& neuron(NeuronId id);
     [[nodiscard]] const Synapse& synapse(SynapseId id) const;
@@ -87,6 +96,11 @@ private:
     std::uint32_t depth_{};
     std::vector<Neuron> neurons_;
     std::vector<Synapse> synapses_;
+    std::uint32_t local_event_memory_capacity_{};
+    std::vector<SynapseId> local_event_slots_;
+    std::vector<std::uint32_t> local_event_write_positions_;
+    std::vector<std::uint32_t> local_event_sizes_;
+    std::vector<std::uint64_t> local_event_overwrites_;
 };
 
 }  // namespace eve::neural

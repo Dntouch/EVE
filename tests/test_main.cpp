@@ -1466,6 +1466,294 @@ void test_integrated_sensorimotor_state_restore() {
     static_cast<void>(std::filesystem::remove(path));
 }
 
+void test_local_event_memory_stores_single_input() {
+    auto config = small_config();
+    config.local_event_memory_capacity = 4;
+    config.learning_enabled = false;
+    eve::neural::Network network;
+    network.reset(config);
+    const eve::SynapseId input = network.add_synapse(0, 2, 0);
+    static_cast<void>(eve::brainstem::Brainstem{}.receive_impulse(network, input, config));
+    require_equal(network.local_event_memory(2), std::vector<eve::SynapseId>{input},
+                  "single local input was not retained");
+}
+
+void test_local_event_memory_preserves_order_and_repetitions() {
+    auto config = small_config();
+    config.local_event_memory_capacity = 4;
+    config.learning_enabled = false;
+    eve::neural::Network network;
+    network.reset(config);
+    const eve::SynapseId first = network.add_synapse(0, 2, 0);
+    const eve::SynapseId second = network.add_synapse(1, 2, 0);
+    eve::brainstem::Brainstem brainstem;
+    static_cast<void>(brainstem.receive_impulse(network, first, config));
+    static_cast<void>(brainstem.receive_impulse(network, second, config));
+    static_cast<void>(brainstem.receive_impulse(network, first, config));
+    require_equal(network.local_event_memory(2),
+                  std::vector<eve::SynapseId>{first, second, first},
+                  "local input order or repeated synapse was lost");
+}
+
+void test_local_event_memory_ring_overwrite() {
+    auto config = small_config();
+    config.local_event_memory_capacity = 2;
+    config.learning_enabled = false;
+    eve::neural::Network network;
+    network.reset(config);
+    const eve::SynapseId first = network.add_synapse(0, 3, 0);
+    const eve::SynapseId second = network.add_synapse(1, 3, 0);
+    const eve::SynapseId third = network.add_synapse(2, 3, 0);
+    eve::brainstem::Brainstem brainstem;
+    static_cast<void>(brainstem.receive_impulse(network, first, config));
+    static_cast<void>(brainstem.receive_impulse(network, second, config));
+    const auto result = brainstem.receive_impulse(network, third, config);
+    require(result.local_event_overwritten, "full local ring did not report overwrite");
+    require_equal(network.local_event_memory(3),
+                  std::vector<eve::SynapseId>{second, third},
+                  "ring did not retain the two newest inputs in order");
+    require_equal(network.local_event_overwrites(3), 1ULL,
+                  "local overwrite counter is wrong");
+}
+
+void test_local_event_memory_includes_zero_weight_inputs() {
+    auto config = small_config();
+    config.local_event_memory_capacity = 2;
+    config.learning_enabled = false;
+    eve::neural::Network network;
+    network.reset(config);
+    const eve::SynapseId input = network.add_synapse(0, 1, 0);
+    const auto result = eve::brainstem::Brainstem{}.receive_impulse(network, input, config);
+    require(result.local_event_recorded, "zero-weight input was not recorded");
+    require_equal(network.local_event_memory(1), std::vector<eve::SynapseId>{input},
+                  "zero-weight synapse is absent from local memory");
+    require_equal(network.neuron(1).membrane_potential, 0LL,
+                  "zero-weight memory changed neuronal excitation");
+}
+
+void test_local_event_snapshot_belongs_to_fire_decision() {
+    auto config = small_config();
+    config.initial_outgoing_synapses = 1;
+    config.initial_synapse_weight = 1;
+    config.firing_threshold = 2;
+    config.learning_enabled = false;
+    config.local_event_memory_capacity = 2;
+    eve::bios::Runtime runtime(config, 501);
+    const eve::SynapseId input = runtime.network().outgoing_synapses(0).front();
+    const eve::NeuronId receiver = runtime.network().synapse(input).receiver;
+    std::vector<eve::SynapseId> firing_snapshot;
+    runtime.set_impulse_observer(
+        [&firing_snapshot, receiver](const eve::bios::ImpulseObservation& observation) {
+            if (observation.receiver == receiver && observation.receiver_fired &&
+                firing_snapshot.empty()) {
+                firing_snapshot = observation.local_event_snapshot;
+            }
+        });
+    runtime.enqueue_fire(0);
+    runtime.enqueue_fire(0);
+    static_cast<void>(runtime.run());
+    require_equal(firing_snapshot, std::vector<eve::SynapseId>{input, input},
+                  "fire-decision snapshot does not contain its two causal inputs");
+    runtime.enqueue_fire(0);
+    static_cast<void>(runtime.run());
+    require_equal(firing_snapshot, std::vector<eve::SynapseId>{input, input},
+                  "later queue processing mutated the fire-decision snapshot");
+}
+
+void test_local_event_memory_during_refractory_phase() {
+    auto config = small_config();
+    config.local_event_memory_capacity = 4;
+    config.learning_enabled = false;
+    config.firing_threshold = 1;
+    config.refractory_input_events = 2;
+    eve::neural::Network network;
+    network.reset(config);
+    const eve::SynapseId input = network.add_synapse(0, 1, 1);
+    eve::brainstem::Brainstem brainstem;
+    require(brainstem.receive_impulse(network, input, config).fired,
+            "first impulse did not fire");
+    const auto refractory = brainstem.receive_impulse(network, input, config);
+    require(refractory.firing_suppressed, "refractory firing was not suppressed");
+    require_equal(network.local_event_memory(1),
+                  std::vector<eve::SynapseId>{input, input},
+                  "refractory input was not retained locally");
+}
+
+eve::bios::LocalMemoryCausality run_local_m3_memory_case(
+    const std::uint32_t capacity,
+    const bool path_enabled,
+    std::vector<eve::bios::ImpulseObservation>* captured = nullptr) {
+    auto config = motor_test_config();
+    config.local_event_memory_capacity = capacity;
+    eve::bios::Runtime runtime(config, 502);
+    runtime.configure_motor_output(motor_output_config());
+    auto circuit_config = motor_circuit_config(
+        eve::brainstem::MotorCircuitMode::activity_dependent, 1, 3, 1502);
+    circuit_config.path_enabled = path_enabled;
+    const auto circuit = runtime.configure_motor_circuit(circuit_config);
+    std::vector<eve::bios::ImpulseObservation> impulses;
+    runtime.set_impulse_observer(
+        [&impulses](const eve::bios::ImpulseObservation& observation) {
+            impulses.push_back(observation);
+        });
+    for (std::size_t channel = 0; channel < 3; ++channel) {
+        runtime.enqueue_fire(runtime.motor_assignment().channels[channel][0]);
+    }
+    static_cast<void>(runtime.request_response(false));
+    if (captured != nullptr) {
+        *captured = impulses;
+    }
+    return runtime.analyze_local_motor_memory(circuit, impulses);
+}
+
+void test_simple_fire_reconstruction_from_local_memory() {
+    std::vector<eve::bios::ImpulseObservation> impulses;
+    const auto memory = run_local_m3_memory_case(4, true, &impulses);
+    const auto firing = std::find_if(
+        impulses.begin(), impulses.end(),
+        [](const eve::bios::ImpulseObservation& observation) {
+            return observation.receiver_fired &&
+                   observation.local_event_snapshot.size() >= 3;
+        });
+    require(firing != impulses.end(), "no firing input snapshot was captured");
+    require_equal(firing->local_event_snapshot.back(), firing->synapse,
+                  "triggering input is not last in the local snapshot");
+    require(memory.accumulator_fired, "simple accumulator fire was not reconstructed");
+}
+
+void test_m3_accumulator_and_completion_reconstruction() {
+    const auto full = run_local_m3_memory_case(4, true);
+    require(full.accumulator_reconstructable,
+            "four-entry memory did not retain M3 accumulator inputs");
+    require(full.completion_reconstructable,
+            "four-entry memory did not retain M3 completion input");
+    require(full.full_path_reconstructable,
+            "complete M3 action was not reconstructed from local memories");
+    const auto short_memory = run_local_m3_memory_case(2, true);
+    require(!short_memory.accumulator_reconstructable,
+            "two-entry memory unexpectedly retained all three M3 inputs");
+    require(short_memory.completion_reconstructable,
+            "two-entry memory lost the immediate completion input");
+}
+
+void test_local_memory_detects_unassigned_activity() {
+    auto config = motor_test_config();
+    config.local_event_memory_capacity = 4;
+    eve::bios::Runtime runtime(config, 503);
+    runtime.configure_motor_output(motor_output_config());
+    const auto circuit = runtime.configure_motor_circuit(motor_circuit_config(
+        eve::brainstem::MotorCircuitMode::activity_dependent, 1, 3, 1503));
+    require(circuit.circuit_synapses.size() >= 2,
+            "M3 test circuit has too few synapses");
+    eve::bios::ImpulseObservation synthetic;
+    synthetic.receiver = circuit.relay_neurons.front();
+    synthetic.receiver_fired = true;
+    synthetic.local_event_snapshot = {
+        circuit.circuit_synapses.back(), circuit.circuit_synapses.front()};
+    const auto result = runtime.analyze_local_motor_memory(circuit, {synthetic});
+    require(result.unassigned_entries >= 1,
+            "memory analysis did not separate an unrelated circuit entry");
+}
+
+void test_local_memory_with_interrupted_m3_path() {
+    const auto interrupted = run_local_m3_memory_case(4, false);
+    require(!interrupted.accumulator_fired && !interrupted.completion_fired,
+            "zero-weight M3 path produced a firing decision");
+    require(!interrupted.full_path_reconstructable,
+            "interrupted M3 path was reconstructed as complete");
+}
+
+void test_local_event_memory_reproducibility() {
+    std::vector<eve::bios::ImpulseObservation> first;
+    std::vector<eve::bios::ImpulseObservation> second;
+    const auto first_result = run_local_m3_memory_case(8, true, &first);
+    const auto second_result = run_local_m3_memory_case(8, true, &second);
+    require_equal(first, second, "identical M3 local-memory runs diverged");
+    require_equal(first_result.full_path_reconstructable,
+                  second_result.full_path_reconstructable,
+                  "identical M3 reconstruction result diverged");
+}
+
+void test_local_event_memory_persistence_and_lifetime() {
+    const auto path = std::filesystem::temp_directory_path() /
+                      "eve-stage-b-local-memory.bin";
+    auto config = small_config();
+    config.initial_outgoing_synapses = 1;
+    config.learning_enabled = false;
+    config.local_event_memory_capacity = 2;
+    eve::bios::Runtime original(config, 504);
+    const eve::SynapseId input = original.network().outgoing_synapses(0).front();
+    const eve::NeuronId receiver = original.network().synapse(input).receiver;
+    for (int index = 0; index < 3; ++index) {
+        original.enqueue_fire(0);
+        static_cast<void>(original.run());
+    }
+    original.save(path.string());
+    eve::bios::Runtime restored = eve::bios::Runtime::load(path.string());
+    require_equal(original.network().local_event_memory(receiver),
+                  restored.network().local_event_memory(receiver),
+                  "persisted local event order changed");
+    require_equal(original.network().local_event_overwrites(receiver),
+                  restored.network().local_event_overwrites(receiver),
+                  "persisted overwrite count changed");
+    require_equal(original.state_fingerprint(), restored.state_fingerprint(),
+                  "persisted local-memory state fingerprint changed");
+    original.enqueue_fire(0);
+    restored.enqueue_fire(0);
+    static_cast<void>(original.run());
+    static_cast<void>(restored.run());
+    require_equal(original.state_fingerprint(), restored.state_fingerprint(),
+                  "continued local-memory execution diverged after restore");
+    static_cast<void>(std::filesystem::remove(path));
+}
+
+void test_disabled_local_event_memory_preserves_processing() {
+    auto reference_config = small_config();
+    reference_config.initial_outgoing_synapses = 2;
+    reference_config.learning_enabled = false;
+    auto disabled_config = reference_config;
+    disabled_config.local_event_memory_capacity = 0;
+    eve::bios::Runtime reference(reference_config, 505);
+    eve::bios::Runtime disabled(disabled_config, 505);
+    reference.enqueue_fire(0);
+    disabled.enqueue_fire(0);
+    static_cast<void>(reference.run());
+    static_cast<void>(disabled.run());
+    require_equal(reference.state_fingerprint(), disabled.state_fingerprint(),
+                  "disabled local memory changed neuronal processing");
+    require_equal(disabled.metrics().local_event_memory_records, 0ULL,
+                  "disabled local memory still recorded events");
+}
+
+void test_targeted_m3_synapse_interruption() {
+    const auto execute = [](const bool interrupt) {
+        auto config = motor_test_config();
+        config.local_event_memory_capacity = 4;
+        eve::bios::Runtime runtime(config, 506);
+        runtime.configure_motor_output(motor_output_config());
+        const auto circuit = runtime.configure_motor_circuit(motor_circuit_config(
+            eve::brainstem::MotorCircuitMode::activity_dependent, 1, 3, 1506));
+        const eve::NeuronId accumulator = circuit.relay_neurons.front();
+        eve::SynapseId selected = eve::kInvalidIndex;
+        for (const eve::SynapseId id : circuit.circuit_synapses) {
+            if (runtime.network().synapse(id).receiver == accumulator) {
+                selected = id;
+                break;
+            }
+        }
+        require(selected != eve::kInvalidIndex, "no M3 accumulator input selected");
+        if (interrupt) {
+            runtime.set_experimental_synapse_weight(selected, 0);
+        }
+        for (std::size_t channel = 0; channel < 3; ++channel) {
+            runtime.enqueue_fire(runtime.motor_assignment().channels[channel][0]);
+        }
+        return runtime.request_response(false).valid();
+    };
+    require(execute(false), "unmodified M3 control did not complete");
+    require(!execute(true), "single targeted M3 interruption did not change completion");
+}
+
 }  // namespace
 
 int main() {
@@ -1550,6 +1838,27 @@ int main() {
         {"disabled feedback", test_disabled_feedback_preserves_reference},
         {"integrated sensorimotor cycle", test_integrated_sensorimotor_cycle},
         {"integrated sensorimotor restore", test_integrated_sensorimotor_state_restore},
+        {"local memory single input", test_local_event_memory_stores_single_input},
+        {"local memory order and repetitions",
+         test_local_event_memory_preserves_order_and_repetitions},
+        {"local memory ring overwrite", test_local_event_memory_ring_overwrite},
+        {"local memory zero-weight input",
+         test_local_event_memory_includes_zero_weight_inputs},
+        {"local memory fire-decision snapshot",
+         test_local_event_snapshot_belongs_to_fire_decision},
+        {"local memory refractory processing",
+         test_local_event_memory_during_refractory_phase},
+        {"local memory simple fire reconstruction",
+         test_simple_fire_reconstruction_from_local_memory},
+        {"local memory M3 reconstruction",
+         test_m3_accumulator_and_completion_reconstruction},
+        {"local memory unassigned activity",
+         test_local_memory_detects_unassigned_activity},
+        {"local memory interrupted M3", test_local_memory_with_interrupted_m3_path},
+        {"local memory reproducibility", test_local_event_memory_reproducibility},
+        {"local memory persistence", test_local_event_memory_persistence_and_lifetime},
+        {"disabled local memory", test_disabled_local_event_memory_preserves_processing},
+        {"targeted M3 interruption", test_targeted_m3_synapse_interruption},
     };
 
     std::size_t failures = 0;

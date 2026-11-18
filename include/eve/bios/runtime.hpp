@@ -72,6 +72,20 @@ struct ImpulseObservation {
     std::uint32_t refractory_after{};
     bool receiver_fired{};
     bool firing_suppressed{};
+    std::vector<SynapseId> local_event_snapshot;
+
+    bool operator==(const ImpulseObservation& other) const noexcept {
+        return event_index == other.event_index && synapse == other.synapse &&
+               sender == other.sender && receiver == other.receiver &&
+               applied_weight == other.applied_weight &&
+               membrane_before == other.membrane_before &&
+               membrane_after == other.membrane_after &&
+               refractory_before == other.refractory_before &&
+               refractory_after == other.refractory_after &&
+               receiver_fired == other.receiver_fired &&
+               firing_suppressed == other.firing_suppressed &&
+               local_event_snapshot == other.local_event_snapshot;
+    }
 };
 
 using ImpulseObserver = std::function<void(const ImpulseObservation&)>;
@@ -88,6 +102,19 @@ struct MotorCausality {
     std::uint32_t observed_circuit_impulses{};
     std::uint32_t firing_circuit_impulses{};
     std::uint32_t suppressed_circuit_impulses{};
+};
+
+struct LocalMemoryCausality {
+    bool accumulator_fired{};
+    bool completion_fired{};
+    bool accumulator_reconstructable{};
+    bool completion_reconstructable{};
+    bool full_path_reconstructable{};
+    std::uint32_t required_accumulator_inputs{};
+    std::uint32_t retained_accumulator_inputs{};
+    std::uint32_t retained_completion_inputs{};
+    std::uint32_t inactive_entries{};
+    std::uint32_t unassigned_entries{};
 };
 
 class Runtime {
@@ -126,6 +153,10 @@ public:
         const brainstem::MotorResponse& response,
         const brainstem::MotorCircuitResult& circuit,
         const std::vector<ImpulseObservation>& impulses);
+    [[nodiscard]] LocalMemoryCausality analyze_local_motor_memory(
+        const brainstem::MotorCircuitResult& circuit,
+        const std::vector<ImpulseObservation>& impulses) const;
+    void set_experimental_synapse_weight(SynapseId synapse, std::int32_t weight);
 
     [[nodiscard]] const ExperimentConfig& config() const noexcept;
     [[nodiscard]] const neural::Network& network() const noexcept;
