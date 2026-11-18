@@ -81,6 +81,8 @@ public:
         const brainstem::InnateWiringConfig& config);
     [[nodiscard]] brainstem::ExplorationResult enqueue_exploration(
         const brainstem::ExplorationConfig& config);
+    [[nodiscard]] brainstem::MotorCircuitResult configure_motor_circuit(
+        const brainstem::MotorCircuitConfig& config);
 
     void set_trace_stream(std::ostream* stream) noexcept;
     void set_fire_observer(FireObserver observer);

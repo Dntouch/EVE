@@ -536,4 +536,101 @@ ExplorationResult Brainstem::select_exploration(
     return result;
 }
 
+MotorCircuitResult Brainstem::create_motor_circuit(
+    neural::Network& network,
+    const MotorAssignment& motor_assignment,
+    const MotorCircuitConfig& config) const {
+    MotorCircuitResult result;
+    result.config = config;
+    if (config.mode == MotorCircuitMode::none) {
+        return result;
+    }
+    if (config.motor_weight <= 0 || config.completion_weight <= 0) {
+        throw std::invalid_argument("motor circuit weights must be positive");
+    }
+
+    std::vector<NeuronId> data_contacts;
+    for (const auto& channel : motor_assignment.channels) {
+        data_contacts.insert(data_contacts.end(), channel.begin(), channel.end());
+    }
+
+    const auto connect = [&network, &result](
+                             const NeuronId sender,
+                             const NeuronId receiver,
+                             const std::int32_t weight) {
+        const auto existing = network.find_synapse(sender, receiver);
+        if (existing.has_value()) {
+            neural::Synapse& synapse = network.synapse(*existing);
+            if (synapse.weight < weight) {
+                synapse.weight = weight;
+                ++result.adjusted_existing_synapses;
+            }
+            return;
+        }
+        static_cast<void>(network.add_synapse(sender, receiver, weight));
+        ++result.added_synapses;
+    };
+
+    if (config.mode == MotorCircuitMode::direct_completion_path) {
+        for (const NeuronId contact : data_contacts) {
+            connect(contact, motor_assignment.completion_contact, config.completion_weight);
+        }
+        return result;
+    }
+
+    const std::uint32_t required_relays =
+        config.mode == MotorCircuitMode::completion_group ? config.relay_count : 1U;
+    if (required_relays == 0) {
+        throw std::invalid_argument("motor completion group requires relay neurons");
+    }
+    std::vector<bool> reserved(network.neuron_count(), false);
+    for (NeuronId neuron = 0; neuron < 8; ++neuron) {
+        reserved[neuron] = true;
+    }
+    reserved[motor_assignment.config.response_stimulus_neuron] = true;
+    reserved[motor_assignment.completion_contact] = true;
+    for (const NeuronId contact : data_contacts) {
+        reserved[contact] = true;
+    }
+    std::vector<NeuronId> candidates;
+    for (NeuronId neuron = 0; neuron < network.neuron_count(); ++neuron) {
+        if (!reserved[neuron]) {
+            candidates.push_back(neuron);
+        }
+    }
+    if (required_relays > candidates.size()) {
+        throw std::invalid_argument("network has too few neurons for motor circuit");
+    }
+    std::uint64_t random_state =
+        config.seed == 0 ? 0x9e3779b97f4a7c15ULL : config.seed;
+    for (std::size_t remaining = candidates.size(); remaining > 1; --remaining) {
+        const std::size_t selected = static_cast<std::size_t>(
+            next_assignment_random(random_state) % remaining);
+        std::swap(candidates[remaining - 1], candidates[selected]);
+    }
+    result.relay_neurons.assign(
+        candidates.begin(), candidates.begin() + required_relays);
+
+    if (config.mode == MotorCircuitMode::completion_group) {
+        for (std::size_t index = 0; index < data_contacts.size(); ++index) {
+            connect(data_contacts[index],
+                    result.relay_neurons[index % result.relay_neurons.size()],
+                    config.motor_weight);
+        }
+        for (const NeuronId relay : result.relay_neurons) {
+            connect(relay, motor_assignment.completion_contact,
+                    config.completion_weight);
+        }
+        return result;
+    }
+
+    const NeuronId accumulator = result.relay_neurons.front();
+    for (const NeuronId contact : data_contacts) {
+        connect(contact, accumulator, config.motor_weight);
+    }
+    connect(accumulator, motor_assignment.completion_contact,
+            config.completion_weight);
+    return result;
+}
+
 }  // namespace eve::brainstem

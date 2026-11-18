@@ -391,6 +391,20 @@ brainstem::ExplorationResult Runtime::enqueue_exploration(
     return result;
 }
 
+brainstem::MotorCircuitResult Runtime::configure_motor_circuit(
+    const brainstem::MotorCircuitConfig& config) {
+    if (!motor_output_.configured()) {
+        throw std::logic_error("motor output must be configured before motor circuit");
+    }
+    if (config.motor_weight < 0 || config.completion_weight < 0 ||
+        config.motor_weight > config_.maximum_synapse_weight ||
+        config.completion_weight > config_.maximum_synapse_weight) {
+        throw std::invalid_argument("motor circuit weight is outside synaptic bounds");
+    }
+    return brainstem_.create_motor_circuit(
+        network_, motor_output_.assignment(), config);
+}
+
 void Runtime::set_trace_stream(std::ostream* stream) noexcept {
     trace_stream_ = stream;
 }

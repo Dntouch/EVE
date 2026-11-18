@@ -104,6 +104,28 @@ struct ExplorationResult {
     std::vector<NeuronId> activated_neurons;
 };
 
+enum class MotorCircuitMode : std::uint8_t {
+    none = 0,
+    direct_completion_path = 1,
+    completion_group = 2,
+    activity_dependent = 3,
+};
+
+struct MotorCircuitConfig {
+    MotorCircuitMode mode{MotorCircuitMode::none};
+    std::int32_t motor_weight{1};
+    std::int32_t completion_weight{1};
+    std::uint32_t relay_count{4};
+    std::uint64_t seed{1};
+};
+
+struct MotorCircuitResult {
+    MotorCircuitConfig config;
+    std::vector<NeuronId> relay_neurons;
+    std::uint32_t added_synapses{};
+    std::uint32_t adjusted_existing_synapses{};
+};
+
 struct MotorOutputConfig {
     std::uint32_t contacts_per_channel{1};
     std::uint64_t assignment_seed{1};
@@ -212,6 +234,11 @@ public:
     [[nodiscard]] ExplorationResult select_exploration(
         const neural::Network& network,
         const ExplorationConfig& config) const;
+
+    [[nodiscard]] MotorCircuitResult create_motor_circuit(
+        neural::Network& network,
+        const MotorAssignment& motor_assignment,
+        const MotorCircuitConfig& config) const;
 };
 
 }  // namespace eve::brainstem

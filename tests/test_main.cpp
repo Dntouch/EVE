@@ -865,6 +865,116 @@ void test_disabled_exploration_preserves_reference() {
                   "disabled exploration changed reference state");
 }
 
+eve::brainstem::MotorCircuitConfig motor_circuit_config(
+    const eve::brainstem::MotorCircuitMode mode,
+    const std::int32_t motor_weight,
+    const std::int32_t completion_weight,
+    const std::uint64_t seed = 4567) {
+    eve::brainstem::MotorCircuitConfig config;
+    config.mode = mode;
+    config.motor_weight = motor_weight;
+    config.completion_weight = completion_weight;
+    config.relay_count = 4;
+    config.seed = seed;
+    return config;
+}
+
+void test_direct_motor_circuit_completes_neuronally() {
+    eve::bios::Runtime runtime(motor_test_config(), 28);
+    runtime.configure_motor_output(motor_output_config());
+    static_cast<void>(runtime.configure_motor_circuit(motor_circuit_config(
+        eve::brainstem::MotorCircuitMode::direct_completion_path, 3, 3)));
+    runtime.enqueue_fire(runtime.motor_assignment().channels[4][0]);
+    const auto response = runtime.request_response(false);
+    require(response.valid(), "direct motor circuit did not complete response");
+    require_equal(response.value, std::uint8_t{0x10},
+                  "direct motor circuit changed data content");
+    require_equal(response.activations.back().channel, std::int8_t{-1},
+                  "completion did not originate from completion neuron");
+}
+
+void test_completion_group_uses_neural_relays() {
+    eve::bios::Runtime runtime(motor_test_config(), 29);
+    runtime.configure_motor_output(motor_output_config());
+    const auto circuit = runtime.configure_motor_circuit(motor_circuit_config(
+        eve::brainstem::MotorCircuitMode::completion_group, 3, 3));
+    require_equal(circuit.relay_neurons.size(), std::size_t{4},
+                  "completion group has wrong relay count");
+    std::vector<eve::NeuronId> fired;
+    runtime.set_fire_observer([&fired](const eve::bios::FireObservation& observation) {
+        fired.push_back(observation.neuron);
+    });
+    runtime.enqueue_fire(runtime.motor_assignment().channels[1][0]);
+    const auto response = runtime.request_response(false);
+    require(response.valid(), "completion group did not complete response");
+    require(std::any_of(circuit.relay_neurons.begin(), circuit.relay_neurons.end(),
+                        [&fired](const eve::NeuronId relay) {
+                            return std::find(fired.begin(), fired.end(), relay) != fired.end();
+                        }),
+            "completion group bypassed its neural relays");
+}
+
+void test_activity_dependent_circuit_requires_multiple_events() {
+    const auto execute = [](const std::uint32_t events) {
+        eve::bios::Runtime runtime(motor_test_config(), 30);
+        runtime.configure_motor_output(motor_output_config());
+        static_cast<void>(runtime.configure_motor_circuit(motor_circuit_config(
+            eve::brainstem::MotorCircuitMode::activity_dependent, 1, 3)));
+        for (std::uint32_t index = 0; index < events; ++index) {
+            runtime.enqueue_fire(runtime.motor_assignment().channels[index % 8][0]);
+        }
+        return runtime.request_response(false);
+    };
+    require(!execute(2).valid(), "activity-dependent circuit completed too early");
+    require(execute(3).valid(), "activity-dependent circuit did not complete after threshold");
+}
+
+void test_motor_circuit_can_complete_null_byte_neuronally() {
+    eve::bios::Runtime runtime(motor_test_config(), 31);
+    runtime.configure_motor_output(motor_output_config());
+    const auto circuit = runtime.configure_motor_circuit(motor_circuit_config(
+        eve::brainstem::MotorCircuitMode::completion_group, 3, 3));
+    runtime.enqueue_fire(circuit.relay_neurons.front());
+    const auto response = runtime.request_response(false);
+    require(response.valid(), "neural relay did not complete null byte");
+    require_equal(response.value, std::uint8_t{0},
+                  "neural null-byte completion set a data channel");
+}
+
+void test_motor_circuit_is_reproducible() {
+    const auto execute = []() {
+        eve::bios::Runtime runtime(motor_test_config(), 32);
+        runtime.configure_motor_output(motor_output_config(4));
+        const auto result = runtime.configure_motor_circuit(motor_circuit_config(
+            eve::brainstem::MotorCircuitMode::completion_group, 3, 3, 888));
+        return std::make_pair(result.relay_neurons, runtime.state_fingerprint());
+    };
+    require_equal(execute(), execute(), "motor circuit is not reproducible");
+}
+
+void test_motor_circuit_does_not_copy_sensory_input() {
+    eve::bios::Runtime runtime(motor_test_config(), 33);
+    runtime.configure_motor_output(motor_output_config());
+    static_cast<void>(runtime.configure_motor_circuit(motor_circuit_config(
+        eve::brainstem::MotorCircuitMode::direct_completion_path, 3, 3)));
+    for (eve::NeuronId sensory = 0; sensory <= 8; ++sensory) {
+        require(!runtime.network().find_synapse(
+                    sensory, runtime.motor_assignment().completion_contact).has_value(),
+                "motor circuit connected sensory input directly to completion");
+    }
+}
+
+void test_disabled_motor_circuit_preserves_reference() {
+    eve::bios::Runtime reference(motor_test_config(), 34);
+    eve::bios::Runtime disabled(motor_test_config(), 34);
+    reference.configure_motor_output(motor_output_config());
+    disabled.configure_motor_output(motor_output_config());
+    static_cast<void>(disabled.configure_motor_circuit(motor_circuit_config(
+        eve::brainstem::MotorCircuitMode::none, 1, 1)));
+    require_equal(reference.state_fingerprint(), disabled.state_fingerprint(),
+                  "disabled motor circuit changed reference state");
+}
+
 }  // namespace
 
 int main() {
@@ -915,6 +1025,13 @@ int main() {
         {"distributed exploration", test_distributed_exploration_covers_regions},
         {"exploration response limit", test_exploration_respects_response_event_limit},
         {"disabled exploration", test_disabled_exploration_preserves_reference},
+        {"direct motor completion", test_direct_motor_circuit_completes_neuronally},
+        {"motor completion group", test_completion_group_uses_neural_relays},
+        {"activity-dependent completion", test_activity_dependent_circuit_requires_multiple_events},
+        {"neural null-byte completion", test_motor_circuit_can_complete_null_byte_neuronally},
+        {"motor circuit reproducibility", test_motor_circuit_is_reproducible},
+        {"motor circuit no sensor copy", test_motor_circuit_does_not_copy_sensory_input},
+        {"disabled motor circuit", test_disabled_motor_circuit_preserves_reference},
     };
 
     std::size_t failures = 0;
