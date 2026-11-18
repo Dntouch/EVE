@@ -60,6 +60,35 @@ struct FireObservation {
 
 using FireObserver = std::function<void(const FireObservation&)>;
 
+struct ImpulseObservation {
+    std::uint64_t event_index{};
+    SynapseId synapse{};
+    NeuronId sender{};
+    NeuronId receiver{};
+    std::int32_t applied_weight{};
+    std::int64_t membrane_before{};
+    std::int64_t membrane_after{};
+    std::uint32_t refractory_before{};
+    std::uint32_t refractory_after{};
+    bool receiver_fired{};
+    bool firing_suppressed{};
+};
+
+using ImpulseObserver = std::function<void(const ImpulseObservation&)>;
+
+struct MotorCausality {
+    bool technical_abort{};
+    bool completed{};
+    bool completed_without_prior_data{};
+    bool completed_after_data{};
+    bool proven_circuit_path{};
+    std::uint64_t first_data_event{};
+    std::uint64_t completion_event{};
+    std::uint64_t events_between_data_and_completion{};
+    std::uint32_t observed_circuit_impulses{};
+    std::uint32_t firing_circuit_impulses{};
+};
+
 class Runtime {
 public:
     explicit Runtime(ExperimentConfig config = {}, std::uint64_t seed = 1);
@@ -91,6 +120,11 @@ public:
 
     void set_trace_stream(std::ostream* stream) noexcept;
     void set_fire_observer(FireObserver observer);
+    void set_impulse_observer(ImpulseObserver observer);
+    [[nodiscard]] static MotorCausality analyze_motor_causality(
+        const brainstem::MotorResponse& response,
+        const brainstem::MotorCircuitResult& circuit,
+        const std::vector<ImpulseObservation>& impulses);
 
     [[nodiscard]] const ExperimentConfig& config() const noexcept;
     [[nodiscard]] const neural::Network& network() const noexcept;
@@ -120,6 +154,7 @@ private:
     Metrics metrics_;
     std::ostream* trace_stream_{};
     FireObserver fire_observer_;
+    ImpulseObserver impulse_observer_;
     brainstem::MotorOutput motor_output_;
     std::vector<NeuronId> innate_reservations_;
     std::vector<NeuronId> motor_circuit_reservations_;

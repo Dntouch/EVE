@@ -622,20 +622,24 @@ MotorCircuitResult Brainstem::create_motor_circuit(
         data_contacts.insert(data_contacts.end(), channel.begin(), channel.end());
     }
 
-    const auto connect = [&network, &result](
+    const auto connect = [&network, &result, &config](
                              const NeuronId sender,
                              const NeuronId receiver,
                              const std::int32_t weight) {
+        const std::int32_t configured_weight = config.path_enabled ? weight : 0;
         const auto existing = network.find_synapse(sender, receiver);
         if (existing.has_value()) {
             neural::Synapse& synapse = network.synapse(*existing);
-            if (synapse.weight < weight) {
-                synapse.weight = weight;
+            if ((!config.path_enabled && synapse.weight != 0) ||
+                (config.path_enabled && synapse.weight < configured_weight)) {
+                synapse.weight = configured_weight;
                 ++result.adjusted_existing_synapses;
             }
+            result.circuit_synapses.push_back(*existing);
             return;
         }
-        static_cast<void>(network.add_synapse(sender, receiver, weight));
+        result.circuit_synapses.push_back(
+            network.add_synapse(sender, receiver, configured_weight));
         ++result.added_synapses;
     };
 

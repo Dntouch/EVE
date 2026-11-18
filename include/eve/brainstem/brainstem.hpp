@@ -132,11 +132,13 @@ struct MotorCircuitConfig {
     std::int32_t completion_weight{1};
     std::uint32_t relay_count{4};
     std::uint64_t seed{1};
+    bool path_enabled{true};
 };
 
 struct MotorCircuitResult {
     MotorCircuitConfig config;
     std::vector<NeuronId> relay_neurons;
+    std::vector<SynapseId> circuit_synapses;
     std::uint32_t added_synapses{};
     std::uint32_t adjusted_existing_synapses{};
 };

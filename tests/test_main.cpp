@@ -1105,6 +1105,152 @@ void test_processing_exploration_is_independent_of_motor_circuit() {
                   "M3 changed the independent exploration sequence");
 }
 
+void test_motor_circuit_reports_expected_connections() {
+    const auto connection_count = [](const eve::brainstem::MotorCircuitMode mode) {
+        eve::bios::Runtime runtime(motor_test_config(), 105);
+        runtime.configure_motor_output(motor_output_config());
+        const auto circuit = runtime.configure_motor_circuit(
+            motor_circuit_config(mode, 3, 3, 999));
+        for (const eve::SynapseId synapse : circuit.circuit_synapses) {
+            require(runtime.network().synapse(synapse).weight == 3,
+                    "active motor circuit contains an inactive connection");
+        }
+        return circuit.circuit_synapses.size();
+    };
+    require_equal(connection_count(eve::brainstem::MotorCircuitMode::none),
+                  std::size_t{0}, "M0 unexpectedly added a motor circuit");
+    require_equal(connection_count(
+                      eve::brainstem::MotorCircuitMode::direct_completion_path),
+                  std::size_t{8}, "M1 has the wrong connection count");
+    require_equal(connection_count(eve::brainstem::MotorCircuitMode::completion_group),
+                  std::size_t{12}, "M2 has the wrong connection count");
+    require_equal(connection_count(eve::brainstem::MotorCircuitMode::activity_dependent),
+                  std::size_t{9}, "M3 has the wrong connection count");
+}
+
+void test_interrupted_motor_circuit_preserves_topology_but_blocks_path() {
+    const auto setup = [](const bool enabled) {
+        eve::bios::Runtime runtime(motor_test_config(), 106);
+        runtime.configure_motor_output(motor_output_config());
+        auto config = motor_circuit_config(
+            eve::brainstem::MotorCircuitMode::direct_completion_path, 3, 3, 1000);
+        config.path_enabled = enabled;
+        const auto circuit = runtime.configure_motor_circuit(config);
+        std::vector<std::pair<eve::NeuronId, eve::NeuronId>> topology;
+        for (const eve::SynapseId synapse : circuit.circuit_synapses) {
+            const auto& item = runtime.network().synapse(synapse);
+            topology.emplace_back(item.sender, item.receiver);
+            require_equal(item.weight, enabled ? 3 : 0,
+                          "interrupted circuit has the wrong weight");
+        }
+        runtime.enqueue_fire(runtime.motor_assignment().channels[2][0]);
+        const auto response = runtime.request_response(false);
+        return std::make_pair(topology, response);
+    };
+    const auto active = setup(true);
+    const auto interrupted = setup(false);
+    require_equal(active.first, interrupted.first,
+                  "K2 changed topology instead of interrupting the path");
+    require(active.second.valid(), "active M1 path did not complete");
+    require(!interrupted.second.valid(), "interrupted M1 path still completed");
+    require_equal(interrupted.second.value, std::uint8_t{0x04},
+                  "interruption removed the observed data activation");
+}
+
+void test_motor_causality_distinguishes_completion_without_data() {
+    eve::bios::Runtime runtime(motor_test_config(), 107);
+    runtime.configure_motor_output(motor_output_config());
+    const auto circuit = runtime.configure_motor_circuit(motor_circuit_config(
+        eve::brainstem::MotorCircuitMode::none, 1, 1));
+    runtime.enqueue_fire(runtime.motor_assignment().completion_contact);
+    const auto response = runtime.request_response(false);
+    const auto causality = eve::bios::Runtime::analyze_motor_causality(
+        response, circuit, {});
+    require(causality.completed, "neural null-byte completion was not recognized");
+    require(causality.completed_without_prior_data,
+            "completion without data was not classified separately");
+    require(!causality.completed_after_data,
+            "completion without data was classified as motor-dependent");
+    require(!causality.proven_circuit_path,
+            "M0 completion was attributed to a motor circuit");
+}
+
+void test_motor_causality_traces_completion_group() {
+    eve::bios::Runtime runtime(motor_test_config(), 108);
+    runtime.configure_motor_output(motor_output_config());
+    const auto circuit = runtime.configure_motor_circuit(motor_circuit_config(
+        eve::brainstem::MotorCircuitMode::completion_group, 3, 3));
+    std::vector<eve::bios::ImpulseObservation> impulses;
+    runtime.set_impulse_observer(
+        [&impulses](const eve::bios::ImpulseObservation& observation) {
+            impulses.push_back(observation);
+        });
+    runtime.enqueue_fire(runtime.motor_assignment().channels[6][0]);
+    const auto response = runtime.request_response(false);
+    const auto causality = eve::bios::Runtime::analyze_motor_causality(
+        response, circuit, impulses);
+    require(causality.completed_after_data,
+            "M2 completion was not linked to prior motor data");
+    require(causality.proven_circuit_path,
+            "M2 circuit path was not reconstructed from actual impulses");
+    require(causality.events_between_data_and_completion >= 3,
+            "M2 completion sequence is unexpectedly short");
+    require_equal(causality.firing_circuit_impulses, 2U,
+                  "M2 did not record both firing circuit stages");
+
+    const auto final_impulse = std::find_if(
+        impulses.begin(), impulses.end(),
+        [&runtime](const eve::bios::ImpulseObservation& observation) {
+            return observation.receiver ==
+                       runtime.motor_assignment().completion_contact &&
+                   observation.receiver_fired;
+        });
+    require(final_impulse != impulses.end(),
+            "completion impulse is absent from detailed diagnosis");
+    require_equal(final_impulse->membrane_before, 0LL,
+                  "completion diagnosis has wrong prior membrane state");
+    require_equal(final_impulse->applied_weight, 3,
+                  "completion diagnosis has wrong applied weight");
+}
+
+void test_motor_causality_traces_activity_dependent_path() {
+    eve::bios::Runtime runtime(motor_test_config(), 109);
+    runtime.configure_motor_output(motor_output_config());
+    const auto circuit = runtime.configure_motor_circuit(motor_circuit_config(
+        eve::brainstem::MotorCircuitMode::activity_dependent, 1, 3));
+    std::vector<eve::bios::ImpulseObservation> impulses;
+    runtime.set_impulse_observer(
+        [&impulses](const eve::bios::ImpulseObservation& observation) {
+            impulses.push_back(observation);
+        });
+    for (std::size_t channel = 0; channel < 3; ++channel) {
+        runtime.enqueue_fire(runtime.motor_assignment().channels[channel][0]);
+    }
+    const auto response = runtime.request_response(false);
+    const auto causality = eve::bios::Runtime::analyze_motor_causality(
+        response, circuit, impulses);
+    require(causality.completed_after_data && causality.proven_circuit_path,
+            "M3 accumulator path was not causally reconstructed");
+    require(causality.observed_circuit_impulses >= 4,
+            "M3 diagnosis missed accumulator impulses");
+}
+
+void test_motor_causality_rejects_technical_abort() {
+    eve::ExperimentConfig config = motor_test_config();
+    config.initial_outgoing_synapses = 4;
+    eve::bios::Runtime runtime(config, 110);
+    runtime.configure_motor_output(motor_output_config());
+    const auto circuit = runtime.configure_motor_circuit(motor_circuit_config(
+        eve::brainstem::MotorCircuitMode::none, 1, 1));
+    runtime.enqueue_fire(0);
+    const auto response = runtime.request_response(false, 1);
+    const auto causality = eve::bios::Runtime::analyze_motor_causality(
+        response, circuit, {});
+    require(causality.technical_abort, "technical abort was not identified");
+    require(!causality.completed && !causality.completed_after_data,
+            "technical abort was treated as neuronal completion");
+}
+
 eve::brainstem::FeedbackConfig feedback_config(
     const eve::brainstem::FeedbackMode mode,
     const std::uint64_t budget = 1000,
@@ -1372,6 +1518,16 @@ int main() {
          test_processing_exploration_is_reproducible},
         {"exploration independent of motor circuit",
          test_processing_exploration_is_independent_of_motor_circuit},
+        {"motor circuit connection inventory",
+         test_motor_circuit_reports_expected_connections},
+        {"interrupted motor circuit",
+         test_interrupted_motor_circuit_preserves_topology_but_blocks_path},
+        {"completion without motor data",
+         test_motor_causality_distinguishes_completion_without_data},
+        {"completion group causality", test_motor_causality_traces_completion_group},
+        {"activity-dependent causality",
+         test_motor_causality_traces_activity_dependent_path},
+        {"causality technical abort", test_motor_causality_rejects_technical_abort},
         {"feedback after completion", test_feedback_after_completed_motor_response},
         {"feedback requires activity", test_feedback_requires_observed_activity},
         {"per-event feedback", test_per_motor_event_feedback_preserves_sequence},

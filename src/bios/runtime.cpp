@@ -4,6 +4,7 @@
 #include <array>
 #include <fstream>
 #include <limits>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <utility>
@@ -564,6 +565,73 @@ void Runtime::set_fire_observer(FireObserver observer) {
     fire_observer_ = std::move(observer);
 }
 
+void Runtime::set_impulse_observer(ImpulseObserver observer) {
+    impulse_observer_ = std::move(observer);
+}
+
+MotorCausality Runtime::analyze_motor_causality(
+    const brainstem::MotorResponse& response,
+    const brainstem::MotorCircuitResult& circuit,
+    const std::vector<ImpulseObservation>& impulses) {
+    MotorCausality result;
+    result.technical_abort =
+        response.status == brainstem::MotorResponseStatus::aborted;
+    result.completed = response.valid();
+    if (!result.completed) {
+        return result;
+    }
+
+    const brainstem::MotorActivation* completion = nullptr;
+    const brainstem::MotorActivation* first_data = nullptr;
+    std::set<NeuronId> causally_reached;
+    for (const brainstem::MotorActivation& activation : response.activations) {
+        if (activation.channel >= 0) {
+            if (first_data == nullptr) {
+                first_data = &activation;
+            }
+            causally_reached.insert(activation.neuron);
+        } else {
+            completion = &activation;
+            break;
+        }
+    }
+    if (completion == nullptr) {
+        return result;
+    }
+    result.completion_event = completion->event_index;
+    if (first_data == nullptr || first_data->event_index >= completion->event_index) {
+        result.completed_without_prior_data = true;
+        return result;
+    }
+    result.completed_after_data = true;
+    result.first_data_event = first_data->event_index;
+    result.events_between_data_and_completion =
+        completion->event_index - first_data->event_index - 1U;
+
+    const std::set<SynapseId> circuit_synapses(
+        circuit.circuit_synapses.begin(), circuit.circuit_synapses.end());
+    for (const ImpulseObservation& impulse : impulses) {
+        if (impulse.event_index <= first_data->event_index ||
+            impulse.event_index >= completion->event_index ||
+            circuit_synapses.find(impulse.synapse) == circuit_synapses.end()) {
+            continue;
+        }
+        ++result.observed_circuit_impulses;
+        if (!impulse.receiver_fired) {
+            continue;
+        }
+        ++result.firing_circuit_impulses;
+        if (causally_reached.find(impulse.sender) == causally_reached.end()) {
+            continue;
+        }
+        causally_reached.insert(impulse.receiver);
+        if (impulse.receiver == completion->neuron) {
+            result.proven_circuit_path = true;
+        }
+    }
+    return result;
+}
+
 const ExperimentConfig& Runtime::config() const noexcept {
     return config_;
 }
@@ -840,8 +908,10 @@ void Runtime::process_fire(const NeuronId neuron) {
 
 void Runtime::process_impulse(const SynapseId synapse) {
     const neural::Synapse before = network_.synapse(synapse);
+    const neural::Neuron receiver_before = network_.neuron(before.receiver);
     const brainstem::ImpulseResult result =
         brainstem_.receive_impulse(network_, synapse, config_, &rng_);
+    const neural::Neuron& receiver_after = network_.neuron(before.receiver);
     if (result.strengthened) {
         ++metrics_.synaptic_strengthenings;
     }
@@ -867,6 +937,21 @@ void Runtime::process_impulse(const SynapseId synapse) {
              << " phase=" << (result.phase_completed ? 1 : 0)
              << " fired=" << (result.fired ? 1 : 0);
         trace(line.str());
+    }
+    if (impulse_observer_) {
+        impulse_observer_(ImpulseObservation{
+            metrics_.processed_events,
+            synapse,
+            before.sender,
+            before.receiver,
+            result.applied_weight,
+            receiver_before.membrane_potential,
+            receiver_after.membrane_potential,
+            receiver_before.refractory_events_remaining,
+            receiver_after.refractory_events_remaining,
+            result.fired,
+            result.firing_suppressed,
+        });
     }
 
     if (result.fired) {
