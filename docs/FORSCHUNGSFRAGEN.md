@@ -22,3 +22,6 @@ Bearbeitungsstatus, Prioritäten, Verantwortlichkeiten und zusätzliche Fragen
 sind bislang nicht vollständig festgelegt. B.4 beantwortet Frage 2 nur
 teilweise: lokale Drei-Faktor-Plastizität ist technisch möglich, zeigte im
 minimalen Versuch aber noch keine belastbare Verhaltensverbesserung.
+B.4.1 weist zusätzlich eine kausale Handlungswirkung gelernter Gewichte nach,
+lokalisiert den freien Lernengpass aber beim Verlust explorativer Alternativen
+durch negative Modulation.

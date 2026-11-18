@@ -22,6 +22,9 @@ angepasst werden.
 
 - [Auftrag B.4](012-entwicklungsauftrag-forschungsstufe-b4.md)
 - [Bericht B.4](012-forschungsbericht-forschungsstufe-b4.md)
+- [Auftrag B.4.1](013-entwicklungsauftrag-forschungsstufe-b41.md)
+- [Bericht B.4.1](013-forschungsbericht-forschungsstufe-b41.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
-erreichten Nachweis einer Verhaltensverbesserung.
+erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
+Zufallsquellen, Exploration und motorische Kausalität des Versuchsaufbaus.

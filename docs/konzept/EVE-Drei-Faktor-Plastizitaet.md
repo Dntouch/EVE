@@ -30,6 +30,12 @@ Spuren.
 Der Mechanismus ist ereignisgetrieben: Es gibt weder globale Synapsensuche noch
 periodischen Tick und keine globale Handlungskennung.
 
+Modulation wird seit B.4.1 über einen eigenen lokalen Rezeptorkontakt
+verarbeitet. Sie ist ein neuronales Ereignis, aber kein erregender
+Membraneingang: Sie darf weder G3 füllen noch selbst ein Motorfeuer auslösen.
+Diese Trennung verhindert, dass Rückmeldungswege durch Plastizität unbemerkt zu
+Handlungswegen werden.
+
 ## Geltungsbereich
 
 Die Implementierung ist eine Forschungsoption und standardmäßig ausgeschaltet.

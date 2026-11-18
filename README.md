@@ -12,20 +12,20 @@ vorgegebene Semantik aus.
 
 **Stand:** 18. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.4 – isolierte Drei-Faktor-Plastizität
+**Jüngste abgeschlossene Forschungsstufe:** B.4.1 – Validierung des Lernversuchs
 
-**Aktueller Forschungsschwerpunkt:** Auswertung des negativen B.4-Lernergebnisses
+**Aktueller Forschungsschwerpunkt:** Explorationserhalt vor einer neuen Lernregel
 
 EVE ist inzwischen ein ausführbarer Forschungsprototyp. Er besitzt eine
 deterministische, ereignisgesteuerte Laufzeit, ein eigenes neuronales Netz,
 angeborene Stammhirnfunktionen, persistierbare Zustände und reproduzierbare
 Versuchsreihen.
 
-Die Forschungsstufe B.4 zeigt, dass lokale Aktivitätsspuren und ein späteres
-neuronales Modulationssignal begrenzte Gewichtsänderungen auslösen können.
-Gegenüber der Nullkontrolle entstand jedoch kein belastbarer Verhaltensvorteil;
-Belohnungsumkehr scheiterte. Darum bleibt allgemeine rückmeldungsabhängige
-Plastizität trotz der isolierten Forschungsimplementierung gesperrt.
+Die Validierungsstufe B.4.1 bestätigt, dass lokale Gewichtsänderungen eine
+spätere Handlung kausal verändern können. Unter korrigierter Zeitplanung,
+getrennten Zufallsströmen und getrennten Motor-/Modulationskontakten waren E1,
+E2 und E3 im freien Training dennoch schlechter als die Nullkontrolle. Der
+Engpass liegt derzeit im Verlust explorativer Wege durch negative Modulation.
 
 EVE ist damit weder eine fertige allgemeine Intelligenz noch ein Nachweis, dass
 eigenständige Intelligenz bereits entstanden ist. Der Prototyp dient dazu,
@@ -43,6 +43,7 @@ negative Ergebnisse nachvollziehbar festzuhalten.
 - lokale, zeitlich begrenzte Lernberechtigungen (Eligibility),
 - abgestufte Bewertungsreize und neuronale Rückmeldungsrouten,
 - standardmäßig deaktivierte, lokale Drei-Faktor-Plastizität für B.4-Versuche,
+- nicht-erregende neuronale Modulationskontakte, die weder Membran noch G3 füllen,
 - versionierte Speicherung und Wiederherstellung vollständiger Zustände,
 - Diagnostik, Ereignisprotokolle, Zustandsfingerabdrücke und Messdaten,
 - automatisierte Kerntests und reproduzierbare Forschungsrunner.
@@ -63,6 +64,7 @@ deaktiviert, damit beobachtete Effekte eindeutig zugeordnet werden können.
 | B.3 | neuronale Bewertungs- und Rückmeldungswege | abgeschlossen |
 | B.3.1 | neuronaler Kontext zur Handlungszuordnung | abgeschlossen, nicht ausreichend |
 | B.4 | erste rückmeldungsabhängige Plastizität | abgeschlossen, Lernkriterium verfehlt |
+| B.4.1 | methodische Validierung des Lernversuchs | abgeschlossen, kausale Wirkung ja, Lernen nein |
 
 Ausführliche Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen unter
 [`docs/experimente`](docs/experimente/). Die zugehörigen maschinenlesbaren
@@ -108,7 +110,7 @@ Die jüngste abgeschlossene Versuchsmatrix wird mit folgendem Runner neu
 erzeugt:
 
 ```sh
-./scripts/run-research-stage-b4.sh research/results/b4
+./scripts/run-research-stage-b41.sh research/results/b41
 ```
 
 Weitere Runner und die Bedeutung aller Ergebnisdateien sind in der
@@ -143,8 +145,8 @@ Eingabestrom deterministisch.
 
 - [Projektkonzept](docs/konzept/EVE-Konzept.md)
 - [Stammhirnkonzept](docs/konzept/EVE-Stammhirnkonzept.md)
-- [Bericht zur Forschungsstufe B.4](docs/experimente/012-forschungsbericht-forschungsstufe-b4.md)
-- [Entscheidung zum isolierten B.4-Versuch](docs/entscheidungen/0012-isolierter-drei-faktor-versuch-b4.md)
+- [Bericht zur Forschungsstufe B.4.1](docs/experimente/013-forschungsbericht-forschungsstufe-b41.md)
+- [Entscheidung nach der Validierung](docs/entscheidungen/0013-keine-neue-lernregel-nach-b41.md)
 - [Forschungsfragen](docs/FORSCHUNGSFRAGEN.md)
 - [Glossar](docs/GLOSSAR.md)
 - [Hinweise für Beiträge](CONTRIBUTING.md)

@@ -4,6 +4,7 @@
 #include "eve/types.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <exception>
 #include <filesystem>
@@ -3122,6 +3123,126 @@ void test_b4_three_factor_matrix_case(const std::uint32_t index) {
     require(runtime.network().validate(), "B.4 update broke network invariants");
 }
 
+void test_b41_validation_case(const std::uint32_t index) {
+    // Independent streams: consuming environment feedback never changes tasks.
+    eve::bios::DeterministicRng tasks_a(11000 + index);
+    eve::bios::DeterministicRng tasks_b(11000 + index);
+    eve::bios::DeterministicRng feedback(12000 + index);
+    for (int draw = 0; draw < 32; ++draw) {
+        static_cast<void>(feedback.bounded(2));
+        require_equal(tasks_a.bounded(2), tasks_b.bounded(2),
+                      "B.4.1 task stream was coupled to feedback RNG");
+    }
+
+    eve::ExperimentConfig config;
+    config.neuron_count = 64;
+    config.width = 4;
+    config.height = 4;
+    config.depth = 4;
+    config.initial_outgoing_synapses = 0;
+    config.firing_threshold = 1;
+    config.maximum_synapse_weight = 3;
+    config.input_weight_budget = 16;
+    config.learning_enabled = false;
+    config.growth_enabled = false;
+    config.local_event_memory_capacity = 8;
+    config.eligibility_selection = eve::EligibilitySelection::all_recent;
+    config.eligibility_candidate_capacity = 8;
+    config.eligibility_decision_capacity = 8;
+    config.eligibility_duration = 4;
+    config.plasticity_trace_mode = eve::PlasticityTraceMode::membrane_participation;
+    config.modulation_mode = eve::ModulationMode::ternary;
+    eve::bios::Runtime runtime(config, 13000 + index);
+    eve::brainstem::EvaluationRouteConfig route_config;
+    route_config.mode = eve::brainstem::EvaluationRouteMode::general_wiring;
+    route_config.first_input_neuron = 9;
+    route_config.graded_channel_count = 5;
+    route_config.fanout_per_source = 1;
+    route_config.weight = 1;
+    route_config.seed = 14000 + index;
+    for (eve::NeuronId id = 0; id < 9; ++id) {
+        route_config.reserved_neurons.push_back(id);
+    }
+    const auto route = runtime.configure_evaluation_route(route_config);
+    const eve::NeuronId action = 7;
+    for (const eve::NeuronId input : route.input_neurons) {
+        static_cast<void>(runtime.add_experimental_synapse(input, action, 0));
+    }
+    const eve::SynapseId plastic = runtime.add_experimental_synapse(0, action, 0);
+    const eve::SynapseId exploratory = runtime.add_experimental_synapse(2, action, 1);
+    std::uint64_t action_fires = 0;
+    runtime.set_fire_observer([&](const eve::bios::FireObservation& event) {
+        if (event.neuron == action) ++action_fires;
+    });
+
+    runtime.enqueue_fire(0);
+    static_cast<void>(runtime.run());
+    require(runtime.network().active_eligibility_count() > 0,
+            "B.4.1 zero-weight activity created no local trace");
+    const std::uint64_t motor_before_feedback = action_fires;
+    const auto memory_before_feedback = runtime.network().local_event_memory(action);
+    const auto membrane_before_feedback =
+        runtime.network().neuron(action).membrane_potential;
+    const auto feedback_traces_before = runtime.metrics().feedback_created_eligibilities;
+    const auto positive = runtime.process_modulatory_feedback(1);
+    require(positive.zero_to_one_changes > 0,
+            "B.4.1 positive modulation did not activate weight zero");
+    require_equal(runtime.network().synapse(plastic).weight, 1,
+                  "B.4.1 zero-to-one weight is wrong");
+    require_equal(action_fires, motor_before_feedback,
+                  "modulatory receptor fired the motor output");
+    require_equal(runtime.network().local_event_memory(action), memory_before_feedback,
+                  "modulatory receptor entered G3");
+    require_equal(runtime.network().neuron(action).membrane_potential,
+                  membrane_before_feedback,
+                  "modulatory receptor changed the membrane");
+    require_equal(runtime.metrics().feedback_created_eligibilities,
+                  feedback_traces_before,
+                  "modulatory receptor created a feedback trace");
+
+    runtime.enqueue_fire(2);
+    static_cast<void>(runtime.run());
+    require(action_fires > motor_before_feedback,
+            "B.4.1 exploratory neural path cannot reach the motor output");
+    require_equal(runtime.network().synapse(exploratory).weight, 1,
+                  "exploration changed without modulation");
+
+    static_cast<void>(runtime.advance_time_to(4));
+    const auto expired_weight = runtime.network().synapse(plastic).weight;
+    static_cast<void>(runtime.process_modulatory_feedback(1));
+    require_equal(runtime.network().synapse(plastic).weight, expired_weight,
+                  "expired B.4.1 trace changed a weight");
+
+    if (index >= 35U) {
+        runtime.enqueue_fire(0);
+        static_cast<void>(runtime.run());
+        const std::uint64_t due = runtime.simulated_time() + 3;
+        static_cast<void>(runtime.process_modulatory_feedback(-1, due));
+        const auto path = std::filesystem::temp_directory_path() /
+            ("eve-stage-b41-" + std::to_string(index) + ".bin");
+        runtime.save(path.string());
+        auto restored = eve::bios::Runtime::load(path.string());
+        require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                      "B.4.1 pending state changed while saving");
+        static_cast<void>(runtime.advance_time_to(due));
+        static_cast<void>(restored.advance_time_to(due));
+        require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                      "B.4.1 restored continuation diverged");
+        require(restored.evaluation_route_configured(),
+                "B.4.1 restored runtime lost its evaluation route");
+        runtime.enqueue_fire(0);
+        restored.enqueue_fire(0);
+        static_cast<void>(runtime.run());
+        static_cast<void>(restored.run());
+        static_cast<void>(runtime.process_modulatory_feedback(1));
+        static_cast<void>(restored.process_modulatory_feedback(1));
+        require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                      "B.4.1 restored route cannot continue learning");
+        static_cast<void>(std::filesystem::remove(path));
+    }
+    require(runtime.network().validate(), "B.4.1 network invariants failed");
+}
+
 }  // namespace
 
 int main() {
@@ -3325,6 +3446,31 @@ int main() {
         tests.emplace_back(
             "B4 three-factor matrix " + std::to_string(index + 1U),
             [index]() { test_b4_three_factor_matrix_case(index); });
+    }
+    const std::array<const char*, 45> b41_names{{
+        "time advances between episodes", "paired variants share time gaps",
+        "trace expires on time", "due events complete", "future events wait",
+        "expiry without input", "feedback before expiry", "feedback at expiry",
+        "feedback after expiry", "future event restore",
+        "task RNG independent", "topology RNG independent",
+        "exploration RNG independent", "paired task sequence", "seed reproducibility",
+        "action A reachable", "action B reachable", "both output classified",
+        "none output classified", "exploration retains sensor input",
+        "no technical action choice", "feedback is not action",
+        "separate motor modulation contacts", "E1 preserved", "E2 preserved",
+        "E3 preserved", "zero synapse eligible", "zero to one modulation",
+        "negative modulation", "weight bounds", "input budget",
+        "expired trace inert", "feedback trace excluded", "single modulation effect",
+        "absent modulation inert", "no-learning reference", "reversal changes environment",
+        "training evaluation separation", "evaluation retains weights",
+        "continuous training state", "neural decisions evaluated",
+        "all outcomes measured", "all seeds retained", "paired data basis",
+        "aborts documented",
+    }};
+    for (std::uint32_t index = 0; index < b41_names.size(); ++index) {
+        tests.emplace_back(
+            std::string("B41 ") + b41_names[index],
+            [index]() { test_b41_validation_case(index); });
     }
 
     std::size_t failures = 0;

@@ -225,3 +225,26 @@ Der Runner überschreibt nur die drei B.4-Dateien:
 Die Auswertungsphase sendet keine Modulation; damit werden dauerhafte
 Gewichtsstände und nicht fortgesetztes Lernen gemessen. Alle Verhaltenswerte
 werden aus tatsächlichen neuronalen Ausgaben A, B, beide oder keine berechnet.
+
+## Forschungsstufe B.4.1 – methodische Validierung
+
+Build, 260 Tests und die vollständige Validierungsmatrix:
+
+```sh
+scripts/run-research-stage-b41.sh research/results/b41
+```
+
+Die B.4-Dateien werden nicht verändert. B.4.1 erzeugt eigene Dateien für:
+
+- historischen Audit und bytegenaue Reproduktion,
+- unabhängige Aufgaben-, Explorations- und Rückmeldungspläne,
+- Episodenzeit und vollständige Rohversuche,
+- einzelne synaptische Änderungen und finale Motorpfade,
+- gepaarte Bootstrapvergleiche,
+- 512/2.048-Episoden-Läufe und Umweltumkehr,
+- 64-/256-Neuronen-Erreichbarkeit und Ressourcen,
+- kontrollierte Gewichtskausalität mit diagnostischer Ablation.
+
+Maschinenabhängige Laufzeiten sind nicht Teil des deterministischen
+Vergleichs. Aufgaben, Gewichte, Ereigniszähler und Ergebniszeilen sind bei
+identischem Build und Seed reproduzierbar.

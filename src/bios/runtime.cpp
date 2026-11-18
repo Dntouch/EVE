@@ -13,7 +13,7 @@ namespace eve::bios {
 namespace {
 
 constexpr std::array<char, 8> kPersistenceMagic{{'E', 'V', 'E', '0', '0', '1', '\r', '\n'}};
-constexpr std::uint32_t kPersistenceVersion = 9;
+constexpr std::uint32_t kPersistenceVersion = 10;
 constexpr std::uint64_t kNonZeroRngState = 0x9e3779b97f4a7c15ULL;
 constexpr std::uint64_t kFnvPrime = 1099511628211ULL;
 
@@ -1180,6 +1180,28 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
     mix_hash(hash, static_cast<std::uint32_t>(config_.plasticity_negative_step));
     mix_hash(hash, static_cast<std::uint32_t>(config_.plasticity_maximum_weight));
     mix_hash(hash, config_.consume_trace_on_modulation ? 1 : 0);
+    mix_hash(hash, evaluation_route_configured_ ? 1 : 0);
+    if (evaluation_route_configured_) {
+        mix_hash(hash, static_cast<std::uint8_t>(evaluation_route_.config.mode));
+        mix_hash(hash, evaluation_route_.config.first_input_neuron);
+        mix_hash(hash, evaluation_route_.config.graded_channel_count);
+        mix_hash(hash, evaluation_route_.config.relay_count);
+        mix_hash(hash, evaluation_route_.config.fanout_per_source);
+        mix_hash(hash, static_cast<std::uint32_t>(evaluation_route_.config.weight));
+        mix_hash(hash, evaluation_route_.config.seed);
+        mix_hash(hash, evaluation_route_.config.reserved_neurons.size());
+        for (const auto value : evaluation_route_.config.reserved_neurons) mix_hash(hash, value);
+        mix_hash(hash, evaluation_route_.input_neurons.size());
+        for (const auto value : evaluation_route_.input_neurons) mix_hash(hash, value);
+        mix_hash(hash, evaluation_route_.relay_neurons.size());
+        for (const auto value : evaluation_route_.relay_neurons) mix_hash(hash, value);
+        mix_hash(hash, evaluation_route_.target_neurons.size());
+        for (const auto value : evaluation_route_.target_neurons) mix_hash(hash, value);
+        mix_hash(hash, evaluation_route_.route_synapses.size());
+        for (const auto value : evaluation_route_.route_synapses) mix_hash(hash, value);
+        mix_hash(hash, evaluation_route_.added_synapses);
+        mix_hash(hash, evaluation_route_.adjusted_synapses);
+    }
     mix_hash(hash, config_.maximum_events_per_run);
     mix_hash(hash, config_.learning_enabled ? 1 : 0);
     mix_hash(hash, config_.growth_enabled ? 1 : 0);
@@ -1361,6 +1383,28 @@ void Runtime::save(const std::string& path) const {
         write_u32(stream, event.context_signature);
         write_u8(stream, event.context_feedback_origin ? 1 : 0);
         write_u8(stream, static_cast<std::uint8_t>(event.modulation));
+    }
+    write_u8(stream, evaluation_route_configured_ ? 1 : 0);
+    if (evaluation_route_configured_) {
+        const auto& route_config = evaluation_route_.config;
+        write_u8(stream, static_cast<std::uint8_t>(route_config.mode));
+        write_u32(stream, route_config.first_input_neuron);
+        write_u32(stream, route_config.graded_channel_count);
+        write_u32(stream, route_config.relay_count);
+        write_u32(stream, route_config.fanout_per_source);
+        write_i32(stream, route_config.weight);
+        write_u64(stream, route_config.seed);
+        const auto write_ids = [&stream](const auto& values) {
+            write_u32(stream, static_cast<std::uint32_t>(values.size()));
+            for (const auto value : values) write_u32(stream, value);
+        };
+        write_ids(route_config.reserved_neurons);
+        write_ids(evaluation_route_.input_neurons);
+        write_ids(evaluation_route_.relay_neurons);
+        write_ids(evaluation_route_.target_neurons);
+        write_ids(evaluation_route_.route_synapses);
+        write_u32(stream, evaluation_route_.added_synapses);
+        write_u32(stream, evaluation_route_.adjusted_synapses);
     }
     stream.flush();
     if (!stream) {
@@ -1607,6 +1651,59 @@ Runtime Runtime::load(const std::string& path) {
         runtime.queue_.push_back(event);
     }
     runtime.update_queue_watermark();
+
+    if (version >= 10) {
+        runtime.evaluation_route_configured_ = read_bool(stream);
+        if (runtime.evaluation_route_configured_) {
+            auto& route = runtime.evaluation_route_;
+            const std::uint8_t mode = read_u8(stream);
+            if (mode > static_cast<std::uint8_t>(
+                           brainstem::EvaluationRouteMode::relay_wiring)) {
+                throw std::runtime_error("invalid evaluation route mode in EVE state");
+            }
+            route.config.mode = static_cast<brainstem::EvaluationRouteMode>(mode);
+            route.config.first_input_neuron = read_u32(stream);
+            route.config.graded_channel_count = read_u32(stream);
+            route.config.relay_count = read_u32(stream);
+            route.config.fanout_per_source = read_u32(stream);
+            route.config.weight = read_i32(stream);
+            route.config.seed = read_u64(stream);
+            if (route.config.weight < 0 ||
+                route.config.weight > config.maximum_synapse_weight) {
+                throw std::runtime_error(
+                    "persisted evaluation route weight is outside configured bounds");
+            }
+            const auto read_ids = [&stream](auto& values, const std::uint32_t maximum,
+                                            const char* label) {
+                const std::uint32_t count = read_u32(stream);
+                if (count > maximum) {
+                    throw std::runtime_error(std::string("persisted ") + label +
+                                             " exceeds network bounds");
+                }
+                values.reserve(count);
+                for (std::uint32_t index = 0; index < count; ++index) {
+                    const std::uint32_t value = read_u32(stream);
+                    if (value >= maximum) {
+                        throw std::runtime_error(std::string("persisted ") + label +
+                                                 " contains an invalid identifier");
+                    }
+                    values.push_back(value);
+                }
+            };
+            read_ids(route.config.reserved_neurons, neuron_count,
+                     "evaluation route reservation");
+            read_ids(route.input_neurons, neuron_count,
+                     "evaluation route input list");
+            read_ids(route.relay_neurons, neuron_count,
+                     "evaluation route relay list");
+            read_ids(route.target_neurons, neuron_count,
+                     "evaluation route target list");
+            read_ids(route.route_synapses, synapse_count,
+                     "evaluation route synapse list");
+            route.added_synapses = read_u32(stream);
+            route.adjusted_synapses = read_u32(stream);
+        }
+    }
 
     if (stream.peek() != std::char_traits<char>::eof()) {
         throw std::runtime_error("unexpected trailing data in EVE state");
@@ -1915,6 +2012,10 @@ void Runtime::process_impulse(
     if (modulation != 0) {
         ++metrics_.modulation_impulses;
         apply_local_modulation(before.receiver, modulation);
+        // A modulatory receptor is a third-factor contact, not an ordinary
+        // excitatory membrane input.  Processing stops locally: the signal
+        // cannot enter G3, create a postsynaptic trace, or fire a motor output.
+        return;
     }
     if (modulation == 0 && !feedback_context &&
         config_.plasticity_decay_mode == TraceDecayMode::local_activity) {
