@@ -370,7 +370,10 @@ EligibilityResult Brainstem::create_eligibility(
     const auto stored = network.store_eligibility(
         neuron, selected, expires_at, config.eligibility_history, feedback_origin,
         context_signature, context_generation, context_ambiguous,
-        context_feedback_origin);
+        context_feedback_origin,
+        config.plasticity_decay_mode == TraceDecayMode::stepped ||
+                config.plasticity_decay_mode == TraceDecayMode::local_activity
+            ? 4 : 1);
     result.created = stored.record.generation != 0;
     result.generation = stored.record.generation;
     result.expires_at = stored.record.expires_at;

@@ -19,4 +19,6 @@ Das Konzept nennt folgende offene Fragen:
 12. Welche Hardwarearchitektur ist langfristig geeignet?
 
 Bearbeitungsstatus, Prioritäten, Verantwortlichkeiten und zusätzliche Fragen
-sind bislang nicht festgelegt.
+sind bislang nicht vollständig festgelegt. B.4 beantwortet Frage 2 nur
+teilweise: lokale Drei-Faktor-Plastizität ist technisch möglich, zeigte im
+minimalen Versuch aber noch keine belastbare Verhaltensverbesserung.

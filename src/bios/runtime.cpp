@@ -13,7 +13,7 @@ namespace eve::bios {
 namespace {
 
 constexpr std::array<char, 8> kPersistenceMagic{{'E', 'V', 'E', '0', '0', '1', '\r', '\n'}};
-constexpr std::uint32_t kPersistenceVersion = 8;
+constexpr std::uint32_t kPersistenceVersion = 9;
 constexpr std::uint64_t kNonZeroRngState = 0x9e3779b97f4a7c15ULL;
 constexpr std::uint64_t kFnvPrime = 1099511628211ULL;
 
@@ -131,6 +131,13 @@ void write_config(std::ostream& stream, const ExperimentConfig& config) {
     write_u8(stream, static_cast<std::uint8_t>(config.context_binding_mode));
     write_u32(stream, config.context_trace_capacity);
     write_u64(stream, config.context_trace_duration);
+    write_u8(stream, static_cast<std::uint8_t>(config.plasticity_trace_mode));
+    write_u8(stream, static_cast<std::uint8_t>(config.plasticity_decay_mode));
+    write_u8(stream, static_cast<std::uint8_t>(config.modulation_mode));
+    write_i32(stream, config.plasticity_positive_step);
+    write_i32(stream, config.plasticity_negative_step);
+    write_i32(stream, config.plasticity_maximum_weight);
+    write_u8(stream, config.consume_trace_on_modulation ? 1 : 0);
     write_u64(stream, config.maximum_events_per_run);
     write_u8(stream, config.learning_enabled ? 1 : 0);
     write_u8(stream, config.growth_enabled ? 1 : 0);
@@ -196,6 +203,23 @@ ExperimentConfig read_config(std::istream& stream, const std::uint32_t version) 
         config.context_trace_capacity = read_u32(stream);
         config.context_trace_duration = read_u64(stream);
     }
+    if (version >= 9) {
+        const auto trace = read_u8(stream);
+        const auto decay = read_u8(stream);
+        const auto modulation = read_u8(stream);
+        if (trace > static_cast<std::uint8_t>(PlasticityTraceMode::membrane_participation) ||
+            decay > static_cast<std::uint8_t>(TraceDecayMode::local_activity) ||
+            modulation > static_cast<std::uint8_t>(ModulationMode::ternary)) {
+            throw std::runtime_error("invalid three-factor plasticity configuration");
+        }
+        config.plasticity_trace_mode = static_cast<PlasticityTraceMode>(trace);
+        config.plasticity_decay_mode = static_cast<TraceDecayMode>(decay);
+        config.modulation_mode = static_cast<ModulationMode>(modulation);
+        config.plasticity_positive_step = read_i32(stream);
+        config.plasticity_negative_step = read_i32(stream);
+        config.plasticity_maximum_weight = read_i32(stream);
+        config.consume_trace_on_modulation = read_bool(stream);
+    }
     config.maximum_events_per_run = read_u64(stream);
     config.learning_enabled = read_bool(stream);
     config.growth_enabled = read_bool(stream);
@@ -247,6 +271,17 @@ void write_metrics(std::ostream& stream, const Metrics& metrics) {
     write_u64(stream, metrics.feedback_context_missing_matches);
     write_u64(stream, metrics.feedback_context_expired_matches);
     write_u64(stream, metrics.feedback_origin_context_matches);
+    write_u64(stream, metrics.modulation_fire_events);
+    write_u64(stream, metrics.modulation_impulses);
+    write_u64(stream, metrics.modulation_receipts_with_trace);
+    write_u64(stream, metrics.modulation_receipts_without_trace);
+    write_u64(stream, metrics.plasticity_positive_changes);
+    write_u64(stream, metrics.plasticity_negative_changes);
+    write_u64(stream, metrics.plasticity_zero_to_one_changes);
+    write_u64(stream, metrics.plasticity_rejected_at_weight_limit);
+    write_u64(stream, metrics.plasticity_rejected_by_budget);
+    write_u64(stream, metrics.plasticity_consumed_traces);
+    write_u64(stream, metrics.plasticity_feedback_origin_traces_skipped);
     write_u64(stream, metrics.growth_attempts);
     write_u64(stream, metrics.grown_synapses);
     write_u64(stream, metrics.processed_sensor_bytes);
@@ -308,6 +343,19 @@ Metrics read_metrics(std::istream& stream, const std::uint32_t version) {
         metrics.feedback_context_missing_matches = read_u64(stream);
         metrics.feedback_context_expired_matches = read_u64(stream);
         metrics.feedback_origin_context_matches = read_u64(stream);
+    }
+    if (version >= 9) {
+        metrics.modulation_fire_events = read_u64(stream);
+        metrics.modulation_impulses = read_u64(stream);
+        metrics.modulation_receipts_with_trace = read_u64(stream);
+        metrics.modulation_receipts_without_trace = read_u64(stream);
+        metrics.plasticity_positive_changes = read_u64(stream);
+        metrics.plasticity_negative_changes = read_u64(stream);
+        metrics.plasticity_zero_to_one_changes = read_u64(stream);
+        metrics.plasticity_rejected_at_weight_limit = read_u64(stream);
+        metrics.plasticity_rejected_by_budget = read_u64(stream);
+        metrics.plasticity_consumed_traces = read_u64(stream);
+        metrics.plasticity_feedback_origin_traces_skipped = read_u64(stream);
     }
     metrics.growth_attempts = read_u64(stream);
     metrics.grown_synapses = read_u64(stream);
@@ -754,6 +802,53 @@ EvaluationFeedbackResult Runtime::process_evaluation_feedback(
     return result;
 }
 
+ModulatoryFeedbackResult Runtime::process_modulatory_feedback(
+    const std::int8_t polarity,
+    const std::uint64_t scheduled_time) {
+    if (!evaluation_route_configured_) {
+        throw std::logic_error("evaluation route is not configured");
+    }
+    if (polarity < -1 || polarity > 1) {
+        throw std::invalid_argument("modulatory polarity must be -1, 0 or 1");
+    }
+    ModulatoryFeedbackResult result;
+    result.polarity = polarity;
+    const bool accepted =
+        config_.modulation_mode == ModulationMode::ternary ||
+        (polarity > 0 && config_.modulation_mode == ModulationMode::positive) ||
+        (polarity < 0 && config_.modulation_mode == ModulationMode::negative);
+    if (config_.modulation_mode == ModulationMode::none ||
+        (polarity != 0 && !accepted) ||
+        evaluation_route_.config.mode == brainstem::EvaluationRouteMode::none) {
+        return result;
+    }
+    const std::uint64_t due = scheduled_time == 0 ? simulated_time_ : scheduled_time;
+    if (due < simulated_time_) {
+        throw std::invalid_argument("modulatory feedback cannot be scheduled in the past");
+    }
+    const Metrics before = metrics_;
+    // All evaluation inputs carry the same scalar field.  Thus polarity never
+    // identifies an action and the ordinary neural route decides where it arrives.
+    for (const NeuronId input : evaluation_route_.input_neurons) {
+        enqueue_event(EventKind::modulation_fire, input, due, 0, 0, true,
+                      polarity == 0 ? 2 : polarity);
+    }
+    if (due == simulated_time_) result.processed_events = run();
+    result.neural_fires = metrics_.modulation_fire_events - before.modulation_fire_events;
+    result.neural_impulses = metrics_.modulation_impulses - before.modulation_impulses;
+    result.receipts_with_trace = metrics_.modulation_receipts_with_trace -
+                                 before.modulation_receipts_with_trace;
+    result.receipts_without_trace = metrics_.modulation_receipts_without_trace -
+                                    before.modulation_receipts_without_trace;
+    result.positive_changes = metrics_.plasticity_positive_changes -
+                              before.plasticity_positive_changes;
+    result.negative_changes = metrics_.plasticity_negative_changes -
+                              before.plasticity_negative_changes;
+    result.zero_to_one_changes = metrics_.plasticity_zero_to_one_changes -
+                                 before.plasticity_zero_to_one_changes;
+    return result;
+}
+
 bool Runtime::evaluation_route_configured() const noexcept {
     return evaluation_route_configured_;
 }
@@ -1006,6 +1101,17 @@ void Runtime::set_experimental_synapse_weight(
     network_.synapse(synapse).weight = weight;
 }
 
+SynapseId Runtime::add_experimental_synapse(
+    const NeuronId sender, const NeuronId receiver, const std::int32_t weight) {
+    if (weight < 0 || weight > config_.maximum_synapse_weight) {
+        throw std::invalid_argument("experimental weight is outside configured bounds");
+    }
+    if (network_.has_synapse(sender, receiver)) {
+        throw std::invalid_argument("experimental synapse already exists");
+    }
+    return network_.add_synapse(sender, receiver, weight);
+}
+
 const ExperimentConfig& Runtime::config() const noexcept {
     return config_;
 }
@@ -1067,6 +1173,13 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
     mix_hash(hash, static_cast<std::uint8_t>(config_.context_binding_mode));
     mix_hash(hash, config_.context_trace_capacity);
     mix_hash(hash, config_.context_trace_duration);
+    mix_hash(hash, static_cast<std::uint8_t>(config_.plasticity_trace_mode));
+    mix_hash(hash, static_cast<std::uint8_t>(config_.plasticity_decay_mode));
+    mix_hash(hash, static_cast<std::uint8_t>(config_.modulation_mode));
+    mix_hash(hash, static_cast<std::uint32_t>(config_.plasticity_positive_step));
+    mix_hash(hash, static_cast<std::uint32_t>(config_.plasticity_negative_step));
+    mix_hash(hash, static_cast<std::uint32_t>(config_.plasticity_maximum_weight));
+    mix_hash(hash, config_.consume_trace_on_modulation ? 1 : 0);
     mix_hash(hash, config_.maximum_events_per_run);
     mix_hash(hash, config_.learning_enabled ? 1 : 0);
     mix_hash(hash, config_.growth_enabled ? 1 : 0);
@@ -1110,6 +1223,17 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
     mix_hash(hash, metrics_.feedback_context_missing_matches);
     mix_hash(hash, metrics_.feedback_context_expired_matches);
     mix_hash(hash, metrics_.feedback_origin_context_matches);
+    mix_hash(hash, metrics_.modulation_fire_events);
+    mix_hash(hash, metrics_.modulation_impulses);
+    mix_hash(hash, metrics_.modulation_receipts_with_trace);
+    mix_hash(hash, metrics_.modulation_receipts_without_trace);
+    mix_hash(hash, metrics_.plasticity_positive_changes);
+    mix_hash(hash, metrics_.plasticity_negative_changes);
+    mix_hash(hash, metrics_.plasticity_zero_to_one_changes);
+    mix_hash(hash, metrics_.plasticity_rejected_at_weight_limit);
+    mix_hash(hash, metrics_.plasticity_rejected_by_budget);
+    mix_hash(hash, metrics_.plasticity_consumed_traces);
+    mix_hash(hash, metrics_.plasticity_feedback_origin_traces_skipped);
     mix_hash(hash, metrics_.growth_attempts);
     mix_hash(hash, metrics_.grown_synapses);
     mix_hash(hash, metrics_.processed_sensor_bytes);
@@ -1125,6 +1249,7 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
         mix_hash(hash, event.generation);
         mix_hash(hash, event.context_signature);
         mix_hash(hash, event.context_feedback_origin ? 1 : 0);
+        mix_hash(hash, static_cast<std::uint8_t>(event.modulation));
     }
     return hash;
 }
@@ -1203,6 +1328,7 @@ void Runtime::save(const std::string& path) const {
             write_u64(stream, record.context_generation);
             write_u8(stream, record.context_ambiguous ? 1 : 0);
             write_u8(stream, record.context_feedback_origin ? 1 : 0);
+            write_u8(stream, record.strength);
             write_u32(stream, static_cast<std::uint32_t>(record.candidates.size()));
             for (const SynapseId candidate : record.candidates) {
                 write_u32(stream, candidate);
@@ -1234,6 +1360,7 @@ void Runtime::save(const std::string& path) const {
         write_u64(stream, event.generation);
         write_u32(stream, event.context_signature);
         write_u8(stream, event.context_feedback_origin ? 1 : 0);
+        write_u8(stream, static_cast<std::uint8_t>(event.modulation));
     }
     stream.flush();
     if (!stream) {
@@ -1361,6 +1488,12 @@ Runtime Runtime::load(const std::string& path) {
                     record.context_ambiguous = read_bool(stream);
                     record.context_feedback_origin = read_bool(stream);
                 }
+                if (version >= 9) {
+                    record.strength = read_u8(stream);
+                    if (record.strength == 0) {
+                        throw std::runtime_error("persisted eligibility has zero strength");
+                    }
+                }
                 const std::uint32_t candidate_count = read_u32(stream);
                 if (candidate_count > config.eligibility_candidate_capacity) {
                     throw std::runtime_error(
@@ -1425,7 +1558,9 @@ Runtime Runtime::load(const std::string& path) {
     }
     for (std::uint64_t index = 0; index < queue_size; ++index) {
         const std::uint8_t kind_value = read_u8(stream);
-        const std::uint8_t maximum_kind = version >= 8
+        const std::uint8_t maximum_kind = version >= 9
+            ? static_cast<std::uint8_t>(EventKind::eligibility_decay)
+            : version >= 8
             ? static_cast<std::uint8_t>(EventKind::context_expiry)
             : version >= 7
             ? static_cast<std::uint8_t>(EventKind::feedback_impulse)
@@ -1446,16 +1581,26 @@ Runtime Runtime::load(const std::string& path) {
                 event.context_signature = read_u32(stream);
                 event.context_feedback_origin = read_bool(stream);
             }
+            if (version >= 9) {
+                event.modulation = static_cast<std::int8_t>(read_u8(stream));
+                if (event.modulation != -1 && event.modulation != 0 &&
+                    event.modulation != 1 && event.modulation != 2) {
+                    throw std::runtime_error("invalid modulation in EVE state");
+                }
+            }
         } else {
             event.sequence = runtime.next_event_sequence_++;
         }
-        if (event.kind == EventKind::fire || event.kind == EventKind::feedback_fire) {
+        if (event.kind == EventKind::fire || event.kind == EventKind::feedback_fire ||
+            event.kind == EventKind::modulation_fire) {
             static_cast<void>(runtime.network_.neuron(event.target));
         } else if (event.kind == EventKind::impulse ||
-                   event.kind == EventKind::feedback_impulse) {
+                   event.kind == EventKind::feedback_impulse ||
+                   event.kind == EventKind::modulation_impulse) {
             static_cast<void>(runtime.network_.synapse(event.target));
         } else if (event.kind == EventKind::recovery ||
                    event.kind == EventKind::eligibility_expiry ||
+                   event.kind == EventKind::eligibility_decay ||
                    event.kind == EventKind::context_expiry) {
             static_cast<void>(runtime.network_.neuron(event.target));
         }
@@ -1563,13 +1708,138 @@ void Runtime::validate_config() const {
         !eligibility_enabled) {
         throw std::invalid_argument("context binding requires eligibility");
     }
+    if (static_cast<std::uint8_t>(config_.plasticity_trace_mode) >
+            static_cast<std::uint8_t>(PlasticityTraceMode::membrane_participation) ||
+        static_cast<std::uint8_t>(config_.plasticity_decay_mode) >
+            static_cast<std::uint8_t>(TraceDecayMode::local_activity) ||
+        static_cast<std::uint8_t>(config_.modulation_mode) >
+            static_cast<std::uint8_t>(ModulationMode::ternary)) {
+        throw std::invalid_argument("invalid three-factor plasticity mode");
+    }
+    const bool plasticity_enabled =
+        config_.plasticity_trace_mode != PlasticityTraceMode::disabled;
+    if (plasticity_enabled &&
+        (!eligibility_enabled || config_.plasticity_positive_step <= 0 ||
+         config_.plasticity_negative_step <= 0 ||
+         config_.plasticity_maximum_weight < 0 ||
+         config_.plasticity_maximum_weight > config_.maximum_synapse_weight)) {
+        throw std::invalid_argument("three-factor plasticity requires bounded eligibility storage");
+    }
+    if (!plasticity_enabled && config_.modulation_mode != ModulationMode::none) {
+        throw std::invalid_argument("modulation requires a plasticity trace mode");
+    }
+}
+
+void Runtime::create_local_plasticity_trace(
+    const NeuronId neuron, const SynapseId candidate, const bool feedback_origin) {
+    const std::uint64_t duration =
+        config_.plasticity_decay_mode == TraceDecayMode::immediate
+            ? 0 : config_.eligibility_duration;
+    if (duration > std::numeric_limits<std::uint64_t>::max() - simulated_time_) {
+        throw std::overflow_error("plasticity trace expiry time overflow");
+    }
+    const auto stored = network_.store_eligibility(
+        neuron, {candidate}, simulated_time_ + duration,
+        config_.eligibility_history, feedback_origin, 0, 0, false, false,
+        config_.plasticity_decay_mode == TraceDecayMode::stepped ||
+                config_.plasticity_decay_mode == TraceDecayMode::local_activity
+            ? 4 : 1);
+    if (stored.record.generation == 0) return;
+    ++metrics_.eligibility_decisions;
+    ++metrics_.eligibility_candidates;
+    if (network_.synapse(candidate).weight == 0) {
+        ++metrics_.eligibility_zero_weight_candidates;
+    } else {
+        ++metrics_.eligibility_positive_candidates;
+    }
+    metrics_.eligibility_overwritten_decisions += stored.overwritten_decisions;
+    if (feedback_origin) ++metrics_.feedback_created_eligibilities;
+    enqueue_event(EventKind::eligibility_expiry, neuron, stored.record.expires_at,
+                  stored.record.generation);
+    ++metrics_.scheduled_eligibility_expiries;
+    if (config_.plasticity_decay_mode == TraceDecayMode::stepped && duration >= 3) {
+        const std::uint64_t interval = std::max<std::uint64_t>(1, duration / 3);
+        enqueue_event(EventKind::eligibility_decay, neuron,
+                      simulated_time_ + interval, stored.record.generation);
+        if (interval * 2 < duration) {
+            enqueue_event(EventKind::eligibility_decay, neuron,
+                          simulated_time_ + interval * 2,
+                          stored.record.generation);
+        }
+    }
+}
+
+void Runtime::apply_local_modulation(
+    const NeuronId neuron, const std::int8_t polarity) {
+    const auto records = network_.eligibility_records(neuron);
+    std::vector<std::uint64_t> consumed;
+    bool has_eligible_trace = false;
+    for (const auto& record : records) {
+        if (record.feedback_origin) {
+            ++metrics_.plasticity_feedback_origin_traces_skipped;
+            continue;
+        }
+        has_eligible_trace = true;
+        if (polarity == 1 || polarity == -1) {
+            for (const SynapseId candidate : record.candidates) {
+                auto& item = network_.synapse(candidate);
+                if (item.receiver != neuron) continue;
+                if (polarity > 0) {
+                    const std::int32_t limit = std::min(
+                        config_.maximum_synapse_weight,
+                        config_.plasticity_maximum_weight);
+                    if (item.weight >= limit) {
+                        ++metrics_.plasticity_rejected_at_weight_limit;
+                        continue;
+                    }
+                    std::uint64_t incoming_weight = 0;
+                    for (const SynapseId incoming : network_.incoming_synapses(neuron)) {
+                        const auto weight = network_.synapse(incoming).weight;
+                        if (weight > 0) incoming_weight += static_cast<std::uint64_t>(weight);
+                    }
+                    const std::int32_t requested =
+                        config_.plasticity_positive_step * record.strength;
+                    const std::int32_t delta = std::min(requested, limit - item.weight);
+                    if (static_cast<std::uint64_t>(delta) >
+                        config_.input_weight_budget -
+                            std::min(config_.input_weight_budget, incoming_weight)) {
+                        ++metrics_.plasticity_rejected_by_budget;
+                        continue;
+                    }
+                    const bool was_zero = item.weight == 0;
+                    item.weight += delta;
+                    ++metrics_.plasticity_positive_changes;
+                    if (was_zero) ++metrics_.plasticity_zero_to_one_changes;
+                } else if (item.weight > 0) {
+                    item.weight = std::max<std::int32_t>(
+                        0, item.weight -
+                               config_.plasticity_negative_step * record.strength);
+                    ++metrics_.plasticity_negative_changes;
+                }
+            }
+            if (config_.consume_trace_on_modulation) {
+                consumed.push_back(record.generation);
+            }
+        }
+    }
+    if (has_eligible_trace) {
+        ++metrics_.modulation_receipts_with_trace;
+    } else {
+        ++metrics_.modulation_receipts_without_trace;
+    }
+    for (const auto generation : consumed) {
+        if (network_.expire_eligibility(neuron, generation)) {
+            ++metrics_.plasticity_consumed_traces;
+        }
+    }
 }
 
 void Runtime::process_fire(
     const NeuronId neuron,
     const bool feedback_context,
     const std::uint32_t context_signature,
-    const bool context_feedback_origin) {
+    const bool context_feedback_origin,
+    const std::int8_t modulation) {
     const auto outgoing = network_.outgoing_synapses(neuron);
     if (context_signature != 0 && config_.context_trace_capacity != 0) {
         if (config_.context_trace_duration >
@@ -1596,6 +1866,7 @@ void Runtime::process_fire(
     }
     ++metrics_.fire_events;
     if (feedback_context) ++metrics_.feedback_fire_events;
+    if (modulation != 0) ++metrics_.modulation_fire_events;
     motor_output_.observe_fire(neuron, metrics_.processed_events);
     if (fire_observer_) {
         fire_observer_(FireObservation{
@@ -1611,9 +1882,11 @@ void Runtime::process_fire(
     }
 
     for (const SynapseId synapse : outgoing) {
-        enqueue_event(feedback_context ? EventKind::feedback_impulse : EventKind::impulse,
-                      synapse, simulated_time_, 0, context_signature,
-                      context_feedback_origin);
+        const EventKind kind = modulation != 0
+            ? EventKind::modulation_impulse
+            : feedback_context ? EventKind::feedback_impulse : EventKind::impulse;
+        enqueue_event(kind, synapse, simulated_time_, 0, context_signature,
+                      context_feedback_origin, modulation);
         ++metrics_.transmitted_impulses;
     }
 
@@ -1636,8 +1909,21 @@ void Runtime::process_impulse(
     const SynapseId synapse,
     const bool feedback_context,
     const std::uint32_t context_signature,
-    const bool context_feedback_origin) {
+    const bool context_feedback_origin,
+    const std::int8_t modulation) {
     const neural::Synapse before = network_.synapse(synapse);
+    if (modulation != 0) {
+        ++metrics_.modulation_impulses;
+        apply_local_modulation(before.receiver, modulation);
+    }
+    if (modulation == 0 && !feedback_context &&
+        config_.plasticity_decay_mode == TraceDecayMode::local_activity) {
+        const auto active = network_.eligibility_records(before.receiver);
+        for (const auto& record : active) {
+            static_cast<void>(network_.decay_eligibility(
+                before.receiver, record.generation));
+        }
+    }
     if (context_signature != 0 && config_.context_trace_capacity != 0) {
         if (config_.context_trace_duration >
             std::numeric_limits<std::uint64_t>::max() - simulated_time_) {
@@ -1720,7 +2006,17 @@ void Runtime::process_impulse(
     const brainstem::ImpulseResult result =
         brainstem_.receive_impulse(network_, synapse, config_, &rng_);
     brainstem::EligibilityResult eligibility;
-    if (result.fired &&
+    const std::uint64_t eligibility_trace_duration =
+        config_.plasticity_trace_mode != PlasticityTraceMode::disabled &&
+                config_.plasticity_decay_mode == TraceDecayMode::immediate
+            ? 0 : config_.eligibility_duration;
+    if (modulation == 0 && !feedback_context &&
+        config_.plasticity_trace_mode == PlasticityTraceMode::membrane_participation) {
+        create_local_plasticity_trace(before.receiver, synapse, false);
+    } else if (result.fired && modulation == 0 && !feedback_context &&
+               config_.plasticity_trace_mode == PlasticityTraceMode::pre_post_fire) {
+        create_local_plasticity_trace(before.receiver, synapse, false);
+    } else if (result.fired &&
         config_.eligibility_selection != EligibilitySelection::none) {
         if (config_.eligibility_duration >
             std::numeric_limits<std::uint64_t>::max() - simulated_time_) {
@@ -1728,7 +2024,7 @@ void Runtime::process_impulse(
         }
         eligibility = brainstem_.create_eligibility(
             network_, before.receiver,
-            simulated_time_ + config_.eligibility_duration, config_, feedback_context);
+            simulated_time_ + eligibility_trace_duration, config_, feedback_context);
         if (eligibility.created) {
             ++metrics_.eligibility_decisions;
             metrics_.eligibility_candidates += eligibility.candidates.size();
@@ -1804,9 +2100,11 @@ void Runtime::process_impulse(
     }
 
     if (result.fired) {
-        enqueue_event(feedback_context ? EventKind::feedback_fire : EventKind::fire,
-                      before.receiver, simulated_time_, 0, context_signature,
-                      context_feedback_origin);
+        const EventKind kind = modulation != 0
+            ? EventKind::modulation_fire
+            : feedback_context ? EventKind::feedback_fire : EventKind::fire;
+        enqueue_event(kind, before.receiver, simulated_time_, 0, context_signature,
+                      context_feedback_origin, modulation);
         if (config_.recovery_mode != RecoveryMode::input_dependent) {
             if (config_.recovery_delay >
                 std::numeric_limits<std::uint64_t>::max() - simulated_time_) {
@@ -1824,6 +2122,19 @@ void Runtime::process_impulse(
                 EventKind::eligibility_expiry, before.receiver,
                 eligibility.expires_at, eligibility.generation);
             ++metrics_.scheduled_eligibility_expiries;
+            if (config_.plasticity_decay_mode == TraceDecayMode::stepped &&
+                eligibility_trace_duration >= 3) {
+                const std::uint64_t interval =
+                    std::max<std::uint64_t>(1, eligibility_trace_duration / 3);
+                enqueue_event(EventKind::eligibility_decay, before.receiver,
+                              simulated_time_ + interval,
+                              eligibility.generation);
+                if (interval * 2 < eligibility_trace_duration) {
+                    enqueue_event(EventKind::eligibility_decay, before.receiver,
+                                  simulated_time_ + interval * 2,
+                                  eligibility.generation);
+                }
+            }
         }
     }
 }
@@ -1860,6 +2171,10 @@ void Runtime::process_eligibility_expiry(const Event& event) {
     } else {
         ++metrics_.stale_eligibility_expiries;
     }
+}
+
+void Runtime::process_eligibility_decay(const Event& event) {
+    static_cast<void>(network_.decay_eligibility(event.target, event.generation));
 }
 
 void Runtime::process_context_expiry(const Event& event) {
@@ -1905,6 +2220,15 @@ void Runtime::process_event(const Event& event) {
     case EventKind::context_expiry:
         process_context_expiry(event);
         break;
+    case EventKind::modulation_fire:
+        process_fire(event.target, true, 0, true, event.modulation);
+        break;
+    case EventKind::modulation_impulse:
+        process_impulse(event.target, true, 0, true, event.modulation);
+        break;
+    case EventKind::eligibility_decay:
+        process_eligibility_decay(event);
+        break;
     }
 }
 
@@ -1914,9 +2238,10 @@ void Runtime::enqueue_event(
     const std::uint64_t scheduled_time,
     const std::uint64_t generation,
     const std::uint32_t context_signature,
-    const bool context_feedback_origin) {
+    const bool context_feedback_origin,
+    const std::int8_t modulation) {
     Event event{kind, target, scheduled_time, next_event_sequence_++, generation,
-                context_signature, context_feedback_origin};
+                context_signature, context_feedback_origin, modulation};
     const auto position = std::upper_bound(
         queue_.begin(), queue_.end(), event,
         [](const Event& left, const Event& right) {

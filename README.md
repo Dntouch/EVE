@@ -12,20 +12,20 @@ vorgegebene Semantik aus.
 
 **Stand:** 18. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.3 – neuronale Rückmeldungswege
+**Jüngste abgeschlossene Forschungsstufe:** B.4 – isolierte Drei-Faktor-Plastizität
 
-**Aktueller Forschungsschwerpunkt:** B.3.1 – neuronaler Handlungskontext
+**Aktueller Forschungsschwerpunkt:** Auswertung des negativen B.4-Lernergebnisses
 
 EVE ist inzwischen ein ausführbarer Forschungsprototyp. Er besitzt eine
 deterministische, ereignisgesteuerte Laufzeit, ein eigenes neuronales Netz,
 angeborene Stammhirnfunktionen, persistierbare Zustände und reproduzierbare
 Versuchsreihen.
 
-Die Forschungsstufe B.3 zeigt, dass abgestufte Bewertungen über reguläre
-neuronale Wege lokale Lernberechtigungen erreichen können. Die Zuordnung zu
-der tatsächlich bewerteten Handlung ist jedoch noch nicht zuverlässig. Darum
-bleibt rückmeldungsabhängige Gewichtsänderung vorerst gesperrt; B.3.1 untersucht
-zunächst einen lokal verfügbaren neuronalen Handlungskontext.
+Die Forschungsstufe B.4 zeigt, dass lokale Aktivitätsspuren und ein späteres
+neuronales Modulationssignal begrenzte Gewichtsänderungen auslösen können.
+Gegenüber der Nullkontrolle entstand jedoch kein belastbarer Verhaltensvorteil;
+Belohnungsumkehr scheiterte. Darum bleibt allgemeine rückmeldungsabhängige
+Plastizität trotz der isolierten Forschungsimplementierung gesperrt.
 
 EVE ist damit weder eine fertige allgemeine Intelligenz noch ein Nachweis, dass
 eigenständige Intelligenz bereits entstanden ist. Der Prototyp dient dazu,
@@ -42,6 +42,7 @@ negative Ergebnisse nachvollziehbar festzuhalten.
 - lokales neuronales Ereignisgedächtnis,
 - lokale, zeitlich begrenzte Lernberechtigungen (Eligibility),
 - abgestufte Bewertungsreize und neuronale Rückmeldungsrouten,
+- standardmäßig deaktivierte, lokale Drei-Faktor-Plastizität für B.4-Versuche,
 - versionierte Speicherung und Wiederherstellung vollständiger Zustände,
 - Diagnostik, Ereignisprotokolle, Zustandsfingerabdrücke und Messdaten,
 - automatisierte Kerntests und reproduzierbare Forschungsrunner.
@@ -60,8 +61,8 @@ deaktiviert, damit beobachtete Effekte eindeutig zugeordnet werden können.
 | B.1 | ereignisgesteuerte neuronale Erholung | abgeschlossen |
 | B.2 | lokale neuronale Lernberechtigung | abgeschlossen |
 | B.3 | neuronale Bewertungs- und Rückmeldungswege | abgeschlossen |
-| B.3.1 | neuronaler Kontext zur Handlungszuordnung | in Arbeit |
-| B.4 | erste rückmeldungsabhängige Plastizität | noch nicht freigegeben |
+| B.3.1 | neuronaler Kontext zur Handlungszuordnung | abgeschlossen, nicht ausreichend |
+| B.4 | erste rückmeldungsabhängige Plastizität | abgeschlossen, Lernkriterium verfehlt |
 
 Ausführliche Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen unter
 [`docs/experimente`](docs/experimente/). Die zugehörigen maschinenlesbaren
@@ -107,7 +108,7 @@ Die jüngste abgeschlossene Versuchsmatrix wird mit folgendem Runner neu
 erzeugt:
 
 ```sh
-./scripts/run-research-stage-b3.sh research/results
+./scripts/run-research-stage-b4.sh research/results/b4
 ```
 
 Weitere Runner und die Bedeutung aller Ergebnisdateien sind in der
@@ -142,8 +143,8 @@ Eingabestrom deterministisch.
 
 - [Projektkonzept](docs/konzept/EVE-Konzept.md)
 - [Stammhirnkonzept](docs/konzept/EVE-Stammhirnkonzept.md)
-- [Bericht zur Forschungsstufe B.3](docs/experimente/010-forschungsbericht-forschungsstufe-b3.md)
-- [Entwurf für den Übergang zu B.4](docs/entscheidungen/0010-vorlage-uebergang-zu-b4.md)
+- [Bericht zur Forschungsstufe B.4](docs/experimente/012-forschungsbericht-forschungsstufe-b4.md)
+- [Entscheidung zum isolierten B.4-Versuch](docs/entscheidungen/0012-isolierter-drei-faktor-versuch-b4.md)
 - [Forschungsfragen](docs/FORSCHUNGSFRAGEN.md)
 - [Glossar](docs/GLOSSAR.md)
 - [Hinweise für Beiträge](CONTRIBUTING.md)

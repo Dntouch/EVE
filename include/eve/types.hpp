@@ -60,6 +60,28 @@ enum class ContextBindingMode : std::uint8_t {
     temporal_overlap = 2,
 };
 
+// Research stage B.4: deliberately small, local three-factor plasticity.
+enum class PlasticityTraceMode : std::uint8_t {
+    disabled = 0,
+    g3_recent = 1,
+    pre_post_fire = 2,
+    membrane_participation = 3,
+};
+
+enum class TraceDecayMode : std::uint8_t {
+    immediate = 0,
+    constant = 1,
+    stepped = 2,
+    local_activity = 3,
+};
+
+enum class ModulationMode : std::uint8_t {
+    none = 0,
+    positive = 1,
+    negative = 2,
+    ternary = 3,
+};
+
 struct ExperimentConfig {
     std::uint32_t neuron_count{256};
     std::uint32_t width{8};
@@ -88,6 +110,13 @@ struct ExperimentConfig {
     ContextBindingMode context_binding_mode{ContextBindingMode::none};
     std::uint32_t context_trace_capacity{};
     std::uint64_t context_trace_duration{};
+    PlasticityTraceMode plasticity_trace_mode{PlasticityTraceMode::disabled};
+    TraceDecayMode plasticity_decay_mode{TraceDecayMode::constant};
+    ModulationMode modulation_mode{ModulationMode::none};
+    std::int32_t plasticity_positive_step{1};
+    std::int32_t plasticity_negative_step{1};
+    std::int32_t plasticity_maximum_weight{3};
+    bool consume_trace_on_modulation{true};
     std::uint64_t maximum_events_per_run{1'000'000};
     bool learning_enabled{true};
     bool growth_enabled{true};
@@ -134,6 +163,17 @@ struct Metrics {
     std::uint64_t feedback_context_missing_matches{};
     std::uint64_t feedback_context_expired_matches{};
     std::uint64_t feedback_origin_context_matches{};
+    std::uint64_t modulation_fire_events{};
+    std::uint64_t modulation_impulses{};
+    std::uint64_t modulation_receipts_with_trace{};
+    std::uint64_t modulation_receipts_without_trace{};
+    std::uint64_t plasticity_positive_changes{};
+    std::uint64_t plasticity_negative_changes{};
+    std::uint64_t plasticity_zero_to_one_changes{};
+    std::uint64_t plasticity_rejected_at_weight_limit{};
+    std::uint64_t plasticity_rejected_by_budget{};
+    std::uint64_t plasticity_consumed_traces{};
+    std::uint64_t plasticity_feedback_origin_traces_skipped{};
     std::uint64_t growth_attempts{};
     std::uint64_t grown_synapses{};
     std::uint64_t processed_sensor_bytes{};
@@ -195,6 +235,19 @@ struct Metrics {
                    other.feedback_context_expired_matches &&
                feedback_origin_context_matches ==
                    other.feedback_origin_context_matches &&
+               modulation_fire_events == other.modulation_fire_events &&
+               modulation_impulses == other.modulation_impulses &&
+               modulation_receipts_with_trace == other.modulation_receipts_with_trace &&
+               modulation_receipts_without_trace == other.modulation_receipts_without_trace &&
+               plasticity_positive_changes == other.plasticity_positive_changes &&
+               plasticity_negative_changes == other.plasticity_negative_changes &&
+               plasticity_zero_to_one_changes == other.plasticity_zero_to_one_changes &&
+               plasticity_rejected_at_weight_limit ==
+                   other.plasticity_rejected_at_weight_limit &&
+               plasticity_rejected_by_budget == other.plasticity_rejected_by_budget &&
+               plasticity_consumed_traces == other.plasticity_consumed_traces &&
+               plasticity_feedback_origin_traces_skipped ==
+                   other.plasticity_feedback_origin_traces_skipped &&
                growth_attempts == other.growth_attempts &&
                grown_synapses == other.grown_synapses &&
                processed_sensor_bytes == other.processed_sensor_bytes &&

@@ -45,6 +45,7 @@ struct EligibilityRecord {
     std::uint64_t context_generation{};
     bool context_ambiguous{};
     bool context_feedback_origin{};
+    std::uint8_t strength{1};
     std::vector<SynapseId> candidates;
 
     bool operator==(const EligibilityRecord& other) const noexcept {
@@ -54,6 +55,7 @@ struct EligibilityRecord {
                context_generation == other.context_generation &&
                context_ambiguous == other.context_ambiguous &&
                context_feedback_origin == other.context_feedback_origin &&
+               strength == other.strength &&
                candidates == other.candidates;
     }
 };
@@ -122,8 +124,11 @@ public:
         std::uint32_t context_signature = 0,
         std::uint64_t context_generation = 0,
         bool context_ambiguous = false,
-        bool context_feedback_origin = false);
+        bool context_feedback_origin = false,
+        std::uint8_t strength = 1);
     [[nodiscard]] bool expire_eligibility(NeuronId neuron, std::uint64_t generation);
+    [[nodiscard]] std::uint8_t decay_eligibility(
+        NeuronId neuron, std::uint64_t generation);
     [[nodiscard]] std::vector<EligibilityRecord> eligibility_records(
         NeuronId neuron) const;
     [[nodiscard]] std::uint64_t eligibility_generation(NeuronId neuron) const;
@@ -207,6 +212,7 @@ private:
     std::vector<std::uint64_t> eligibility_context_generations_;
     std::vector<std::uint8_t> eligibility_context_ambiguities_;
     std::vector<std::uint8_t> eligibility_context_feedback_origins_;
+    std::vector<std::uint8_t> eligibility_strengths_;
     std::vector<std::uint32_t> eligibility_write_positions_;
     std::vector<std::uint64_t> eligibility_generations_;
     std::vector<std::uint64_t> eligibility_overwrites_;

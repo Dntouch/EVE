@@ -206,3 +206,22 @@ Zustände, Ereignisfolgen und simulierte Zeit sind deterministisch. Laufzeit
 und Durchsatz bleiben maschinenabhängig. Ein Antwortende verarbeitet keine
 zukünftigen Erholungen; Zeit zwischen Handlungen wird ausschließlich durch den
 Runner explizit fortgeschrieben.
+
+## Forschungsstufe B.4 – lokale Drei-Faktor-Plastizität
+
+Build, 215 Kerntests und die gepaarte B.4-Matrix mit 64 Seeds:
+
+```sh
+scripts/run-research-stage-b4.sh research/results/b4
+```
+
+Der Runner überschreibt nur die drei B.4-Dateien:
+
+- `raw_trials.csv`: jede reale Trainings- und Auswertungsepisode,
+- `summary.csv`: K0–K15, E1–E3 und Belohnungsumkehr je 64 Seeds,
+- `resources.csv`: eine Messung bei 64 Neuronen und klar markierte lineare
+  Projektionen.
+
+Die Auswertungsphase sendet keine Modulation; damit werden dauerhafte
+Gewichtsstände und nicht fortgesetztes Lernen gemessen. Alle Verhaltenswerte
+werden aus tatsächlichen neuronalen Ausgaben A, B, beide oder keine berechnet.

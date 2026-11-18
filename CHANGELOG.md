@@ -15,8 +15,14 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
 - Roadmap, Forschungsfragen und Glossar.
 - Vorlagen für Entscheidungen und Experimente.
 - Vorlagen für Issues und Pull Requests.
+- Forschungsstufe B.4 mit lokaler Drei-Faktor-Plastizität, neuronaler
+  Modulationsroute, begrenzter Verstärkung und Abschwächung.
+- Reproduzierbare K0–K15-Matrix mit 64 gepaarten Seeds und 42 zusätzlichen
+  automatisierten B.4-Prüfungen.
 
 ### Geändert
 
 - Der offizielle Projektname wurde von „EVE – Emergent Virtual Evolution“ auf
   „EVE“ verkürzt.
+- Das Persistenzformat wurde für B.4-Konfiguration, Metriken und ausstehende
+  Modulationsereignisse auf Version 9 erweitert.

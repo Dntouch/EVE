@@ -37,6 +37,9 @@ enum class EventKind : std::uint8_t {
     feedback_fire = 5,
     feedback_impulse = 6,
     context_expiry = 7,
+    modulation_fire = 8,
+    modulation_impulse = 9,
+    eligibility_decay = 10,
 };
 
 struct Event {
@@ -47,13 +50,15 @@ struct Event {
     std::uint64_t generation{};
     std::uint32_t context_signature{};
     bool context_feedback_origin{};
+    std::int8_t modulation{};
 
     bool operator==(const Event& other) const noexcept {
         return kind == other.kind && target == other.target &&
                scheduled_time == other.scheduled_time && sequence == other.sequence &&
                generation == other.generation &&
                context_signature == other.context_signature &&
-               context_feedback_origin == other.context_feedback_origin;
+               context_feedback_origin == other.context_feedback_origin &&
+               modulation == other.modulation;
     }
 };
 
@@ -150,6 +155,18 @@ struct EvaluationFeedbackResult {
     std::uint64_t expired_context_matches{};
 };
 
+struct ModulatoryFeedbackResult {
+    std::int8_t polarity{};
+    std::uint64_t processed_events{};
+    std::uint64_t neural_fires{};
+    std::uint64_t neural_impulses{};
+    std::uint64_t receipts_with_trace{};
+    std::uint64_t receipts_without_trace{};
+    std::uint64_t positive_changes{};
+    std::uint64_t negative_changes{};
+    std::uint64_t zero_to_one_changes{};
+};
+
 struct ActionContextEmission {
     brainstem::ActionContextSignal signal{brainstem::ActionContextSignal::start};
     std::uint8_t observed_motor_value{};
@@ -231,6 +248,9 @@ public:
         brainstem::EvaluationSignalKind kind =
             brainstem::EvaluationSignalKind::graded,
         std::uint64_t scheduled_time = 0);
+    [[nodiscard]] ModulatoryFeedbackResult process_modulatory_feedback(
+        std::int8_t polarity,
+        std::uint64_t scheduled_time = 0);
     [[nodiscard]] bool evaluation_route_configured() const noexcept;
     [[nodiscard]] brainstem::ActionContextRoute configure_action_context(
         const brainstem::ActionContextConfig& config);
@@ -254,6 +274,8 @@ public:
         const brainstem::MotorCircuitResult& circuit,
         const std::vector<ImpulseObservation>& impulses) const;
     void set_experimental_synapse_weight(SynapseId synapse, std::int32_t weight);
+    [[nodiscard]] SynapseId add_experimental_synapse(
+        NeuronId sender, NeuronId receiver, std::int32_t weight);
 
     [[nodiscard]] const ExperimentConfig& config() const noexcept;
     [[nodiscard]] const neural::Network& network() const noexcept;
@@ -275,14 +297,17 @@ private:
         NeuronId neuron,
         bool feedback_context = false,
         std::uint32_t context_signature = 0,
-        bool context_feedback_origin = false);
+        bool context_feedback_origin = false,
+        std::int8_t modulation = 0);
     void process_impulse(
         SynapseId synapse,
         bool feedback_context = false,
         std::uint32_t context_signature = 0,
-        bool context_feedback_origin = false);
+        bool context_feedback_origin = false,
+        std::int8_t modulation = 0);
     void process_recovery(const Event& event);
     void process_eligibility_expiry(const Event& event);
+    void process_eligibility_decay(const Event& event);
     void process_context_expiry(const Event& event);
     void process_event(const Event& event);
     void enqueue_event(
@@ -291,7 +316,11 @@ private:
         std::uint64_t scheduled_time,
         std::uint64_t generation = 0,
         std::uint32_t context_signature = 0,
-        bool context_feedback_origin = false);
+        bool context_feedback_origin = false,
+        std::int8_t modulation = 0);
+    void create_local_plasticity_trace(NeuronId neuron, SynapseId candidate,
+                                       bool feedback_origin);
+    void apply_local_modulation(NeuronId neuron, std::int8_t polarity);
     [[nodiscard]] bool has_ready_event() const noexcept;
     [[nodiscard]] Event pop_next_event();
     void update_event_hash(const Event& event) noexcept;

@@ -94,6 +94,7 @@ void Network::reset(const ExperimentConfig& config) {
     eligibility_context_generations_.assign(record_count, 0);
     eligibility_context_ambiguities_.assign(record_count, 0);
     eligibility_context_feedback_origins_.assign(record_count, 0);
+    eligibility_strengths_.assign(record_count, 0);
     if (record_count == 0 || eligibility_candidate_capacity_ == 0) {
         eligibility_write_positions_.clear();
         eligibility_generations_.clear();
@@ -336,7 +337,8 @@ EligibilityStoreResult Network::store_eligibility(
     const std::uint32_t context_signature,
     const std::uint64_t context_generation,
     const bool context_ambiguous,
-    const bool context_feedback_origin) {
+    const bool context_feedback_origin,
+    const std::uint8_t strength) {
     require_neuron(id);
     if (eligibility_candidate_capacity_ == 0 || eligibility_decision_capacity_ == 0) {
         return {};
@@ -380,6 +382,7 @@ EligibilityStoreResult Network::store_eligibility(
             eligibility_context_generations_[record] = 0;
             eligibility_context_ambiguities_[record] = 0;
             eligibility_context_feedback_origins_[record] = 0;
+            eligibility_strengths_[record] = 0;
         }
         for (const SynapseId candidate : candidates) {
             const auto found = std::find(merged.begin(), merged.end(), candidate);
@@ -407,6 +410,7 @@ EligibilityStoreResult Network::store_eligibility(
             eligibility_context_generations_[record] = 0;
             eligibility_context_ambiguities_[record] = 0;
             eligibility_context_feedback_origins_[record] = 0;
+            eligibility_strengths_[record] = 0;
         }
     }
 
@@ -449,11 +453,13 @@ EligibilityStoreResult Network::store_eligibility(
     eligibility_context_ambiguities_[record] = context_ambiguous ? 1U : 0U;
     eligibility_context_feedback_origins_[record] =
         context_feedback_origin ? 1U : 0U;
+    eligibility_strengths_[record] = strength == 0 ? 1 : strength;
     eligibility_write_positions_[id] = (selected + 1U) % eligibility_decision_capacity_;
     eligibility_overwrites_[id] += result.overwritten_decisions;
     result.record = EligibilityRecord{
         generation, expires_at, feedback_origin, context_signature,
         context_generation, context_ambiguous, context_feedback_origin,
+        eligibility_strengths_[record],
         std::move(candidates)};
     return result;
 }
@@ -475,10 +481,31 @@ bool Network::expire_eligibility(const NeuronId id, const std::uint64_t generati
             eligibility_context_generations_[record] = 0;
             eligibility_context_ambiguities_[record] = 0;
             eligibility_context_feedback_origins_[record] = 0;
+            eligibility_strengths_[record] = 0;
             return true;
         }
     }
     return false;
+}
+
+std::uint8_t Network::decay_eligibility(
+    const NeuronId id, const std::uint64_t generation) {
+    require_neuron(id);
+    if (eligibility_decision_capacity_ == 0 || generation == 0) return 0;
+    const std::size_t base = static_cast<std::size_t>(id) * eligibility_decision_capacity_;
+    for (std::uint32_t slot = 0; slot < eligibility_decision_capacity_; ++slot) {
+        const std::size_t record = base + slot;
+        if (eligibility_record_generations_[record] != generation) continue;
+        auto& strength = eligibility_strengths_[record];
+        if (strength >= 4) strength = 2;
+        else if (strength == 2) strength = 1;
+        else {
+            static_cast<void>(expire_eligibility(id, generation));
+            return 0;
+        }
+        return strength;
+    }
+    return 0;
 }
 
 std::vector<EligibilityRecord> Network::eligibility_records(const NeuronId id) const {
@@ -503,6 +530,7 @@ std::vector<EligibilityRecord> Network::eligibility_records(const NeuronId id) c
         item.context_ambiguous = eligibility_context_ambiguities_[record] != 0;
         item.context_feedback_origin =
             eligibility_context_feedback_origins_[record] != 0;
+        item.strength = eligibility_strengths_[record];
         const std::size_t candidate_base = record * eligibility_candidate_capacity_;
         item.candidates.assign(
             eligibility_slots_.begin() + static_cast<std::ptrdiff_t>(candidate_base),
@@ -567,6 +595,7 @@ void Network::restore_eligibility(
     eligibility_context_generations_.assign(record_count, 0);
     eligibility_context_ambiguities_.assign(record_count, 0);
     eligibility_context_feedback_origins_.assign(record_count, 0);
+    eligibility_strengths_.assign(record_count, 0);
     if (candidate_capacity == 0 || decision_capacity == 0) {
         for (std::size_t id = 0; id < records.size(); ++id) {
             if (!records[id].empty() || generations[id] != 0 || overwrites[id] != 0) {
@@ -601,6 +630,7 @@ void Network::restore_eligibility(
                 item.context_ambiguous ? 1U : 0U;
             eligibility_context_feedback_origins_[record] =
                 item.context_feedback_origin ? 1U : 0U;
+            eligibility_strengths_[record] = item.strength == 0 ? 1 : item.strength;
             eligibility_sizes_[record] = static_cast<std::uint32_t>(item.candidates.size());
             const std::size_t base = record * candidate_capacity;
             for (std::size_t index = 0; index < item.candidates.size(); ++index) {
@@ -844,6 +874,7 @@ std::size_t Network::estimated_memory_bytes() const noexcept {
            eligibility_context_generations_.capacity() * sizeof(std::uint64_t) +
            eligibility_context_ambiguities_.capacity() * sizeof(std::uint8_t) +
            eligibility_context_feedback_origins_.capacity() * sizeof(std::uint8_t) +
+           eligibility_strengths_.capacity() * sizeof(std::uint8_t) +
            eligibility_write_positions_.capacity() * sizeof(std::uint32_t) +
            eligibility_generations_.capacity() * sizeof(std::uint64_t) +
            eligibility_overwrites_.capacity() * sizeof(std::uint64_t) +
@@ -915,6 +946,7 @@ std::uint64_t Network::state_fingerprint() const noexcept {
             hash_u64(hash, record.context_generation);
             hash_u64(hash, record.context_ambiguous ? 1 : 0);
             hash_u64(hash, record.context_feedback_origin ? 1 : 0);
+            hash_u64(hash, record.strength);
             hash_u64(hash, record.candidates.size());
             for (const SynapseId candidate : record.candidates) {
                 hash_u64(hash, candidate);
@@ -990,6 +1022,7 @@ bool Network::validate(std::string* error) const {
         eligibility_context_ambiguities_.size() != expected_eligibility_records ||
         eligibility_context_feedback_origins_.size() !=
             expected_eligibility_records ||
+        eligibility_strengths_.size() != expected_eligibility_records ||
         eligibility_write_positions_.size() != expected_eligibility_management ||
         eligibility_generations_.size() != expected_eligibility_management ||
         eligibility_overwrites_.size() != expected_eligibility_management) {
@@ -1003,10 +1036,14 @@ bool Network::validate(std::string* error) const {
               eligibility_context_signatures_[index] != 0 ||
               eligibility_context_generations_[index] != 0 ||
               eligibility_context_ambiguities_[index] != 0 ||
-              eligibility_context_feedback_origins_[index] != 0))) {
+              eligibility_context_feedback_origins_[index] != 0 ||
+              eligibility_strengths_[index] != 0))) {
             return fail("invalid eligibility record");
         }
         if (eligibility_record_generations_[index] != 0) {
+            if (eligibility_strengths_[index] == 0) {
+                return fail("active eligibility has zero strength");
+            }
             const std::size_t neuron_index =
                 index / eligibility_decision_capacity_;
             if (eligibility_record_generations_[index] >
@@ -1167,6 +1204,7 @@ void Network::restore(
     eligibility_context_generations_.clear();
     eligibility_context_ambiguities_.clear();
     eligibility_context_feedback_origins_.clear();
+    eligibility_strengths_.clear();
     eligibility_write_positions_.clear();
     eligibility_generations_.clear();
     eligibility_overwrites_.clear();

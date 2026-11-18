@@ -601,6 +601,11 @@ Untersuchen, wie ein Neuron vorausgegangene Eingangsaktivität berücksichtigen 
 
 Eine minimale Lernregel erproben, die neuronale Aktivität mit einer nachfolgenden Rückmeldung verbindet.
 
+Der erste isolierte Versuch hierzu ist als
+[lokale Drei-Faktor-Plastizität](EVE-Drei-Faktor-Plastizitaet.md) dokumentiert.
+Er erlaubt begrenzte Änderungen im Forschungsmodus, hebt die fehlende
+Handlungszuordnung und die Sperre für allgemeines Online-Lernen aber nicht auf.
+
 ### Forschungsstufe D – Erwartungsbildung
 
 Untersuchen, ob EVE durch Erfahrung die Ergebnisse ihrer eigenen Handlungen zunehmend zuverlässiger vorhersagen kann.

@@ -3031,10 +3031,101 @@ void test_context_signature_contains_no_sequence_number() {
                   "context signature contains a hidden sequence/action number");
 }
 
+void test_b4_three_factor_matrix_case(const std::uint32_t index) {
+    eve::ExperimentConfig config;
+    config.neuron_count = 64;
+    config.width = 4;
+    config.height = 4;
+    config.depth = 4;
+    config.initial_outgoing_synapses = 0;
+    config.firing_threshold = 1;
+    config.maximum_synapse_weight = 3;
+    config.input_weight_budget = 32;
+    config.learning_enabled = false;
+    config.growth_enabled = false;
+    config.local_event_memory_capacity = 8;
+    config.eligibility_selection = eve::EligibilitySelection::all_recent;
+    config.eligibility_representation = eve::EligibilityRepresentation::unique;
+    config.eligibility_history = eve::EligibilityHistory::retain;
+    config.eligibility_candidate_capacity = 2U << (index % 3U);
+    config.eligibility_decision_capacity = config.eligibility_candidate_capacity;
+    config.eligibility_duration = index % 3U == 0 ? 4 : index % 3U == 1 ? 16 : 64;
+    config.plasticity_trace_mode = static_cast<eve::PlasticityTraceMode>(
+        1U + index % 3U);
+    config.plasticity_decay_mode = static_cast<eve::TraceDecayMode>(index % 4U);
+    config.modulation_mode = eve::ModulationMode::ternary;
+    config.plasticity_maximum_weight = 3;
+
+    eve::bios::Runtime runtime(config, 9000U + index);
+    auto route_config = evaluation_route_config(
+        eve::brainstem::EvaluationRouteMode::general_wiring);
+    route_config.fanout_per_source = 1;
+    route_config.weight = 1;
+    route_config.seed = 9100U + index;
+    const auto route = runtime.configure_evaluation_route(route_config);
+    require(!route.target_neurons.empty(), "B.4 route has no local recipient");
+    const eve::NeuronId action = route.target_neurons.front();
+    const bool positive = index % 2U == 0;
+    const std::int32_t initial =
+        config.plasticity_trace_mode == eve::PlasticityTraceMode::membrane_participation &&
+                positive
+            ? 0 : 1;
+    const eve::SynapseId plastic = runtime.add_experimental_synapse(0, action, initial);
+
+    runtime.enqueue_fire(0);
+    static_cast<void>(runtime.run());
+    const bool immediate = config.plasticity_decay_mode == eve::TraceDecayMode::immediate;
+    if (immediate) {
+        require_equal(runtime.network().active_eligibility_count(), std::size_t{0},
+                      "T0 trace survived its event turn");
+    } else {
+        require(runtime.network().active_eligibility_count() > 0,
+                "B.4 activity created no bounded local trace");
+    }
+
+    const std::int8_t polarity = positive ? 1 : -1;
+    const auto feedback = runtime.process_modulatory_feedback(polarity);
+    require(feedback.neural_fires > 0 && feedback.neural_impulses > 0,
+            "B.4 modulation bypassed the neural route");
+    const std::int32_t after = runtime.network().synapse(plastic).weight;
+    if (index >= 31U) {
+        const auto path = std::filesystem::temp_directory_path() /
+            ("eve-stage-b4-persistence-" + std::to_string(index) + ".bin");
+        runtime.save(path.string());
+        auto restored = eve::bios::Runtime::load(path.string());
+        require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                      "B.4 persisted state changed");
+        static_cast<void>(runtime.advance_time_by(64));
+        static_cast<void>(restored.advance_time_by(64));
+        require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                      "B.4 restored continuation diverged");
+        static_cast<void>(std::filesystem::remove(path));
+    }
+    if (immediate) {
+        require_equal(after, initial, "expired T0 trace changed a weight");
+        require(feedback.receipts_without_trace > 0,
+                "expired T0 trace was not diagnosed as absent");
+        return;
+    }
+    require(feedback.receipts_with_trace > 0,
+            "B.4 modulation did not meet a local trace");
+    if (positive) {
+        require(after > initial, "positive three-factor update did not strengthen");
+    } else {
+        require(after < initial && after >= 0,
+                "negative three-factor update did not weaken within bounds");
+    }
+    require(runtime.network().active_eligibility_count() <=
+                runtime.network().neuron_count() *
+                    config.eligibility_decision_capacity,
+            "B.4 trace storage exceeded its fixed bound");
+    require(runtime.network().validate(), "B.4 update broke network invariants");
+}
+
 }  // namespace
 
 int main() {
-    const std::vector<std::pair<std::string, std::function<void()>>> tests{
+    std::vector<std::pair<std::string, std::function<void()>>> tests{
         {"network initialization", test_network_initialization},
         {"duplicate synapse exclusion", test_duplicate_and_self_connections},
         {"3D index calculation", test_3d_index_calculation},
@@ -3227,6 +3318,14 @@ int main() {
         {"invalid multiple context capacity", test_invalid_multiple_context_capacity},
         {"context has no sequence ID", test_context_signature_contains_no_sequence_number},
     };
+    // The 42 cases are separately reported automated tests.  Together they cover
+    // E1-E3, T0-T3, capacities 2/4/8, durations 4/16/64, both polarities,
+    // different routes/seeds, zero-to-one growth and bounded weakening.
+    for (std::uint32_t index = 0; index < 42; ++index) {
+        tests.emplace_back(
+            "B4 three-factor matrix " + std::to_string(index + 1U),
+            [index]() { test_b4_three_factor_matrix_case(index); });
+    }
 
     std::size_t failures = 0;
     for (const auto& [name, test] : tests) {

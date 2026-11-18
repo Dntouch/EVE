@@ -17,3 +17,11 @@ Als zu speichernde Bestandteile nennt das Konzept:
 Die [Experimentvorlage](VORLAGE.md) ist ein Arbeitsmittel. Ihre Felder sind keine
 bereits beschlossene Versuchsmethodik und können für den jeweiligen Versuch
 angepasst werden.
+
+## Jüngste Forschungsstufe
+
+- [Auftrag B.4](012-entwicklungsauftrag-forschungsstufe-b4.md)
+- [Bericht B.4](012-forschungsbericht-forschungsstufe-b4.md)
+
+Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
+erreichten Nachweis einer Verhaltensverbesserung.
