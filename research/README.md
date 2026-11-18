@@ -87,3 +87,21 @@ und schreibt sie anschließend in fester Reihenfolge. Die Parameter stehen in
 `experiment-003-*.csv` unter `results`. Zeitwerte sind maschinen- und
 lastabhängig; Ereignisse, Zustände und Aktivitätshashes bleiben bei identischem
 Build deterministisch.
+
+## Forschungsstufe A – neuronale Ausgabe
+
+Build, alle Kerntests und die vollständigen Versuche A1 bis A5:
+
+~~~sh
+scripts/run_research_stage_a.sh research/results
+~~~
+
+Der Runner erzeugt:
+
+- research-stage-a-assignments.csv: vollständige, reproduzierbare Zuordnung
+  der Varianten M1, M2 und M3,
+- research-stage-a-results.csv: Rohdaten der isolierten und getrennt
+  gekennzeichneten Lernläufe.
+
+Die Laufzeitspalte ist maschinenabhängig. Zuordnung, Zustände, Ereigniszähler
+und neuronale Ausgaben sind bei identischem Build deterministisch.

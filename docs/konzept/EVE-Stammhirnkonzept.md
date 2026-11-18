@@ -559,6 +559,11 @@ Die folgenden Schritte sollen getrennt untersucht werden.
 
 Eine technische Ausgabeschnittstelle bereitstellen und prüfen, ob das neuronale Netzwerk eigenständig unterscheidbare Ausgaben erzeugen kann.
 
+Umsetzung und Ergebnisse:
+
+- [Entwicklungsauftrag](../experimente/004-entwicklungsauftrag-forschungsstufe-a.md)
+- [Forschungsbericht](../experimente/004-forschungsbericht-forschungsstufe-a.md)
+
 ### Forschungsstufe B – Lokale Ereigniszuordnung
 
 Untersuchen, wie ein Neuron vorausgegangene Eingangsaktivität berücksichtigen kann, ohne Zeitstempel oder globale Aktualisierungen.

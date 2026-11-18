@@ -3,6 +3,8 @@
 #include "eve/neural/network.hpp"
 #include "eve/types.hpp"
 
+#include <array>
+#include <cstddef>
 #include <cstdint>
 #include <optional>
 #include <vector>
@@ -33,6 +35,80 @@ struct ImpulseResult {
     bool phase_completed{};
     std::int32_t applied_weight{};
     std::int64_t membrane_after{};
+};
+
+enum class MotorResponseStatus : std::uint8_t {
+    no_response = 0,
+    completed = 1,
+    aborted = 2,
+};
+
+struct MotorOutputConfig {
+    std::uint32_t contacts_per_channel{1};
+    std::uint64_t assignment_seed{1};
+    NeuronId response_stimulus_neuron{8};
+
+    bool operator==(const MotorOutputConfig& other) const noexcept {
+        return contacts_per_channel == other.contacts_per_channel &&
+               assignment_seed == other.assignment_seed &&
+               response_stimulus_neuron == other.response_stimulus_neuron;
+    }
+};
+
+struct MotorAssignment {
+    MotorOutputConfig config;
+    std::array<std::vector<NeuronId>, 8> channels;
+    NeuronId completion_contact{kInvalidIndex};
+
+    bool operator==(const MotorAssignment& other) const noexcept {
+        return config == other.config && channels == other.channels &&
+               completion_contact == other.completion_contact;
+    }
+};
+
+struct MotorActivation {
+    std::uint64_t event_index{};
+    NeuronId neuron{};
+    std::int8_t channel{-1};
+
+    bool operator==(const MotorActivation& other) const noexcept {
+        return event_index == other.event_index && neuron == other.neuron &&
+               channel == other.channel;
+    }
+};
+
+struct MotorResponse {
+    MotorResponseStatus status{MotorResponseStatus::no_response};
+    std::uint8_t value{};
+    std::array<bool, 8> activated_channels{};
+    std::vector<MotorActivation> activations;
+    std::uint64_t processed_events{};
+
+    [[nodiscard]] bool valid() const noexcept {
+        return status == MotorResponseStatus::completed;
+    }
+};
+
+class MotorOutput {
+public:
+    void configure(std::uint32_t neuron_count, const MotorOutputConfig& config);
+    void begin_response();
+    void observe_fire(NeuronId neuron, std::uint64_t event_index);
+    void finish_without_completion();
+    void abort();
+
+    [[nodiscard]] bool configured() const noexcept;
+    [[nodiscard]] bool active() const noexcept;
+    [[nodiscard]] const MotorAssignment& assignment() const;
+    [[nodiscard]] const MotorResponse& response() const noexcept;
+    [[nodiscard]] std::size_t estimated_memory_bytes() const noexcept;
+
+private:
+    MotorAssignment assignment_;
+    MotorResponse response_;
+    std::vector<std::int8_t> roles_;
+    bool configured_{};
+    bool active_{};
 };
 
 class Brainstem {

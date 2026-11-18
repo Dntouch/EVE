@@ -71,6 +71,13 @@ public:
     [[nodiscard]] std::vector<brainstem::EncodedByte> process_utf8_text(
         const std::string& utf8_text);
 
+    void configure_motor_output(const brainstem::MotorOutputConfig& config);
+    [[nodiscard]] brainstem::MotorResponse request_response(
+        bool emit_response_stimulus = true,
+        std::uint64_t safety_event_limit = 0);
+    [[nodiscard]] bool motor_output_configured() const noexcept;
+    [[nodiscard]] const brainstem::MotorAssignment& motor_assignment() const;
+
     void set_trace_stream(std::ostream* stream) noexcept;
     void set_fire_observer(FireObserver observer);
 
@@ -102,6 +109,7 @@ private:
     Metrics metrics_;
     std::ostream* trace_stream_{};
     FireObserver fire_observer_;
+    brainstem::MotorOutput motor_output_;
 };
 
 }  // namespace eve::bios

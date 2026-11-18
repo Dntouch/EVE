@@ -9,6 +9,7 @@
 #include <functional>
 #include <iostream>
 #include <limits>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -42,6 +43,24 @@ eve::ExperimentConfig small_config() {
     config.depth = 2;
     config.initial_outgoing_synapses = 0;
     config.growth_enabled = false;
+    return config;
+}
+
+eve::ExperimentConfig motor_test_config() {
+    eve::ExperimentConfig config;
+    config.initial_outgoing_synapses = 0;
+    config.learning_enabled = false;
+    config.growth_enabled = false;
+    return config;
+}
+
+eve::brainstem::MotorOutputConfig motor_output_config(
+    const std::uint32_t contacts = 1,
+    const std::uint64_t seed = 20261118) {
+    eve::brainstem::MotorOutputConfig config;
+    config.contacts_per_channel = contacts;
+    config.assignment_seed = seed;
+    config.response_stimulus_neuron = 8;
     return config;
 }
 
@@ -462,6 +481,175 @@ void test_utf8_byte_sensory_processing() {
     require_equal(second_call[1].byte_index, 2ULL, "third global byte index");
 }
 
+void test_motor_assignment_is_reproducible_and_disjoint() {
+    for (const std::uint32_t contacts : {1U, 4U, 8U}) {
+        eve::bios::Runtime first(motor_test_config(), 1);
+        eve::bios::Runtime second(motor_test_config(), 999);
+        first.configure_motor_output(motor_output_config(contacts));
+        second.configure_motor_output(motor_output_config(contacts));
+        require_equal(first.motor_assignment(), second.motor_assignment(),
+                      "motor assignment depends on network initialization seed");
+
+        std::set<eve::NeuronId> selected;
+        for (const auto& channel : first.motor_assignment().channels) {
+            require_equal(channel.size(), static_cast<std::size_t>(contacts),
+                          "unexpected contact group size");
+            for (const eve::NeuronId neuron : channel) {
+                require(neuron > 8, "motor contact overlaps sensory or response channel");
+                require(selected.insert(neuron).second, "motor contact groups overlap");
+            }
+        }
+        require(first.motor_assignment().completion_contact > 8,
+                "completion overlaps sensory or response channel");
+        require(selected.insert(first.motor_assignment().completion_contact).second,
+                "completion contact overlaps a data contact");
+    }
+}
+
+void test_motor_output_events_form_byte() {
+    eve::bios::Runtime runtime(motor_test_config(), 1);
+    runtime.configure_motor_output(motor_output_config());
+    const auto& assignment = runtime.motor_assignment();
+    runtime.enqueue_fire(assignment.channels[0][0]);
+    runtime.enqueue_fire(assignment.channels[3][0]);
+    runtime.enqueue_fire(assignment.completion_contact);
+    const auto response = runtime.request_response(false);
+    require(response.valid(), "completion did not produce a valid response");
+    require_equal(response.value, std::uint8_t{0x09}, "motor channels formed wrong byte");
+    require_equal(response.activations.size(), std::size_t{3},
+                  "motor activation sequence was not recorded");
+}
+
+void test_all_motor_channels_form_full_byte() {
+    eve::bios::Runtime runtime(motor_test_config(), 2);
+    runtime.configure_motor_output(motor_output_config(4));
+    const auto& assignment = runtime.motor_assignment();
+    for (const auto& channel : assignment.channels) {
+        runtime.enqueue_fire(channel.front());
+    }
+    runtime.enqueue_fire(assignment.completion_contact);
+    const auto response = runtime.request_response(false);
+    require(response.valid(), "full byte response did not complete");
+    require_equal(response.value, std::uint8_t{0xff}, "eight channels did not form 0xff");
+}
+
+void test_repeated_motor_fire_keeps_binary_value() {
+    eve::bios::Runtime runtime(motor_test_config(), 3);
+    runtime.configure_motor_output(motor_output_config());
+    const auto& assignment = runtime.motor_assignment();
+    runtime.enqueue_fire(assignment.channels[2][0]);
+    runtime.enqueue_fire(assignment.channels[2][0]);
+    runtime.enqueue_fire(assignment.completion_contact);
+    const auto response = runtime.request_response(false);
+    require_equal(response.value, std::uint8_t{0x04},
+                  "repeated firing changed the binary channel value");
+    require_equal(response.activations.size(), std::size_t{3},
+                  "repeated activation was not retained for diagnostics");
+}
+
+void test_motor_events_outside_response_are_ignored() {
+    eve::bios::Runtime runtime(motor_test_config(), 4);
+    runtime.configure_motor_output(motor_output_config());
+    const auto assignment = runtime.motor_assignment();
+    runtime.enqueue_fire(assignment.channels[0][0]);
+    runtime.enqueue_fire(assignment.completion_contact);
+    static_cast<void>(runtime.run());
+    const auto response = runtime.request_response(false);
+    require(!response.valid(), "input-phase motor activity leaked into a response");
+    require_equal(response.value, std::uint8_t{0}, "ignored activity set an output bit");
+}
+
+void test_response_stimulus_is_processed_without_answer_content() {
+    eve::bios::Runtime runtime(motor_test_config(), 5);
+    runtime.configure_motor_output(motor_output_config());
+    const auto response = runtime.request_response(true);
+    require_equal(response.status, eve::brainstem::MotorResponseStatus::no_response,
+                  "isolated response stimulus fabricated an answer");
+    require_equal(response.processed_events, 1ULL,
+                  "response stimulus was not processed as one neural fire event");
+    require_equal(response.value, std::uint8_t{0}, "response stimulus encoded answer bits");
+}
+
+void test_null_byte_differs_from_missing_response() {
+    eve::bios::Runtime runtime(motor_test_config(), 6);
+    runtime.configure_motor_output(motor_output_config());
+    runtime.enqueue_fire(runtime.motor_assignment().completion_contact);
+    const auto null_byte = runtime.request_response(false);
+    const auto missing = runtime.request_response(false);
+    require(null_byte.valid(), "completed null byte is not valid");
+    require_equal(null_byte.value, std::uint8_t{0}, "completed null byte changed value");
+    require_equal(missing.status, eve::brainstem::MotorResponseStatus::no_response,
+                  "missing response was treated as a null byte");
+}
+
+void test_motor_response_aborts_at_safety_limit() {
+    eve::bios::Runtime runtime(motor_test_config(), 7);
+    runtime.configure_motor_output(motor_output_config());
+    runtime.enqueue_fire(runtime.motor_assignment().channels[1][0]);
+    runtime.enqueue_fire(runtime.motor_assignment().completion_contact);
+    const auto response = runtime.request_response(false, 1);
+    require_equal(response.status, eve::brainstem::MotorResponseStatus::aborted,
+                  "response did not stop at safety limit");
+    require_equal(response.processed_events, 1ULL, "safety limit processed too many events");
+}
+
+void test_motor_responses_are_reproducible() {
+    const auto execute = []() {
+        eve::bios::Runtime runtime(motor_test_config(), 8);
+        runtime.configure_motor_output(motor_output_config(8, 77));
+        runtime.enqueue_fire(runtime.motor_assignment().channels[1][3]);
+        runtime.enqueue_fire(runtime.motor_assignment().channels[6][5]);
+        runtime.enqueue_fire(runtime.motor_assignment().completion_contact);
+        return runtime.request_response(false);
+    };
+    const auto first = execute();
+    const auto second = execute();
+    require_equal(first.status, second.status, "response status is not reproducible");
+    require_equal(first.value, second.value, "response value is not reproducible");
+    require_equal(first.activations, second.activations,
+                  "motor activation sequence is not reproducible");
+}
+
+void test_motor_assignment_after_state_restore() {
+    const std::filesystem::path path =
+        std::filesystem::temp_directory_path() / "eve-stage-a-motor-state.bin";
+    eve::bios::Runtime original(motor_test_config(), 9);
+    static_cast<void>(original.process_utf8_text("AB"));
+    original.save(path.string());
+    eve::bios::Runtime restored = eve::bios::Runtime::load(path.string());
+    original.configure_motor_output(motor_output_config(4, 123));
+    restored.configure_motor_output(motor_output_config(4, 123));
+    require_equal(original.motor_assignment(), restored.motor_assignment(),
+                  "restored state received a different motor assignment");
+    require_equal(original.state_fingerprint(), restored.state_fingerprint(),
+                  "motor configuration changed restored neural state");
+    static_cast<void>(std::filesystem::remove(path));
+}
+
+void test_disabled_motor_interface_preserves_existing_behavior() {
+    eve::bios::Runtime first(motor_test_config(), 10);
+    eve::bios::Runtime second(motor_test_config(), 10);
+    require(!first.motor_output_configured(), "motor interface is enabled by default");
+    static_cast<void>(first.process_utf8_text("AB"));
+    static_cast<void>(second.process_utf8_text("AB"));
+    require_equal(first.state_fingerprint(), second.state_fingerprint(),
+                  "disabled motor interface changed existing processing");
+}
+
+void test_motor_assignment_cannot_directly_copy_sensor_bits() {
+    eve::bios::Runtime runtime(motor_test_config(), 11);
+    runtime.configure_motor_output(motor_output_config(8));
+    for (const auto& channel : runtime.motor_assignment().channels) {
+        for (const eve::NeuronId neuron : channel) {
+            require(neuron >= 9, "sensory neuron is wired directly to motor output");
+        }
+    }
+    static_cast<void>(runtime.process_utf8_bytes({0xff}));
+    const auto response = runtime.request_response(false);
+    require_equal(response.status, eve::brainstem::MotorResponseStatus::no_response,
+                  "sensory byte was copied into a motor response");
+}
+
 }  // namespace
 
 int main() {
@@ -487,6 +675,18 @@ int main() {
         {"reproducible execution", test_reproducible_execution},
         {"state persistence", test_persistence_round_trip},
         {"raw UTF-8 sensory processing", test_utf8_byte_sensory_processing},
+        {"motor assignment reproducibility", test_motor_assignment_is_reproducible_and_disjoint},
+        {"motor output byte formation", test_motor_output_events_form_byte},
+        {"all motor channels", test_all_motor_channels_form_full_byte},
+        {"repeated motor fire", test_repeated_motor_fire_keeps_binary_value},
+        {"motor phase separation", test_motor_events_outside_response_are_ignored},
+        {"response stimulus", test_response_stimulus_is_processed_without_answer_content},
+        {"null byte and missing response", test_null_byte_differs_from_missing_response},
+        {"motor safety limit", test_motor_response_aborts_at_safety_limit},
+        {"motor response reproducibility", test_motor_responses_are_reproducible},
+        {"motor assignment after restore", test_motor_assignment_after_state_restore},
+        {"disabled motor interface", test_disabled_motor_interface_preserves_existing_behavior},
+        {"no direct sensor copy", test_motor_assignment_cannot_directly_copy_sensor_bits},
     };
 
     std::size_t failures = 0;

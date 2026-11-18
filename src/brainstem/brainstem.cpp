@@ -3,9 +3,12 @@
 #include "eve/bios/runtime.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <limits>
+#include <numeric>
 #include <stdexcept>
+#include <utility>
 #include <vector>
 
 namespace eve::brainstem {
@@ -23,7 +26,144 @@ std::uint32_t chebyshev_distance(const Coordinate left, const Coordinate right) 
     });
 }
 
+std::uint64_t next_assignment_random(std::uint64_t& state) noexcept {
+    state ^= state >> 12U;
+    state ^= state << 25U;
+    state ^= state >> 27U;
+    return state * 2685821657736338717ULL;
+}
+
 }  // namespace
+
+void MotorOutput::configure(
+    const std::uint32_t neuron_count,
+    const MotorOutputConfig& config) {
+    if (config.contacts_per_channel == 0) {
+        throw std::invalid_argument("motor contacts per channel must be positive");
+    }
+    if (config.response_stimulus_neuron < 8 ||
+        config.response_stimulus_neuron >= neuron_count) {
+        throw std::invalid_argument(
+            "response stimulus must be independent of the eight sensory channels");
+    }
+
+    const std::uint64_t required =
+        static_cast<std::uint64_t>(config.contacts_per_channel) * 8U + 1U;
+    std::vector<NeuronId> candidates;
+    candidates.reserve(neuron_count);
+    for (NeuronId neuron = 8; neuron < neuron_count; ++neuron) {
+        if (neuron != config.response_stimulus_neuron) {
+            candidates.push_back(neuron);
+        }
+    }
+    if (required > candidates.size()) {
+        throw std::invalid_argument("network is too small for non-overlapping motor contacts");
+    }
+
+    std::uint64_t random_state = config.assignment_seed == 0
+                                     ? 0x9e3779b97f4a7c15ULL
+                                     : config.assignment_seed;
+    for (std::size_t remaining = candidates.size(); remaining > 1; --remaining) {
+        const std::size_t selected = static_cast<std::size_t>(
+            next_assignment_random(random_state) % remaining);
+        std::swap(candidates[remaining - 1], candidates[selected]);
+    }
+
+    assignment_ = {};
+    assignment_.config = config;
+    roles_.assign(neuron_count, static_cast<std::int8_t>(-2));
+    std::size_t candidate_index = 0;
+    for (std::size_t channel = 0; channel < assignment_.channels.size(); ++channel) {
+        auto& contacts = assignment_.channels[channel];
+        contacts.reserve(config.contacts_per_channel);
+        for (std::uint32_t contact = 0; contact < config.contacts_per_channel; ++contact) {
+            const NeuronId neuron = candidates[candidate_index++];
+            contacts.push_back(neuron);
+            roles_[neuron] = static_cast<std::int8_t>(channel);
+        }
+    }
+    assignment_.completion_contact = candidates[candidate_index];
+    roles_[assignment_.completion_contact] = -1;
+    response_ = {};
+    configured_ = true;
+    active_ = false;
+}
+
+void MotorOutput::begin_response() {
+    if (!configured_) {
+        throw std::logic_error("motor output is not configured");
+    }
+    if (active_) {
+        throw std::logic_error("a motor response is already active");
+    }
+    response_ = {};
+    active_ = true;
+}
+
+void MotorOutput::observe_fire(
+    const NeuronId neuron,
+    const std::uint64_t event_index) {
+    if (!active_ || neuron >= roles_.size()) {
+        return;
+    }
+    const std::int8_t role = roles_[neuron];
+    if (role == -2) {
+        return;
+    }
+    response_.activations.push_back(MotorActivation{event_index, neuron, role});
+    if (role >= 0) {
+        const auto channel = static_cast<std::size_t>(role);
+        response_.activated_channels[channel] = true;
+        response_.value |= static_cast<std::uint8_t>(1U << channel);
+        return;
+    }
+    response_.status = MotorResponseStatus::completed;
+    active_ = false;
+}
+
+void MotorOutput::finish_without_completion() {
+    if (!active_) {
+        return;
+    }
+    response_.status = MotorResponseStatus::no_response;
+    active_ = false;
+}
+
+void MotorOutput::abort() {
+    if (!active_) {
+        return;
+    }
+    response_.status = MotorResponseStatus::aborted;
+    active_ = false;
+}
+
+bool MotorOutput::configured() const noexcept {
+    return configured_;
+}
+
+bool MotorOutput::active() const noexcept {
+    return active_;
+}
+
+const MotorAssignment& MotorOutput::assignment() const {
+    if (!configured_) {
+        throw std::logic_error("motor output is not configured");
+    }
+    return assignment_;
+}
+
+const MotorResponse& MotorOutput::response() const noexcept {
+    return response_;
+}
+
+std::size_t MotorOutput::estimated_memory_bytes() const noexcept {
+    std::size_t bytes = roles_.capacity() * sizeof(std::int8_t);
+    for (const auto& contacts : assignment_.channels) {
+        bytes += contacts.capacity() * sizeof(NeuronId);
+    }
+    bytes += response_.activations.capacity() * sizeof(MotorActivation);
+    return bytes;
+}
 
 void Brainstem::initialize_network(
     neural::Network& network,

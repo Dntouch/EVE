@@ -313,6 +313,61 @@ std::vector<brainstem::EncodedByte> Runtime::process_utf8_text(const std::string
     return process_utf8_bytes(bytes);
 }
 
+void Runtime::configure_motor_output(const brainstem::MotorOutputConfig& config) {
+    if (motor_output_.active()) {
+        throw std::logic_error("cannot reconfigure an active motor response");
+    }
+    motor_output_.configure(network_.neuron_count(), config);
+}
+
+brainstem::MotorResponse Runtime::request_response(
+    const bool emit_response_stimulus,
+    const std::uint64_t safety_event_limit) {
+    if (!motor_output_.configured()) {
+        throw std::logic_error("motor output is not configured");
+    }
+    const std::uint64_t limit =
+        safety_event_limit == 0 ? config_.maximum_events_per_run : safety_event_limit;
+    motor_output_.begin_response();
+    if (emit_response_stimulus) {
+        enqueue_fire(motor_output_.assignment().config.response_stimulus_neuron);
+    }
+
+    std::uint64_t processed = 0;
+    while (!queue_.empty() && motor_output_.active()) {
+        if (processed >= limit) {
+            motor_output_.abort();
+            break;
+        }
+        const Event event = queue_.front();
+        queue_.pop_front();
+        ++processed;
+        ++metrics_.processed_events;
+        update_event_hash(event);
+        if (event.kind == EventKind::fire) {
+            process_fire(event.target);
+        } else if (event.kind == EventKind::impulse) {
+            process_impulse(event.target);
+        } else {
+            throw std::logic_error("unknown event kind");
+        }
+    }
+    if (motor_output_.active()) {
+        motor_output_.finish_without_completion();
+    }
+    brainstem::MotorResponse response = motor_output_.response();
+    response.processed_events = processed;
+    return response;
+}
+
+bool Runtime::motor_output_configured() const noexcept {
+    return motor_output_.configured();
+}
+
+const brainstem::MotorAssignment& Runtime::motor_assignment() const {
+    return motor_output_.assignment();
+}
+
 void Runtime::set_trace_stream(std::ostream* stream) noexcept {
     trace_stream_ = stream;
 }
@@ -339,7 +394,8 @@ Diagnostics Runtime::diagnostics() const {
     result.synapse_count = network_.synapse_count();
     result.estimated_memory_bytes = sizeof(*this) + network_.estimated_memory_bytes() -
                                     sizeof(neural::Network) +
-                                    queue_.size() * sizeof(Event);
+                                    queue_.size() * sizeof(Event) +
+                                    motor_output_.estimated_memory_bytes();
     result.queued_events = queue_.size();
     result.weight_distribution = network_.weight_distribution();
     result.metrics = metrics_;
@@ -387,6 +443,9 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
 }
 
 void Runtime::save(const std::string& path) const {
+    if (motor_output_.active()) {
+        throw std::logic_error("saving during an active motor response is not supported");
+    }
     std::ofstream stream(path, std::ios::binary | std::ios::trunc);
     if (!stream) {
         throw std::runtime_error("cannot open state for writing: " + path);
@@ -557,6 +616,7 @@ void Runtime::validate_config() const {
 void Runtime::process_fire(const NeuronId neuron) {
     const auto outgoing = network_.outgoing_synapses(neuron);
     ++metrics_.fire_events;
+    motor_output_.observe_fire(neuron, metrics_.processed_events);
     if (fire_observer_) {
         fire_observer_(FireObservation{
             metrics_.processed_events,
