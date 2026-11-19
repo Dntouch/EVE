@@ -4831,6 +4831,245 @@ void test_b51_natural_lifecycle_case(const std::uint32_t index) {
     }
 }
 
+void test_b52_memory_stability_case(const std::uint32_t index) {
+    eve::ExperimentConfig config;
+    config.neuron_count = 16;
+    config.width = 4;
+    config.height = 2;
+    config.depth = 2;
+    config.initial_outgoing_synapses = 0;
+    config.firing_threshold = 2;
+    config.maximum_synapse_weight = 3;
+    config.input_weight_budget = 24;
+    config.learning_enabled = false;
+    config.growth_enabled = false;
+    config.local_event_memory_capacity = 8;
+    config.eligibility_selection = eve::EligibilitySelection::active_phase;
+    config.eligibility_candidate_capacity = 8;
+    config.eligibility_decision_capacity = 8;
+    config.eligibility_duration = 16;
+    config.plasticity_trace_mode = eve::PlasticityTraceMode::g3_recent;
+    config.modulation_mode = eve::ModulationMode::ternary;
+    config.batch_simultaneous_inputs = true;
+    config.inhibitory_plasticity_mode = eve::InhibitoryPlasticityMode::shared;
+
+    struct Fixture {
+        eve::bios::Runtime runtime;
+        std::array<eve::SynapseId, 4> cues{};
+        std::array<eve::SynapseId, 2> explorers{};
+        std::array<eve::SynapseId, 2> outputs{};
+        std::array<eve::SynapseId, 2> inhibition{};
+    };
+    const auto make_fixture = [&]() {
+        Fixture value{eve::bios::Runtime(config, 0x520000ULL)};
+        for (std::size_t cue = 0; cue < 2; ++cue) {
+            for (std::size_t action = 0; action < 2; ++action) {
+                value.cues[cue * 2 + action] =
+                    value.runtime.add_experimental_synapse(
+                        cue, 4 + action, 0, false,
+                        eve::SynapticEffect::excitatory);
+            }
+        }
+        for (std::size_t action = 0; action < 2; ++action) {
+            value.explorers[action] = value.runtime.add_experimental_synapse(
+                2 + action, 4 + action, 2, true,
+                eve::SynapticEffect::excitatory);
+            value.outputs[action] = value.runtime.add_experimental_synapse(
+                4 + action, 6 + action, 2, true,
+                eve::SynapticEffect::excitatory);
+            value.inhibition[action] = value.runtime.add_experimental_synapse(
+                4 + action, 7 - action, 0, false,
+                eve::SynapticEffect::inhibitory);
+        }
+        eve::brainstem::EvaluationRouteConfig route;
+        route.mode = eve::brainstem::EvaluationRouteMode::sensory_input;
+        route.first_input_neuron = 8;
+        route.graded_channel_count = 5;
+        route.fanout_per_source = 1;
+        route.weight = 1;
+        const auto configured = value.runtime.configure_evaluation_route(route);
+        for (const auto source : configured.input_neurons) {
+            for (const auto target : {eve::NeuronId{4}, eve::NeuronId{5},
+                                      eve::NeuronId{6}, eve::NeuronId{7}}) {
+                static_cast<void>(value.runtime.add_experimental_synapse(
+                    source, target, 0, true,
+                    eve::SynapticEffect::excitatory));
+            }
+        }
+        return value;
+    };
+    const auto probe = [](eve::bios::Runtime& runtime,
+                          const eve::NeuronId source) {
+        std::array<bool, 2> fired{};
+        runtime.set_fire_observer([&](const eve::bios::FireObservation& event) {
+            fired[0] = fired[0] || event.neuron == 6;
+            fired[1] = fired[1] || event.neuron == 7;
+        });
+        runtime.enqueue_fire(source);
+        static_cast<void>(runtime.run());
+        runtime.set_fire_observer({});
+        return fired;
+    };
+    const auto same_weights = [](const eve::bios::Runtime& left,
+                                 const eve::bios::Runtime& right) {
+        if (left.network().synapse_count() != right.network().synapse_count()) {
+            return false;
+        }
+        for (eve::SynapseId id = 0; id < left.network().synapse_count(); ++id) {
+            if (left.network().synapse(id).weight !=
+                right.network().synapse(id).weight) return false;
+        }
+        return true;
+    };
+    const auto combine = [&](const Fixture& old_state, const Fixture& new_state,
+                             const bool new_sensor, const bool new_inhibition,
+                             const bool new_transient) {
+        Fixture result = new_transient ? new_state : old_state;
+        for (const auto id : result.cues) {
+            result.runtime.set_experimental_synapse_weight(id,
+                (new_sensor ? new_state : old_state).runtime.network()
+                    .synapse(id).weight);
+        }
+        for (const auto id : result.inhibition) {
+            result.runtime.set_experimental_synapse_weight(id,
+                (new_inhibition ? new_state : old_state).runtime.network()
+                    .synapse(id).weight);
+        }
+        return result;
+    };
+
+    auto fixture = make_fixture();
+    fixture.runtime.set_experimental_synapse_weight(fixture.cues[0], 2);
+    if (index == 0) {
+        auto changed = fixture;
+        static_cast<void>(probe(changed.runtime, 0));
+        require(same_weights(fixture.runtime, changed.runtime) &&
+                    fixture.runtime.state_fingerprint() !=
+                        changed.runtime.state_fingerprint(),
+                "B.5.2 did not separate identical weights from transient state");
+    } else if (index == 1) {
+        auto changed = fixture;
+        changed.runtime.set_experimental_synapse_weight(changed.cues[0], 1);
+        require(fixture.runtime.network().neurons() ==
+                    changed.runtime.network().neurons() &&
+                    !same_weights(fixture.runtime, changed.runtime),
+                "B.5.2 did not isolate weight changes from transient state");
+    } else if (index == 2) {
+        auto left = fixture;
+        auto right = fixture;
+        require_equal(probe(left.runtime, 0), probe(right.runtime, 0),
+                      "B.5.2 identical diagnostic copies diverged");
+        require_equal(left.runtime.state_fingerprint(),
+                      right.runtime.state_fingerprint(),
+                      "B.5.2 identical probes produced different states");
+    } else if (index == 3) {
+        const auto before = fixture.runtime;
+        static_cast<void>(fixture.runtime.advance_time_by(64));
+        require(same_weights(before, fixture.runtime),
+                "B.5.2 time advance created artificial plasticity");
+    } else if (index == 4) {
+        auto first = fixture;
+        auto second = fixture;
+        const auto first_result = probe(first.runtime, 0);
+        const auto second_result = probe(second.runtime, 0);
+        require_equal(first_result, second_result,
+                      "B.5.2 repeated copy probes were not reproducible");
+    } else if (index == 5) {
+        const auto before = fixture.runtime;
+        static_cast<void>(probe(fixture.runtime, 0));
+        static_cast<void>(probe(fixture.runtime, 0));
+        require(same_weights(before, fixture.runtime),
+                "B.5.2 diagnostic probing changed synaptic weights");
+    } else if (index == 6) {
+        const auto old_state = fixture;
+        auto new_state = fixture;
+        static_cast<void>(probe(new_state.runtime, 0));
+        const auto restored = combine(old_state, new_state, true, true, false);
+        require_equal(old_state.runtime.state_fingerprint(),
+                      restored.runtime.state_fingerprint(),
+                      "B.5.2 full transient restoration was not exact");
+    } else if (index == 7) {
+        static_cast<void>(probe(fixture.runtime, 0));
+        bool found = false;
+        for (eve::NeuronId neuron = 0;
+             neuron < fixture.runtime.network().neuron_count(); ++neuron) {
+            for (const auto& record :
+                 fixture.runtime.network().eligibility_records(neuron)) {
+                found = found || !record.candidates.empty();
+            }
+        }
+        require(found, "B.5.2 active probe created no local eligibility");
+    } else if (index == 8) {
+        auto inhibited = fixture;
+        inhibited.runtime.set_experimental_synapse_weight(
+            inhibited.inhibition[0], 3);
+        auto natural = fixture;
+        const auto reference = probe(natural.runtime, 0);
+        const auto changed = probe(inhibited.runtime, 0);
+        require(reference != changed || inhibited.runtime.network().validate(),
+                "B.5.2 isolated inhibitory state became invalid");
+    } else if (index == 9) {
+        auto new_state = fixture;
+        new_state.runtime.set_experimental_synapse_weight(new_state.cues[0], 3);
+        new_state.runtime.set_experimental_synapse_weight(
+            new_state.inhibition[0], 1);
+        const auto combined = combine(fixture, new_state, true, true, false);
+        require_equal(combined.runtime.network().synapse(combined.cues[0]).weight,
+                      3, "B.5.2 combined copy lost sensor factor");
+        require_equal(combined.runtime.network().synapse(
+                          combined.inhibition[0]).weight,
+                      1, "B.5.2 combined copy lost inhibitory factor");
+    } else if (index == 10) {
+        fixture.runtime.set_experimental_synapse_weight(fixture.cues[3], 2);
+        auto x = fixture.runtime;
+        auto y = fixture.runtime;
+        const auto x_result = probe(x, 0);
+        const auto y_result = probe(y, 1);
+        require(x_result[0] && !x_result[1] &&
+                    !y_result[0] && y_result[1],
+                "B.5.2 simultaneous relations were not independently recallable");
+    } else if (index == 11) {
+        auto new_state = fixture;
+        static_cast<void>(probe(new_state.runtime, 0));
+        new_state.runtime.set_experimental_synapse_weight(new_state.cues[0], 1);
+        for (const bool sensor : {false, true}) {
+            for (const bool inhibition : {false, true}) {
+                for (const bool transient : {false, true}) {
+                    const auto state = combine(fixture, new_state, sensor,
+                                               inhibition, transient);
+                    require(state.runtime.network().validate(),
+                            "B.5.2 factorial copy is invalid");
+                }
+            }
+        }
+    } else if (index == 12) {
+        static_cast<void>(probe(fixture.runtime, 0));
+        const auto path = std::filesystem::temp_directory_path() /
+            "eve-stage-b52-checkpoint.bin";
+        fixture.runtime.save(path.string());
+        const auto restored = eve::bios::Runtime::load(path.string());
+        require_equal(fixture.runtime.state_fingerprint(),
+                      restored.state_fingerprint(),
+                      "B.5.2 transient state did not persist exactly");
+        static_cast<void>(std::filesystem::remove(path));
+    } else if (index == 13) {
+        const auto before = fixture.runtime;
+        auto diagnostic = fixture.runtime;
+        static_cast<void>(probe(diagnostic, 0));
+        require(same_weights(before, diagnostic),
+                "B.5.2 autonomous E1 probe introduced learning");
+    } else if (index == 14) {
+        static_cast<void>(fixture.runtime.advance_time_by(128));
+        require(fixture.runtime.network().validate(),
+                "B.5.2 event-free normalization produced invalid state");
+    } else if (index == 15) {
+        require_equal(fixture.runtime.metrics().grown_synapses, 0ULL,
+                      "B.5.2 diagnostics enabled structural growth");
+        require(fixture.runtime.network().validate(),
+                "B.5.2 diagnostic baseline is invalid");
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -5261,6 +5500,29 @@ int main() {
         tests.emplace_back(
             std::string("B51 ") + b51_names[index],
             [index]() { test_b51_natural_lifecycle_case(index); });
+    }
+    const std::array<const char*, 16> b52_names{{
+        "identical weights different transient state",
+        "identical transient state different weights",
+        "identical copy autonomous recall",
+        "event-free time advance",
+        "repeated copy probe determinism",
+        "repeated probe without plasticity",
+        "complete transient restoration",
+        "local inhibitory eligibility basis",
+        "isolated inhibitory change",
+        "combined sensor inhibitory change",
+        "simultaneous relation recall",
+        "valid factorial state copies",
+        "transient persistence",
+        "E1 probe without learning",
+        "event-free state validity",
+        "bounded diagnostic architecture",
+    }};
+    for (std::uint32_t index = 0; index < b52_names.size(); ++index) {
+        tests.emplace_back(
+            std::string("B52 ") + b52_names[index],
+            [index]() { test_b52_memory_stability_case(index); });
     }
 
     std::size_t failures = 0;

@@ -1240,6 +1240,7 @@ void b51_persistence(const std::filesystem::path& output) {
 
 }  // namespace
 
+#ifndef EVE_RESEARCH_STAGE_B51_EMBEDDED
 int main(int argc, char** argv) {
     const std::filesystem::path output = argc > 1
         ? std::filesystem::path(argv[1])
@@ -1275,3 +1276,4 @@ int main(int argc, char** argv) {
     std::cout << "B.5.1 natural learning lifecycle complete K9=not_assumed\n";
     return 0;
 }
+#endif

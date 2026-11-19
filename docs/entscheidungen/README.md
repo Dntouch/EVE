@@ -23,6 +23,7 @@ Dieser Ordner enthält bestätigte Entscheidungen zum Projekt sowie eine optiona
 | [0021](0021-keine-neue-fehlerkorrekturfunktion-nach-b49.md) | B.4.9 weist lokale Fehlerwirkung und erreichbare Alternativen nach, aber keine robuste Alternativbindung; eine neue Korrekturfunktion wird nicht eingeführt. |
 | [0022](0022-bestehende-kreditzuordnung-grundsaetzlich-ausreichend.md) | B.5.0 weist richtige lokale Reizkreditierung und einen unterschwelligen ersten Lernschritt nach; eine neue Kreditregel wird nicht eingeführt. |
 | [0023](0023-erwerb-ausreichend-stabilisierung-ungeloest.md) | B.5.1 weist ausreichenden natürlichen Erwerb, aber instabilen Erhalt konkurrierender Bindungen nach; ein neuer Mechanismus bleibt gesperrt. |
+| [0024](0024-keine-neue-gedaechtnisfunktion-nach-b52.md) | B.5.2 trennt synaptische Speicherung von transientem Abruf; eine neue Gedächtnisfunktion bleibt mangels eines einzelnen lokalen Eingriffs gesperrt. |
 
 Nummer 0002 dokumentiert den anfänglich offenen Technologie-Stack historisch;
 sie ist keine aktuelle Architektursperre. Die Nummern 0004 bis 0010 sind

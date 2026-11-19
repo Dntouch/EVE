@@ -1,0 +1,13 @@
+phase,family,assignment,networks,losses,no_weight_losses,sensor_associated,inhibitory_associated,combined_weight_associated,transient_causal,synaptic_causal,combined_causal,transient_restored,final_both
+discovery,0,normal,64,5654,1027,4094,2618,2085,1238,19,23,1231,9
+discovery,0,inverse,64,5503,1033,3989,2526,2045,1244,41,27,1222,9
+discovery,1,normal,64,5450,1029,3947,2515,2041,1245,37,21,1224,13
+discovery,1,inverse,64,5522,1089,3939,2521,2027,1291,48,16,1272,14
+discovery,2,normal,64,5545,1025,4038,2579,2097,1235,40,15,1216,11
+discovery,2,inverse,64,5610,1032,4057,2538,2017,1241,38,27,1221,17
+confirmation,0,normal,64,5508,1023,3995,2539,2049,1216,47,27,1202,8
+confirmation,0,inverse,64,5537,1028,3993,2486,1970,1234,31,27,1221,10
+confirmation,1,normal,64,5347,1025,3803,2508,1989,1230,37,32,1215,19
+confirmation,1,inverse,64,5550,1069,3966,2553,2038,1277,34,23,1264,6
+confirmation,2,normal,64,5468,1041,3908,2453,1934,1250,49,34,1228,10
+confirmation,2,inverse,64,5465,1031,3859,2560,1985,1231,42,24,1215,14

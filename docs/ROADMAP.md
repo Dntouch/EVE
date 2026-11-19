@@ -105,6 +105,14 @@ Erhalt scheitert an fortlaufender sensorischer, inhibitorischer und
 transienter Konkurrenz. B.5.2 muss diese Verlustbeiträge lokal trennen, bevor
 eine minimale Stabilisierungsvariante zulässig ist.
 
+B.5.2 weist nach, dass 14.731/15.194 detaillierte Verlustantworten mit dem
+früheren vollständigen transienten Zustand bei unveränderten neuen Gewichten
+wiederhergestellt werden. Sensorische und inhibitorische Änderungen wirken in
+einem kleineren Anteil allein oder kombiniert; gemeinsame Kandidaten sind
+real. Da kein einzelner lokaler Eingriff die gleichzeitige Stabilität löst,
+bleibt eine neue Funktion gesperrt. B.5.3 muss den transienten Faktor lokal
+zerlegen und den Probeeffekt kontrollieren.
+
 ## Erfolgskriterien aus dem Konzept
 
 Ein geeigneter kontrollierter Test folgt der dort beschriebenen Abfolge:

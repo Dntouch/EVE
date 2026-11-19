@@ -54,6 +54,9 @@ angepasst werden.
 - [Technische Analyse B.5.1](023-technische-analyse-natuerliche-lernwiederholung.md)
 - [Bericht B.5.1](023-forschungsbericht-forschungsstufe-b51.md)
 - [Integrationsbericht B.4.3–B.5.1](024-integrationsbericht-forschungsstand-b51.md)
+- [Auftrag B.5.2](025-entwicklungsauftrag-forschungsstufe-b52.md)
+- [Technische Analyse B.5.2](025-technische-analyse-lokale-gedaechtnisstabilitaet.md)
+- [Bericht B.5.2](025-forschungsbericht-forschungsstufe-b52.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
@@ -102,3 +105,8 @@ untersuchten Pfade werden autonom erworben, aber später auch verloren und
 wiedererworben. Sensorische, inhibitorische und transiente Konkurrenz
 verhindert stabilen gleichzeitigen Erhalt; eine neue Regel wird nicht
 freigegeben.
+B.5.2 zeigt, dass der vollständige transiente Runtime-Zustand den Abruf in
+14.731/15.194 detaillierten Verlustkopien wiederherstellt. Sensorische und
+inhibitorische Interferenz sowie gemeinsame Kandidaten sind real, ergeben
+aber noch keinen einzelnen produktionsgeeigneten Eingriff. K9/K10 bleiben
+deaktiviert.

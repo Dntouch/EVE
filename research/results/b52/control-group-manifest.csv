@@ -1,0 +1,12 @@
+group,kind,implementation,data_file,enabled
+K0,training,unchanged B51 reference,control-groups.csv,1
+K1,training,no learning,control-groups.csv,1
+K2,training,fixed inhibitory connections,control-groups.csv,1
+K3,training,learned inhibitory connections,control-groups.csv,1
+K4,training,no plasticity after episode 128,control-groups.csv,1
+K5,diagnostic,sensor rollback V6,factorial-ablations.csv.gz,1
+K6,diagnostic,inhibitory rollback V5,factorial-ablations.csv.gz,1
+K7,diagnostic,old transient state V4,factorial-ablations.csv.gz,1
+K8,diagnostic,complete S-I-T factorial V0-V7,factorial-ablations.csv.gz,1
+K9,research variant,not causally justified,mechanism-decision.csv,0
+K10,deactivation control,no K9 implementation,mechanism-decision.csv,0

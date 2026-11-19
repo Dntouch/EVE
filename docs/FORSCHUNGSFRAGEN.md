@@ -88,3 +88,11 @@ oszilliert danach jedoch zwischen Verlust und Wiedererwerb. Inhibitorische
 Zustände tragen ebenfalls kausal bei. Offen bleibt eine rein lokale
 Stabilisierung, die beitragende Konkurrenz erhält, nichtkausale Änderungen
 vermeidet und beide Beziehungen gleichzeitig verfügbar macht.
+B.5.2 trennt erstmals synaptische Speicherung und momentanen Abruf. In
+14.731/15.194 detaillierten Verlustzuständen genügt der frühere transiente
+Runtime-Zustand zur Wiederherstellung, obwohl die neuen Gewichte bleiben.
+Sensorische und inhibitorische Änderungen sind seltener allein hinreichend;
+zeitlich gültige inhibitorische Eligibility und gemeinsame sensorische
+Empfänger reichen nicht als Freigabegrund für eine neue Regel. Offen ist die
+lokale Zerlegung des transienten Faktors in beobachtbare, kausal prüfbare
+Bestandteile ohne diagnostischen Probeeffekt.

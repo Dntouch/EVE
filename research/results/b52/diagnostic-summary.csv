@@ -1,0 +1,13 @@
+metric,value
+networks,768
+episodes,393216
+losses,66159
+losses_without_weight_change,12452
+sensor_associated_losses,47588
+inhibitory_associated_losses,30396
+combined_weight_associated_losses,24277
+detailed_loss_copies,15194
+restored_by_old_transient_state,14731
+synaptically_sufficient_losses,463
+factor_interaction_losses,296
+final_simultaneously_correct_networks,140
