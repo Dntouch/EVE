@@ -1,0 +1,12 @@
+group,scope,description,implemented
+K0,full_matrix,unchanged B49 reference,1
+K1,full_matrix,no learning,1
+K2,full_matrix,fixed inhibition,1
+K3,full_matrix,learned inhibition,1
+K4,diagnostic_copy,exploration without positive plasticity,1
+K5,diagnostic_copy,positive experience with unchanged eligibility,1
+K6,diagnostic_copy,isolated sensor weight changes,1
+K7,diagnostic_copy,isolated competing weight changes,1
+K8,diagnostic_copy,delayed positive modulation,1
+K9,conditional,new local mechanism,0
+K10,conditional,deactivated new mechanism,0

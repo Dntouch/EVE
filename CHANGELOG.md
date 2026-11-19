@@ -47,6 +47,16 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
 - Konsolidierung der vollständigen Forschungshistorie B.4.3–B.5.1 mit dem
   Projektstand auf `main`, einschließlich Meilenstein-, Sicherheits-, Risiko-
   und Stammhirndokumentation.
+- Forschungsstufe B.5.2 mit vollständiger S×I×T-Faktormatrix, transienten
+  Zustandskopien, Probe- und Zeitkontrollen, inhibitorischer Eligibility,
+  sensorischer Kandidatenüberlappung und gemeinsamer Retentionsanalyse.
+- 16 zusätzliche B.5.2-Prüfungen; insgesamt 525/525 bestandene Kerntests.
+- Forschungsstufe B.5.3 mit vollständiger Runtime-Zustandsinventur,
+  Einzelkomponenten- und Kombinationsinterventionen, Membranlokalisierung,
+  Gewichtsinteraktionen sowie Probe- und Zeitabstandssequenzen.
+- Experimentelle, produktionsinaktive Schnittstellen zur isolierten
+  Transplantation transienter Komponenten und einzelner Neuronmembranen.
+- 18 zusätzliche B.5.3-Prüfungen; insgesamt 543/543 bestandene Kerntests.
 
 ### Geändert
 

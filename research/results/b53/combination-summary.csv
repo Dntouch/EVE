@@ -1,0 +1,11 @@
+phase,combination,cases,changed,restored,induced_loss,other_relation_preserved,both_correct,valid
+confirmation,C1_membrane_G3,7585,7585,7345,7271,6641,1654,7585
+confirmation,C2_membrane_input,7585,7585,7345,7271,6641,1654,7585
+confirmation,C3_membrane_activity,7585,7585,7345,7271,6641,1654,7585
+confirmation,C4_G3_eligibility,7585,7585,0,0,7585,0,7585
+confirmation,C5_membrane_G3_eligibility,7585,7585,7345,7271,6641,1654,7585
+discovery,C1_membrane_G3,7609,7609,7386,7365,6622,1555,7609
+discovery,C2_membrane_input,7609,7609,7386,7365,6622,1555,7609
+discovery,C3_membrane_activity,7609,7609,7386,7365,6622,1555,7609
+discovery,C4_G3_eligibility,7609,7609,0,0,7609,0,7609
+discovery,C5_membrane_G3_eligibility,7609,7609,7386,7365,6622,1555,7609

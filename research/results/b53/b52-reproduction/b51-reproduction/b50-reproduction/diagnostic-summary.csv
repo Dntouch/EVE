@@ -1,0 +1,12 @@
+metric,cluster_unit,clusters,rate,ci_low,ci_high
+P1_D0_next_correct,family_assignment_seed,384,0,0,0
+P1_D0_other_correct,family_assignment_seed,384,0,0,0
+P4_both_retained,family_assignment_seed,384,0.0572917,0.0364583,0.0833333
+P4_new_correct,family_assignment_seed,384,0.0572917,0.0364583,0.0807292
+P4_other_retained,family_assignment_seed,384,0.979167,0.963542,0.992188
+P5_repeat_1_correct,family_assignment_seed,384,0,0,0
+P5_repeat_2_correct,family_assignment_seed,384,0.947917,0.924479,0.96875
+P5_repeat_3_correct,family_assignment_seed,384,1,1,1
+P5_repeat_4_correct,family_assignment_seed,384,1,1,1
+target_increment_necessary,family_assignment_seed,370,0.983784,0.97027,0.994595
+target_increment_sufficient,family_assignment_seed,370,0.983784,0.97027,0.994595

@@ -75,6 +75,27 @@ struct Diagnostics {
     std::uint64_t state_fingerprint{};
 };
 
+// Research-only state factors used by controlled causal copies.  These
+// transfers never run automatically and are not part of neural processing.
+enum class ExperimentalTransientComponent : std::uint8_t {
+    membrane = 0,
+    input_activity = 1,
+    local_event_memory = 2,
+    eligibility = 3,
+    synaptic_activity = 4,
+    recovery = 5,
+    time_and_queue = 6,
+    context = 7,
+    random_state = 8,
+    diagnostic_counters = 9,
+};
+
+struct ExperimentalTransientTransfer {
+    std::size_t changed_values{};
+    std::size_t coupled_events{};
+    bool valid{};
+};
+
 struct FireObservation {
     std::uint64_t event_index{};
     std::uint64_t simulated_time{};
@@ -280,6 +301,11 @@ public:
     void set_experimental_synapse_weight(SynapseId synapse, std::int32_t weight);
     void set_experimental_synapse_effect(SynapseId synapse, SynapticEffect effect);
     void set_experimental_synapse_protection(SynapseId synapse, bool protected_state);
+    void set_experimental_neuron_membrane(
+        NeuronId neuron, std::int64_t membrane_potential);
+    [[nodiscard]] ExperimentalTransientTransfer
+    set_experimental_transient_component_from(
+        const Runtime& source, ExperimentalTransientComponent component);
     void set_structural_growth_enabled(bool enabled);
     [[nodiscard]] SynapseId add_experimental_synapse(
         NeuronId sender, NeuronId receiver, std::int32_t weight,

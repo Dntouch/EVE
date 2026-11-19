@@ -88,3 +88,20 @@ oszilliert danach jedoch zwischen Verlust und Wiedererwerb. Inhibitorische
 Zustände tragen ebenfalls kausal bei. Offen bleibt eine rein lokale
 Stabilisierung, die beitragende Konkurrenz erhält, nichtkausale Änderungen
 vermeidet und beide Beziehungen gleichzeitig verfügbar macht.
+B.5.2 trennt erstmals synaptische Speicherung und momentanen Abruf. In
+14.731/15.194 detaillierten Verlustzuständen genügt der frühere transiente
+Runtime-Zustand zur Wiederherstellung, obwohl die neuen Gewichte bleiben.
+Sensorische und inhibitorische Änderungen sind seltener allein hinreichend;
+zeitlich gültige inhibitorische Eligibility und gemeinsame sensorische
+Empfänger reichen nicht als Freigabegrund für eine neue Regel. Offen ist die
+lokale Zerlegung des transienten Faktors in beobachtbare, kausal prüfbare
+Bestandteile ohne diagnostischen Probeeffekt.
+B.5.3 beantwortet diese Zerlegung: Das lokale Membranpotenzial, fast immer das
+eines Entscheidungsneurons, erklärt exakt alle 14.731 transient
+wiederherstellbaren Antworten. G3, Eligibility sowie Eingangs- und
+Synapsenaktivität wirken erst auf spätere Ablauf- und Lernvorgänge. Ein
+Probeimpuls verändert die Folgereaktion über lokale Membranintegration,
+ereignisfreie Zeit allein dagegen nicht. Offen ist, ob eine bereits vorhandene
+lokale Recoveryvariante Restpotenziale verbessern kann, ohne zeitliche
+Integration, die zweite Beziehung, Retention oder Umweltanpassung zu
+verschlechtern.

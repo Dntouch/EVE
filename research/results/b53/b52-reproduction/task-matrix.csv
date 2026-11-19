@@ -1,0 +1,12 @@
+group,task,diagnostic,production_change
+K0,B51_reference,0,0
+K1,no_learning,0,0
+K2,fixed_inhibition,0,0
+K3,learned_inhibition,0,0
+K4,no_more_plasticity,0,0
+K5,sensor_rollback,1,0
+K6,inhibition_rollback,1,0
+K7,transient_restore,1,0
+K8,S_I_T_factorial,1,0
+K9,conditional_local_variant_not_implemented,1,0
+K10,disabled_variant_not_applicable,1,0

@@ -1282,6 +1282,216 @@ void Runtime::set_experimental_synapse_protection(
     network_.synapse(synapse).plasticity_protected = protected_state;
 }
 
+void Runtime::set_experimental_neuron_membrane(
+    const NeuronId neuron, const std::int64_t membrane_potential) {
+    if (motor_output_.active()) {
+        throw std::logic_error(
+            "cannot change membrane state during an active response");
+    }
+    if (membrane_potential < 0) {
+        throw std::invalid_argument(
+            "experimental membrane potential must be non-negative");
+    }
+    network_.neuron(neuron).membrane_potential = membrane_potential;
+}
+
+ExperimentalTransientTransfer Runtime::set_experimental_transient_component_from(
+    const Runtime& source, const ExperimentalTransientComponent component) {
+    if (motor_output_.active() || source.motor_output_.active()) {
+        throw std::logic_error(
+            "cannot transplant transient state during an active response");
+    }
+    if (network_.neuron_count() != source.network_.neuron_count() ||
+        network_.synapse_count() != source.network_.synapse_count() ||
+        config_.local_event_memory_capacity !=
+            source.config_.local_event_memory_capacity ||
+        config_.eligibility_candidate_capacity !=
+            source.config_.eligibility_candidate_capacity ||
+        config_.eligibility_decision_capacity !=
+            source.config_.eligibility_decision_capacity ||
+        config_.context_trace_capacity != source.config_.context_trace_capacity) {
+        throw std::invalid_argument(
+            "transient state transfer requires matching runtime structure");
+    }
+    for (NeuronId id = 0; id < network_.neuron_count(); ++id) {
+        const auto& left = network_.neuron(id);
+        const auto& right = source.network_.neuron(id);
+        if (left.firing_threshold != right.firing_threshold ||
+            left.first_incoming != right.first_incoming ||
+            left.first_outgoing != right.first_outgoing ||
+            left.incoming_count != right.incoming_count ||
+            left.outgoing_count != right.outgoing_count) {
+            throw std::invalid_argument(
+                "transient state transfer requires matching neuron topology");
+        }
+    }
+    for (SynapseId id = 0; id < network_.synapse_count(); ++id) {
+        const auto& left = network_.synapse(id);
+        const auto& right = source.network_.synapse(id);
+        if (left.sender != right.sender || left.receiver != right.receiver ||
+            left.next_incoming != right.next_incoming ||
+            left.next_outgoing != right.next_outgoing ||
+            left.effect != right.effect ||
+            left.plasticity_protected != right.plasticity_protected) {
+            throw std::invalid_argument(
+                "transient state transfer requires matching synapse topology");
+        }
+    }
+
+    ExperimentalTransientTransfer result;
+    const auto replace_events = [&](const auto& selected) {
+        std::vector<Event> merged;
+        merged.reserve(queue_.size() + source.queue_.size());
+        for (const auto& event : queue_) {
+            if (!selected(event.kind)) merged.push_back(event);
+        }
+        for (const auto& event : source.queue_) {
+            if (selected(event.kind)) merged.push_back(event);
+        }
+        std::sort(merged.begin(), merged.end(),
+            [](const Event& left, const Event& right) {
+                if (left.scheduled_time != right.scheduled_time) {
+                    return left.scheduled_time < right.scheduled_time;
+                }
+                return left.sequence < right.sequence;
+            });
+        for (std::size_t index = 1; index < merged.size(); ++index) {
+            if (merged[index - 1].sequence == merged[index].sequence) {
+                throw std::logic_error(
+                    "transient state transfer produced duplicate event sequence");
+            }
+        }
+        queue_.assign(merged.begin(), merged.end());
+        next_event_sequence_ = std::max(
+            next_event_sequence_, source.next_event_sequence_);
+        result.coupled_events = static_cast<std::size_t>(std::count_if(
+            source.queue_.begin(), source.queue_.end(),
+            [&](const Event& event) { return selected(event.kind); }));
+        update_queue_watermark();
+    };
+
+    switch (component) {
+    case ExperimentalTransientComponent::membrane:
+        for (NeuronId id = 0; id < network_.neuron_count(); ++id) {
+            auto& target = network_.neuron(id).membrane_potential;
+            const auto value = source.network_.neuron(id).membrane_potential;
+            result.changed_values += target != value;
+            target = value;
+        }
+        break;
+    case ExperimentalTransientComponent::input_activity:
+        for (NeuronId id = 0; id < network_.neuron_count(); ++id) {
+            auto& target = network_.neuron(id).input_event_count;
+            const auto value = source.network_.neuron(id).input_event_count;
+            result.changed_values += target != value;
+            target = value;
+        }
+        break;
+    case ExperimentalTransientComponent::local_event_memory: {
+        std::vector<std::vector<SynapseId>> events(network_.neuron_count());
+        std::vector<std::uint64_t> overwrites(network_.neuron_count());
+        for (NeuronId id = 0; id < network_.neuron_count(); ++id) {
+            events[id] = source.network_.local_event_memory(id);
+            overwrites[id] = source.network_.local_event_overwrites(id);
+            result.changed_values += events[id] != network_.local_event_memory(id) ||
+                overwrites[id] != network_.local_event_overwrites(id);
+        }
+        network_.restore_local_event_memory(
+            source.network_.local_event_memory_capacity(), events, overwrites);
+        break;
+    }
+    case ExperimentalTransientComponent::eligibility: {
+        std::vector<std::vector<neural::EligibilityRecord>> records(
+            network_.neuron_count());
+        std::vector<std::uint64_t> generations(network_.neuron_count());
+        std::vector<std::uint64_t> overwrites(network_.neuron_count());
+        for (NeuronId id = 0; id < network_.neuron_count(); ++id) {
+            records[id] = source.network_.eligibility_records(id);
+            generations[id] = source.network_.eligibility_generation(id);
+            overwrites[id] = source.network_.eligibility_overwrites(id);
+            result.changed_values += records[id] !=
+                    network_.eligibility_records(id) ||
+                generations[id] != network_.eligibility_generation(id) ||
+                overwrites[id] != network_.eligibility_overwrites(id);
+        }
+        network_.restore_eligibility(
+            source.network_.eligibility_candidate_capacity(),
+            source.network_.eligibility_decision_capacity(), records,
+            generations, overwrites);
+        replace_events([](const EventKind kind) {
+            return kind == EventKind::eligibility_expiry ||
+                kind == EventKind::eligibility_decay;
+        });
+        break;
+    }
+    case ExperimentalTransientComponent::synaptic_activity:
+        for (SynapseId id = 0; id < network_.synapse_count(); ++id) {
+            auto& target = network_.synapse(id).activity_count;
+            const auto value = source.network_.synapse(id).activity_count;
+            result.changed_values += target != value;
+            target = value;
+        }
+        break;
+    case ExperimentalTransientComponent::recovery:
+        for (NeuronId id = 0; id < network_.neuron_count(); ++id) {
+            auto& target = network_.neuron(id);
+            const auto& value = source.network_.neuron(id);
+            result.changed_values +=
+                target.refractory_events_remaining !=
+                    value.refractory_events_remaining ||
+                target.recovery_generation != value.recovery_generation ||
+                target.scheduled_recovery_time != value.scheduled_recovery_time;
+            target.refractory_events_remaining =
+                value.refractory_events_remaining;
+            target.recovery_generation = value.recovery_generation;
+            target.scheduled_recovery_time = value.scheduled_recovery_time;
+        }
+        replace_events([](const EventKind kind) {
+            return kind == EventKind::recovery;
+        });
+        break;
+    case ExperimentalTransientComponent::time_and_queue:
+        throw std::logic_error(
+            "simulated time and the complete queue require a full-state copy");
+    case ExperimentalTransientComponent::context: {
+        std::vector<std::vector<neural::ContextTrace>> traces(
+            network_.neuron_count());
+        std::vector<std::uint64_t> generations(network_.neuron_count());
+        std::vector<std::uint64_t> overwrites(network_.neuron_count());
+        for (NeuronId id = 0; id < network_.neuron_count(); ++id) {
+            traces[id] = source.network_.context_traces(id);
+            generations[id] = source.network_.context_generation(id);
+            overwrites[id] = source.network_.context_overwrites(id);
+            result.changed_values += traces[id] != network_.context_traces(id) ||
+                generations[id] != network_.context_generation(id) ||
+                overwrites[id] != network_.context_overwrites(id);
+        }
+        network_.restore_context_traces(
+            source.network_.context_trace_capacity(), traces,
+            generations, overwrites);
+        replace_events([](const EventKind kind) {
+            return kind == EventKind::context_expiry;
+        });
+        break;
+    }
+    case ExperimentalTransientComponent::random_state:
+        result.changed_values += rng_.state() != source.rng_.state();
+        result.changed_values += growth_rng_.state() != source.growth_rng_.state();
+        rng_ = source.rng_;
+        growth_rng_ = source.growth_rng_;
+        break;
+    case ExperimentalTransientComponent::diagnostic_counters:
+        result.changed_values += !(metrics_ == source.metrics_);
+        metrics_ = source.metrics_;
+        break;
+    }
+    result.valid = network_.validate();
+    if (!result.valid) {
+        throw std::logic_error("transient state transfer produced invalid network");
+    }
+    return result;
+}
+
 void Runtime::set_structural_growth_enabled(const bool enabled) {
     if (motor_output_.active()) {
         throw std::logic_error("cannot change structural growth during an active response");

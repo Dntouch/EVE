@@ -1,0 +1,13 @@
+id,component,written_by,read_by,direct_fire_effect,plasticity_effect,diagnostic_only,persisted,copied,isolatable,technical_coupling
+T1,membrane_potential,impulse integration and recovery,fire threshold comparison,1,0,0,1,1,1,none
+T2,input_event_count,each received impulse,activity phase completion,0,1,0,1,1,1,synaptic activity reset
+T3,local G3 event memory,received synaptic impulse,eligibility candidate creation,0,1,0,1,1,1,logical ring state
+T4,eligibility records and generations,neuron fire and local trace creation,modulatory feedback and expiry,0,1,0,1,1,1,expiry and decay queue events
+T5,synaptic activity_count,received impulse,learning threshold and active_phase selection,0,1,0,1,1,1,input phase completion
+T6,refractory and recovery state,fire and recovery events,fire suppression and recovery,1,0,0,1,1,1,recovery queue events
+T7,simulated time,event scheduling and explicit advance,ready-event selection and trace expiry,1,1,0,1,1,0,complete queue and all timed states
+T8,event queue and sequence,all scheduled neural events,event dispatcher,1,1,0,1,1,0,simulated time and generation-bearing states
+T9a,context traces,action-context events,eligibility binding,0,1,0,1,1,1,context expiry queue events
+T9b,random generator state,exploration growth and competition,random choice sites,0,1,0,1,1,1,no immediate E1 use
+T9c,metrics counters,event accounting,diagnostics fingerprint and persistence,0,0,1,1,1,1,none
+static,synapse weights and effects,learning or experiment,impulse integration,1,1,0,1,1,0,not a transient factor

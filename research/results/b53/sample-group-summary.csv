@@ -1,0 +1,9 @@
+phase,cause,cases,full_transient_restored,valid_controls
+confirmation,inhibitory_change,153,139,153
+confirmation,no_weight_change,6217,6217,6217
+confirmation,sensor_and_inhibition,897,712,897
+confirmation,sensor_change,318,277,318
+discovery,inhibitory_change,131,120,131
+discovery,no_weight_change,6235,6235,6235
+discovery,sensor_and_inhibition,904,740,904
+discovery,sensor_change,339,291,339
