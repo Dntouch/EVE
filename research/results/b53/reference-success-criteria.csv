@@ -1,0 +1,13 @@
+phase,family,assignment,E1_X,E1_Y,robust_seeds,new_function,passes_general_criteria
+discovery,0,normal,0.455226,0.495737,4,0,0
+discovery,0,inverse,0.344921,0.463874,1,0,0
+discovery,1,normal,0.445683,0.433041,0,0,0
+discovery,1,inverse,0.436572,0.530237,5,0,0
+discovery,2,normal,0.438708,0.433798,4,0,0
+discovery,2,inverse,0.528356,0.473662,8,0,0
+confirmation,0,normal,0.378903,0.449472,3,0,0
+confirmation,0,inverse,0.459074,0.38173,1,0,0
+confirmation,1,normal,0.531564,0.467825,3,0,0
+confirmation,1,inverse,0.375825,0.434915,1,0,0
+confirmation,2,normal,0.388618,0.455464,0,0,0
+confirmation,2,inverse,0.451586,0.457008,3,0,0

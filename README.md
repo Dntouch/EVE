@@ -10,11 +10,11 @@ vorgegebene Semantik aus.
 
 ## Projektstatus
 
-**Stand:** 18. November 2026
+**Stand:** 19. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.5.2 – lokale Gedächtnisstabilität und Trennung synaptischer von neuronaler Interferenz
+**Jüngste abgeschlossene Forschungsstufe:** B.5.3 – lokale Ursachen transienter Abrufstörungen
 
-**Nächster Forschungsschwerpunkt:** B.5.3 – lokale Zerlegung transienter Abrufzustände
+**Nächster Forschungsschwerpunkt:** B.5.4 – kontrollierte lokale Membran-Recovery
 
 EVE ist inzwischen ein ausführbarer Forschungsprototyp. Er besitzt eine
 deterministische, ereignisgesteuerte Laufzeit, ein eigenes neuronales Netz,
@@ -106,6 +106,16 @@ unter altem transientem Zustand synaptisch verloren. 12.452 Verluste besitzen
 nichtnotwendige inhibitorische Eligibility sind nachweisbar, doch einzelne
 Rollbacks stabilisieren beide Beziehungen nicht. K9/K10 bleiben deaktiviert.
 
+B.5.3 zerlegt diesen transienten Faktor kausal. Alte Membranpotenziale stellen
+14.731/15.194 Detailantworten wieder her; bei allen 12.452 Verlusten ohne
+Gewichtsänderung sind sie notwendig und hinreichend. 16.326/16.427 geänderte
+Einzelmembranen liegen auf Entscheidungsneuronen. Eingangsaktivität, G3,
+Eligibility, Synapsenaktivität, Recovery, Kontext, Zufall und Diagnosemetriken
+ändern den unmittelbaren E1-Abruf isoliert nicht. Ereignisfreie Abstände bis 64
+wirken in R0 ebenfalls nicht. Da eine alte Membrantransplantation beide
+Beziehungen nur in 3.209/15.194 Verlustzuständen gleichzeitig korrekt macht,
+bleiben K11/K12 deaktiviert.
+
 ### Einordnung des konsolidierten Stands
 
 - **Beschlossene Architektur:** deterministische Ereignislaufzeit, Trennung von
@@ -119,7 +129,7 @@ Rollbacks stabilisieren beide Beziehungen nicht. K9/K10 bleiben deaktiviert.
   Anpassung nach Bewertungsumkehr sowie in B.5.1 natürlicher Erwerb, Verlust und
   Wiedererwerb aller untersuchten Sensorpfade.
 - **Offene Forschungsfragen:** stabiler gleichzeitiger Erhalt konkurrierender
-  Bindungen, lokale Zerlegung des dominanten transienten Abruffaktors und die
+  Bindungen, geeignete lokale ereignisgesteuerte Membran-Recovery und die
   produktionsgeeignete Abgrenzung inhibitorischer Interferenz.
 - **Nicht freigegebene Funktionen:** allgemeines adaptives Online-Lernen,
   inhibitorische Plastizität als Standardfunktion, adaptive Zusatzexploration
@@ -203,6 +213,7 @@ deaktiviert, damit beobachtete Effekte eindeutig zugeordnet werden können.
 | B.5.0 | lokale Kreditzuordnung und positive Erfahrungen | abgeschlossen, Zielpfad erhält Kredit, erste Änderung bleibt unterschwellig, keine neue Regel |
 | B.5.1 | natürliche Lernwiederholung und Stabilität | abgeschlossen, Erwerb und Wiedererwerb vollständig, Erhalt instabil, keine neue Regel |
 | B.5.2 | lokale Gedächtnisstabilität | abgeschlossen, transienter Abruf dominiert Detailverluste, keine neue Funktion |
+| B.5.3 | lokale Ursachen transienter Abrufstörungen | abgeschlossen, lokale Entscheidungsmembran kausal, keine automatische Rücksetzung |
 
 Ausführliche Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen unter
 [`docs/experimente`](docs/experimente/). Die zugehörigen maschinenlesbaren
@@ -248,7 +259,7 @@ Die jüngste abgeschlossene Versuchsmatrix wird mit folgendem Runner neu
 erzeugt:
 
 ```sh
-./scripts/run-research-stage-b51.sh research/results/b51
+./scripts/run-research-stage-b53.sh research/results/b53
 ```
 
 Weitere Runner und die Bedeutung aller Ergebnisdateien sind in der
@@ -305,6 +316,8 @@ Eingabestrom deterministisch.
 - [Entscheidung nach B.5.1](docs/entscheidungen/0023-erwerb-ausreichend-stabilisierung-ungeloest.md)
 - [Bericht zur Forschungsstufe B.5.2](docs/experimente/025-forschungsbericht-forschungsstufe-b52.md)
 - [Entscheidung nach B.5.2](docs/entscheidungen/0024-keine-neue-gedaechtnisfunktion-nach-b52.md)
+- [Bericht zur Forschungsstufe B.5.3](docs/experimente/026-forschungsbericht-forschungsstufe-b53.md)
+- [Entscheidung nach B.5.3](docs/entscheidungen/0025-membranlage-ist-lokale-abrufursache.md)
 - [Forschungsfragen](docs/FORSCHUNGSFRAGEN.md)
 - [Glossar](docs/GLOSSAR.md)
 - [Hinweise für Beiträge](CONTRIBUTING.md)

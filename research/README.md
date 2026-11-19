@@ -550,3 +550,32 @@ gemeinsamen Erfolg über 1 bis 64 weitere Erfahrungen.
 zusammengefasste Kausal-, Leistungs- und Kontrollauswertung. 64/64 Zustände
 werden in `persistence.csv` exakt wiederhergestellt. K9/K10 bleiben mangels
 einer einzelnen lokal gerechtfertigten Produktionsintervention deaktiviert.
+
+## Forschungsstufe B.5.3 – lokale Ursachen transienter Abrufstörungen
+
+Build und vollständige Reproduktions-, Komponenten- und Probematrix:
+
+```sh
+scripts/run-research-stage-b53.sh research/results/b53
+```
+
+Der Runner reproduziert B.5.2 getrennt in `b52-reproduction` und wertet
+dasselbe Korpus von 768 Netzen, 393.216 Episoden und 15.194 Detailverlusten
+aus. Isolierte Vorwärts- und Rückwärtsinterventionen trennen Membran,
+Eingangsaktivität, G3, Eligibility, Synapsenaktivität, Recovery, Kontext,
+Zufallszustand und Diagnosemetriken. Zeit und vollständige Queue werden wegen
+ihrer Kopplung an alle zeitgebundenen Zustände bewusst nicht isoliert.
+
+`component-interventions.csv.gz`, `combination-interventions.csv.gz` und
+`membrane-neuron-interventions.csv.gz` enthalten die Komponenten-,
+Kombinations- und Einzelneuronenablationen. `weight-interactions.csv.gz`
+verknüpft alte und neue Sensor-, Hemm- und Membranzustände.
+`probe-sequences.csv.gz` dokumentiert X/Y-Folgen über Abstände von 0 bis 64.
+
+`component-summary.csv`, `membrane-neuron-summary.csv`,
+`minimal-membrane-summary.csv`, `weight-interaction-summary.csv`,
+`probe-summary.csv`, `cluster-statistics.csv` und `diagnostic-summary.csv`
+enthalten die zusammengefassten Kausal- und Bestätigungsergebnisse. 64/64
+Zustände werden in `persistence.csv` exakt wiederhergestellt. K11/K12 bleiben
+deaktiviert, weil der diagnostische Membranrollback keine natürliche lokale
+Regel und keine gemeinsame Stabilisierung beider Beziehungen ist.

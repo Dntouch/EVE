@@ -113,6 +113,15 @@ real. Da kein einzelner lokaler Eingriff die gleichzeitige Stabilität löst,
 bleibt eine neue Funktion gesperrt. B.5.3 muss den transienten Faktor lokal
 zerlegen und den Probeeffekt kontrollieren.
 
+B.5.3 lokalisiert den transienten Faktor fast vollständig auf die
+Membranpotenziale einzelner Entscheidungsneuronen. Bei allen 12.452 Verlusten
+ohne Gewichtsänderung ist diese Komponente notwendig und hinreichend; G3,
+Eligibility und Aktivitätszähler verändern den unmittelbaren Abruf nicht.
+Ereignisfreie Zeit bewirkt in R0 keine Relaxation. Da ein technischer Rollback
+weder eine natürliche Regel darstellt noch beide Beziehungen zuverlässig
+stabilisiert, bleiben K11/K12 gesperrt. B.5.4 darf ausschließlich die bereits
+vorhandene lokale ereignisgesteuerte Recovery kontrolliert gegen R0 prüfen.
+
 ## Erfolgskriterien aus dem Konzept
 
 Ein geeigneter kontrollierter Test folgt der dort beschriebenen Abfolge:

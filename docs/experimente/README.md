@@ -57,6 +57,9 @@ angepasst werden.
 - [Auftrag B.5.2](025-entwicklungsauftrag-forschungsstufe-b52.md)
 - [Technische Analyse B.5.2](025-technische-analyse-lokale-gedaechtnisstabilitaet.md)
 - [Bericht B.5.2](025-forschungsbericht-forschungsstufe-b52.md)
+- [Auftrag B.5.3](026-entwicklungsauftrag-forschungsstufe-b53.md)
+- [Technische Analyse B.5.3](026-technische-analyse-transiente-abrufursachen.md)
+- [Bericht B.5.3](026-forschungsbericht-forschungsstufe-b53.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
@@ -110,3 +113,9 @@ B.5.2 zeigt, dass der vollständige transiente Runtime-Zustand den Abruf in
 inhibitorische Interferenz sowie gemeinsame Kandidaten sind real, ergeben
 aber noch keinen einzelnen produktionsgeeigneten Eingriff. K9/K10 bleiben
 deaktiviert.
+B.5.3 zerlegt diesen Zustand auf einzelne Komponenten und Neuronen. Das lokale
+Membranpotenzial stellt exakt dieselben 14.731 Antworten wieder her; fast alle
+geänderten Membranen gehören zu Entscheidungsneuronen. G3, Eligibility,
+Aktivitätszähler und andere isolierbare transiente Komponenten sind für den
+unmittelbaren E1-Abruf wirkungslos. Eine automatische Rücksetzung wird nicht
+eingeführt; K11/K12 bleiben deaktiviert.

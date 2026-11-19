@@ -890,6 +890,7 @@ void b52_persistence(const std::filesystem::path& output) {
 
 }  // namespace
 
+#ifndef EVE_RESEARCH_STAGE_B52_EMBEDDED
 int main(int argc, char** argv) {
     const std::filesystem::path output = argc > 1
         ? std::filesystem::path(argv[1])
@@ -923,3 +924,4 @@ int main(int argc, char** argv) {
     std::cout << "B.5.2 memory stability diagnosis complete K9=not_implemented\n";
     return 0;
 }
+#endif

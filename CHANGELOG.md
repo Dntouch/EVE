@@ -51,6 +51,12 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
   Zustandskopien, Probe- und Zeitkontrollen, inhibitorischer Eligibility,
   sensorischer Kandidatenüberlappung und gemeinsamer Retentionsanalyse.
 - 16 zusätzliche B.5.2-Prüfungen; insgesamt 525/525 bestandene Kerntests.
+- Forschungsstufe B.5.3 mit vollständiger Runtime-Zustandsinventur,
+  Einzelkomponenten- und Kombinationsinterventionen, Membranlokalisierung,
+  Gewichtsinteraktionen sowie Probe- und Zeitabstandssequenzen.
+- Experimentelle, produktionsinaktive Schnittstellen zur isolierten
+  Transplantation transienter Komponenten und einzelner Neuronmembranen.
+- 18 zusätzliche B.5.3-Prüfungen; insgesamt 543/543 bestandene Kerntests.
 
 ### Geändert
 

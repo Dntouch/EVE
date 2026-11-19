@@ -5070,6 +5070,232 @@ void test_b52_memory_stability_case(const std::uint32_t index) {
     }
 }
 
+void test_b53_transient_recall_case(const std::uint32_t index) {
+    eve::ExperimentConfig config;
+    config.neuron_count = 8;
+    config.width = 2;
+    config.height = 2;
+    config.depth = 2;
+    config.initial_outgoing_synapses = 0;
+    config.firing_threshold = 2;
+    config.maximum_synapse_weight = 3;
+    config.learning_enabled = false;
+    config.growth_enabled = false;
+    config.refractory_input_events = 2;
+    config.local_event_memory_capacity = 8;
+    config.eligibility_selection = eve::EligibilitySelection::active_phase;
+    config.eligibility_candidate_capacity = 8;
+    config.eligibility_decision_capacity = 8;
+    config.eligibility_duration = 16;
+    config.plasticity_trace_mode = eve::PlasticityTraceMode::g3_recent;
+    config.modulation_mode = eve::ModulationMode::ternary;
+
+    struct Fixture {
+        eve::bios::Runtime runtime;
+        eve::SynapseId x{};
+        eve::SynapseId y{};
+        eve::SynapseId x_output{};
+        eve::SynapseId y_output{};
+    };
+    const auto make_fixture = [&]() {
+        Fixture fixture{eve::bios::Runtime(config, 0x530000ULL)};
+        fixture.x = fixture.runtime.add_experimental_synapse(0, 2, 1);
+        fixture.y = fixture.runtime.add_experimental_synapse(1, 3, 1);
+        fixture.x_output = fixture.runtime.add_experimental_synapse(2, 4, 2);
+        fixture.y_output = fixture.runtime.add_experimental_synapse(3, 5, 2);
+        return fixture;
+    };
+    const auto probe = [](eve::bios::Runtime& runtime,
+                          const eve::NeuronId cue) {
+        std::array<bool, 2> fired{};
+        runtime.set_fire_observer([&](const eve::bios::FireObservation& event) {
+            fired[0] = fired[0] || event.neuron == 4;
+            fired[1] = fired[1] || event.neuron == 5;
+        });
+        runtime.enqueue_fire(cue);
+        static_cast<void>(runtime.run());
+        runtime.set_fire_observer({});
+        return fired;
+    };
+    const auto same_weights = [](const eve::bios::Runtime& left,
+                                 const eve::bios::Runtime& right) {
+        if (left.network().synapse_count() != right.network().synapse_count()) {
+            return false;
+        }
+        for (eve::SynapseId id = 0; id < left.network().synapse_count(); ++id) {
+            if (left.network().synapse(id).weight !=
+                right.network().synapse(id).weight) return false;
+        }
+        return true;
+    };
+
+    auto fixture = make_fixture();
+    auto active = fixture.runtime;
+    static_cast<void>(probe(active, 0));
+    using Component = eve::bios::ExperimentalTransientComponent;
+    if (index == 0) {
+        const std::array<Component, 10> inventory{{
+            Component::membrane, Component::input_activity,
+            Component::local_event_memory, Component::eligibility,
+            Component::synaptic_activity, Component::recovery,
+            Component::time_and_queue, Component::context,
+            Component::random_state, Component::diagnostic_counters,
+        }};
+        require_equal(inventory.size(), 10U,
+                      "B.5.3 transient inventory is incomplete");
+    } else if (index == 1) {
+        auto target = fixture.runtime;
+        target.set_experimental_neuron_membrane(2,
+            active.network().neuron(2).membrane_potential);
+        require(target.network().neuron(2).membrane_potential ==
+                    active.network().neuron(2).membrane_potential &&
+                    same_weights(target, active),
+                "B.5.3 membrane transfer changed no state or weights");
+    } else if (index == 2) {
+        auto target = fixture.runtime;
+        const auto memory_before = target.network().local_event_memory(2);
+        static_cast<void>(target.set_experimental_transient_component_from(
+            active, Component::membrane));
+        require_equal(target.network().local_event_memory(2), memory_before,
+                      "B.5.3 membrane transfer also changed G3");
+    } else if (index == 3) {
+        auto source = fixture.runtime;
+        source.set_experimental_synapse_weight(fixture.x, 2);
+        static_cast<void>(probe(source, 0));
+        auto target = fixture.runtime;
+        const auto transfer = target.set_experimental_transient_component_from(
+            source, Component::eligibility);
+        require(transfer.coupled_events > 0 &&
+                    target.network().active_eligibility_count() ==
+                        source.network().active_eligibility_count(),
+                "B.5.3 eligibility transfer lost coupled expiry state");
+    } else if (index == 4) {
+        auto target = fixture.runtime;
+        auto reference = fixture.runtime;
+        static_cast<void>(target.set_experimental_transient_component_from(
+            active, Component::diagnostic_counters));
+        require_equal(probe(target, 0), probe(reference, 0),
+                      "B.5.3 diagnostic counters changed recall");
+    } else if (index == 5) {
+        auto target = fixture.runtime;
+        static_cast<void>(target.set_experimental_transient_component_from(
+            active, Component::input_activity));
+        require_equal(target.network().neuron(2).input_event_count,
+                      active.network().neuron(2).input_event_count,
+                      "B.5.3 input activity was not isolated");
+    } else if (index == 6) {
+        auto target = fixture.runtime;
+        static_cast<void>(target.set_experimental_transient_component_from(
+            active, Component::local_event_memory));
+        require_equal(target.network().local_event_memory(2),
+                      active.network().local_event_memory(2),
+                      "B.5.3 G3 state was not transferred");
+    } else if (index == 7) {
+        auto target = fixture.runtime;
+        static_cast<void>(target.set_experimental_transient_component_from(
+            active, Component::synaptic_activity));
+        require_equal(target.network().synapse(fixture.x).activity_count,
+                      active.network().synapse(fixture.x).activity_count,
+                      "B.5.3 synaptic activity was not transferred");
+    } else if (index == 8) {
+        auto source = fixture.runtime;
+        source.set_experimental_synapse_weight(fixture.x, 2);
+        static_cast<void>(probe(source, 0));
+        auto target = fixture.runtime;
+        const auto transfer = target.set_experimental_transient_component_from(
+            source, Component::recovery);
+        require(transfer.valid &&
+                    target.network().neuron(2).refractory_events_remaining ==
+                        source.network().neuron(2).refractory_events_remaining,
+                "B.5.3 recovery state was not transferred");
+    } else if (index == 9) {
+        bool rejected = false;
+        try {
+            static_cast<void>(fixture.runtime
+                .set_experimental_transient_component_from(
+                    active, Component::time_and_queue));
+        } catch (const std::logic_error&) {
+            rejected = true;
+        }
+        require(rejected, "B.5.3 accepted an invalid isolated time transfer");
+    } else if (index == 10) {
+        auto mismatch = make_fixture();
+        static_cast<void>(mismatch.runtime.add_experimental_synapse(6, 7, 0));
+        bool rejected = false;
+        try {
+            static_cast<void>(fixture.runtime
+                .set_experimental_transient_component_from(
+                    mismatch.runtime, Component::membrane));
+        } catch (const std::invalid_argument&) {
+            rejected = true;
+        }
+        require(rejected, "B.5.3 accepted mismatched diagnostic topology");
+    } else if (index == 11) {
+        auto target = fixture.runtime;
+        static_cast<void>(target.set_experimental_transient_component_from(
+            active, Component::membrane));
+        static_cast<void>(target.set_experimental_transient_component_from(
+            active, Component::local_event_memory));
+        require(target.network().validate() &&
+                    target.network().neuron(2).membrane_potential ==
+                        active.network().neuron(2).membrane_potential &&
+                    target.network().local_event_memory(2) ==
+                        active.network().local_event_memory(2),
+                "B.5.3 combined transient transfer is invalid");
+    } else if (index == 12) {
+        const auto before = active;
+        static_cast<void>(probe(active, 0));
+        require(before.state_fingerprint() != active.state_fingerprint(),
+                "B.5.3 repeated probe did not change transient state");
+        require(same_weights(before, active),
+                "B.5.3 repeated probe changed weights");
+    } else if (index == 13) {
+        const auto before = fixture.runtime.simulated_time();
+        static_cast<void>(fixture.runtime.advance_time_by(8));
+        require_equal(fixture.runtime.simulated_time(), before + 8,
+                      "B.5.3 event-driven time gap is incorrect");
+    } else if (index == 14) {
+        fixture.runtime.set_experimental_synapse_weight(fixture.x, 2);
+        fixture.runtime.set_experimental_synapse_weight(fixture.y, 2);
+        auto x = fixture.runtime;
+        auto y = fixture.runtime;
+        require(probe(x, 0)[0] && probe(y, 1)[1],
+                "B.5.3 could not preserve two independent relations");
+    } else if (index == 15) {
+        auto target = fixture.runtime;
+        static_cast<void>(target.set_experimental_transient_component_from(
+            active, Component::membrane));
+        const auto path = std::filesystem::temp_directory_path() /
+            "eve-stage-b53-checkpoint.bin";
+        target.save(path.string());
+        const auto restored = eve::bios::Runtime::load(path.string());
+        require_equal(target.state_fingerprint(), restored.state_fingerprint(),
+                      "B.5.3 diagnostic state did not persist");
+        static_cast<void>(std::filesystem::remove(path));
+    } else if (index == 16) {
+        auto left = fixture.runtime;
+        auto right = fixture.runtime;
+        static_cast<void>(left.set_experimental_transient_component_from(
+            active, Component::membrane));
+        static_cast<void>(right.set_experimental_transient_component_from(
+            active, Component::membrane));
+        static_cast<void>(probe(left, 1));
+        static_cast<void>(probe(right, 1));
+        require_equal(left.state_fingerprint(), right.state_fingerprint(),
+                      "B.5.3 identical diagnostic continuations diverged");
+    } else if (index == 17) {
+        auto target = fixture.runtime;
+        const auto before = target.config();
+        static_cast<void>(target.set_experimental_transient_component_from(
+            active, Component::membrane));
+        require_equal(target.config().firing_threshold,
+                      before.firing_threshold,
+                      "B.5.3 diagnostics changed the firing threshold");
+        require(!target.config().growth_enabled,
+                "B.5.3 diagnostics enabled growth");
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -5523,6 +5749,31 @@ int main() {
         tests.emplace_back(
             std::string("B52 ") + b52_names[index],
             [index]() { test_b52_memory_stability_case(index); });
+    }
+    const std::array<const char*, 18> b53_names{{
+        "complete transient inventory",
+        "isolated membrane transfer",
+        "membrane and G3 separation",
+        "eligibility with expiry bookkeeping",
+        "diagnostic counters are inert",
+        "isolated input activity",
+        "isolated G3 memory",
+        "isolated synaptic activity",
+        "isolated recovery state",
+        "time queue coupling rejection",
+        "topology mismatch rejection",
+        "combined transient transfer",
+        "repeated probe state change",
+        "event-driven probe gap",
+        "two relation preservation",
+        "diagnostic state persistence",
+        "deterministic continuation",
+        "unchanged production configuration",
+    }};
+    for (std::uint32_t index = 0; index < b53_names.size(); ++index) {
+        tests.emplace_back(
+            std::string("B53 ") + b53_names[index],
+            [index]() { test_b53_transient_recall_case(index); });
     }
 
     std::size_t failures = 0;

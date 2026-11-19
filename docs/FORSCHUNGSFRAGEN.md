@@ -96,3 +96,12 @@ zeitlich gültige inhibitorische Eligibility und gemeinsame sensorische
 Empfänger reichen nicht als Freigabegrund für eine neue Regel. Offen ist die
 lokale Zerlegung des transienten Faktors in beobachtbare, kausal prüfbare
 Bestandteile ohne diagnostischen Probeeffekt.
+B.5.3 beantwortet diese Zerlegung: Das lokale Membranpotenzial, fast immer das
+eines Entscheidungsneurons, erklärt exakt alle 14.731 transient
+wiederherstellbaren Antworten. G3, Eligibility sowie Eingangs- und
+Synapsenaktivität wirken erst auf spätere Ablauf- und Lernvorgänge. Ein
+Probeimpuls verändert die Folgereaktion über lokale Membranintegration,
+ereignisfreie Zeit allein dagegen nicht. Offen ist, ob eine bereits vorhandene
+lokale Recoveryvariante Restpotenziale verbessern kann, ohne zeitliche
+Integration, die zweite Beziehung, Retention oder Umweltanpassung zu
+verschlechtern.
