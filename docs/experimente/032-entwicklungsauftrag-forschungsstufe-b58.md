@@ -2,10 +2,10 @@
 
 ## Lernen, Nichtlernen und kausale Kreditzuordnung bei fehlender Handlung
 
-**Projekt:** EVE – Emergent Virtual Evolution  
-**Technologie:** C++17  
-**Ausgangsbasis:** Konsolidierter Forschungsstand B.5.7 auf `main`  
-**Forschungsbranch:** `codex/research-stage-b58-learning-stability-and-credit-assignment`  
+**Projekt:** EVE – Emergent Virtual Evolution
+**Technologie:** C++17
+**Ausgangsbasis:** Konsolidierter Forschungsstand B.5.7 auf `main`
+**Forschungsbranch:** `codex/research-stage-b58-learning-stability-and-credit-assignment`
 **Auftragstyp:** Kausale Grundlagenforschung mit bedingter, ausdrücklich nicht vorab freigegebener neuronaler Erweiterung
 
 ---

@@ -1,6 +1,6 @@
 # 0030 – B.5.8: Fähigkeitserhalt ist nicht Dauerplastizität
 
-**Status:** angenommen  
+**Status:** angenommen
 **Datum:** 20. November 2026
 
 ## Entscheidung
@@ -33,4 +33,3 @@ globale Folgen.
 - Die zwölf historischen offenen Fälle bleiben offen.
 - B.5.9 darf zusätzliche lokale Konkurrenzinformation untersuchen, aber keine
   globalen Erfolgslabels oder Gewichtsschutz einführen.
-

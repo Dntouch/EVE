@@ -202,4 +202,3 @@ Die Forschung ist reproduzierbar, 665/665 Tests bestehen, Persistenz und
 Determinismus sind erhalten, alle Zustände sind gültig und die neue
 Schreibsperre bleibt standardmäßig deaktivierte Diagnostik. S4 bleibt im
 Produktionsstandard aus. Es wird keine neue Produktions-Lernregel freigegeben.
-

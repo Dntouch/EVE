@@ -55,4 +55,3 @@ positivem Kausalbeitrag bestätigt wird.
 
 **B.5.9 durchführen: Ja – als kausale Grundlagenforschung.** Eine neue
 Produktionsregel ist nicht vorab freigegeben.
-

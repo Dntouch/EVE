@@ -236,4 +236,3 @@ Die Gewichtsschreibsperre bleibt eine standardmäßig deaktivierte
 Diagnoseschnittstelle. Sie ist kein Mechanismus, mit dem EVE global erkennt,
 dass eine Fähigkeit gelernt sei. K18/K19 und eine neue lokale Lernregel werden
 nicht implementiert.
-
