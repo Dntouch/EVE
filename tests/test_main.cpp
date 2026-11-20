@@ -6023,10 +6023,19 @@ void test_b56_nonrobust_causality_case(const std::uint32_t index) {
         auto [runtime, excitatory, inhibitory] = fixture(0x560020ULL);
         static_cast<void>(inhibitory);
         static_cast<void>(runtime.process_simultaneous_impulses({excitatory}));
+        require(runtime.future_event_count() > 0 &&
+                    runtime.metrics().scheduled_subthreshold_relaxations == 1,
+                "B.5.6 persistence fixture has no pending S4 event");
         runtime.save(path.string());
-        const auto restored = eve::bios::Runtime::load(path.string());
+        auto restored = eve::bios::Runtime::load(path.string());
         require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
                       "B.5.6 complete state did not persist");
+        static_cast<void>(runtime.advance_time_to(16));
+        static_cast<void>(restored.advance_time_to(16));
+        require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                      "B.5.6 pending S4 event diverged after restore");
+        require_equal(restored.metrics().processed_subthreshold_relaxations,
+                      1ULL, "B.5.6 restored pending S4 event was not processed");
         static_cast<void>(std::filesystem::remove(path));
     } else if (index == 21) {
         auto [left, excitatory, inhibitory] = fixture(0x560021ULL);

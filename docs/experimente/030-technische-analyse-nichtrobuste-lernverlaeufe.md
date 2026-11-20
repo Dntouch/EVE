@@ -134,7 +134,9 @@ entkräften.
 ## Technische Gültigkeit
 
 - 611/611 Tests bestehen (588 historische + 23 B.5.6-Tests).
-- 64/64 Persistenzläufe restaurieren und setzen exakt fort.
+- 64/64 Persistenzläufe speichern jeweils ein tatsächlich ausstehendes
+  S4-Ereignis, restaurieren es exakt, verarbeiten es zur Fälligkeit und setzen
+  anschließend deterministisch fort.
 - Alle Gewichts-, Transient- und Faktorkopien sind gültig.
 - No-Learning ergibt E1 X = 0 und E1 Y = 0 in allen 384 Netzen.
 - S4 bleibt in der Produktionskonfiguration deaktiviert.

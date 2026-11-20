@@ -900,7 +900,8 @@ void b56_reversal(
 
 void b56_persistence(const std::filesystem::path& output) {
     std::ofstream file(output / "persistence.csv");
-    file << "seed,pending,exact_restore,exact_continuation,valid\n";
+    file << "seed,pending_events,pending_S4,exact_restore,"
+        "exact_due_processing,processed_S4,exact_continuation,valid\n";
     for (std::uint64_t seed = 1; seed <= 64; ++seed) {
         B48Variant learning{"S4_event_d16", B46Task::mixed,
             B48Policy::reference, false, true, false,
@@ -908,18 +909,28 @@ void b56_persistence(const std::filesystem::path& output) {
         const B55NaturalVariant variant{"S4_event_d16", true, 16, true};
         auto state = b55_initial_state(learning, variant, seed);
         const auto weak = state.circuit.cue_synapses[0];
+        state.runtime.set_experimental_synapse_weight(weak, 1);
         static_cast<void>(state.runtime.process_simultaneous_impulses({weak}));
         const auto pending = state.runtime.future_event_count();
+        const auto pending_s4 =
+            state.runtime.metrics().scheduled_subthreshold_relaxations;
         const auto path = output / (".b56-state-" + std::to_string(seed));
         state.runtime.save(path.string());
         auto restored = eve::bios::Runtime::load(path.string());
         const bool exact = state.runtime.state_fingerprint() ==
             restored.state_fingerprint();
-        static_cast<void>(state.runtime.advance_time_by(16));
-        static_cast<void>(restored.advance_time_by(16));
+        static_cast<void>(state.runtime.advance_time_to(16));
+        static_cast<void>(restored.advance_time_to(16));
+        const bool exact_due = state.runtime.state_fingerprint() ==
+            restored.state_fingerprint();
+        const auto processed_s4 =
+            restored.metrics().processed_subthreshold_relaxations;
+        static_cast<void>(state.runtime.process_simultaneous_impulses({weak}));
+        static_cast<void>(restored.process_simultaneous_impulses({weak}));
         const bool continued = state.runtime.state_fingerprint() ==
             restored.state_fingerprint();
-        file << seed << ',' << pending << ',' << exact << ',' << continued
+        file << seed << ',' << pending << ',' << pending_s4 << ',' << exact
+            << ',' << exact_due << ',' << processed_s4 << ',' << continued
             << ',' << restored.network().validate() << '\n';
         static_cast<void>(std::filesystem::remove(path));
     }
