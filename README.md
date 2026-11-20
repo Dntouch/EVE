@@ -12,9 +12,9 @@ vorgegebene Semantik aus.
 
 **Stand:** 19. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.5.3 – lokale Ursachen transienter Abrufstörungen
+**Jüngste abgeschlossene Forschungsstufe:** B.5.4 – lokale Membran-Recovery
 
-**Nächster Forschungsschwerpunkt:** B.5.4 – kontrollierte lokale Membran-Recovery
+**Nächster Forschungsschwerpunkt:** B.5.5 – lokale subthreshold Membrandynamik
 
 EVE ist inzwischen ein ausführbarer Forschungsprototyp. Er besitzt eine
 deterministische, ereignisgesteuerte Laufzeit, ein eigenes neuronales Netz,
@@ -116,6 +116,16 @@ wirken in R0 ebenfalls nicht. Da eine alte Membrantransplantation beide
 Beziehungen nur in 3.209/15.194 Verlustzuständen gleichzeitig korrekt macht,
 bleiben K11/K12 deaktiviert.
 
+B.5.4 klärt zunächst, dass die historische Referenz tatsächlich `to_zero`
+verwendet und R1/R2 bei Refraktärwert 0 keine gültige Recovery ausführen. Mit
+aktivem Refraktärzustand verbessert unabhängige Recovery den E1-Abruf stark;
+50 % Membranrelaxation erhöht in unabhängiger Bestätigung die gemeinsame
+Abrufbarkeit gegenüber R1 zusätzlich um 18,12 Prozentpunkte. Das strenge
+48/64-Ziel je Stromfamilie und Zuordnung wird dennoch klar verfehlt. Zudem
+erreicht die vorhandene Recovery ausschließlich bereits feuernde Neuronen;
+subthreshold Restpotenziale bleiben unangetastet. R1/R2 bleiben experimentell,
+K12/K13 werden nicht implementiert.
+
 ### Einordnung des konsolidierten Stands
 
 - **Beschlossene Architektur:** deterministische Ereignislaufzeit, Trennung von
@@ -129,8 +139,9 @@ bleiben K11/K12 deaktiviert.
   Anpassung nach Bewertungsumkehr sowie in B.5.1 natürlicher Erwerb, Verlust und
   Wiedererwerb aller untersuchten Sensorpfade.
 - **Offene Forschungsfragen:** stabiler gleichzeitiger Erhalt konkurrierender
-  Bindungen, geeignete lokale ereignisgesteuerte Membran-Recovery und die
-  produktionsgeeignete Abgrenzung inhibitorischer Interferenz.
+  Bindungen, lokale ereignisgesteuerte Begrenzung subthreshold
+  Membranpotenziale und die produktionsgeeignete Abgrenzung inhibitorischer
+  Interferenz.
 - **Nicht freigegebene Funktionen:** allgemeines adaptives Online-Lernen,
   inhibitorische Plastizität als Standardfunktion, adaptive Zusatzexploration
   und ein neuer Stabilisierungs- oder Fehlerkorrekturmechanismus.

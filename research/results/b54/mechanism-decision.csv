@@ -1,0 +1,3 @@
+group,implemented,reason
+K12,0,B54 evaluates existing recovery modes; no new local function is introduced
+K13,0,no K12 function exists to deactivate

@@ -130,11 +130,16 @@ den unmittelbaren zweiten E1-Abruf aber nicht.
 ## Biologische Einordnung und Grenze
 
 Das Membranpotenzial entspricht funktional einer kurzzeitigen lokalen
-Erregungslage. Die EVE-Referenz verwendet `subtract_threshold`: Nach einem
-Feuerereignis kann Restpotenzial bestehen. Inhibitorische und erregende
-Eingänge verschieben diesen Wert weiter. Bei `RecoveryMode::input_dependent`
-und null Refraktärereignissen wird ohne neuen Eingang kein Recoveryereignis
-geplant. Deshalb bleibt die Erregungslage auch bei ereignisfreier Zeit stabil.
+Erregungslage. Das nachfolgende B.5.4-Audit hat klargestellt, dass die
+B.5.3-Referenz den Standard `to_zero` verwendet; die frühere Angabe
+`subtract_threshold` war unzutreffend. Die in B.5.3 gemessenen Unterschiede
+entstehen damit durch subthreshold sowie nachfolgend integrierte erregende und
+hemmende Eingänge, nicht durch einen Schwellenrest beim Feuern. Bei
+`RecoveryMode::input_dependent` und null Refraktärereignissen wird ohne neuen
+Eingang kein Recoveryereignis geplant. Deshalb bleibt eine subthreshold
+Erregungslage auch bei ereignisfreier Zeit stabil. Der Kausalbefund von B.5.3
+ändert sich dadurch nicht; Ursache, Transplantationen und Antworten wurden am
+tatsächlichen Runtime-Zustand gemessen.
 
 Der Kausalbefund rechtfertigt noch keinen automatischen Reset. Die
 Transplantation kennt einen früher erfolgreichen Zustand, eine natürliche

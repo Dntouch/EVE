@@ -1,0 +1,6 @@
+task,normal,inverse,families,discovery_seeds,confirmation_seeds,scope
+mixed,1,1,3,64,64,all selected recovery variants
+reversal,1,1,3,0,64,R0 R1 R2-50
+retention,1,1,3,64,64,event-free then E1 evaluation
+single and sequential references,1,1,3,64,64,b53-reproduction task results
+temporal weak-input sequences,0,0,1,deterministic,deterministic,AA BB AB BA ABA BAB gaps 0-64

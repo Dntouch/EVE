@@ -1,0 +1,145 @@
+stage,variant,mode,refractory,delay,relaxation,learning_matrix,reason
+technical,R0_r0,R0_input_dependent,0,16,0,0,historical and refractory control
+technical,R1_r0_d1,R1_independent,0,1,0,0,independent recovery control
+technical,R2_r0_d1_p0,R2_relaxation,0,1,0,0,predeclared complete technical matrix
+technical,R2_r0_d1_p10,R2_relaxation,0,1,10,0,predeclared complete technical matrix
+technical,R2_r0_d1_p25,R2_relaxation,0,1,25,0,predeclared complete technical matrix
+technical,R2_r0_d1_p50,R2_relaxation,0,1,50,0,predeclared complete technical matrix
+technical,R2_r0_d1_p75,R2_relaxation,0,1,75,0,predeclared complete technical matrix
+technical,R2_r0_d1_p100,R2_relaxation,0,1,100,0,predeclared complete technical matrix
+technical,R1_r0_d4,R1_independent,0,4,0,0,independent recovery control
+technical,R2_r0_d4_p0,R2_relaxation,0,4,0,0,predeclared complete technical matrix
+technical,R2_r0_d4_p10,R2_relaxation,0,4,10,0,predeclared complete technical matrix
+technical,R2_r0_d4_p25,R2_relaxation,0,4,25,0,predeclared complete technical matrix
+technical,R2_r0_d4_p50,R2_relaxation,0,4,50,0,predeclared complete technical matrix
+technical,R2_r0_d4_p75,R2_relaxation,0,4,75,0,predeclared complete technical matrix
+technical,R2_r0_d4_p100,R2_relaxation,0,4,100,0,predeclared complete technical matrix
+technical,R1_r0_d8,R1_independent,0,8,0,0,independent recovery control
+technical,R2_r0_d8_p0,R2_relaxation,0,8,0,0,predeclared complete technical matrix
+technical,R2_r0_d8_p10,R2_relaxation,0,8,10,0,predeclared complete technical matrix
+technical,R2_r0_d8_p25,R2_relaxation,0,8,25,0,predeclared complete technical matrix
+technical,R2_r0_d8_p50,R2_relaxation,0,8,50,0,predeclared complete technical matrix
+technical,R2_r0_d8_p75,R2_relaxation,0,8,75,0,predeclared complete technical matrix
+technical,R2_r0_d8_p100,R2_relaxation,0,8,100,0,predeclared complete technical matrix
+technical,R1_r0_d16,R1_independent,0,16,0,0,independent recovery control
+technical,R2_r0_d16_p0,R2_relaxation,0,16,0,0,predeclared complete technical matrix
+technical,R2_r0_d16_p10,R2_relaxation,0,16,10,0,predeclared complete technical matrix
+technical,R2_r0_d16_p25,R2_relaxation,0,16,25,0,predeclared complete technical matrix
+technical,R2_r0_d16_p50,R2_relaxation,0,16,50,0,predeclared complete technical matrix
+technical,R2_r0_d16_p75,R2_relaxation,0,16,75,0,predeclared complete technical matrix
+technical,R2_r0_d16_p100,R2_relaxation,0,16,100,0,predeclared complete technical matrix
+technical,R1_r0_d32,R1_independent,0,32,0,0,independent recovery control
+technical,R2_r0_d32_p0,R2_relaxation,0,32,0,0,predeclared complete technical matrix
+technical,R2_r0_d32_p10,R2_relaxation,0,32,10,0,predeclared complete technical matrix
+technical,R2_r0_d32_p25,R2_relaxation,0,32,25,0,predeclared complete technical matrix
+technical,R2_r0_d32_p50,R2_relaxation,0,32,50,0,predeclared complete technical matrix
+technical,R2_r0_d32_p75,R2_relaxation,0,32,75,0,predeclared complete technical matrix
+technical,R2_r0_d32_p100,R2_relaxation,0,32,100,0,predeclared complete technical matrix
+technical,R1_r0_d64,R1_independent,0,64,0,0,independent recovery control
+technical,R2_r0_d64_p0,R2_relaxation,0,64,0,0,predeclared complete technical matrix
+technical,R2_r0_d64_p10,R2_relaxation,0,64,10,0,predeclared complete technical matrix
+technical,R2_r0_d64_p25,R2_relaxation,0,64,25,0,predeclared complete technical matrix
+technical,R2_r0_d64_p50,R2_relaxation,0,64,50,0,predeclared complete technical matrix
+technical,R2_r0_d64_p75,R2_relaxation,0,64,75,0,predeclared complete technical matrix
+technical,R2_r0_d64_p100,R2_relaxation,0,64,100,0,predeclared complete technical matrix
+technical,R0_r1,R0_input_dependent,1,16,0,0,historical and refractory control
+technical,R1_r1_d1,R1_independent,1,1,0,0,independent recovery control
+technical,R2_r1_d1_p0,R2_relaxation,1,1,0,0,predeclared complete technical matrix
+technical,R2_r1_d1_p10,R2_relaxation,1,1,10,0,predeclared complete technical matrix
+technical,R2_r1_d1_p25,R2_relaxation,1,1,25,0,predeclared complete technical matrix
+technical,R2_r1_d1_p50,R2_relaxation,1,1,50,0,predeclared complete technical matrix
+technical,R2_r1_d1_p75,R2_relaxation,1,1,75,0,predeclared complete technical matrix
+technical,R2_r1_d1_p100,R2_relaxation,1,1,100,0,predeclared complete technical matrix
+technical,R1_r1_d4,R1_independent,1,4,0,0,independent recovery control
+technical,R2_r1_d4_p0,R2_relaxation,1,4,0,0,predeclared complete technical matrix
+technical,R2_r1_d4_p10,R2_relaxation,1,4,10,0,predeclared complete technical matrix
+technical,R2_r1_d4_p25,R2_relaxation,1,4,25,0,predeclared complete technical matrix
+technical,R2_r1_d4_p50,R2_relaxation,1,4,50,0,predeclared complete technical matrix
+technical,R2_r1_d4_p75,R2_relaxation,1,4,75,0,predeclared complete technical matrix
+technical,R2_r1_d4_p100,R2_relaxation,1,4,100,0,predeclared complete technical matrix
+technical,R1_r1_d8,R1_independent,1,8,0,0,independent recovery control
+technical,R2_r1_d8_p0,R2_relaxation,1,8,0,0,predeclared complete technical matrix
+technical,R2_r1_d8_p10,R2_relaxation,1,8,10,0,predeclared complete technical matrix
+technical,R2_r1_d8_p25,R2_relaxation,1,8,25,0,predeclared complete technical matrix
+technical,R2_r1_d8_p50,R2_relaxation,1,8,50,0,predeclared complete technical matrix
+technical,R2_r1_d8_p75,R2_relaxation,1,8,75,0,predeclared complete technical matrix
+technical,R2_r1_d8_p100,R2_relaxation,1,8,100,0,predeclared complete technical matrix
+technical,R1_r1_d16,R1_independent,1,16,0,0,independent recovery control
+technical,R2_r1_d16_p0,R2_relaxation,1,16,0,0,predeclared complete technical matrix
+technical,R2_r1_d16_p10,R2_relaxation,1,16,10,0,predeclared complete technical matrix
+technical,R2_r1_d16_p25,R2_relaxation,1,16,25,0,predeclared complete technical matrix
+technical,R2_r1_d16_p50,R2_relaxation,1,16,50,0,predeclared complete technical matrix
+technical,R2_r1_d16_p75,R2_relaxation,1,16,75,0,predeclared complete technical matrix
+technical,R2_r1_d16_p100,R2_relaxation,1,16,100,0,predeclared complete technical matrix
+technical,R1_r1_d32,R1_independent,1,32,0,0,independent recovery control
+technical,R2_r1_d32_p0,R2_relaxation,1,32,0,0,predeclared complete technical matrix
+technical,R2_r1_d32_p10,R2_relaxation,1,32,10,0,predeclared complete technical matrix
+technical,R2_r1_d32_p25,R2_relaxation,1,32,25,0,predeclared complete technical matrix
+technical,R2_r1_d32_p50,R2_relaxation,1,32,50,0,predeclared complete technical matrix
+technical,R2_r1_d32_p75,R2_relaxation,1,32,75,0,predeclared complete technical matrix
+technical,R2_r1_d32_p100,R2_relaxation,1,32,100,0,predeclared complete technical matrix
+technical,R1_r1_d64,R1_independent,1,64,0,0,independent recovery control
+technical,R2_r1_d64_p0,R2_relaxation,1,64,0,0,predeclared complete technical matrix
+technical,R2_r1_d64_p10,R2_relaxation,1,64,10,0,predeclared complete technical matrix
+technical,R2_r1_d64_p25,R2_relaxation,1,64,25,0,predeclared complete technical matrix
+technical,R2_r1_d64_p50,R2_relaxation,1,64,50,0,predeclared complete technical matrix
+technical,R2_r1_d64_p75,R2_relaxation,1,64,75,0,predeclared complete technical matrix
+technical,R2_r1_d64_p100,R2_relaxation,1,64,100,0,predeclared complete technical matrix
+technical,R0_r2,R0_input_dependent,2,16,0,0,historical and refractory control
+technical,R1_r2_d1,R1_independent,2,1,0,0,independent recovery control
+technical,R2_r2_d1_p0,R2_relaxation,2,1,0,0,predeclared complete technical matrix
+technical,R2_r2_d1_p10,R2_relaxation,2,1,10,0,predeclared complete technical matrix
+technical,R2_r2_d1_p25,R2_relaxation,2,1,25,0,predeclared complete technical matrix
+technical,R2_r2_d1_p50,R2_relaxation,2,1,50,0,predeclared complete technical matrix
+technical,R2_r2_d1_p75,R2_relaxation,2,1,75,0,predeclared complete technical matrix
+technical,R2_r2_d1_p100,R2_relaxation,2,1,100,0,predeclared complete technical matrix
+technical,R1_r2_d4,R1_independent,2,4,0,0,independent recovery control
+technical,R2_r2_d4_p0,R2_relaxation,2,4,0,0,predeclared complete technical matrix
+technical,R2_r2_d4_p10,R2_relaxation,2,4,10,0,predeclared complete technical matrix
+technical,R2_r2_d4_p25,R2_relaxation,2,4,25,0,predeclared complete technical matrix
+technical,R2_r2_d4_p50,R2_relaxation,2,4,50,0,predeclared complete technical matrix
+technical,R2_r2_d4_p75,R2_relaxation,2,4,75,0,predeclared complete technical matrix
+technical,R2_r2_d4_p100,R2_relaxation,2,4,100,0,predeclared complete technical matrix
+technical,R1_r2_d8,R1_independent,2,8,0,0,independent recovery control
+technical,R2_r2_d8_p0,R2_relaxation,2,8,0,0,predeclared complete technical matrix
+technical,R2_r2_d8_p10,R2_relaxation,2,8,10,0,predeclared complete technical matrix
+technical,R2_r2_d8_p25,R2_relaxation,2,8,25,0,predeclared complete technical matrix
+technical,R2_r2_d8_p50,R2_relaxation,2,8,50,0,predeclared complete technical matrix
+technical,R2_r2_d8_p75,R2_relaxation,2,8,75,0,predeclared complete technical matrix
+technical,R2_r2_d8_p100,R2_relaxation,2,8,100,0,predeclared complete technical matrix
+technical,R1_r2_d16,R1_independent,2,16,0,0,independent recovery control
+technical,R2_r2_d16_p0,R2_relaxation,2,16,0,0,predeclared complete technical matrix
+technical,R2_r2_d16_p10,R2_relaxation,2,16,10,0,predeclared complete technical matrix
+technical,R2_r2_d16_p25,R2_relaxation,2,16,25,0,predeclared complete technical matrix
+technical,R2_r2_d16_p50,R2_relaxation,2,16,50,0,predeclared complete technical matrix
+technical,R2_r2_d16_p75,R2_relaxation,2,16,75,0,predeclared complete technical matrix
+technical,R2_r2_d16_p100,R2_relaxation,2,16,100,0,predeclared complete technical matrix
+technical,R1_r2_d32,R1_independent,2,32,0,0,independent recovery control
+technical,R2_r2_d32_p0,R2_relaxation,2,32,0,0,predeclared complete technical matrix
+technical,R2_r2_d32_p10,R2_relaxation,2,32,10,0,predeclared complete technical matrix
+technical,R2_r2_d32_p25,R2_relaxation,2,32,25,0,predeclared complete technical matrix
+technical,R2_r2_d32_p50,R2_relaxation,2,32,50,0,predeclared complete technical matrix
+technical,R2_r2_d32_p75,R2_relaxation,2,32,75,0,predeclared complete technical matrix
+technical,R2_r2_d32_p100,R2_relaxation,2,32,100,0,predeclared complete technical matrix
+technical,R1_r2_d64,R1_independent,2,64,0,0,independent recovery control
+technical,R2_r2_d64_p0,R2_relaxation,2,64,0,0,predeclared complete technical matrix
+technical,R2_r2_d64_p10,R2_relaxation,2,64,10,0,predeclared complete technical matrix
+technical,R2_r2_d64_p25,R2_relaxation,2,64,25,0,predeclared complete technical matrix
+technical,R2_r2_d64_p50,R2_relaxation,2,64,50,0,predeclared complete technical matrix
+technical,R2_r2_d64_p75,R2_relaxation,2,64,75,0,predeclared complete technical matrix
+technical,R2_r2_d64_p100,R2_relaxation,2,64,100,0,predeclared complete technical matrix
+discovery,K0_R0_reference,R0_input_dependent,0,16,0,1,limited predeclared natural matrix
+discovery,K1_R0_no_learning,R0_input_dependent,0,16,0,1,limited predeclared natural matrix
+discovery,K4_R0_refractory1,R0_input_dependent,1,16,0,1,limited predeclared natural matrix
+discovery,K5_R1_r1_d16,R1_independent,1,16,0,1,limited predeclared natural matrix
+discovery,K6_R2_r1_d16_p0,R2_relaxation,1,16,0,1,limited predeclared natural matrix
+discovery,K7_R2_r1_d16_p25,R2_relaxation,1,16,25,1,limited predeclared natural matrix
+discovery,K7_R2_r1_d16_p50,R2_relaxation,1,16,50,1,limited predeclared natural matrix
+discovery,K7_R2_r1_d16_p100,R2_relaxation,1,16,100,1,limited predeclared natural matrix
+discovery,K7_R2_r2_d16_p50,R2_relaxation,2,16,50,1,limited predeclared natural matrix
+discovery,K8_R2_r1_d4_p50,R2_relaxation,1,4,50,1,limited predeclared natural matrix
+confirmation,K0_R0_reference,R0_input_dependent,0,16,0,1,independent central comparison
+confirmation,K1_R0_no_learning,R0_input_dependent,0,16,0,1,independent central comparison
+confirmation,K5_R1_r1_d16,R1_independent,1,16,0,1,independent central comparison
+confirmation,K6_R2_r1_d16_p0,R2_relaxation,1,16,0,1,independent central comparison
+confirmation,K7_R2_r1_d16_p50,R2_relaxation,1,16,50,1,independent central comparison

@@ -1,0 +1,9 @@
+phase,role,direction,cases,lost_correct,other_correct,necessary,sufficient,valid
+confirmation,decision,induce,8115,764,2954,0,7351,8115
+confirmation,decision,restore,8115,7343,2073,7343,0,8115
+confirmation,motor,induce,53,20,44,0,33,53
+confirmation,motor,restore,53,2,41,2,0,53
+discovery,decision,induce,8211,750,2907,0,7461,8211
+discovery,decision,restore,8211,7385,1983,7385,0,8211
+discovery,motor,induce,48,16,31,0,32,48
+discovery,motor,restore,48,0,29,0,0,48

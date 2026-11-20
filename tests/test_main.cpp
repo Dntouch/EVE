@@ -5296,6 +5296,283 @@ void test_b53_transient_recall_case(const std::uint32_t index) {
     }
 }
 
+void test_b54_local_recovery_case(const std::uint32_t index) {
+    const auto make_config = [](const eve::RecoveryMode mode,
+            const std::uint32_t refractory, const std::uint64_t delay,
+            const std::uint32_t relaxation,
+            const bool eligibility = false) {
+        eve::ExperimentConfig config;
+        config.neuron_count = 8;
+        config.width = 2;
+        config.height = 2;
+        config.depth = 2;
+        config.initial_outgoing_synapses = 0;
+        config.firing_threshold = 2;
+        config.maximum_synapse_weight = 3;
+        config.learning_enabled = false;
+        config.growth_enabled = false;
+        config.reset_mode = eve::ResetMode::to_zero;
+        config.refractory_input_events = refractory;
+        config.recovery_mode = mode;
+        config.recovery_delay = delay;
+        config.membrane_relaxation_percent = relaxation;
+        config.batch_simultaneous_inputs = true;
+        config.local_event_memory_capacity = 8;
+        if (eligibility) {
+            config.eligibility_selection =
+                eve::EligibilitySelection::all_recent;
+            config.eligibility_candidate_capacity = 8;
+            config.eligibility_decision_capacity = 8;
+            config.eligibility_duration = delay;
+        }
+        return config;
+    };
+    const auto fire_and_prime = [&](eve::bios::Runtime& runtime) {
+        const auto fire = runtime.add_experimental_synapse(0, 4, 2, true);
+        const auto weak = runtime.add_experimental_synapse(1, 4, 1, true);
+        const auto fired = runtime.process_simultaneous_impulses({fire});
+        static_cast<void>(runtime.process_simultaneous_impulses({weak}));
+        return fired.fired;
+    };
+
+    if (index == 0) {
+        eve::ExperimentConfig config;
+        require_equal(config.reset_mode, eve::ResetMode::to_zero,
+                      "B.5.4 reference reset mode is not to_zero");
+    } else if (index == 1) {
+        eve::bios::Runtime runtime(make_config(
+            eve::RecoveryMode::input_dependent, 0, 4, 0), 0x540001ULL);
+        require(fire_and_prime(runtime), "B.5.4 R0 fixture did not fire");
+        require_equal(runtime.metrics().scheduled_recovery_events, 0ULL,
+                      "B.5.4 R0 scheduled recovery");
+    } else if (index == 2) {
+        eve::bios::Runtime runtime(make_config(
+            eve::RecoveryMode::independent, 0, 4, 0), 0x540002ULL);
+        require(fire_and_prime(runtime), "B.5.4 R1-r0 fixture did not fire");
+        static_cast<void>(runtime.advance_time_to(4));
+        require_equal(runtime.metrics().processed_recovery_events, 0ULL,
+                      "B.5.4 R1-r0 unexpectedly recovered");
+        require_equal(runtime.metrics().stale_recovery_events, 1ULL,
+                      "B.5.4 R1-r0 recovery was not stale");
+    } else if (index == 3) {
+        eve::bios::Runtime runtime(make_config(
+            eve::RecoveryMode::independent_with_membrane_relaxation,
+            0, 4, 100), 0x540003ULL);
+        require(fire_and_prime(runtime), "B.5.4 R2-r0 fixture did not fire");
+        static_cast<void>(runtime.advance_time_to(4));
+        require_equal(runtime.network().neuron(4).membrane_potential, 1LL,
+                      "B.5.4 stale R2-r0 changed membrane");
+        require_equal(runtime.metrics().stale_recovery_events, 1ULL,
+                      "B.5.4 R2-r0 recovery was not stale");
+    } else if (index == 4) {
+        eve::bios::Runtime runtime(make_config(
+            eve::RecoveryMode::independent, 1, 4, 0), 0x540004ULL);
+        require(fire_and_prime(runtime), "B.5.4 R1 fixture did not fire");
+        static_cast<void>(runtime.advance_time_to(4));
+        require_equal(runtime.metrics().processed_recovery_events, 1ULL,
+                      "B.5.4 R1 did not recover");
+        require_equal(runtime.network().neuron(4).membrane_potential, 1LL,
+                      "B.5.4 R1 changed membrane");
+    } else if (index == 5) {
+        eve::bios::Runtime runtime(make_config(
+            eve::RecoveryMode::independent_with_membrane_relaxation,
+            1, 4, 50), 0x540005ULL);
+        require(fire_and_prime(runtime), "B.5.4 R2 fixture did not fire");
+        runtime.set_experimental_neuron_membrane(4, 2);
+        static_cast<void>(runtime.advance_time_to(4));
+        require_equal(runtime.network().neuron(4).membrane_potential, 1LL,
+                      "B.5.4 R2 50 percent relaxation is wrong");
+    } else if (index == 6) {
+        eve::bios::Runtime r1(make_config(
+            eve::RecoveryMode::independent, 1, 4, 0), 0x540006ULL);
+        eve::bios::Runtime r2(make_config(
+            eve::RecoveryMode::independent_with_membrane_relaxation,
+            1, 4, 0), 0x540006ULL);
+        require(fire_and_prime(r1) && fire_and_prime(r2),
+                "B.5.4 R1/R2-0 fixture did not fire");
+        static_cast<void>(r1.advance_time_to(4));
+        static_cast<void>(r2.advance_time_to(4));
+        require_equal(r1.network().neurons(), r2.network().neurons(),
+                      "B.5.4 R2-0 differs from R1 neuron state");
+    } else if (index == 7) {
+        eve::bios::Runtime runtime(make_config(
+            eve::RecoveryMode::independent_with_membrane_relaxation,
+            1, 4, 100), 0x540007ULL);
+        require(fire_and_prime(runtime), "B.5.4 R2-100 fixture did not fire");
+        static_cast<void>(runtime.advance_time_to(4));
+        require_equal(runtime.network().neuron(4).membrane_potential, 0LL,
+                      "B.5.4 R2-100 did not fully relax membrane");
+    } else if (index == 8) {
+        eve::bios::Runtime runtime(make_config(
+            eve::RecoveryMode::independent, 1, 8, 0), 0x540008ULL);
+        require(fire_and_prime(runtime), "B.5.4 delay fixture did not fire");
+        static_cast<void>(runtime.advance_time_to(7));
+        require_equal(runtime.metrics().processed_recovery_events, 0ULL,
+                      "B.5.4 recovery ran before due time");
+        static_cast<void>(runtime.advance_time_to(8));
+        require_equal(runtime.metrics().processed_recovery_events, 1ULL,
+                      "B.5.4 recovery missed due time");
+    } else if (index == 9) {
+        eve::bios::Runtime runtime(make_config(
+            eve::RecoveryMode::independent, 0, 4, 0), 0x540009ULL);
+        const auto fire = runtime.add_experimental_synapse(0, 4, 2, true);
+        require(runtime.process_simultaneous_impulses({fire}).fired,
+                "B.5.4 first generation did not fire");
+        require(runtime.process_simultaneous_impulses({fire}).fired,
+                "B.5.4 second generation did not fire");
+        static_cast<void>(runtime.advance_time_to(4));
+        require_equal(runtime.metrics().stale_recovery_events, 2ULL,
+                      "B.5.4 zero-refractory generations were not stale");
+    } else if (index == 10) {
+        eve::bios::Runtime runtime(make_config(
+            eve::RecoveryMode::independent, 1, 4, 0), 0x540010ULL);
+        const auto fire = runtime.add_experimental_synapse(0, 4, 2, true);
+        require(runtime.process_simultaneous_impulses({fire}).fired,
+                "B.5.4 repeated-fire fixture did not fire");
+        require(!runtime.process_simultaneous_impulses({fire}).fired,
+                "B.5.4 active refractory state allowed repeated fire");
+        require(runtime.metrics().refractory_suppressed_firings > 0,
+                "B.5.4 repeated fire was not counted as suppressed");
+    } else if (index == 11) {
+        eve::bios::Runtime runtime(make_config(
+            eve::RecoveryMode::independent_with_membrane_relaxation,
+            1, 4, 50), 0x540011ULL);
+        const auto fire = runtime.add_experimental_synapse(0, 4, 2, true);
+        const auto excitation = runtime.add_experimental_synapse(1, 4, 2, true);
+        const auto inhibition = runtime.add_experimental_synapse(
+            2, 4, 1, true, eve::SynapticEffect::inhibitory);
+        require(runtime.process_simultaneous_impulses({fire}).fired,
+                "B.5.4 inhibitory fixture did not fire");
+        static_cast<void>(runtime.process_simultaneous_impulses(
+            {excitation, inhibition}));
+        require_equal(runtime.network().neuron(4).membrane_potential, 1LL,
+                      "B.5.4 inhibition lost its local sign");
+        static_cast<void>(runtime.advance_time_to(4));
+        require_equal(runtime.network().neuron(4).membrane_potential, 0LL,
+                      "B.5.4 relaxation after inhibition is wrong");
+    } else if (index == 12) {
+        eve::bios::Runtime runtime(make_config(
+            eve::RecoveryMode::independent_with_membrane_relaxation,
+            1, 4, 100), 0x540012ULL);
+        const auto weak = runtime.add_experimental_synapse(0, 4, 1, true);
+        static_cast<void>(runtime.process_simultaneous_impulses({weak}));
+        static_cast<void>(runtime.advance_time_by(64));
+        require_equal(runtime.metrics().scheduled_recovery_events, 0ULL,
+                      "B.5.4 subthreshold input scheduled recovery");
+        require_equal(runtime.network().neuron(4).membrane_potential, 1LL,
+                      "B.5.4 existing recovery reached subthreshold state");
+    } else if (index == 13 || index == 14) {
+        eve::bios::Runtime runtime(make_config(
+            eve::RecoveryMode::independent_with_membrane_relaxation,
+            1, 4, 100), 0x540013ULL + index);
+        const auto weak = runtime.add_experimental_synapse(0, 4, 1, true);
+        static_cast<void>(runtime.process_simultaneous_impulses({weak}));
+        static_cast<void>(runtime.advance_time_by(index == 13 ? 64 : 1));
+        const auto second = runtime.process_simultaneous_impulses({weak});
+        require(second.fired,
+                "B.5.4 recovery destroyed positive subthreshold integration");
+    } else if (index == 15) {
+        eve::bios::Runtime runtime(make_config(
+            eve::RecoveryMode::independent_with_membrane_relaxation,
+            1, 4, 50), 0x540015ULL);
+        const auto x = runtime.add_experimental_synapse(0, 4, 2, true);
+        const auto y = runtime.add_experimental_synapse(1, 5, 2, true);
+        require(runtime.process_simultaneous_impulses({x}).fired,
+                "B.5.4 first relation did not fire");
+        require(runtime.process_simultaneous_impulses({y}).fired,
+                "B.5.4 second relation did not fire");
+        static_cast<void>(runtime.advance_time_to(4));
+        require(runtime.network().validate(),
+                "B.5.4 two-relation recovery invalidated network");
+    } else if (index == 16) {
+        eve::bios::Runtime runtime(make_config(
+            eve::RecoveryMode::independent_with_membrane_relaxation,
+            1, 4, 50), 0x540016ULL);
+        const auto protected_path =
+            runtime.add_experimental_synapse(0, 4, 2, true);
+        static_cast<void>(runtime.process_simultaneous_impulses({protected_path}));
+        static_cast<void>(runtime.advance_time_to(4));
+        require(runtime.network().synapse(protected_path).plasticity_protected &&
+                    runtime.network().synapse(protected_path).weight == 2,
+                "B.5.4 recovery damaged protected exploration");
+    } else if (index == 17) {
+        eve::bios::Runtime normal(make_config(
+            eve::RecoveryMode::independent_with_membrane_relaxation,
+            1, 4, 50), 0x540017ULL);
+        eve::bios::Runtime inverse(make_config(
+            eve::RecoveryMode::independent_with_membrane_relaxation,
+            1, 4, 50), 0x540017ULL);
+        const auto normal_path = normal.add_experimental_synapse(0, 4, 2, true);
+        const auto inverse_path = inverse.add_experimental_synapse(0, 5, 2, true);
+        const auto a = normal.process_simultaneous_impulses({normal_path});
+        const auto b = inverse.process_simultaneous_impulses({inverse_path});
+        require_equal(a.fired, b.fired,
+                      "B.5.4 recovery introduced target-role asymmetry");
+    } else if (index == 18) {
+        const auto path = std::filesystem::temp_directory_path() /
+            "eve-stage-b54-pending.bin";
+        eve::bios::Runtime runtime(make_config(
+            eve::RecoveryMode::independent_with_membrane_relaxation,
+            1, 4, 50), 0x540018ULL);
+        require(fire_and_prime(runtime), "B.5.4 persistence fixture did not fire");
+        runtime.save(path.string());
+        auto restored = eve::bios::Runtime::load(path.string());
+        require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                      "B.5.4 pending recovery did not persist");
+        static_cast<void>(runtime.advance_time_to(4));
+        static_cast<void>(restored.advance_time_to(4));
+        require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                      "B.5.4 restored due recovery diverged");
+        static_cast<void>(std::filesystem::remove(path));
+    } else if (index == 19) {
+        eve::bios::Runtime left(make_config(
+            eve::RecoveryMode::independent_with_membrane_relaxation,
+            2, 8, 25), 0x540019ULL);
+        eve::bios::Runtime right = left;
+        require(fire_and_prime(left) && fire_and_prime(right),
+                "B.5.4 deterministic fixtures did not fire");
+        static_cast<void>(left.advance_time_to(8));
+        static_cast<void>(right.advance_time_to(8));
+        require_equal(left.state_fingerprint(), right.state_fingerprint(),
+                      "B.5.4 identical recovery continuation diverged");
+    } else if (index == 20) {
+        eve::bios::Runtime runtime(make_config(
+            eve::RecoveryMode::independent_with_membrane_relaxation,
+            1, 1, 50), 0x540020ULL);
+        const auto fire = runtime.add_experimental_synapse(0, 4, 2, true);
+        for (std::uint32_t repetition = 0; repetition < 64; ++repetition) {
+            static_cast<void>(runtime.process_simultaneous_impulses({fire}));
+            static_cast<void>(runtime.advance_time_by(1));
+        }
+        require(runtime.network().validate() &&
+                    runtime.future_event_count() == 0 &&
+                    runtime.metrics().maximum_queue_size < 16,
+                "B.5.4 recovery queue is invalid or unbounded");
+    } else if (index == 21) {
+        eve::bios::Runtime runtime(make_config(
+            eve::RecoveryMode::independent_with_membrane_relaxation,
+            1, 4, 50, true), 0x540021ULL);
+        const auto fire = runtime.add_experimental_synapse(0, 4, 2, true);
+        static_cast<void>(runtime.process_simultaneous_impulses({fire}));
+        static_cast<void>(runtime.advance_time_to(4));
+        require_equal(runtime.metrics().processed_recovery_events, 1ULL,
+                      "B.5.4 same-time recovery did not execute");
+        require_equal(runtime.metrics().processed_eligibility_expiries, 1ULL,
+                      "B.5.4 same-time eligibility expiry did not execute");
+    } else if (index == 22) {
+        auto config = make_config(
+            eve::RecoveryMode::independent_with_membrane_relaxation,
+            1, 4, 101);
+        bool rejected = false;
+        try {
+            static_cast<void>(eve::bios::Runtime(config, 0x540022ULL));
+        } catch (const std::invalid_argument&) {
+            rejected = true;
+        }
+        require(rejected, "B.5.4 accepted relaxation above 100 percent");
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -5774,6 +6051,36 @@ int main() {
         tests.emplace_back(
             std::string("B53 ") + b53_names[index],
             [index]() { test_b53_transient_recall_case(index); });
+    }
+    const std::array<const char*, 23> b54_names{{
+        "reference reset is to_zero",
+        "R0 zero refractory schedules no recovery",
+        "R1 zero refractory recovery is stale",
+        "R2 zero refractory cannot relax",
+        "R1 active refractory preserves membrane",
+        "R2 active refractory relaxes membrane",
+        "R2 zero percent matches R1",
+        "R2 full relaxation",
+        "recovery delay due ordering",
+        "zero refractory stale generations",
+        "repeated firing is refractory suppressed",
+        "recovery after inhibitory activity",
+        "subthreshold state has no recovery",
+        "long-gap temporal integration",
+        "positive preactivation integration",
+        "two relation recovery validity",
+        "protected exploration remains intact",
+        "normal inverse recovery symmetry",
+        "pending recovery persistence",
+        "deterministic recovery continuation",
+        "bounded recovery queue",
+        "same-time recovery and eligibility",
+        "invalid relaxation rejected",
+    }};
+    for (std::uint32_t index = 0; index < b54_names.size(); ++index) {
+        tests.emplace_back(
+            std::string("B54 ") + b54_names[index],
+            [index]() { test_b54_local_recovery_case(index); });
     }
 
     std::size_t failures = 0;

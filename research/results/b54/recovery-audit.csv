@@ -1,0 +1,7 @@
+step,code_condition,effect,experimental_consequence
+schedule,impulse-triggered fire and mode not input_dependent,increment generation and enqueue local recovery,subthreshold-only states schedule nothing
+refractory,fire assigns refractory_input_events,zero leaves no active refractory state,R1/R2 with zero will later be stale
+validity,mode not R0 and matching generation and refractory greater than zero,clear refractory and scheduled time,all three conditions required
+relaxation,valid R2 recovery only,multiply current membrane by retained percent,R1 never changes membrane
+generation,new fire increments generation,older event becomes stale,repeated fire with refractory zero creates only stale recoveries
+same_time,recovery enqueued before eligibility expiry during a fire,recovery has lower sequence and executes first,ordering is deterministic

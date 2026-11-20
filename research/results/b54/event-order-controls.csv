@@ -1,0 +1,2 @@
+case,recovery_delay,eligibility_duration,processed_recovery,processed_expiry,stale_recovery,final_membrane,final_refractory,deterministic
+recovery_equals_eligibility,4,4,1,1,0,0,0,1

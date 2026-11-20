@@ -1,0 +1,3 @@
+group,implemented,reason
+K11,0,component causes are diagnostic and do not justify a production reset or normalization rule
+K12,0,no K11 mechanism exists to deactivate

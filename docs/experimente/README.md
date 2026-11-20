@@ -60,6 +60,9 @@ angepasst werden.
 - [Auftrag B.5.3](026-entwicklungsauftrag-forschungsstufe-b53.md)
 - [Technische Analyse B.5.3](026-technische-analyse-transiente-abrufursachen.md)
 - [Bericht B.5.3](026-forschungsbericht-forschungsstufe-b53.md)
+- [Auftrag B.5.4](028-entwicklungsauftrag-forschungsstufe-b54.md)
+- [Technische Analyse B.5.4](028-technische-analyse-lokale-membran-recovery.md)
+- [Bericht B.5.4](028-forschungsbericht-forschungsstufe-b54.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
@@ -119,3 +122,8 @@ geänderten Membranen gehören zu Entscheidungsneuronen. G3, Eligibility,
 Aktivitätszähler und andere isolierbare transiente Komponenten sind für den
 unmittelbaren E1-Abruf wirkungslos. Eine automatische Rücksetzung wird nicht
 eingeführt; K11/K12 bleiben deaktiviert.
+B.5.4 aktiviert die vorhandenen Recoverymodi kontrolliert und trennt
+Refraktärwirkung von Membranrelaxation. R2-50 verbessert die gemeinsame
+Abrufbarkeit reproduzierbar, verfehlt aber die robuste Seedquote. Da
+subthreshold Restpotenziale ohne vorheriges Feuer keine Recovery erhalten,
+bleiben R1/R2 experimentell und K12/K13 deaktiviert.

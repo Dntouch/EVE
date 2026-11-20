@@ -579,3 +579,37 @@ enthalten die zusammengefassten Kausal- und Bestätigungsergebnisse. 64/64
 Zustände werden in `persistence.csv` exakt wiederhergestellt. K11/K12 bleiben
 deaktiviert, weil der diagnostische Membranrollback keine natürliche lokale
 Regel und keine gemeinsame Stabilisierung beider Beziehungen ist.
+
+## Forschungsstufe B.5.4 – lokale Membran-Recovery
+
+Build und vollständige Audit-, Recovery- und Lernmatrix:
+
+```sh
+scripts/run-research-stage-b54.sh research/results/b54
+```
+
+Der Runner reproduziert B.5.3 getrennt in `b53-reproduction`, auditiert den
+tatsächlichen Reset- und Recoverypfad und führt anschließend 6.912 Netze mit
+3.538.944 natürlichen Episoden aus. Entdeckung und unabhängige Bestätigung
+verwenden je 64 Seeds, drei Stromfamilien sowie normale und inverse
+Zuordnung. R0, No-Learning, kontrollierter Refraktärzustand, R1, R2-0 und
+vorab festgelegte R2-Stärken und Delays werden gepaart verglichen.
+
+`micro-recovery-events.csv`, `recovery-audit.csv`, `reset-audit.csv` und
+`event-order-controls.csv` dokumentieren Aktivierung, Generationen,
+Subthreshold-Grenze und gleiche Zeitstempel. `temporal-integration.csv.gz`
+enthält AA, BB, AB, BA, ABA und BAB für Abstände 0 bis 64.
+
+`natural-trajectories.csv.gz` und `recovery-events.csv.gz` enthalten die
+vollständigen Episoden- und Recoveryrohdaten. `seed-results.csv`,
+`variant-summary.csv`, `paired-comparisons.csv`, `cluster-statistics.csv`,
+`success-criteria.csv`, `checkpoint-evaluation.csv` und
+`confusion-matrices.csv` bilden Lernen, gemeinsame Verfügbarkeit,
+Bestätigung, Umkehr und Retention ab. `causal-copies.csv.gz`,
+`persistence.csv` und `resources.csv` dokumentieren Zustandskopien,
+deterministische Wiederherstellung und Ereigniskosten.
+
+Die großen CSV-Dateien sind mit `gzip -n` deterministisch komprimiert.
+`performance.csv` und die Laufzeitspalten in `resources.csv` sind
+maschinenabhängig; alle Zustands-, Lern- und Ereignisdaten sind bei gleichem
+Build und Seed deterministisch. K12/K13 bleiben deaktiviert.

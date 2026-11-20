@@ -1,0 +1,15 @@
+group,description,data,enabled
+K0,unchanged B53 reference,b53-reproduction,1
+K1,no learning,natural-trajectories.csv.gz,1
+K2,fixed inhibition,b53-reproduction/reference-control-groups.csv,1
+K3,learned inhibition,b53-reproduction/reference-control-groups.csv,1
+K4,R0 controlled refractory,micro-recovery-events.csv and natural-trajectories.csv.gz,1
+K5,R1 independent recovery,natural-trajectories.csv.gz,1
+K6,R2 zero percent,natural-trajectories.csv.gz,1
+K7,R2 relaxation strengths,parameter-manifest.csv and natural-trajectories.csv.gz,1
+K8,recovery delays,parameter-manifest.csv and temporal-integration.csv.gz,1
+K9,diagnostic state copies,causal-copies.csv.gz,1
+K10,temporal integration,temporal-integration.csv.gz,1
+K11,reversal and retention,seed-results.csv,1
+K12,new function,not causally required,0
+K13,deactivation control,no K12 implementation,0

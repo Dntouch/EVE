@@ -1,0 +1,3 @@
+scope,reset_mode,refractory,recovery_mode,recovery_delay,relaxation,explicit,conclusion
+ExperimentConfig_default,to_zero,0,R0_input_dependent,16,0,0,structure defaults
+B46_to_B53_reference,to_zero,0,R0_input_dependent,16,0,refractory and mode explicit; reset inherited,B53 used to_zero and no scheduled recovery

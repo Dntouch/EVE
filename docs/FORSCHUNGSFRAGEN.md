@@ -105,3 +105,11 @@ ereignisfreie Zeit allein dagegen nicht. Offen ist, ob eine bereits vorhandene
 lokale Recoveryvariante Restpotenziale verbessern kann, ohne zeitliche
 Integration, die zweite Beziehung, Retention oder Umweltanpassung zu
 verschlechtern.
+B.5.4 beantwortet die vorhandene Recoveryfrage differenziert: R1/R2 benötigen
+einen aktiven Refraktärzustand, sind dann lokal, persistent und wirksam. R2-50
+verbessert besonders die gemeinsame Abrufdauer und Umweltumkehr gegenüber R1,
+verfehlt aber die Robustheitsvorgabe. Weil Recovery ausschließlich nach einem
+Feuer geplant wird, bleiben nicht feuernde Subthreshold-Potenziale zeitlich
+unbegrenzt bestehen. Offen ist eine rein lokale ereignisgesteuerte Dynamik,
+die auch diese Zustände erreicht, ohne nützliche zeitliche Integration oder
+Ressourceneffizienz zu verlieren.

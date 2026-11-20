@@ -57,11 +57,19 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
 - Experimentelle, produktionsinaktive Schnittstellen zur isolierten
   Transplantation transienter Komponenten und einzelner Neuronmembranen.
 - 18 zusätzliche B.5.3-Prüfungen; insgesamt 543/543 bestandene Kerntests.
+- Forschungsstufe B.5.4 mit technischem Reset- und Recovery-Audit,
+  kontrollierter R0/R1/R2-Matrix, zeitlicher Integration, natürlichen
+  Lernverläufen, Umweltumkehr, Zustandskopien, Ressourcen- und
+  Persistenzprüfung.
+- 23 zusätzliche B.5.4-Prüfungen; insgesamt 566/566 bestandene Kerntests.
 
 ### Geändert
 
 - Der offizielle Projektname wurde von „EVE – Emergent Virtual Evolution“ auf
   „EVE“ verkürzt.
+- Die technische B.5.3-Beschreibung nennt den tatsächlich verwendeten
+  Membranreset `to_zero` statt des zuvor irrtümlich dokumentierten
+  `subtract_threshold`; historische Ergebnisse bleiben unverändert.
 - Das Persistenzformat wurde für B.4-Konfiguration, Metriken und ausstehende
   Modulationsereignisse auf Version 9 erweitert.
 - Version 10 persistiert zusätzlich die vollständige neuronale

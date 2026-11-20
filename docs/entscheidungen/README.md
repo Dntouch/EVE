@@ -25,6 +25,7 @@ Dieser Ordner enthält bestätigte Entscheidungen zum Projekt sowie eine optiona
 | [0023](0023-erwerb-ausreichend-stabilisierung-ungeloest.md) | B.5.1 weist ausreichenden natürlichen Erwerb, aber instabilen Erhalt konkurrierender Bindungen nach; ein neuer Mechanismus bleibt gesperrt. |
 | [0024](0024-keine-neue-gedaechtnisfunktion-nach-b52.md) | B.5.2 trennt synaptische Speicherung von transientem Abruf; eine neue Gedächtnisfunktion bleibt mangels eines einzelnen lokalen Eingriffs gesperrt. |
 | [0025](0025-membranlage-ist-lokale-abrufursache.md) | B.5.3 weist die lokale Membranlage als dominante unmittelbare Abrufursache nach; ein automatischer Reset bleibt gesperrt. |
+| [0026](0026-vorhandene-recovery-nuetzlich-aber-nicht-ausreichend.md) | B.5.4 bestätigt einen Nutzen vorhandener Recovery, aber auch unzureichende Robustheit und eine strukturelle Subthreshold-Grenze. |
 
 Nummer 0002 dokumentiert den anfänglich offenen Technologie-Stack historisch;
 sie ist keine aktuelle Architektursperre. Die Nummern 0004 bis 0010 sind

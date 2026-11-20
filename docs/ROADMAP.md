@@ -122,6 +122,15 @@ weder eine natürliche Regel darstellt noch beide Beziehungen zuverlässig
 stabilisiert, bleiben K11/K12 gesperrt. B.5.4 darf ausschließlich die bereits
 vorhandene lokale ereignisgesteuerte Recovery kontrolliert gegen R0 prüfen.
 
+B.5.4 weist nach, dass unabhängige Recovery nur mit aktivem Refraktärzustand
+wirksam ist und die gemeinsame Abrufbarkeit deutlich verbessert. Eine
+zusätzliche 50-%-Relaxation erhöht diese gemeinsame Verfügbarkeit in der
+unabhängigen Bestätigung kausal gegenüber R1, erreicht jedoch nicht die
+geforderte robuste Seedquote. Die vorhandene Architektur plant Recovery erst
+nach einem Feuer und kann deshalb nicht feuernde Restpotenziale grundsätzlich
+nicht erreichen. B.5.5 darf diesen lokal eingegrenzten Reichweitenmangel ohne
+globalen Tick oder Reset untersuchen.
+
 ## Erfolgskriterien aus dem Konzept
 
 Ein geeigneter kontrollierter Test folgt der dort beschriebenen Abfolge:

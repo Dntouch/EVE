@@ -1,0 +1,9 @@
+task,normal,inverse,reference_file,diagnostic_scope,production_change
+only_X,1,1,reference-task-results.csv,unchanged B52 regression,0
+only_Y,1,1,reference-task-results.csv,unchanged B52 regression,0
+X_then_Y,1,1,reference-task-results.csv,unchanged B52 regression,0
+Y_then_X,1,1,reference-task-results.csv,unchanged B52 regression,0
+alternating,1,1,reference-task-results.csv,unchanged B52 regression,0
+mixed,1,1,reference-task-results.csv,K5-K10 real loss-state copies,0
+reversal,1,1,reference-task-results.csv,unchanged B52 regression,0
+retention,1,1,reference-task-results.csv,unchanged B52 regression,0
