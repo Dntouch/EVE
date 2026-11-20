@@ -140,6 +140,10 @@ struct ExperimentConfig {
     bool batch_simultaneous_inputs{};
     InhibitoryPlasticityMode inhibitory_plasticity_mode{
         InhibitoryPlasticityMode::shared};
+    // B.5.5 research-only local lifetime for non-zero subthreshold membrane
+    // state. Disabled by default and never scans neurons globally.
+    bool subthreshold_relaxation_enabled{};
+    std::uint64_t subthreshold_relaxation_delay{};
 };
 
 struct Metrics {
@@ -203,6 +207,9 @@ struct Metrics {
     std::uint64_t simultaneous_input_batches{};
     std::uint64_t inhibitory_positive_changes{};
     std::uint64_t inhibitory_negative_changes{};
+    std::uint64_t scheduled_subthreshold_relaxations{};
+    std::uint64_t processed_subthreshold_relaxations{};
+    std::uint64_t stale_subthreshold_relaxations{};
 
     bool operator==(const Metrics& other) const noexcept {
         return processed_events == other.processed_events &&
@@ -281,7 +288,13 @@ struct Metrics {
                inhibitory_applied_strength == other.inhibitory_applied_strength &&
                simultaneous_input_batches == other.simultaneous_input_batches &&
                inhibitory_positive_changes == other.inhibitory_positive_changes &&
-               inhibitory_negative_changes == other.inhibitory_negative_changes;
+               inhibitory_negative_changes == other.inhibitory_negative_changes &&
+               scheduled_subthreshold_relaxations ==
+                   other.scheduled_subthreshold_relaxations &&
+               processed_subthreshold_relaxations ==
+                   other.processed_subthreshold_relaxations &&
+               stale_subthreshold_relaxations ==
+                   other.stale_subthreshold_relaxations;
     }
 };
 

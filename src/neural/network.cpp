@@ -33,6 +33,10 @@ bool Neuron::operator==(const Neuron& other) const noexcept {
            refractory_events_remaining == other.refractory_events_remaining &&
            recovery_generation == other.recovery_generation &&
            scheduled_recovery_time == other.scheduled_recovery_time &&
+           subthreshold_relaxation_generation ==
+               other.subthreshold_relaxation_generation &&
+           scheduled_subthreshold_relaxation_time ==
+               other.scheduled_subthreshold_relaxation_time &&
            first_incoming == other.first_incoming &&
            first_outgoing == other.first_outgoing &&
            incoming_count == other.incoming_count && outgoing_count == other.outgoing_count;
@@ -912,6 +916,11 @@ std::uint64_t Network::state_fingerprint() const noexcept {
         hash_u64(hash, item.refractory_events_remaining);
         hash_u64(hash, item.recovery_generation);
         hash_u64(hash, item.scheduled_recovery_time);
+        if (item.subthreshold_relaxation_generation != 0 ||
+            item.scheduled_subthreshold_relaxation_time != 0) {
+            hash_u64(hash, item.subthreshold_relaxation_generation);
+            hash_u64(hash, item.scheduled_subthreshold_relaxation_time);
+        }
         hash_u64(hash, item.first_incoming);
         hash_u64(hash, item.first_outgoing);
         hash_u64(hash, item.incoming_count);

@@ -1,0 +1,9 @@
+phase,metric,clusters,mean,ci_low,ci_high
+confirmation,changed_per_state,384,0.280007,0.277811,0.282207
+confirmation,harmful_per_error,384,0.73566,0.731813,0.73938
+confirmation,helpful_per_state,384,0.0296034,0.028734,0.0304728
+confirmation,inventory_per_episode,384,0.640523,0.637562,0.643316
+discovery,changed_per_state,384,0.278211,0.275911,0.280538
+discovery,harmful_per_error,384,0.733402,0.729649,0.737198
+discovery,helpful_per_state,384,0.0297979,0.0288948,0.0307285
+discovery,inventory_per_episode,384,0.64062,0.637654,0.643346

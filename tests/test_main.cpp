@@ -5573,6 +5573,276 @@ void test_b54_local_recovery_case(const std::uint32_t index) {
     }
 }
 
+void test_b55_subthreshold_relaxation_case(const std::uint32_t index) {
+    const auto make_config = [](const bool enabled = true,
+            const std::uint64_t delay = 4,
+            const eve::RecoveryMode recovery = eve::RecoveryMode::input_dependent,
+            const std::uint32_t refractory = 0,
+            const std::uint32_t recovery_relaxation = 0) {
+        eve::ExperimentConfig config;
+        config.neuron_count = 8;
+        config.width = 2;
+        config.height = 2;
+        config.depth = 2;
+        config.initial_outgoing_synapses = 0;
+        config.firing_threshold = 2;
+        config.maximum_synapse_weight = 3;
+        config.learning_enabled = false;
+        config.growth_enabled = false;
+        config.reset_mode = eve::ResetMode::to_zero;
+        config.refractory_input_events = refractory;
+        config.recovery_mode = recovery;
+        config.recovery_delay = recovery == eve::RecoveryMode::input_dependent
+            ? 0 : delay;
+        config.membrane_relaxation_percent = recovery_relaxation;
+        config.batch_simultaneous_inputs = true;
+        config.local_event_memory_capacity = 8;
+        config.subthreshold_relaxation_enabled = enabled;
+        config.subthreshold_relaxation_delay = enabled ? delay : 0;
+        return config;
+    };
+
+    if (index == 0) {
+        eve::bios::Runtime runtime(make_config(), 0x550000ULL);
+        const auto weak = runtime.add_experimental_synapse(0, 4, 1, true);
+        static_cast<void>(runtime.process_simultaneous_impulses({weak}));
+        require_equal(runtime.metrics().scheduled_subthreshold_relaxations, 1ULL,
+                      "B.5.5 subthreshold state did not schedule relaxation");
+        require_equal(runtime.future_event_count(), std::size_t{1},
+                      "B.5.5 scheduled an unexpected number of events");
+    } else if (index == 1) {
+        eve::bios::Runtime runtime(make_config(), 0x550001ULL);
+        const auto weak = runtime.add_experimental_synapse(0, 4, 1, true);
+        static_cast<void>(runtime.process_simultaneous_impulses({weak}));
+        static_cast<void>(runtime.advance_time_to(3));
+        require_equal(runtime.network().neuron(4).membrane_potential, 1LL,
+                      "B.5.5 relaxed before the due time");
+        static_cast<void>(runtime.advance_time_to(4));
+        require_equal(runtime.network().neuron(4).membrane_potential, 0LL,
+                      "B.5.5 did not relax at the due time");
+        require_equal(runtime.metrics().processed_subthreshold_relaxations, 1ULL,
+                      "B.5.5 valid relaxation was not counted");
+    } else if (index == 2) {
+        eve::bios::Runtime runtime(make_config(), 0x550002ULL);
+        const auto weak = runtime.add_experimental_synapse(0, 4, 1, true);
+        const auto zero = runtime.add_experimental_synapse(1, 4, 0, true);
+        static_cast<void>(runtime.process_simultaneous_impulses({weak}));
+        static_cast<void>(runtime.advance_time_to(2));
+        static_cast<void>(runtime.process_simultaneous_impulses({zero}));
+        require_equal(runtime.metrics().scheduled_subthreshold_relaxations, 1ULL,
+                      "B.5.5 renewed a fixed-lifetime relaxation");
+        static_cast<void>(runtime.advance_time_to(4));
+        require_equal(runtime.network().neuron(4).membrane_potential, 0LL,
+                      "B.5.5 fixed lifetime was shifted by another input");
+    } else if (index == 3) {
+        eve::bios::Runtime runtime(make_config(), 0x550003ULL);
+        const auto weak = runtime.add_experimental_synapse(0, 4, 1, true);
+        static_cast<void>(runtime.process_simultaneous_impulses({weak}));
+        static_cast<void>(runtime.process_simultaneous_impulses({weak}));
+        require_equal(runtime.network().neuron(4).membrane_potential, 0LL,
+                      "B.5.5 firing did not reset the membrane");
+        static_cast<void>(runtime.advance_time_to(4));
+        require_equal(runtime.metrics().stale_subthreshold_relaxations, 1ULL,
+                      "B.5.5 firing did not invalidate pending relaxation");
+    } else if (index == 4) {
+        eve::bios::Runtime runtime(make_config(), 0x550004ULL);
+        const auto weak = runtime.add_experimental_synapse(0, 4, 1, true);
+        const auto inhibition = runtime.add_experimental_synapse(
+            1, 4, 1, true, eve::SynapticEffect::inhibitory);
+        static_cast<void>(runtime.process_simultaneous_impulses({weak}));
+        static_cast<void>(runtime.process_simultaneous_impulses({inhibition}));
+        require_equal(runtime.network().neuron(4).membrane_potential, 0LL,
+                      "B.5.5 inhibitory cancellation lost its sign");
+        static_cast<void>(runtime.advance_time_to(4));
+        require_equal(runtime.metrics().stale_subthreshold_relaxations, 1ULL,
+                      "B.5.5 inhibition did not invalidate relaxation");
+    } else if (index == 5 || index == 6) {
+        eve::bios::Runtime runtime(make_config(), 0x550005ULL + index);
+        const auto weak = runtime.add_experimental_synapse(0, 4, 1, true);
+        static_cast<void>(runtime.process_simultaneous_impulses({weak}));
+        static_cast<void>(runtime.advance_time_to(index == 5 ? 3 : 4));
+        const auto second = runtime.process_simultaneous_impulses({weak});
+        require_equal(second.fired, index == 5,
+                      "B.5.5 temporal integration boundary is incorrect");
+    } else if (index == 7) {
+        eve::bios::Runtime runtime(make_config(true, 4,
+            eve::RecoveryMode::independent_with_membrane_relaxation,
+            1, 100), 0x550007ULL);
+        const auto strong = runtime.add_experimental_synapse(0, 4, 2, true);
+        const auto weak = runtime.add_experimental_synapse(1, 4, 1, true);
+        require(runtime.process_simultaneous_impulses({strong}).fired,
+                "B.5.5 recovery fixture did not fire");
+        static_cast<void>(runtime.process_simultaneous_impulses({weak}));
+        static_cast<void>(runtime.advance_time_to(4));
+        require_equal(runtime.metrics().processed_recovery_events, 1ULL,
+                      "B.5.5 recovery did not run");
+        require_equal(runtime.metrics().stale_subthreshold_relaxations, 1ULL,
+                      "B.5.5 recovery did not invalidate local relaxation");
+        require_equal(runtime.network().neuron(4).membrane_potential, 0LL,
+                      "B.5.5 recovery/relaxation interaction is incorrect");
+    } else if (index == 8) {
+        const auto path = std::filesystem::temp_directory_path() /
+            "eve-stage-b55-pending.bin";
+        eve::bios::Runtime runtime(make_config(), 0x550008ULL);
+        const auto weak = runtime.add_experimental_synapse(0, 4, 1, true);
+        static_cast<void>(runtime.process_simultaneous_impulses({weak}));
+        runtime.save(path.string());
+        auto restored = eve::bios::Runtime::load(path.string());
+        require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                      "B.5.5 pending relaxation did not persist");
+        static_cast<void>(runtime.advance_time_to(4));
+        static_cast<void>(restored.advance_time_to(4));
+        require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                      "B.5.5 restored relaxation diverged at due time");
+        static_cast<void>(std::filesystem::remove(path));
+    } else if (index == 9) {
+        eve::bios::Runtime left(make_config(), 0x550009ULL);
+        eve::bios::Runtime right = left;
+        const auto left_weak = left.add_experimental_synapse(0, 4, 1, true);
+        const auto right_weak = right.add_experimental_synapse(0, 4, 1, true);
+        static_cast<void>(left.process_simultaneous_impulses({left_weak}));
+        static_cast<void>(right.process_simultaneous_impulses({right_weak}));
+        static_cast<void>(left.advance_time_to(4));
+        static_cast<void>(right.advance_time_to(4));
+        require_equal(left.state_fingerprint(), right.state_fingerprint(),
+                      "B.5.5 identical continuations diverged");
+    } else if (index == 10) {
+        auto reference_config = make_config(false, 0);
+        auto disabled_config = reference_config;
+        disabled_config.subthreshold_relaxation_enabled = false;
+        disabled_config.subthreshold_relaxation_delay = 0;
+        eve::bios::Runtime reference(reference_config, 0x550010ULL);
+        eve::bios::Runtime disabled(disabled_config, 0x550010ULL);
+        const auto a = reference.add_experimental_synapse(0, 4, 1, true);
+        const auto b = disabled.add_experimental_synapse(0, 4, 1, true);
+        static_cast<void>(reference.process_simultaneous_impulses({a}));
+        static_cast<void>(disabled.process_simultaneous_impulses({b}));
+        static_cast<void>(reference.advance_time_by(64));
+        static_cast<void>(disabled.advance_time_by(64));
+        require_equal(reference.state_fingerprint(), disabled.state_fingerprint(),
+                      "B.5.5 disabled mechanism differs from the reference");
+    } else if (index == 11) {
+        eve::bios::Runtime runtime(make_config(true, 1), 0x550011ULL);
+        const auto weak = runtime.add_experimental_synapse(0, 4, 1, true);
+        for (std::uint32_t repetition = 0; repetition < 64; ++repetition) {
+            static_cast<void>(runtime.process_simultaneous_impulses({weak}));
+            static_cast<void>(runtime.advance_time_by(1));
+        }
+        require(runtime.network().validate() &&
+                    runtime.future_event_count() == 0 &&
+                    runtime.metrics().maximum_queue_size < 16,
+                "B.5.5 relaxation queue is invalid or unbounded");
+    } else if (index == 12) {
+        eve::bios::Runtime runtime(make_config(), 0x550012ULL);
+        std::vector<eve::bios::SubthresholdRelaxationObservation> observations;
+        runtime.set_subthreshold_relaxation_observer(
+            [&](const auto& observation) { observations.push_back(observation); });
+        const auto weak = runtime.add_experimental_synapse(0, 4, 1, true);
+        static_cast<void>(runtime.process_simultaneous_impulses({weak}));
+        static_cast<void>(runtime.advance_time_to(4));
+        require_equal(observations.size(), std::size_t{1},
+                      "B.5.5 observer missed relaxation");
+        require(observations.front().relaxed && !observations.front().stale &&
+                    observations.front().membrane_before == 1 &&
+                    observations.front().membrane_after == 0,
+                "B.5.5 observer reported incorrect local state");
+    } else if (index == 13) {
+        auto config = make_config();
+        config.subthreshold_relaxation_delay = 0;
+        bool rejected = false;
+        try {
+            static_cast<void>(eve::bios::Runtime(config, 0x550013ULL));
+        } catch (const std::invalid_argument&) {
+            rejected = true;
+        }
+        require(rejected, "B.5.5 accepted enabled zero-delay relaxation");
+    } else if (index == 14) {
+        auto config = make_config(false, 0);
+        config.subthreshold_relaxation_delay = 4;
+        bool rejected = false;
+        try {
+            static_cast<void>(eve::bios::Runtime(config, 0x550014ULL));
+        } catch (const std::invalid_argument&) {
+            rejected = true;
+        }
+        require(rejected, "B.5.5 accepted disabled nonzero-delay relaxation");
+    } else if (index == 15) {
+        eve::bios::Runtime runtime(make_config(), 0x550015ULL);
+        const auto x = runtime.add_experimental_synapse(0, 4, 1, true);
+        const auto y = runtime.add_experimental_synapse(1, 5, 1, true);
+        static_cast<void>(runtime.process_simultaneous_impulses({x}));
+        static_cast<void>(runtime.process_simultaneous_impulses({y}));
+        static_cast<void>(runtime.advance_time_to(4));
+        require(runtime.network().validate() &&
+                    runtime.network().neuron(4).membrane_potential == 0 &&
+                    runtime.network().neuron(5).membrane_potential == 0 &&
+                    runtime.metrics().processed_subthreshold_relaxations == 2,
+                "B.5.5 local relaxation coupled independent neurons");
+    } else if (index == 16) {
+        eve::bios::Runtime runtime(make_config(), 0x550016ULL);
+        const auto weak = runtime.add_experimental_synapse(0, 4, 1, true);
+        static_cast<void>(runtime.process_simultaneous_impulses({weak}));
+        runtime.set_experimental_neuron_membrane(4, 0);
+        static_cast<void>(runtime.advance_time_to(4));
+        require_equal(
+            runtime.network().neuron(4).scheduled_subthreshold_relaxation_time,
+            0ULL, "B.5.5 consumed diagnostic stale event stayed scheduled");
+        static_cast<void>(runtime.process_simultaneous_impulses({weak}));
+        require_equal(runtime.metrics().scheduled_subthreshold_relaxations, 2ULL,
+                      "B.5.5 could not schedule after diagnostic stale event");
+    } else if (index == 17) {
+        eve::bios::Runtime source(make_config(), 0x550017ULL);
+        const auto weak = source.add_experimental_synapse(0, 4, 1, true);
+        static_cast<void>(source.process_simultaneous_impulses({weak}));
+        auto restored = source;
+        restored.set_experimental_neuron_membrane(4, 0);
+        const auto transfer = restored.set_experimental_transient_component_from(
+            source, eve::bios::ExperimentalTransientComponent::membrane);
+        require(transfer.valid && transfer.changed_values == 1 &&
+                    restored.state_fingerprint() == source.state_fingerprint(),
+                "B.5.5 diagnostic membrane restoration was not exact");
+    } else if (index == 18) {
+        eve::bios::Runtime normal(make_config(), 0x550018ULL);
+        eve::bios::Runtime inverse(make_config(), 0x550018ULL);
+        const auto normal_path = normal.add_experimental_synapse(0, 4, 1, true);
+        const auto inverse_path = inverse.add_experimental_synapse(0, 5, 1, true);
+        static_cast<void>(normal.process_simultaneous_impulses({normal_path}));
+        static_cast<void>(inverse.process_simultaneous_impulses({inverse_path}));
+        static_cast<void>(normal.advance_time_to(4));
+        static_cast<void>(inverse.advance_time_to(4));
+        require_equal(normal.metrics().processed_subthreshold_relaxations,
+                      inverse.metrics().processed_subthreshold_relaxations,
+                      "B.5.5 normal/inverse roles relaxed asymmetrically");
+    } else if (index == 19) {
+        eve::bios::Runtime runtime(make_config(), 0x550019ULL);
+        const auto protected_path =
+            runtime.add_experimental_synapse(0, 4, 1, true);
+        static_cast<void>(runtime.process_simultaneous_impulses({protected_path}));
+        static_cast<void>(runtime.advance_time_to(4));
+        require(runtime.network().synapse(protected_path).plasticity_protected &&
+                    runtime.network().synapse(protected_path).weight == 1,
+                "B.5.5 relaxation damaged protected exploration");
+    } else if (index == 20) {
+        eve::bios::Runtime runtime(make_config(), 0x550020ULL);
+        const auto weak = runtime.add_experimental_synapse(0, 4, 1, true);
+        static_cast<void>(runtime.process_simultaneous_impulses({weak}));
+        static_cast<void>(runtime.advance_time_by(64));
+        require(runtime.network().synapse(weak).weight == 1 &&
+                    runtime.network().neuron(4).membrane_potential == 0 &&
+                    runtime.network().validate(),
+                "B.5.5 event-free retention damaged stored structure");
+    } else if (index == 21) {
+        auto config = make_config();
+        config.learning_enabled = true;
+        eve::bios::Runtime runtime(config, 0x550021ULL);
+        const auto weak = runtime.add_experimental_synapse(0, 4, 1, false);
+        static_cast<void>(runtime.process_simultaneous_impulses({weak}));
+        static_cast<void>(runtime.advance_time_to(4));
+        require(runtime.config().learning_enabled && runtime.network().validate(),
+                "B.5.5 relaxation disabled later learning capability");
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -6081,6 +6351,35 @@ int main() {
         tests.emplace_back(
             std::string("B54 ") + b54_names[index],
             [index]() { test_b54_local_recovery_case(index); });
+    }
+    const std::array<const char*, 22> b55_names{{
+        "subthreshold state schedules one event",
+        "relaxation executes exactly when due",
+        "fixed lifetime is not renewed",
+        "firing invalidates pending relaxation",
+        "inhibition invalidates pending relaxation",
+        "short-gap integration is preserved",
+        "due-time relaxation bounds integration",
+        "recovery interaction is deterministic",
+        "pending relaxation persistence",
+        "deterministic relaxation continuation",
+        "disabled mechanism matches reference",
+        "bounded relaxation queue",
+        "relaxation observer",
+        "enabled zero delay rejected",
+        "disabled nonzero delay rejected",
+        "independent local relaxation",
+        "diagnostic stale generation cleanup",
+        "diagnostic removal and exact restoration",
+        "normal inverse role symmetry",
+        "protected exploration remains intact",
+        "event-free structural retention",
+        "learning capability remains enabled",
+    }};
+    for (std::uint32_t index = 0; index < b55_names.size(); ++index) {
+        tests.emplace_back(
+            std::string("B55 ") + b55_names[index],
+            [index]() { test_b55_subthreshold_relaxation_case(index); });
     }
 
     std::size_t failures = 0;

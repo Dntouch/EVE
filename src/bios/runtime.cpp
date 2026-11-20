@@ -13,7 +13,7 @@ namespace eve::bios {
 namespace {
 
 constexpr std::array<char, 8> kPersistenceMagic{{'E', 'V', 'E', '0', '0', '1', '\r', '\n'}};
-constexpr std::uint32_t kPersistenceVersion = 13;
+constexpr std::uint32_t kPersistenceVersion = 14;
 constexpr std::uint64_t kNonZeroRngState = 0x9e3779b97f4a7c15ULL;
 constexpr std::uint64_t kGrowthSeedMask = 0xd1b54a32d192ed03ULL;
 constexpr std::uint64_t kFnvPrime = 1099511628211ULL;
@@ -145,6 +145,8 @@ void write_config(std::ostream& stream, const ExperimentConfig& config) {
     write_u8(stream, static_cast<std::uint8_t>(config.reset_mode));
     write_u8(stream, config.batch_simultaneous_inputs ? 1 : 0);
     write_u8(stream, static_cast<std::uint8_t>(config.inhibitory_plasticity_mode));
+    write_u8(stream, config.subthreshold_relaxation_enabled ? 1 : 0);
+    write_u64(stream, config.subthreshold_relaxation_delay);
 }
 
 ExperimentConfig read_config(std::istream& stream, const std::uint32_t version) {
@@ -241,6 +243,10 @@ ExperimentConfig read_config(std::istream& stream, const std::uint32_t version) 
         config.inhibitory_plasticity_mode =
             static_cast<InhibitoryPlasticityMode>(mode);
     }
+    if (version >= 14) {
+        config.subthreshold_relaxation_enabled = read_bool(stream);
+        config.subthreshold_relaxation_delay = read_u64(stream);
+    }
     return config;
 }
 
@@ -305,6 +311,9 @@ void write_metrics(std::ostream& stream, const Metrics& metrics) {
     write_u64(stream, metrics.simultaneous_input_batches);
     write_u64(stream, metrics.inhibitory_positive_changes);
     write_u64(stream, metrics.inhibitory_negative_changes);
+    write_u64(stream, metrics.scheduled_subthreshold_relaxations);
+    write_u64(stream, metrics.processed_subthreshold_relaxations);
+    write_u64(stream, metrics.stale_subthreshold_relaxations);
 }
 
 Metrics read_metrics(std::istream& stream, const std::uint32_t version) {
@@ -388,6 +397,11 @@ Metrics read_metrics(std::istream& stream, const std::uint32_t version) {
         metrics.simultaneous_input_batches = read_u64(stream);
         metrics.inhibitory_positive_changes = read_u64(stream);
         metrics.inhibitory_negative_changes = read_u64(stream);
+    }
+    if (version >= 14) {
+        metrics.scheduled_subthreshold_relaxations = read_u64(stream);
+        metrics.processed_subthreshold_relaxations = read_u64(stream);
+        metrics.stale_subthreshold_relaxations = read_u64(stream);
     }
     return metrics;
 }
@@ -559,6 +573,7 @@ brainstem::ImpulseBatchResult Runtime::process_simultaneous_impulses(
             ++metrics_.scheduled_eligibility_expiries;
         }
     }
+    update_subthreshold_relaxation(receiver, batch.fired);
     return batch;
 }
 
@@ -1110,6 +1125,11 @@ void Runtime::set_recovery_observer(RecoveryObserver observer) {
     recovery_observer_ = std::move(observer);
 }
 
+void Runtime::set_subthreshold_relaxation_observer(
+    SubthresholdRelaxationObserver observer) {
+    subthreshold_relaxation_observer_ = std::move(observer);
+}
+
 MotorCausality Runtime::analyze_motor_causality(
     const brainstem::MotorResponse& response,
     const brainstem::MotorCircuitResult& circuit,
@@ -1440,14 +1460,23 @@ ExperimentalTransientTransfer Runtime::set_experimental_transient_component_from
                 target.refractory_events_remaining !=
                     value.refractory_events_remaining ||
                 target.recovery_generation != value.recovery_generation ||
-                target.scheduled_recovery_time != value.scheduled_recovery_time;
+                target.scheduled_recovery_time != value.scheduled_recovery_time ||
+                target.subthreshold_relaxation_generation !=
+                    value.subthreshold_relaxation_generation ||
+                target.scheduled_subthreshold_relaxation_time !=
+                    value.scheduled_subthreshold_relaxation_time;
             target.refractory_events_remaining =
                 value.refractory_events_remaining;
             target.recovery_generation = value.recovery_generation;
             target.scheduled_recovery_time = value.scheduled_recovery_time;
+            target.subthreshold_relaxation_generation =
+                value.subthreshold_relaxation_generation;
+            target.scheduled_subthreshold_relaxation_time =
+                value.scheduled_subthreshold_relaxation_time;
         }
         replace_events([](const EventKind kind) {
-            return kind == EventKind::recovery;
+            return kind == EventKind::recovery ||
+                kind == EventKind::subthreshold_relaxation;
         });
         break;
     case ExperimentalTransientComponent::time_and_queue:
@@ -1584,6 +1613,10 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
     mix_hash(hash, config_.consume_trace_on_modulation ? 1 : 0);
     mix_hash(hash, config_.batch_simultaneous_inputs ? 1 : 0);
     mix_hash(hash, static_cast<std::uint8_t>(config_.inhibitory_plasticity_mode));
+    if (config_.subthreshold_relaxation_enabled) {
+        mix_hash(hash, 0xB550ULL);
+        mix_hash(hash, config_.subthreshold_relaxation_delay);
+    }
     mix_hash(hash, evaluation_route_configured_ ? 1 : 0);
     if (evaluation_route_configured_) {
         mix_hash(hash, static_cast<std::uint8_t>(evaluation_route_.config.mode));
@@ -1670,6 +1703,13 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
     mix_hash(hash, metrics_.simultaneous_input_batches);
     mix_hash(hash, metrics_.inhibitory_positive_changes);
     mix_hash(hash, metrics_.inhibitory_negative_changes);
+    if (metrics_.scheduled_subthreshold_relaxations != 0 ||
+        metrics_.processed_subthreshold_relaxations != 0 ||
+        metrics_.stale_subthreshold_relaxations != 0) {
+        mix_hash(hash, metrics_.scheduled_subthreshold_relaxations);
+        mix_hash(hash, metrics_.processed_subthreshold_relaxations);
+        mix_hash(hash, metrics_.stale_subthreshold_relaxations);
+    }
     mix_hash(hash, simulated_time_);
     mix_hash(hash, next_event_sequence_);
     for (const Event& event : queue_) {
@@ -1722,6 +1762,8 @@ void Runtime::save(const std::string& path) const {
         write_u32(stream, neuron.refractory_events_remaining);
         write_u64(stream, neuron.recovery_generation);
         write_u64(stream, neuron.scheduled_recovery_time);
+        write_u64(stream, neuron.subthreshold_relaxation_generation);
+        write_u64(stream, neuron.scheduled_subthreshold_relaxation_time);
         write_u32(stream, neuron.first_incoming);
         write_u32(stream, neuron.first_outgoing);
         write_u32(stream, neuron.incoming_count);
@@ -1874,6 +1916,10 @@ Runtime Runtime::load(const std::string& path) {
         if (version >= 5) {
             neuron.recovery_generation = read_u64(stream);
             neuron.scheduled_recovery_time = read_u64(stream);
+        }
+        if (version >= 14) {
+            neuron.subthreshold_relaxation_generation = read_u64(stream);
+            neuron.scheduled_subthreshold_relaxation_time = read_u64(stream);
         }
         neuron.first_incoming = read_u32(stream);
         neuron.first_outgoing = read_u32(stream);
@@ -2031,7 +2077,9 @@ Runtime Runtime::load(const std::string& path) {
     }
     for (std::uint64_t index = 0; index < queue_size; ++index) {
         const std::uint8_t kind_value = read_u8(stream);
-        const std::uint8_t maximum_kind = version >= 9
+        const std::uint8_t maximum_kind = version >= 14
+            ? static_cast<std::uint8_t>(EventKind::subthreshold_relaxation)
+            : version >= 9
             ? static_cast<std::uint8_t>(EventKind::eligibility_decay)
             : version >= 8
             ? static_cast<std::uint8_t>(EventKind::context_expiry)
@@ -2072,6 +2120,7 @@ Runtime Runtime::load(const std::string& path) {
                    event.kind == EventKind::modulation_impulse) {
             static_cast<void>(runtime.network_.synapse(event.target));
         } else if (event.kind == EventKind::recovery ||
+                   event.kind == EventKind::subthreshold_relaxation ||
                    event.kind == EventKind::eligibility_expiry ||
                    event.kind == EventKind::eligibility_decay ||
                    event.kind == EventKind::context_expiry) {
@@ -2171,6 +2220,16 @@ void Runtime::validate_config() const {
     }
     if (config_.membrane_relaxation_percent > 100) {
         throw std::invalid_argument("membrane relaxation must be between 0 and 100 percent");
+    }
+    if (config_.subthreshold_relaxation_enabled &&
+        config_.subthreshold_relaxation_delay == 0) {
+        throw std::invalid_argument(
+            "subthreshold relaxation delay must be positive when enabled");
+    }
+    if (!config_.subthreshold_relaxation_enabled &&
+        config_.subthreshold_relaxation_delay != 0) {
+        throw std::invalid_argument(
+            "disabled subthreshold relaxation must not configure a delay");
     }
     if (static_cast<std::uint8_t>(config_.eligibility_selection) >
             static_cast<std::uint8_t>(EligibilitySelection::active_phase) ||
@@ -2704,6 +2763,7 @@ void Runtime::process_impulse(
             }
         }
     }
+    update_subthreshold_relaxation(before.receiver, result.fired);
 }
 
 void Runtime::process_recovery(const Event& event) {
@@ -2728,6 +2788,79 @@ void Runtime::process_recovery(const Event& event) {
             result.recovered,
             result.stale,
         });
+    }
+    if (result.recovered) {
+        update_subthreshold_relaxation(event.target, false);
+    }
+}
+
+void Runtime::update_subthreshold_relaxation(
+    const NeuronId neuron, const bool fired) {
+    if (!config_.subthreshold_relaxation_enabled) return;
+    auto& item = network_.neuron(neuron);
+    const bool subthreshold = item.membrane_potential > 0 &&
+        item.membrane_potential < item.firing_threshold;
+    if (fired || !subthreshold) {
+        if (item.scheduled_subthreshold_relaxation_time != 0) {
+            if (item.subthreshold_relaxation_generation ==
+                std::numeric_limits<std::uint64_t>::max()) {
+                throw std::overflow_error(
+                    "subthreshold relaxation generation overflow");
+            }
+            ++item.subthreshold_relaxation_generation;
+            item.scheduled_subthreshold_relaxation_time = 0;
+        }
+        return;
+    }
+    // A local subthreshold state has one fixed lifetime. Further inputs that
+    // keep it subthreshold do not accumulate additional valid events.
+    if (item.scheduled_subthreshold_relaxation_time != 0) return;
+    if (config_.subthreshold_relaxation_delay >
+        std::numeric_limits<std::uint64_t>::max() - simulated_time_) {
+        throw std::overflow_error("subthreshold relaxation time overflow");
+    }
+    if (item.subthreshold_relaxation_generation ==
+        std::numeric_limits<std::uint64_t>::max()) {
+        throw std::overflow_error(
+            "subthreshold relaxation generation overflow");
+    }
+    ++item.subthreshold_relaxation_generation;
+    const auto due = simulated_time_ + config_.subthreshold_relaxation_delay;
+    item.scheduled_subthreshold_relaxation_time = due;
+    enqueue_event(EventKind::subthreshold_relaxation, neuron, due,
+                  item.subthreshold_relaxation_generation);
+    ++metrics_.scheduled_subthreshold_relaxations;
+}
+
+void Runtime::process_subthreshold_relaxation(const Event& event) {
+    auto& item = network_.neuron(event.target);
+    const auto membrane_before = item.membrane_potential;
+    const bool valid = config_.subthreshold_relaxation_enabled &&
+        event.generation == item.subthreshold_relaxation_generation &&
+        event.scheduled_time == item.scheduled_subthreshold_relaxation_time &&
+        item.membrane_potential > 0 &&
+        item.membrane_potential < item.firing_threshold;
+    if (valid) {
+        item.membrane_potential = 0;
+        item.scheduled_subthreshold_relaxation_time = 0;
+        ++metrics_.processed_subthreshold_relaxations;
+    } else {
+        // A diagnostic membrane intervention can make the currently due
+        // generation stale without going through ordinary input handling.
+        // Clear only that consumed generation; never disturb a newer event.
+        if (event.generation == item.subthreshold_relaxation_generation &&
+            event.scheduled_time ==
+                item.scheduled_subthreshold_relaxation_time) {
+            item.scheduled_subthreshold_relaxation_time = 0;
+        }
+        ++metrics_.stale_subthreshold_relaxations;
+    }
+    if (subthreshold_relaxation_observer_) {
+        subthreshold_relaxation_observer_(
+            SubthresholdRelaxationObservation{
+                metrics_.processed_events, simulated_time_, event.target,
+                event.generation, membrane_before, item.membrane_potential,
+                valid, !valid});
     }
 }
 
@@ -2795,6 +2928,9 @@ void Runtime::process_event(const Event& event) {
         break;
     case EventKind::eligibility_decay:
         process_eligibility_decay(event);
+        break;
+    case EventKind::subthreshold_relaxation:
+        process_subthreshold_relaxation(event);
         break;
     }
 }

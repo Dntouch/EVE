@@ -1035,6 +1035,7 @@ void b54_controls(const std::filesystem::path& output) {
 
 }  // namespace
 
+#ifndef EVE_RESEARCH_STAGE_B54_EMBEDDED
 int main(int argc, char** argv) {
     const std::filesystem::path output = argc > 1
         ? std::filesystem::path(argv[1])
@@ -1066,3 +1067,4 @@ int main(int argc, char** argv) {
     std::cout << "B.5.4 local membrane recovery complete K12=not_implemented\n";
     return 0;
 }
+#endif

@@ -10,11 +10,13 @@ vorgegebene Semantik aus.
 
 ## Projektstatus
 
-**Stand:** 19. November 2026
+**Stand:** 20. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.5.4 – lokale Membran-Recovery
+**Jüngste abgeschlossene Forschungsstufe:** B.5.5 – lokale
+Subthreshold-Membrandynamik
 
-**Nächster Forschungsschwerpunkt:** B.5.5 – lokale subthreshold Membrandynamik
+**Nächster Forschungsschwerpunkt:** B.5.6 – kausale Zerlegung verbleibender
+Nichtrobustheit
 
 EVE ist inzwischen ein ausführbarer Forschungsprototyp. Er besitzt eine
 deterministische, ereignisgesteuerte Laufzeit, ein eigenes neuronales Netz,
@@ -126,6 +128,15 @@ erreicht die vorhandene Recovery ausschließlich bereits feuernde Neuronen;
 subthreshold Restpotenziale bleiben unangetastet. R1/R2 bleiben experimentell,
 K12/K13 werden nicht implementiert.
 
+B.5.5 erfasst 251.391 natürliche unterschwellige Zustände und weist für
+62.172 davon einen störenden, für 7.417 jedoch einen nützlichen kausalen
+Einfluss nach. Eine daraufhin implementierte feste lokale Lebensdauer von 16
+Zeiteinheiten verbessert R2-50 in unabhängiger Bestätigung um 6,42
+E1-Prozentpunkte und reduziert Verluste deutlich. Das 48/64-Ziel wird dennoch
+in keiner Stromfamilie-/Zuordnungszelle erreicht. Die Funktion bleibt
+standardmäßig deaktiviert und experimentell; der Forschungsstand wird zum
+Merge empfohlen.
+
 ### Einordnung des konsolidierten Stands
 
 - **Beschlossene Architektur:** deterministische Ereignislaufzeit, Trennung von
@@ -133,18 +144,20 @@ K12/K13 werden nicht implementiert.
   versionierte Speicherung und Wiederherstellung.
 - **Experimentell implementierte Mechanismen:** lokale Drei-Faktor-Plastizität,
   inhibitorische Synapsen und Plastizität sowie die lokale Integration technisch
-  gleichzeitiger Eingänge. Diese Mechanismen werden nur in abgegrenzten
+  gleichzeitiger Eingänge und die standardmäßig deaktivierte lokale
+  Subthreshold-Lebensdauer. Diese Mechanismen werden nur in abgegrenzten
   Forschungsvarianten aktiviert.
 - **Nachgewiesene Fähigkeiten:** Erwerb einer einzelnen Reiz-Handlungs-Beziehung,
   Anpassung nach Bewertungsumkehr sowie in B.5.1 natürlicher Erwerb, Verlust und
   Wiedererwerb aller untersuchten Sensorpfade.
-- **Offene Forschungsfragen:** stabiler gleichzeitiger Erhalt konkurrierender
-  Bindungen, lokale ereignisgesteuerte Begrenzung subthreshold
-  Membranpotenziale und die produktionsgeeignete Abgrenzung inhibitorischer
-  Interferenz.
+- **Offene Forschungsfragen:** kausale Zerlegung der verbleibenden
+  nichtrobusten S4-d16-Seeds, stabiler gleichzeitiger Erhalt konkurrierender
+  Bindungen und die produktionsgeeignete Abgrenzung inhibitorischer
+  Interferenz von transienten Zeitgrenzen.
 - **Nicht freigegebene Funktionen:** allgemeines adaptives Online-Lernen,
   inhibitorische Plastizität als Standardfunktion, adaptive Zusatzexploration
-  und ein neuer Stabilisierungs- oder Fehlerkorrekturmechanismus.
+  sowie Subthreshold-Relaxation oder ein anderer Stabilisierungsmechanismus als
+  Produktionsstandard.
 
 EVE ist damit weder eine fertige allgemeine Intelligenz noch ein Nachweis, dass
 eigenständige Intelligenz bereits entstanden ist. Der Prototyp dient dazu,

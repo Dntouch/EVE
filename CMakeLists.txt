@@ -108,6 +108,9 @@ target_link_libraries(eve_research_stage_b53 PRIVATE eve_core)
 add_executable(eve_research_stage_b54 src/research_stage_b54.cpp)
 target_link_libraries(eve_research_stage_b54 PRIVATE eve_core)
 
+add_executable(eve_research_stage_b55 src/research_stage_b55.cpp)
+target_link_libraries(eve_research_stage_b55 PRIVATE eve_core)
+
 include(CTest)
 if(BUILD_TESTING)
     add_executable(eve_tests tests/test_main.cpp)

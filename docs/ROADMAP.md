@@ -131,6 +131,16 @@ nach einem Feuer und kann deshalb nicht feuernde Restpotenziale grundsätzlich
 nicht erreichen. B.5.5 darf diesen lokal eingegrenzten Reichweitenmangel ohne
 globalen Tick oder Reset untersuchen.
 
+B.5.5 weist diesen Reichweitenmangel kausal nach: 73,57 % der bestätigten
+natürlichen Abruffehler lassen sich durch isolierte Entfernung des konkreten
+Subthreshold-Potenzials korrigieren, während ein kleinerer Anteil nützliche
+Integration trägt. Eine feste lokale Lebensdauer von 16 Zeiteinheiten liefert
+einen bestätigten positiven Beitrag gegenüber R2-50, verfehlt aber weiterhin
+48/64 robuste Seeds je Stromfamilie und Zuordnung. Die Funktion bleibt
+standardmäßig deaktiviert. B.5.6 soll die verbleibenden Fehler unter S4-d16 in
+synaptische, inhibitorische und transiente Ursachen zerlegen, bevor eine
+weitere Regel oder Zeitvariante zulässig ist.
+
 ## Erfolgskriterien aus dem Konzept
 
 Ein geeigneter kontrollierter Test folgt der dort beschriebenen Abfolge:

@@ -1,0 +1,8 @@
+group,enabled,description
+S0,0,reproduced later in full B54 reference
+S1,0,reproduced later in full B54 reference
+S2,1,B54 R2 50 percent causal inventory
+S3,1,diagnostic local removal and restoration only
+S4,1,enabled only after recorded causal decision
+S5,1,identical implementation disabled
+S6,1,delay 32 and 64 discovery controls

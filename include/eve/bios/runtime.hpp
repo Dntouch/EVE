@@ -40,6 +40,7 @@ enum class EventKind : std::uint8_t {
     modulation_fire = 8,
     modulation_impulse = 9,
     eligibility_decay = 10,
+    subthreshold_relaxation = 11,
 };
 
 struct Event {
@@ -202,6 +203,20 @@ struct ActionContextEmission {
 
 using RecoveryObserver = std::function<void(const RecoveryObservation&)>;
 
+struct SubthresholdRelaxationObservation {
+    std::uint64_t event_index{};
+    std::uint64_t simulated_time{};
+    NeuronId neuron{};
+    std::uint64_t generation{};
+    std::int64_t membrane_before{};
+    std::int64_t membrane_after{};
+    bool relaxed{};
+    bool stale{};
+};
+
+using SubthresholdRelaxationObserver =
+    std::function<void(const SubthresholdRelaxationObservation&)>;
+
 struct MotorCausality {
     bool technical_abort{};
     bool completed{};
@@ -290,6 +305,8 @@ public:
     void set_fire_observer(FireObserver observer);
     void set_impulse_observer(ImpulseObserver observer);
     void set_recovery_observer(RecoveryObserver observer);
+    void set_subthreshold_relaxation_observer(
+        SubthresholdRelaxationObserver observer);
     [[nodiscard]] static MotorCausality analyze_motor_causality(
         const brainstem::MotorResponse& response,
         const brainstem::MotorCircuitResult& circuit,
@@ -341,6 +358,8 @@ private:
         bool context_feedback_origin = false,
         std::int8_t modulation = 0);
     void process_recovery(const Event& event);
+    void process_subthreshold_relaxation(const Event& event);
+    void update_subthreshold_relaxation(NeuronId neuron, bool fired);
     void process_eligibility_expiry(const Event& event);
     void process_eligibility_decay(const Event& event);
     void process_context_expiry(const Event& event);
@@ -374,6 +393,7 @@ private:
     FireObserver fire_observer_;
     ImpulseObserver impulse_observer_;
     RecoveryObserver recovery_observer_;
+    SubthresholdRelaxationObserver subthreshold_relaxation_observer_;
     brainstem::MotorOutput motor_output_;
     std::vector<NeuronId> innate_reservations_;
     std::vector<NeuronId> motor_circuit_reservations_;

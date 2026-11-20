@@ -1,0 +1,11 @@
+scenario,delay,time,membrane,fired,scheduled,processed,stale,future_events,valid
+valid_due_relaxation,4,4,0,0,1,1,0,0,1
+excitatory_fire_invalidates,4,4,0,1,1,0,1,0,1
+inhibition_to_zero_invalidates,4,4,0,0,1,0,1,0,1
+existing_R2_recovery_invalidates,4,4,0,1,1,0,1,0,1
+bounded_repeated_inputs,1,0,1,0,1,0,0,1,1
+bounded_repeated_inputs,4,0,1,0,1,0,0,1,1
+bounded_repeated_inputs,8,0,1,0,1,0,0,1,1
+bounded_repeated_inputs,16,0,1,0,1,0,0,1,1
+bounded_repeated_inputs,32,0,1,0,1,0,0,1,1
+bounded_repeated_inputs,64,0,1,0,1,0,0,1,1

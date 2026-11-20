@@ -1,0 +1,5 @@
+sensor_state,inhibition_state,cases,lost_correct,other_correct,valid
+new,new,15194,14731,3422,15194
+new,old,15194,15006,3447,15194
+old,new,15194,14919,3372,15194
+old,old,15194,15194,3397,15194

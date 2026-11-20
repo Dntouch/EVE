@@ -1,0 +1,9 @@
+group,description,data,enabled
+S0,historical R0 reference,b54-reproduction,1
+S1,B54 R1 independent recovery,b54-reproduction,1
+S2,B54 R2 50 percent reference,b54-reproduction and natural-trajectories.csv.gz,1
+S3,diagnostic local removal and restoration,subthreshold-causal-copies.csv.gz,1
+S4,event-driven subthreshold relaxation delay 16,natural-trajectories.csv.gz,1
+S5,identical disabled implementation,natural-trajectories.csv.gz,1
+S6,delay 32 and 64 discovery controls,natural-trajectories.csv.gz,1
+NL,no learning paired control,natural-trajectories.csv.gz,1

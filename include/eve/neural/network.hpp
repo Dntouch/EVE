@@ -18,6 +18,8 @@ struct Neuron {
     std::uint32_t refractory_events_remaining{};
     std::uint64_t recovery_generation{};
     std::uint64_t scheduled_recovery_time{};
+    std::uint64_t subthreshold_relaxation_generation{};
+    std::uint64_t scheduled_subthreshold_relaxation_time{};
     SynapseId first_incoming{kInvalidIndex};
     SynapseId first_outgoing{kInvalidIndex};
     std::uint32_t incoming_count{};

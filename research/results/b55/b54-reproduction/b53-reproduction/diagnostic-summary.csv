@@ -1,0 +1,8 @@
+metric,value
+networks,768
+episodes,393216
+losses,66159
+detailed_loss_copies,15194
+losses_without_weight_change,12452
+full_transient_restored,14731
+invalid_baseline_controls,0

@@ -1,0 +1,9 @@
+task,normal,inverse,families,discovery_seeds,confirmation_seeds,scope
+only_X,1,1,3,64,0,S2 S4 S5
+only_Y,1,1,3,64,0,S2 S4 S5
+X_then_Y,1,1,3,64,0,S2 S4 S5
+Y_then_X,1,1,3,64,0,S2 S4 S5
+alternating,1,1,3,64,0,S2 S4 S5
+mixed,1,1,3,64,64,all selected variants
+reversal,1,1,3,64,64,S2 S4 S5 plus confirmation no-learning
+retention,1,1,3,64,0,S2 S4 S5

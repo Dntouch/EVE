@@ -1,0 +1,3 @@
+group,implemented,reason
+K12,0,B54 reproduction evaluates only pre-existing recovery modes
+K13,0,no B54 K12 mechanism exists to deactivate

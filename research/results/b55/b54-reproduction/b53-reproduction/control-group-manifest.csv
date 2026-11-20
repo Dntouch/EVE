@@ -1,0 +1,14 @@
+group,kind,implementation,data_file,enabled
+K0,reference,unchanged B52,b52-reproduction,1
+K1,reference,no learning,b52-reproduction/control-groups.csv,1
+K2,reference,fixed inhibition,b52-reproduction/control-groups.csv,1
+K3,reference,learned inhibition,b52-reproduction/control-groups.csv,1
+K4,reference,no additional plasticity,b52-reproduction/control-groups.csv,1
+K5,diagnostic,isolated membrane transfer,component-interventions.csv.gz,1
+K6,diagnostic,isolated G3 transfer,component-interventions.csv.gz,1
+K7,diagnostic,eligibility plus expiry bookkeeping,component-interventions.csv.gz,1
+K8,diagnostic,input and synaptic activity transfers,component-interventions.csv.gz,1
+K9,diagnostic,code-derived transient combinations,combination-interventions.csv.gz,1
+K10,diagnostic,probe sequence and time gaps,probe-sequences.csv.gz,1
+K11,research variant,not causally justified,mechanism-decision.csv,0
+K12,deactivation control,no K11 implementation,mechanism-decision.csv,0

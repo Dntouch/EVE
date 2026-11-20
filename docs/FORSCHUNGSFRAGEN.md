@@ -113,3 +113,11 @@ Feuer geplant wird, bleiben nicht feuernde Subthreshold-Potenziale zeitlich
 unbegrenzt bestehen. Offen ist eine rein lokale ereignisgesteuerte Dynamik,
 die auch diese Zustände erreicht, ohne nützliche zeitliche Integration oder
 Ressourceneffizienz zu verlieren.
+B.5.5 beantwortet diese Frage mit einer festen lokalen Lebensdauer: Delay 16
+verbessert R2-50 bestätigt, erhält Retention und Umweltumkehr und bleibt mit
+höchstens einem gültigen Ereignis je Neuron ressourcenbegrenzt. Zugleich zeigt
+die Integrationsmatrix, dass jede Fälligkeit ältere schwache Integration
+bewusst trennt. Da je Stromfamilie und Zuordnung nur 36 bis 45 von 64 Seeds
+robust sind, bleibt offen, ob die Restfehler vor allem synaptisch,
+inhibitorisch oder durch eine für unterschiedliche lokale Ereignisdichten zu
+starre Zeitgrenze entstehen. Dies ist die kausale Leitfrage für B.5.6.

@@ -63,6 +63,9 @@ angepasst werden.
 - [Auftrag B.5.4](028-entwicklungsauftrag-forschungsstufe-b54.md)
 - [Technische Analyse B.5.4](028-technische-analyse-lokale-membran-recovery.md)
 - [Bericht B.5.4](028-forschungsbericht-forschungsstufe-b54.md)
+- [Auftrag B.5.5](029-entwicklungsauftrag-forschungsstufe-b55.md)
+- [Technische Analyse B.5.5](029-technische-analyse-subthreshold-membrandynamik.md)
+- [Bericht B.5.5](029-forschungsbericht-forschungsstufe-b55.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
@@ -127,3 +130,8 @@ Refraktärwirkung von Membranrelaxation. R2-50 verbessert die gemeinsame
 Abrufbarkeit reproduzierbar, verfehlt aber die robuste Seedquote. Da
 subthreshold Restpotenziale ohne vorheriges Feuer keine Recovery erhalten,
 bleiben R1/R2 experimentell und K12/K13 deaktiviert.
+B.5.5 weist natürliche unterschwellige Entscheidungsmembranen als häufige,
+aber gegenläufig wirkende Abrufursache nach. Eine feste lokale Lebensdauer von
+16 Zeiteinheiten verbessert R2-50 bestätigt und halbiert Verluste, erreicht
+jedoch in keiner Stromfamilie-/Zuordnungszelle 48/64 robuste Seeds. Die neue
+Funktion bleibt deshalb abschaltbar, standardmäßig aus und experimentell.

@@ -1,0 +1,12 @@
+question,value
+decision_states,250339
+natural_errors,84679
+subthreshold_helpful_removal_prevents_correct,7417
+subthreshold_harmful_removal_fixes_error,62172
+exact_restorations,250339
+causal_need_demonstrated,1
+S4_implemented,1
+selected_semantics,fixed local lifetime from first subthreshold state
+selected_delay,16
+selection_basis,one episode horizon with 32 and 64 as preregistered controls
+production_default_enabled,0

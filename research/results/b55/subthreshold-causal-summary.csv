@@ -1,0 +1,3 @@
+phase,clusters,inventory,decision_states,natural_errors,helpful,harmful,changed,double_removed,exact_restore,other_helpful,other_harmful,states_with_any_fix,states_with_any_harm,harmful_per_natural_error,helpful_per_decision_state,valid
+confirmation,384,125686,125122,42435,3695,31206,34978,10,125122,3738,31091,31206,3695,0.735384,0.0295312,384
+discovery,384,125705,125217,42244,3722,30966,34780,15,125217,3657,31583,30966,3722,0.733027,0.0297244,384
