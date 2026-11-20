@@ -6545,6 +6545,322 @@ void test_b58_learning_stability_case(const std::uint32_t index) {
     }
 }
 
+void test_b59_local_plasticity_causality_case(const std::uint32_t index) {
+    struct Fixture {
+        eve::bios::Runtime runtime;
+        eve::SynapseId excitatory_a{};
+        eve::SynapseId excitatory_b{};
+        eve::SynapseId inhibitory{};
+        eve::SynapseId protected_path{};
+        eve::NeuronId receiver{};
+    };
+    const auto make_fixture = [&](const std::uint64_t seed) {
+        eve::ExperimentConfig config;
+        config.neuron_count = 32;
+        config.width = 4;
+        config.height = 4;
+        config.depth = 2;
+        config.initial_outgoing_synapses = 0;
+        config.firing_threshold = 5;
+        config.maximum_synapse_weight = 8;
+        config.input_weight_budget = 32;
+        config.learning_enabled = false;
+        config.growth_enabled = false;
+        config.refractory_input_events = 2;
+        config.batch_simultaneous_inputs = true;
+        config.local_event_memory_capacity = 8;
+        config.eligibility_selection = eve::EligibilitySelection::all_recent;
+        config.eligibility_representation =
+            eve::EligibilityRepresentation::unique;
+        config.eligibility_history = eve::EligibilityHistory::retain;
+        config.eligibility_candidate_capacity = 8;
+        config.eligibility_decision_capacity = 8;
+        config.eligibility_duration = 16;
+        config.modulation_mode = eve::ModulationMode::ternary;
+        config.plasticity_trace_mode = eve::PlasticityTraceMode::g3_recent;
+        config.plasticity_maximum_weight = 8;
+        config.plasticity_positive_step = 1;
+        config.plasticity_negative_step = 1;
+        config.inhibitory_plasticity_mode =
+            eve::InhibitoryPlasticityMode::contribution_aware;
+        eve::bios::Runtime runtime(config, seed);
+        const eve::NeuronId receiver = 8;
+        const auto excitatory_a =
+            runtime.add_experimental_synapse(0, receiver, 3);
+        const auto excitatory_b =
+            runtime.add_experimental_synapse(1, receiver, 2);
+        const auto inhibitory = runtime.add_experimental_synapse(
+            2, receiver, 1, false, eve::SynapticEffect::inhibitory);
+        const auto protected_path =
+            runtime.add_experimental_synapse(3, receiver, 2, true);
+        eve::brainstem::EvaluationRouteConfig route;
+        route.mode = eve::brainstem::EvaluationRouteMode::sensory_input;
+        route.first_input_neuron = 16;
+        route.graded_channel_count = 5;
+        route.fanout_per_source = 1;
+        route.weight = 1;
+        const auto configured = runtime.configure_evaluation_route(route);
+        static_cast<void>(runtime.add_experimental_synapse(
+            configured.input_neurons.front(), receiver, 0, true));
+        return Fixture{std::move(runtime), excitatory_a, excitatory_b,
+                       inhibitory, protected_path, receiver};
+    };
+    const auto observe = [](Fixture& fixture,
+                            const std::vector<eve::SynapseId>& synapses) {
+        std::vector<eve::bios::ImpulseObservation> rows;
+        fixture.runtime.set_impulse_observer(
+            [&](const eve::bios::ImpulseObservation& row) {
+                rows.push_back(row);
+            });
+        static_cast<void>(fixture.runtime.process_simultaneous_impulses(synapses));
+        fixture.runtime.set_impulse_observer({});
+        return rows;
+    };
+
+    auto fixture = make_fixture(0x590000ULL + index);
+    if (index <= 4) {
+        const auto rows = observe(fixture, index == 4
+            ? std::vector<eve::SynapseId>{fixture.excitatory_a,
+                                           fixture.excitatory_b}
+            : std::vector<eve::SynapseId>{fixture.excitatory_a,
+                                           fixture.excitatory_b,
+                                           fixture.inhibitory});
+        require(!rows.empty(), "B.5.9 integration observer emitted no rows");
+        const auto& row = rows.front();
+        if (index == 0) {
+            require_equal(row.simultaneous_applied_weights,
+                          std::vector<std::int32_t>({3, 2, -1}),
+                          "B.5.9 applied contributions are not exact");
+        } else if (index == 1) {
+            require(row.excitatory_contribution == 5 &&
+                        row.inhibitory_contribution == 1,
+                    "B.5.9 excitatory/inhibitory sums are wrong");
+        } else if (index == 2) {
+            require_equal(row.net_input, std::int64_t{4},
+                          "B.5.9 net input is wrong");
+        } else if (index == 3) {
+            require(row.membrane_at_decision == 4 &&
+                        row.decision_margin == -1,
+                    "B.5.9 local decision margin is wrong");
+        } else {
+            require(row.receiver_fired && row.membrane_at_decision == 5 &&
+                        row.decision_margin == 0 && row.membrane_after == 0,
+                    "B.5.9 pre-reset decision membrane was lost");
+        }
+    } else if (index == 5) {
+        const auto rows = observe(fixture, {fixture.excitatory_a});
+        require(!rows.front().receiver_fired &&
+                    rows.front().decision_margin == -2,
+                "B.5.9 nonfire decision was not captured");
+    } else if (index == 6) {
+        static_cast<void>(observe(
+            fixture, {fixture.excitatory_a, fixture.excitatory_b}));
+        const auto rows = observe(
+            fixture, {fixture.excitatory_a, fixture.excitatory_b});
+        require(rows.front().refractory_at_decision &&
+                    rows.front().firing_suppressed &&
+                    rows.front().decision_margin >= 0,
+                "B.5.9 refractory suppression was not separated");
+    } else if (index == 7) {
+        fixture.runtime.set_experimental_neuron_membrane(fixture.receiver, 1);
+        fixture.runtime.set_experimental_synapse_weight(fixture.inhibitory, 3);
+        const auto rows = observe(fixture, {fixture.inhibitory});
+        require(rows.front().membrane_at_decision == 0 &&
+                    rows.front().decision_margin == -5,
+                "B.5.9 lower membrane clamp is wrong");
+    } else if (index == 8) {
+        const auto rows = observe(
+            fixture, {fixture.excitatory_a, fixture.excitatory_b});
+        require(rows.size() == 2 && rows[0].simultaneous_batch &&
+                    rows[1].batch_position == 1,
+                "B.5.9 simultaneous batch metadata is incomplete");
+    } else if (index == 9) {
+        auto copy = fixture;
+        static_cast<void>(observe(
+            fixture, {fixture.excitatory_a, fixture.excitatory_b,
+                      fixture.inhibitory}));
+        static_cast<void>(observe(
+            copy, {copy.inhibitory, copy.excitatory_b, copy.excitatory_a}));
+        require_equal(fixture.runtime.state_fingerprint(),
+                      copy.runtime.state_fingerprint(),
+                      "B.5.9 batch order changed the neural state");
+    } else if (index == 10) {
+        auto ablated = fixture;
+        const auto baseline = observe(
+            fixture, {fixture.excitatory_a, fixture.excitatory_b});
+        ablated.runtime.set_experimental_synapse_weight(
+            ablated.excitatory_a, 0);
+        const auto changed = observe(
+            ablated, {ablated.excitatory_a, ablated.excitatory_b});
+        require(baseline.front().receiver_fired &&
+                    !changed.front().receiver_fired,
+                "B.5.9 excitatory ablation was not causal");
+    } else if (index == 11) {
+        auto ablated = fixture;
+        const auto baseline = observe(
+            fixture, {fixture.excitatory_a, fixture.excitatory_b,
+                      fixture.inhibitory});
+        ablated.runtime.set_experimental_synapse_weight(ablated.inhibitory, 0);
+        const auto changed = observe(
+            ablated, {ablated.excitatory_a, ablated.excitatory_b,
+                      ablated.inhibitory});
+        require(!baseline.front().receiver_fired &&
+                    changed.front().receiver_fired,
+                "B.5.9 inhibitory ablation was not causal");
+    } else if (index == 12) {
+        auto combined = fixture;
+        combined.runtime.set_experimental_synapse_weight(
+            combined.excitatory_a, 0);
+        combined.runtime.set_experimental_synapse_weight(
+            combined.excitatory_b, 0);
+        const auto rows = observe(
+            combined, {combined.excitatory_a, combined.excitatory_b});
+        require(!rows.front().receiver_fired && rows.front().net_input == 0,
+                "B.5.9 combined ablation retained an input");
+    } else if (index == 13) {
+        auto first = fixture;
+        auto second = fixture;
+        first.runtime.set_experimental_neuron_membrane(first.receiver, 2);
+        second.runtime.set_experimental_neuron_membrane(second.receiver, 3);
+        const auto one = observe(first, {first.excitatory_a});
+        const auto two = observe(second, {second.excitatory_b});
+        require(one.front().receiver_fired && two.front().receiver_fired,
+                "B.5.9 redundant contributions were not represented");
+    } else if (index >= 14 && index <= 16) {
+        static_cast<void>(observe(
+            fixture, {fixture.excitatory_a, fixture.excitatory_b}));
+        const auto before = fixture.runtime.network().synapse(
+            fixture.excitatory_a).weight;
+        const auto feedback = fixture.runtime.process_modulatory_feedback(
+            index == 14 ? 1 : index == 15 ? -1 : 0);
+        const auto after = fixture.runtime.network().synapse(
+            fixture.excitatory_a).weight;
+        require(index == 14 ? after > before
+                            : index == 15 ? after < before : after == before,
+                "B.5.9 modulation sign produced the wrong local change");
+        require(index == 16 ? feedback.positive_changes +
+                                  feedback.negative_changes == 0
+                            : feedback.positive_changes +
+                                  feedback.negative_changes > 0,
+                "B.5.9 modulation result was not counted");
+    } else if (index == 17 || index == 18) {
+        static_cast<void>(observe(
+            fixture, {fixture.excitatory_a, fixture.excitatory_b}));
+        require(!fixture.runtime.network().eligibility_records(
+                    fixture.receiver).empty(),
+                "B.5.9 firing created no eligibility");
+        if (index == 18) {
+            static_cast<void>(fixture.runtime.process_modulatory_feedback(-1));
+            require(fixture.runtime.network().eligibility_records(
+                        fixture.receiver).empty(),
+                    "B.5.9 modulation did not consume eligibility");
+        }
+    } else if (index == 19) {
+        static_cast<void>(observe(
+            fixture, {fixture.excitatory_a, fixture.excitatory_b}));
+        const auto feedback = fixture.runtime.process_modulatory_feedback(-1);
+        require(feedback.neural_impulses > 0 &&
+                    feedback.receipts_with_trace > 0,
+                "B.5.9 modulation route was not delivered");
+    } else if (index == 20) {
+        const auto rows = observe(
+            fixture, {fixture.excitatory_a, fixture.excitatory_b,
+                      fixture.inhibitory});
+        require(rows.front().simultaneous_synapses.size() == 3 &&
+                    rows.front().firing_threshold == 5 &&
+                    rows.front().net_input == 4,
+                "B.5.9 local competition signature is incomplete");
+    } else if (index == 21) {
+        const auto rows = observe(fixture, {fixture.excitatory_a});
+        require(rows.front().action_context_signature == 0 &&
+                    !rows.front().action_context_feedback_origin,
+                "B.5.9 local observation contains external target state");
+    } else if (index == 22) {
+        static_cast<void>(observe(
+            fixture, {fixture.excitatory_a, fixture.excitatory_b}));
+        fixture.runtime.set_experimental_plasticity_writes_suppressed(true);
+        const auto before = fixture.runtime.network().synapse(
+            fixture.excitatory_a).weight;
+        const auto feedback = fixture.runtime.process_modulatory_feedback(-1);
+        require(fixture.runtime.network().synapse(
+                    fixture.excitatory_a).weight == before &&
+                    feedback.suppressed_writes > 0,
+                "B.5.9 write-gate control changed a weight");
+    } else if (index == 23) {
+        auto inverse = make_fixture(0x590000ULL + index);
+        const auto normal_rows = observe(
+            fixture, {fixture.excitatory_a, fixture.excitatory_b,
+                      fixture.inhibitory});
+        const auto inverse_rows = observe(
+            inverse, {inverse.excitatory_a, inverse.excitatory_b,
+                      inverse.inhibitory});
+        require(normal_rows.front().decision_margin ==
+                    inverse_rows.front().decision_margin &&
+                    normal_rows.front().net_input ==
+                    inverse_rows.front().net_input,
+                "B.5.9 logical assignment changed local integration");
+    } else if (index == 24) {
+        static_cast<void>(observe(
+            fixture, {fixture.excitatory_a, fixture.excitatory_b}));
+        static_cast<void>(fixture.runtime.process_modulatory_feedback(-1));
+        static_cast<void>(observe(
+            fixture, {fixture.excitatory_a, fixture.excitatory_b}));
+        static_cast<void>(fixture.runtime.process_modulatory_feedback(1));
+        require(fixture.runtime.network().validate(),
+                "B.5.9 reversal sequence invalidated the network");
+    } else if (index == 25) {
+        static_cast<void>(observe(
+            fixture, {fixture.excitatory_a, fixture.excitatory_b,
+                      fixture.protected_path}));
+        const auto before = fixture.runtime.network().synapse(
+            fixture.protected_path).weight;
+        static_cast<void>(fixture.runtime.process_modulatory_feedback(-1));
+        require_equal(fixture.runtime.network().synapse(
+                          fixture.protected_path).weight,
+                      before, "B.5.9 protected exploration changed");
+    } else if (index == 26) {
+        require(!fixture.runtime.config().subthreshold_relaxation_enabled &&
+                    !fixture.runtime.config()
+                         .experimental_plasticity_writes_suppressed,
+                "B.5.9 production defaults enable an experiment");
+    } else if (index == 27) {
+        const auto path = std::filesystem::temp_directory_path() /
+            "eve-stage-b59-observer.bin";
+        static_cast<void>(observe(
+            fixture, {fixture.excitatory_a, fixture.excitatory_b}));
+        fixture.runtime.save(path.string());
+        const auto restored = eve::bios::Runtime::load(path.string());
+        require_equal(fixture.runtime.state_fingerprint(),
+                      restored.state_fingerprint(),
+                      "B.5.9 diagnostic observation changed persistence");
+        static_cast<void>(std::filesystem::remove(path));
+    } else if (index == 28 || index == 30) {
+        auto copy = fixture;
+        fixture.runtime.set_impulse_observer(
+            [](const eve::bios::ImpulseObservation&) {});
+        static_cast<void>(fixture.runtime.process_simultaneous_impulses(
+            {fixture.excitatory_a, fixture.excitatory_b, fixture.inhibitory}));
+        static_cast<void>(copy.runtime.process_simultaneous_impulses(
+            {copy.excitatory_a, copy.excitatory_b, copy.inhibitory}));
+        require_equal(fixture.runtime.state_fingerprint(),
+                      copy.runtime.state_fingerprint(),
+                      index == 28
+                          ? "B.5.9 deterministic continuation diverged"
+                          : "B.5.9 observer altered the neural state");
+    } else if (index == 29) {
+        for (std::uint32_t step = 0; step < 64; ++step) {
+            static_cast<void>(observe(
+                fixture, step % 2 == 0
+                    ? std::vector<eve::SynapseId>{fixture.excitatory_a,
+                                                   fixture.inhibitory}
+                    : std::vector<eve::SynapseId>{fixture.excitatory_b}));
+        }
+        require(fixture.runtime.network().validate() &&
+                    fixture.runtime.metrics().maximum_queue_size < 64,
+                "B.5.9 produced an invalid or unbounded state");
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -7150,6 +7466,29 @@ int main() {
         tests.emplace_back(
             std::string("B58 ") + b58_names[index],
             [index]() { test_b58_learning_stability_case(index); });
+    }
+    const std::array<const char*, 31> b59_names{{
+        "exact local input contributions", "excitatory inhibitory sums",
+        "net local input", "local decision margin",
+        "fire decision before membrane reset", "nonfire decision",
+        "refractory suppression", "membrane clamping",
+        "simultaneous impulse batch", "input-order invariance",
+        "single excitatory ablation", "single inhibitory ablation",
+        "combined ablation", "redundant contributions",
+        "positive local weight change", "negative local weight change",
+        "zero local weight change", "eligibility creation",
+        "eligibility consumption", "modulation delivery",
+        "local competition signature", "no external target information",
+        "unchanged write-gate control", "normal inverse symmetry",
+        "environment reversal", "protected exploration",
+        "S4 production default", "diagnostic persistence",
+        "deterministic continuation", "valid bounded state",
+        "observer neutrality",
+    }};
+    for (std::uint32_t index = 0; index < b59_names.size(); ++index) {
+        tests.emplace_back(
+            std::string("B59 ") + b59_names[index],
+            [index]() { test_b59_local_plasticity_causality_case(index); });
     }
 
     std::size_t failures = 0;

@@ -78,6 +78,10 @@ angepasst werden.
 - [Technische Kausalanalyse B.5.8](032-technische-kausalanalyse-lernen-und-nichtlernen.md)
 - [Bericht B.5.8](032-forschungsbericht-forschungsstufe-b58.md)
 - [Entscheidungsvorlage B.5.9](032-entscheidungsvorlage-forschungsstufe-b59.md)
+- [Auftrag B.5.9](033-entwicklungsauftrag-forschungsstufe-b59.md)
+- [Technische Kausalanalyse B.5.9](033-technische-kausalanalyse-lokale-entscheidungsspielraeume.md)
+- [Bericht B.5.9](033-forschungsbericht-forschungsstufe-b59.md)
+- [Entscheidungsvorlage B.5.10](033-entscheidungsvorlage-forschungsstufe-b510.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
@@ -168,3 +172,10 @@ schädliche unmittelbare Folgen, ohne dass die beobachteten lokalen Signaturen
 diese globalen Wirkungen eindeutig unterscheiden. Der diagnostische Schreib-Gate
 bleibt standardmäßig aus; eine neue Lernregel wird nicht freigegeben. B.5.9
 soll die positive Plastizität lokal und prospektiv weiter zerlegen.
+B.5.9 erfasst die postsynaptische Entscheidungsmarge und trennt erregende,
+hemmende und zeitliche Beiträge bis zur Eligibility. L0–L4 verbessern die
+unabhängige Prognose, bleiben aber in 90,50 % der Beobachtungen mehrdeutig.
+Die zwölf historischen Fälle werden auf positive Konkurrenz und zehn einzeln
+kausale Verstärkungen eingegrenzt. Diagnose und Produktionslogik bleiben
+getrennt; B.5.10 soll die lokale Vorgeschichte dieser Schreibereignisse
+prospektiv untersuchen.

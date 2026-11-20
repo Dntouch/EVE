@@ -1,0 +1,5 @@
+phase,seeds,families,assignments,episodes,role
+B57_discovery_reproduction,30001..30064,3,2,512,reference
+B57_confirmation_reproduction,40001..40064,3,2,512,reference
+B59_discovery,50001..50064,3,2,512,discovery
+B59_independent_confirmation,60001..60064,3,2,512,confirmation

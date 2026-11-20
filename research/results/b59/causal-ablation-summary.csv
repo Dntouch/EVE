@@ -1,0 +1,4 @@
+intervention,cases,fire_changed,margin_changed,eligibility_changed,episode_correctness_changed
+K6_excitatory,96,15,30,0,15
+K7_inhibitory,96,0,0,0,0
+K8_combined,96,0,0,0,0

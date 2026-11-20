@@ -215,6 +215,8 @@ ImpulseBatchResult Brainstem::receive_impulse_batch(
     batch.synapses = synapse_ids;
     batch.impulses.reserve(synapse_ids.size());
     batch.membrane_before = neuron.membrane_potential;
+    batch.firing_threshold = neuron.firing_threshold;
+    batch.refractory_before = neuron.refractory_events_remaining;
 
     for (const SynapseId synapse_id : synapse_ids) {
         neural::Synapse& synapse = network.synapse(synapse_id);
@@ -289,6 +291,9 @@ ImpulseBatchResult Brainstem::receive_impulse_batch(
         neuron.membrane_potential += net;
     }
 
+    batch.membrane_at_decision = neuron.membrane_potential;
+    batch.decision_margin =
+        batch.membrane_at_decision - batch.firing_threshold;
     const bool refractory = neuron.refractory_events_remaining > 0;
     if (refractory && config.recovery_mode == RecoveryMode::input_dependent) {
         const auto count = static_cast<std::uint32_t>(std::min<std::size_t>(
@@ -320,12 +325,18 @@ ImpulseBatchResult Brainstem::receive_impulse_batch(
         }
     }
     batch.membrane_after = neuron.membrane_potential;
+    batch.refractory_after = neuron.refractory_events_remaining;
     ImpulseResult& decision = batch.impulses.back();
     decision.fired = batch.fired;
     decision.firing_suppressed = batch.firing_suppressed;
     decision.phase_completed = batch.phase_completed;
     decision.recovery_generation = batch.recovery_generation;
     for (auto& result : batch.impulses) {
+        result.membrane_at_decision = batch.membrane_at_decision;
+        result.firing_threshold = batch.firing_threshold;
+        result.decision_margin = batch.decision_margin;
+        result.refractory_before = batch.refractory_before;
+        result.refractory_after = batch.refractory_after;
         result.membrane_after = batch.membrane_after;
     }
     return batch;

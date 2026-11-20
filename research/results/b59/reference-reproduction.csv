@@ -1,0 +1,5 @@
+reference,networks,robust,expected,status
+B57_discovery,384,242,242,exact
+B57_confirmation,384,254,254,exact
+B58_discovery,384,240,240,exact
+B58_confirmation,384,244,244,exact

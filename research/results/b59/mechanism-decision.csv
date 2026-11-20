@@ -1,0 +1,6 @@
+candidate,authorized,evidence,decision
+integration_observer,1,behaviour-neutral diagnostic,merge diagnostic
+new_local_learning_rule,0,local prediction is not causal intervention,not implemented
+automatic_stability_gate,0,forbidden by protocol,not implemented
+S4_default,0,unchanged production default,disabled
+K21_K22,0,release prerequisites not established,not implemented

@@ -80,10 +80,12 @@ struct B56Run {
     B56Result result;
     eve::bios::Runtime runtime;
     eve::bios::Runtime state_128;
+    std::optional<eve::bios::Runtime> first_both;
     std::optional<eve::bios::Runtime> last_both;
     B47Circuit circuit;
     B48Variant learning_variant;
     std::vector<B48Plan> plans;
+    std::uint32_t first_both_episode{kB51Never};
     std::uint32_t last_both_episode{kB51Never};
 };
 
@@ -322,8 +324,8 @@ B56Run b56_run(
     auto state = b55_initial_state(learning_variant, natural_variant, seed);
     const auto schedule = b56_schedule(schedule_name, seed, family,
         kB56Episodes + kB56EvaluationEpisodes);
-    B56Run run{{}, state.runtime, state.runtime, std::nullopt,
-        state.circuit, learning_variant, state.plans, kB51Never};
+    B56Run run{{}, state.runtime, state.runtime, std::nullopt, std::nullopt,
+        state.circuit, learning_variant, state.plans, kB51Never, kB51Never};
     run.result.phase = phase;
     run.result.variant = natural_variant.name;
     run.result.schedule = schedule_name;
@@ -366,6 +368,10 @@ B56Run b56_run(
             state.runtime, state.circuit, learning_variant, episode + 1);
         b56_update_life(run.result.life, previous, current, episode);
         if (current[0] && current[1]) {
+            if (!run.first_both.has_value()) {
+                run.first_both = state.runtime;
+                run.first_both_episode = episode;
+            }
             run.last_both = state.runtime;
             run.last_both_episode = episode;
         }

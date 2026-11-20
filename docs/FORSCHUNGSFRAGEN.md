@@ -142,3 +142,9 @@ Signaturen teilen sich positive Änderungen in unmittelbar nützliche,
 schädliche und neutrale Folgen. Leitfrage für B.5.9 ist daher, welche
 zusätzliche lokal verfügbare Vorgeschichte diese positiven Wirkungen
 prospektiv trennt, ohne globale Phaseninformation einzuführen.
+B.5.9 zeigt, dass Entscheidungsmarge, Eingangsbeiträge und Reihenfolge die
+Prognose verbessern, aber keinen sicheren lokalen Selektor bilden. 90,50 % der
+L4-Beobachtungen bleiben global mehrdeutig. Zugleich werden zehn einzelne
+positive Verstärkungen als kausale Ursachen historischer Doppelverlustfälle
+eingegrenzt. Offen ist nun, ob ihre lokal verfügbare Beitragsgeschichte bereits
+am Schreibzeitpunkt von notwendigen positiven Änderungen unterscheidbar ist.

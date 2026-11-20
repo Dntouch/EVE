@@ -126,6 +126,19 @@ struct ImpulseObservation {
     std::vector<SynapseId> local_event_snapshot;
     std::uint64_t eligibility_generation{};
     std::vector<SynapseId> eligibility_candidates;
+    // B.5.9 behaviour-neutral snapshot at the actual local fire decision.
+    // The decision membrane is captured before any fire-triggered reset.
+    std::vector<SynapseId> simultaneous_synapses;
+    std::vector<std::int32_t> simultaneous_applied_weights;
+    std::int64_t excitatory_contribution{};
+    std::int64_t inhibitory_contribution{};
+    std::int64_t net_input{};
+    std::int64_t membrane_at_decision{};
+    std::int64_t firing_threshold{};
+    std::int64_t decision_margin{};
+    bool refractory_at_decision{};
+    bool simultaneous_batch{};
+    std::uint32_t batch_position{};
 
     bool operator==(const ImpulseObservation& other) const noexcept {
         return event_index == other.event_index &&
@@ -145,7 +158,19 @@ struct ImpulseObservation {
                    other.action_context_feedback_origin &&
                local_event_snapshot == other.local_event_snapshot &&
                eligibility_generation == other.eligibility_generation &&
-               eligibility_candidates == other.eligibility_candidates;
+               eligibility_candidates == other.eligibility_candidates &&
+               simultaneous_synapses == other.simultaneous_synapses &&
+               simultaneous_applied_weights ==
+                   other.simultaneous_applied_weights &&
+               excitatory_contribution == other.excitatory_contribution &&
+               inhibitory_contribution == other.inhibitory_contribution &&
+               net_input == other.net_input &&
+               membrane_at_decision == other.membrane_at_decision &&
+               firing_threshold == other.firing_threshold &&
+               decision_margin == other.decision_margin &&
+               refractory_at_decision == other.refractory_at_decision &&
+               simultaneous_batch == other.simultaneous_batch &&
+               batch_position == other.batch_position;
     }
 };
 

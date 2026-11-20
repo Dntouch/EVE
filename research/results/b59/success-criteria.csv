@@ -1,0 +1,14 @@
+criterion,passed,evidence
+B57_B58_exact_reproduction,1,reference-reproduction.csv
+decision_margin_event_near,1,integration-events.csv.gz
+excitatory_inhibitory_separated,1,integration-events.csv.gz
+single_and_combined_causality,1,causal-input-ablations.csv
+nonfire_decisions_included,1,nonfire-decisions.csv.gz
+eligibility_linked_to_decision,1,eligibility-integration.csv.gz
+L0_to_L4_compared,1,information-level-summary.csv
+local_ambiguity_quantified,1,local-indistinguishability.csv
+stable_and_reversal_controls,1,stability-checkpoints.csv
+twelve_cases_from_first_joint,1,historical-case-summary.csv
+positive_loss_causality,1,historical-positive-ablations.csv
+independent_confirmation,1,seeds 60001..60064
+new_rule_not_required,1,mechanism-decision.csv

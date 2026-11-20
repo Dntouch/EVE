@@ -651,3 +651,39 @@ deaktiviert und keine Produktionsregel. Das Persistenzformat 15 speichert den
 Gate, seine Metrik und tatsächlich ausstehende Modulationsereignisse.
 Laufzeit und RSS in `performance.csv` sind maschinenabhängig; alle fachlichen
 Ergebnisse sind bei identischem Build, Seed und Eingabestrom deterministisch.
+
+## Forschungsstufe B.5.9 – lokale Entscheidungsmarge und Plastizitätskausalität
+
+Build, Kerntests und vollständige Reproduktions-, Integrations- und
+Kausalmatrix:
+
+```sh
+scripts/run-research-stage-b59.sh research/results/b59
+```
+
+Der Runner reproduziert B.5.7 und B.5.8 exakt und wertet 4.224 zentrale Netze
+aus. Discovery und unabhängige Bestätigung verwenden getrennte 64er-Seeds,
+drei Stromfamilien und beide Zuordnungen. Die B.5.8-Kopien P0 bis P4 sowie
+Fest-1, Fest-12, Fest-16, Fest-32, unregelmäßige Abstände, R2, S5 und
+No-Learning bleiben als Kontrollen erhalten.
+
+`integration-events.csv.gz` enthält die lokale Membran vor und am Entscheid,
+erregende, hemmende und Netto-Beiträge, Schwelle, Marge, Refraktärzustand und
+Impulsbündel. `nonfire-decisions.csv.gz` klassifiziert alle
+Nichtfeuerentscheidungen. `eligibility-integration.csv.gz` verbindet die
+Feuerentscheidung mit Kandidat, Modulation und späterem Ergebnis.
+
+`information-level-summary.csv`, `local-indistinguishability.csv`,
+`prediction-summary.csv` und `paired-statistics.csv` vergleichen L0 bis L4
+mit seed-geclusterten Intervallen. `causal-input-ablations.csv` enthält 288
+erregende, hemmende und kombinierte Zustandskopien.
+`historical-positive-ablations.csv` und `historical-case-summary.csv` verfolgen
+die zwölf B.5.6-Fälle ab dem ersten gemeinsamen Erwerb und prüfen einzelne
+sowie kombinierte Rücknahmen positiver Änderungen.
+
+Die großen CSV-Dateien werden mit `gzip -n` deterministisch komprimiert.
+`resources.csv`, `persistence.csv`, `success-criteria.csv` und
+`mechanism-decision.csv` dokumentieren Aufwand, exakte Fortsetzung,
+Erfolgskriterien und die Nichtfreigabe einer neuen Lernregel. Laufzeit und RSS
+sind maschinenabhängig; fachliche Ereignisse und Zustände sind bei identischem
+Build, Seed und Eingabestrom deterministisch.

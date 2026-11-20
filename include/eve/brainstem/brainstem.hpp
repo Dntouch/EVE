@@ -37,6 +37,11 @@ struct ImpulseResult {
     bool local_event_overwritten{};
     std::int32_t applied_weight{};
     SynapticEffect effect{SynapticEffect::excitatory};
+    std::int64_t membrane_at_decision{};
+    std::int64_t firing_threshold{};
+    std::int64_t decision_margin{};
+    std::uint32_t refractory_before{};
+    std::uint32_t refractory_after{};
     std::int64_t membrane_after{};
     std::uint64_t recovery_generation{};
 };
@@ -48,9 +53,14 @@ struct ImpulseBatchResult {
     bool firing_suppressed{};
     bool phase_completed{};
     std::int64_t membrane_before{};
+    std::int64_t membrane_at_decision{};
     std::int64_t membrane_after{};
+    std::int64_t firing_threshold{};
+    std::int64_t decision_margin{};
     std::int64_t excitatory_contribution{};
     std::int64_t inhibitory_contribution{};
+    std::uint32_t refractory_before{};
+    std::uint32_t refractory_after{};
     std::uint64_t recovery_generation{};
 };
 

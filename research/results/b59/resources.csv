@@ -1,0 +1,2 @@
+wall_seconds,cpu_seconds,peak_rss_kib,central_networks,selected_sources,integration_rows,nonfire_rows,linkage_rows,later_copies,causal_copies,maximum_queue,maximum_runtime_memory,observer_bytes,bytes_per_neuron,bytes_per_synapse,raw_bytes,persistence_version,invalid_cases
+43.9654,43.5953,19252,4224,96,27913,15625,17585,4522,288,27,25120,240,72,28,11030859,15,0

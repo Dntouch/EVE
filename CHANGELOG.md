@@ -72,6 +72,10 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
   unterdrückte und reaktivierte Plastizität, Rückmeldungsgegenproben,
   Motorinterventionen und lokaler Informationsgrenze.
 - 28 zusätzliche B.5.8-Prüfungen; insgesamt 665/665 bestandene Kerntests.
+- Forschungsstufe B.5.9 mit ereignisnaher Entscheidungsmarge, getrennten
+  erregenden und hemmenden Beiträgen, Einzel- und Kombinationsablationen,
+  L0–L4-Informationsvergleich sowie kausaler Analyse positiver Konkurrenz.
+- 31 zusätzliche B.5.9-Prüfungen; insgesamt 696/696 bestandene Kerntests.
 
 ### Geändert
 
@@ -94,3 +98,6 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
   B.5.8-Schreib-Gate und die Zahl unterdrückter Plastizitätsversuche. Der Gate
   lässt Modulationsroute und Eligibility-Verbrauch intakt und dient nur der
   Kausaldiagnostik.
+- Die B.5.9-Impulsbeobachtung erfasst Membran, Feuergrenze,
+  Entscheidungsmarge, Beitragsarten und Refraktärzustand ohne zusätzliche
+  persistente Zustände; Persistenzformat 15 bleibt unverändert.

@@ -164,6 +164,14 @@ oder schädlich klassifizierbar. B.5.9 soll diese positive Plastizität
 prospektiv zerlegen, ohne einen globalen Lernphasen-Schalter als biologische
 Lösung vorwegzunehmen.
 
+B.5.9 ergänzt die tatsächliche Entscheidungsmarge, getrennte Eingangsbeiträge
+und zeitliche Konkurrenz. Diese Information verbessert die unabhängige
+Vorhersage nur begrenzt; 90,50 % der L4-Beobachtungen bleiben mehrdeutig.
+Gleichzeitig werden die zwölf historischen Verluste auf positive Konkurrenz
+und zehn einzelne kausale Verstärkungen eingegrenzt. B.5.10 soll deren lokal
+verfügbare Vorgeschichte am Schreibzeitpunkt untersuchen, ohne nachträglichen
+Rollback oder globale Erfolgsinformation vorwegzunehmen.
+
 ## Erfolgskriterien aus dem Konzept
 
 Ein geeigneter kontrollierter Test folgt der dort beschriebenen Abfolge:
