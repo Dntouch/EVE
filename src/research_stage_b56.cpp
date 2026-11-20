@@ -969,6 +969,7 @@ void b56_manifests(const std::filesystem::path& output) {
 
 }  // namespace
 
+#ifndef EVE_RESEARCH_STAGE_B56_EMBEDDED
 int main(int argc, char** argv) {
     const std::filesystem::path output = argc > 1
         ? std::filesystem::path(argv[1])
@@ -1193,3 +1194,4 @@ int main(int argc, char** argv) {
         << central.size() << " timing=" << timing_rows.size() << '\n';
     return 0;
 }
+#endif

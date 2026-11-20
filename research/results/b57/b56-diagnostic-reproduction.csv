@@ -1,0 +1,3 @@
+reference,networks,robust,nonrobust,selected,sensor_restored,sensor_induced_loss,inhibition_restored,transient_restored,combined,open,status
+B56_fresh_confirmation,384,236,148,NA,NA,NA,NA,NA,NA,NA,exact_reproduction
+B56_detailed_diagnostics,NA,NA,NA,72,57,60,0,0,3,12,verified_against_immutable_B56_results

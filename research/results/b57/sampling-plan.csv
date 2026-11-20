@@ -1,0 +1,4 @@
+phase,seeds,families,assignments,episodes,selected_before_trace
+B56_fresh_reproduction,20001..20064,3,2,512,all
+B57_discovery,30001..30064,3,2,512,first four nonrobust per cell
+B57_independent_confirmation,40001..40064,3,2,512,first four nonrobust per cell

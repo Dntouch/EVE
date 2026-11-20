@@ -217,6 +217,34 @@ struct SubthresholdRelaxationObservation {
 using SubthresholdRelaxationObserver =
     std::function<void(const SubthresholdRelaxationObservation&)>;
 
+// Behaviour-neutral research observation emitted for every eligible candidate
+// considered by a locally arriving modulatory impulse.  Observers are not
+// persisted and cannot alter the neural state.
+struct PlasticityObservation {
+    std::uint64_t event_index{};
+    std::uint64_t simulated_time{};
+    SynapseId modulation_synapse{};
+    NeuronId modulation_sender{};
+    NeuronId receiver{};
+    std::int8_t modulation_polarity{};
+    std::int8_t local_polarity{};
+    std::uint32_t active_eligibility_entries{};
+    std::uint64_t eligibility_generation{};
+    std::uint64_t eligibility_created_at{};
+    std::uint64_t eligibility_expires_at{};
+    std::uint8_t eligibility_strength{};
+    std::vector<SynapseId> eligibility_candidates;
+    SynapseId candidate{};
+    NeuronId candidate_sender{};
+    SynapticEffect candidate_effect{SynapticEffect::excitatory};
+    std::int32_t weight_before{};
+    std::int32_t weight_after{};
+    bool plasticity_protected{};
+    bool changed{};
+};
+
+using PlasticityObserver = std::function<void(const PlasticityObservation&)>;
+
 struct MotorCausality {
     bool technical_abort{};
     bool completed{};
@@ -307,6 +335,7 @@ public:
     void set_recovery_observer(RecoveryObserver observer);
     void set_subthreshold_relaxation_observer(
         SubthresholdRelaxationObserver observer);
+    void set_plasticity_observer(PlasticityObserver observer);
     [[nodiscard]] static MotorCausality analyze_motor_causality(
         const brainstem::MotorResponse& response,
         const brainstem::MotorCircuitResult& circuit,
@@ -320,6 +349,9 @@ public:
     void set_experimental_synapse_protection(SynapseId synapse, bool protected_state);
     void set_experimental_neuron_membrane(
         NeuronId neuron, std::int64_t membrane_potential);
+    void set_experimental_eligibility_records(
+        NeuronId neuron,
+        const std::vector<neural::EligibilityRecord>& records);
     [[nodiscard]] ExperimentalTransientTransfer
     set_experimental_transient_component_from(
         const Runtime& source, ExperimentalTransientComponent component);
@@ -374,7 +406,8 @@ private:
         std::int8_t modulation = 0);
     void create_local_plasticity_trace(NeuronId neuron, SynapseId candidate,
                                        bool feedback_origin);
-    void apply_local_modulation(NeuronId neuron, std::int8_t polarity);
+    void apply_local_modulation(
+        NeuronId neuron, std::int8_t polarity, SynapseId modulation_synapse);
     [[nodiscard]] bool has_ready_event() const noexcept;
     [[nodiscard]] std::uint64_t process_ready_wave();
     [[nodiscard]] Event pop_next_event();
@@ -394,6 +427,7 @@ private:
     ImpulseObserver impulse_observer_;
     RecoveryObserver recovery_observer_;
     SubthresholdRelaxationObserver subthreshold_relaxation_observer_;
+    PlasticityObserver plasticity_observer_;
     brainstem::MotorOutput motor_output_;
     std::vector<NeuronId> innate_reservations_;
     std::vector<NeuronId> motor_circuit_reservations_;

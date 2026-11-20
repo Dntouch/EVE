@@ -1,0 +1,3 @@
+reference,path,policy
+B56,research/results/b56/network-classifications.csv,immutable_no_copy
+B56_diagnostics,research/results/b56/cause-taxonomy.csv,immutable_no_copy

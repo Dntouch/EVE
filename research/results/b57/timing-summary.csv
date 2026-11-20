@@ -1,0 +1,6 @@
+schedule,networks,robust,valid
+fixed_1,384,0,384
+fixed_12,384,0,384
+fixed_16,384,242,384
+fixed_32,384,274,384
+irregular,384,181,384

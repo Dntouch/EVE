@@ -1,0 +1,4 @@
+variant,networks,robust,ever_both,valid
+S2_R2_p50,384,87,384,384
+S5_disabled,384,87,384,384
+S_no_learning,384,0,0,384
