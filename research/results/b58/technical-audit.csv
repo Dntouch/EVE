@@ -1,0 +1,8 @@
+mechanism,reference_state,write_gate_effect
+activity_dependent_strengthening,learning_enabled=false,also gated if enabled
+eligibility_three_factor,enabled,weight writes only
+positive_modulation,enabled,route and trace consumption retained
+negative_modulation,enabled,route and trace consumption retained
+neutral_modulation,enabled through neural route,no write and no trace consumption
+missing_modulation,no event,no route and no trace consumption
+S4,experimental d16,production default disabled

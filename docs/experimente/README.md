@@ -74,6 +74,10 @@ angepasst werden.
 - [Technische Kausalanalyse B.5.7](031-technische-kausalanalyse-sensorische-kreditzuordnung.md)
 - [Bericht B.5.7](031-forschungsbericht-forschungsstufe-b57.md)
 - [Entscheidungsvorlage B.5.8](031-entscheidungsvorlage-forschungsstufe-b58.md)
+- [Auftrag B.5.8](032-entwicklungsauftrag-forschungsstufe-b58.md)
+- [Technische Kausalanalyse B.5.8](032-technische-kausalanalyse-lernen-und-nichtlernen.md)
+- [Bericht B.5.8](032-forschungsbericht-forschungsstufe-b58.md)
+- [Entscheidungsvorlage B.5.9](032-entscheidungsvorlage-forschungsstufe-b59.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
@@ -155,3 +159,12 @@ Mehrfachanwendungen treten nicht auf; 19,99 % negativer sensorischer Änderungen
 sind für die aktuell bewertete Motorantwort nicht notwendig. Fehlende
 Motorantworten dominieren die negative Kreditzuordnung. Eine neue Lernregel
 wird nicht freigegeben; B.5.8 soll eine rein lokale Präzisierung untersuchen.
+B.5.8 trennt erfolgreiche Aktivität, tatsächliche Gewichtsänderung und
+unterdrückten Schreibversuch. In einer stabilen Phase erhält die
+Schreibunterdrückung die Fähigkeit mindestens ebenso gut wie fortgesetzte
+Plastizität; nach Umweltumkehr scheitert sie dagegen vollständig, bis Lernen
+wieder aktiviert wird. Positive Änderungen haben sowohl nützliche als auch
+schädliche unmittelbare Folgen, ohne dass die beobachteten lokalen Signaturen
+diese globalen Wirkungen eindeutig unterscheiden. Der diagnostische Schreib-Gate
+bleibt standardmäßig aus; eine neue Lernregel wird nicht freigegeben. B.5.9
+soll die positive Plastizität lokal und prospektiv weiter zerlegen.

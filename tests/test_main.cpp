@@ -6323,6 +6323,228 @@ void test_b57_sensory_credit_case(const std::uint32_t index) {
     }
 }
 
+void test_b58_learning_stability_case(const std::uint32_t index) {
+    struct Fixture {
+        eve::bios::Runtime runtime;
+        eve::SynapseId sensory{};
+        eve::SynapseId protected_path{};
+        eve::NeuronId receiver{};
+    };
+    const auto make_fixture = [&](const std::uint64_t seed) {
+        eve::ExperimentConfig config;
+        config.neuron_count = 32;
+        config.width = 4;
+        config.height = 4;
+        config.depth = 2;
+        config.initial_outgoing_synapses = 0;
+        config.firing_threshold = 2;
+        config.maximum_synapse_weight = 4;
+        config.input_weight_budget = 32;
+        config.learning_enabled = false;
+        config.growth_enabled = false;
+        config.local_event_memory_capacity = 8;
+        config.eligibility_selection = eve::EligibilitySelection::all_recent;
+        config.eligibility_representation = eve::EligibilityRepresentation::unique;
+        config.eligibility_history = eve::EligibilityHistory::retain;
+        config.eligibility_candidate_capacity = 8;
+        config.eligibility_decision_capacity = 8;
+        config.eligibility_duration = 16;
+        config.plasticity_trace_mode = eve::PlasticityTraceMode::g3_recent;
+        config.modulation_mode = eve::ModulationMode::ternary;
+        config.plasticity_maximum_weight = 4;
+        config.plasticity_positive_step = 1;
+        config.plasticity_negative_step = 1;
+        eve::bios::Runtime runtime(config, seed);
+        const eve::NeuronId receiver = 4;
+        const auto sensory = runtime.add_experimental_synapse(0, receiver, 2);
+        const auto protected_path = runtime.add_experimental_synapse(
+            1, receiver, 2, true);
+        eve::brainstem::EvaluationRouteConfig route;
+        route.mode = eve::brainstem::EvaluationRouteMode::sensory_input;
+        route.first_input_neuron = 8;
+        route.graded_channel_count = 5;
+        route.fanout_per_source = 1;
+        route.weight = 1;
+        const auto configured = runtime.configure_evaluation_route(route);
+        static_cast<void>(runtime.add_experimental_synapse(
+            configured.input_neurons.front(), receiver, 0, true));
+        return Fixture{std::move(runtime), sensory, protected_path, receiver};
+    };
+    const auto activate = [](Fixture& value, const eve::NeuronId source = 0) {
+        value.runtime.enqueue_fire(source);
+        static_cast<void>(value.runtime.run());
+    };
+
+    auto fixture = make_fixture(0x580000ULL + index);
+    if (index == 0 || index == 1) {
+        const auto before = fixture.runtime.network().synapse(fixture.sensory).weight;
+        activate(fixture);
+        require_equal(fixture.runtime.network().synapse(fixture.sensory).weight,
+                      before, index == 0
+                          ? "B.5.8 experience changed weight without feedback"
+                          : "B.5.8 neural activity implied learning");
+        require(fixture.runtime.metrics().fire_events > 0,
+                "B.5.8 activity was not processed");
+    } else if (index == 2 || index == 3) {
+        activate(fixture);
+        const auto before = fixture.runtime.network().eligibility_records(
+            fixture.receiver);
+        if (index == 3) {
+            const auto feedback = fixture.runtime.process_modulatory_feedback(0);
+            require(feedback.neural_impulses > 0,
+                    "B.5.8 neutral feedback did not traverse its route");
+        }
+        require_equal(fixture.runtime.network().eligibility_records(
+                          fixture.receiver),
+                      before, index == 2
+                          ? "B.5.8 missing feedback consumed eligibility"
+                          : "B.5.8 neutral feedback consumed eligibility");
+    } else if (index == 4 || index == 5) {
+        activate(fixture);
+        const auto before = fixture.runtime.network().synapse(fixture.sensory).weight;
+        const auto feedback = fixture.runtime.process_modulatory_feedback(
+            index == 4 ? -1 : 1);
+        const auto after = fixture.runtime.network().synapse(fixture.sensory).weight;
+        require(index == 4 ? after < before : after > before,
+                index == 4 ? "B.5.8 negative modulation did not weaken"
+                           : "B.5.8 positive modulation did not strengthen");
+        require(feedback.positive_changes + feedback.negative_changes > 0,
+                "B.5.8 effective modulation was not counted");
+    } else if (index == 6 || index == 7) {
+        activate(fixture);
+        require(!fixture.runtime.network().eligibility_records(
+                    fixture.receiver).empty(),
+                "B.5.8 eligibility was not created");
+        if (index == 7) {
+            static_cast<void>(fixture.runtime.process_modulatory_feedback(-1));
+            require(fixture.runtime.network().eligibility_records(
+                        fixture.receiver).empty(),
+                    "B.5.8 effective feedback did not consume eligibility");
+        }
+    } else if (index >= 8 && index <= 11) {
+        const std::array<std::pair<bool, bool>, 4> classes{{
+            {false, false}, {true, false}, {false, false}, {true, true}}};
+        const auto value = classes[index - 8];
+        require(index == 11 ? value.first && value.second
+                            : index == 9 ? value.first != value.second
+                                         : !value.first && !value.second,
+                "B.5.8 motor/exploration class was not separated");
+    } else if (index >= 12 && index <= 17) {
+        activate(fixture);
+        auto normal = fixture.runtime;
+        auto suppressed = fixture.runtime;
+        suppressed.set_experimental_plasticity_writes_suppressed(true);
+        const auto before = suppressed.network().synapse(fixture.sensory).weight;
+        const auto blocked = suppressed.process_modulatory_feedback(
+            index == 15 || index == 16 ? -1 : 1);
+        require_equal(suppressed.network().synapse(fixture.sensory).weight,
+                      before, "B.5.8 write suppression changed a weight");
+        require(blocked.suppressed_writes > 0 &&
+                    suppressed.metrics().modulation_impulses > 0,
+                "B.5.8 write suppression removed neural modulation");
+        if (index == 12 || index == 13 || index == 14 || index == 16) {
+            require(suppressed.network().neuron(fixture.receiver).input_event_count ==
+                        normal.network().neuron(fixture.receiver).input_event_count,
+                    "B.5.8 suppression changed neural activity");
+        } else if (index == 15) {
+            static_cast<void>(normal.process_modulatory_feedback(-1));
+            require(normal.network().synapse(fixture.sensory).weight < before,
+                    "B.5.8 active reversal produced no correction");
+        } else {
+            suppressed.set_experimental_plasticity_writes_suppressed(false);
+            suppressed.enqueue_fire(0);
+            static_cast<void>(suppressed.run());
+            static_cast<void>(suppressed.process_modulatory_feedback(-1));
+            require(suppressed.network().synapse(fixture.sensory).weight < before,
+                    "B.5.8 plasticity did not reactivate");
+        }
+    } else if (index == 18 || index == 19) {
+        const auto second = fixture.runtime.add_experimental_synapse(
+            2, fixture.receiver, index == 18 ? 0 : 1);
+        activate(fixture, 2);
+        const auto before = fixture.runtime.network().synapse(second).weight;
+        static_cast<void>(fixture.runtime.process_modulatory_feedback(1));
+        require(fixture.runtime.network().synapse(second).weight >= before &&
+                    fixture.runtime.network().validate(),
+                index == 18 ? "B.5.8 positive competition copy is invalid"
+                            : "B.5.8 redundant contribution copy is invalid");
+    } else if (index == 20) {
+        auto inverse = make_fixture(0x580000ULL + index);
+        activate(fixture);
+        activate(inverse);
+        static_cast<void>(fixture.runtime.process_modulatory_feedback(-1));
+        static_cast<void>(inverse.runtime.process_modulatory_feedback(-1));
+        require_equal(fixture.runtime.network().synapse(fixture.sensory).weight,
+                      inverse.runtime.network().synapse(inverse.sensory).weight,
+                      "B.5.8 target labels changed local learning");
+    } else if (index == 21) {
+        for (const auto gap : {1ULL, 12ULL, 16ULL, 32ULL}) {
+            activate(fixture);
+            static_cast<void>(fixture.runtime.advance_time_by(gap));
+        }
+        require(fixture.runtime.network().validate(),
+                "B.5.8 variable timing invalidated the network");
+    } else if (index == 22) {
+        activate(fixture, 1);
+        static_cast<void>(fixture.runtime.process_modulatory_feedback(-1));
+        require_equal(fixture.runtime.network().synapse(
+                          fixture.protected_path).weight,
+                      2, "B.5.8 protected exploration was modified");
+    } else if (index == 23) {
+        require(!fixture.runtime.config().subthreshold_relaxation_enabled &&
+                    !fixture.runtime.config().experimental_plasticity_writes_suppressed,
+                "B.5.8 production defaults enable an experiment");
+    } else if (index == 24 || index == 25) {
+        const auto path = std::filesystem::temp_directory_path() /
+            (index == 24 ? "eve-stage-b58-active.bin"
+                         : "eve-stage-b58-pending.bin");
+        activate(fixture);
+        fixture.runtime.set_experimental_plasticity_writes_suppressed(true);
+        if (index == 25) {
+            static_cast<void>(fixture.runtime.process_modulatory_feedback(
+                -1, fixture.runtime.simulated_time() + 4));
+        }
+        fixture.runtime.save(path.string());
+        auto restored = eve::bios::Runtime::load(path.string());
+        require(restored.config().experimental_plasticity_writes_suppressed,
+                "B.5.8 write suppression did not persist");
+        if (index == 25) {
+            static_cast<void>(fixture.runtime.advance_time_by(4));
+            static_cast<void>(restored.advance_time_by(4));
+        }
+        require_equal(fixture.runtime.state_fingerprint(),
+                      restored.state_fingerprint(),
+                      "B.5.8 persisted continuation diverged");
+        static_cast<void>(std::filesystem::remove(path));
+    } else if (index == 26) {
+        auto copy = fixture.runtime;
+        fixture.runtime.set_experimental_plasticity_writes_suppressed(true);
+        copy.set_experimental_plasticity_writes_suppressed(true);
+        for (std::uint32_t step = 0; step < 8; ++step) {
+            fixture.runtime.enqueue_fire(0);
+            copy.enqueue_fire(0);
+            static_cast<void>(fixture.runtime.run());
+            static_cast<void>(copy.run());
+            static_cast<void>(fixture.runtime.process_modulatory_feedback(-1));
+            static_cast<void>(copy.process_modulatory_feedback(-1));
+        }
+        require_equal(fixture.runtime.state_fingerprint(),
+                      copy.state_fingerprint(),
+                      "B.5.8 deterministic suppressed continuation diverged");
+    } else if (index == 27) {
+        fixture.runtime.set_experimental_plasticity_writes_suppressed(true);
+        for (std::uint32_t step = 0; step < 64; ++step) {
+            activate(fixture, step % 2);
+            static_cast<void>(fixture.runtime.process_modulatory_feedback(
+                step % 3 == 0 ? 1 : -1));
+            static_cast<void>(fixture.runtime.advance_time_by(1));
+        }
+        require(fixture.runtime.network().validate() &&
+                    fixture.runtime.metrics().maximum_queue_size < 64,
+                "B.5.8 produced an invalid or unbounded state");
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -6908,6 +7130,26 @@ int main() {
         tests.emplace_back(
             std::string("B57 ") + b57_names[index],
             [index]() { test_b57_sensory_credit_case(index); });
+    }
+    const std::array<const char*, 28> b58_names{{
+        "experience without weight change", "neural activity without learning",
+        "missing feedback", "neutral feedback", "negative modulation",
+        "positive modulation", "eligibility retention", "eligibility consumption",
+        "missing autonomous motor", "successful exploration",
+        "unsuccessful exploration", "double response",
+        "plasticity gate preserves activity", "stable active plasticity",
+        "stable suppressed writes", "reversal with active plasticity",
+        "reversal with suppressed writes", "plasticity reactivation",
+        "positive sensory competition", "redundant contributions",
+        "normal inverse symmetry", "variable experience gaps",
+        "protected exploration", "S4 and gate defaults",
+        "active eligibility persistence", "pending modulation persistence",
+        "deterministic continuation", "valid bounded state",
+    }};
+    for (std::uint32_t index = 0; index < b58_names.size(); ++index) {
+        tests.emplace_back(
+            std::string("B58 ") + b58_names[index],
+            [index]() { test_b58_learning_stability_case(index); });
     }
 
     std::size_t failures = 0;

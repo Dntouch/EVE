@@ -13,7 +13,7 @@ namespace eve::bios {
 namespace {
 
 constexpr std::array<char, 8> kPersistenceMagic{{'E', 'V', 'E', '0', '0', '1', '\r', '\n'}};
-constexpr std::uint32_t kPersistenceVersion = 14;
+constexpr std::uint32_t kPersistenceVersion = 15;
 constexpr std::uint64_t kNonZeroRngState = 0x9e3779b97f4a7c15ULL;
 constexpr std::uint64_t kGrowthSeedMask = 0xd1b54a32d192ed03ULL;
 constexpr std::uint64_t kFnvPrime = 1099511628211ULL;
@@ -147,6 +147,7 @@ void write_config(std::ostream& stream, const ExperimentConfig& config) {
     write_u8(stream, static_cast<std::uint8_t>(config.inhibitory_plasticity_mode));
     write_u8(stream, config.subthreshold_relaxation_enabled ? 1 : 0);
     write_u64(stream, config.subthreshold_relaxation_delay);
+    write_u8(stream, config.experimental_plasticity_writes_suppressed ? 1 : 0);
 }
 
 ExperimentConfig read_config(std::istream& stream, const std::uint32_t version) {
@@ -247,6 +248,9 @@ ExperimentConfig read_config(std::istream& stream, const std::uint32_t version) 
         config.subthreshold_relaxation_enabled = read_bool(stream);
         config.subthreshold_relaxation_delay = read_u64(stream);
     }
+    if (version >= 15) {
+        config.experimental_plasticity_writes_suppressed = read_bool(stream);
+    }
     return config;
 }
 
@@ -314,6 +318,7 @@ void write_metrics(std::ostream& stream, const Metrics& metrics) {
     write_u64(stream, metrics.scheduled_subthreshold_relaxations);
     write_u64(stream, metrics.processed_subthreshold_relaxations);
     write_u64(stream, metrics.stale_subthreshold_relaxations);
+    write_u64(stream, metrics.plasticity_suppressed_writes);
 }
 
 Metrics read_metrics(std::istream& stream, const std::uint32_t version) {
@@ -402,6 +407,9 @@ Metrics read_metrics(std::istream& stream, const std::uint32_t version) {
         metrics.scheduled_subthreshold_relaxations = read_u64(stream);
         metrics.processed_subthreshold_relaxations = read_u64(stream);
         metrics.stale_subthreshold_relaxations = read_u64(stream);
+    }
+    if (version >= 15) {
+        metrics.plasticity_suppressed_writes = read_u64(stream);
     }
     return metrics;
 }
@@ -1026,6 +1034,8 @@ ModulatoryFeedbackResult Runtime::process_modulatory_feedback(
                               before.plasticity_negative_changes;
     result.zero_to_one_changes = metrics_.plasticity_zero_to_one_changes -
                                  before.plasticity_zero_to_one_changes;
+    result.suppressed_writes = metrics_.plasticity_suppressed_writes -
+                               before.plasticity_suppressed_writes;
     return result;
 }
 
@@ -1341,6 +1351,11 @@ void Runtime::set_experimental_eligibility_records(
         overwrites);
 }
 
+void Runtime::set_experimental_plasticity_writes_suppressed(
+    const bool suppressed) noexcept {
+    config_.experimental_plasticity_writes_suppressed = suppressed;
+}
+
 ExperimentalTransientTransfer Runtime::set_experimental_transient_component_from(
     const Runtime& source, const ExperimentalTransientComponent component) {
     if (motor_output_.active() || source.motor_output_.active()) {
@@ -1643,6 +1658,9 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
         mix_hash(hash, 0xB550ULL);
         mix_hash(hash, config_.subthreshold_relaxation_delay);
     }
+    if (config_.experimental_plasticity_writes_suppressed) {
+        mix_hash(hash, 0xB580ULL);
+    }
     mix_hash(hash, evaluation_route_configured_ ? 1 : 0);
     if (evaluation_route_configured_) {
         mix_hash(hash, static_cast<std::uint8_t>(evaluation_route_.config.mode));
@@ -1735,6 +1753,9 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
         mix_hash(hash, metrics_.scheduled_subthreshold_relaxations);
         mix_hash(hash, metrics_.processed_subthreshold_relaxations);
         mix_hash(hash, metrics_.stale_subthreshold_relaxations);
+    }
+    if (metrics_.plasticity_suppressed_writes != 0) {
+        mix_hash(hash, metrics_.plasticity_suppressed_writes);
     }
     mix_hash(hash, simulated_time_);
     mix_hash(hash, next_event_sequence_);
@@ -2408,6 +2429,8 @@ void Runtime::apply_local_modulation(
                         ? static_cast<std::int8_t>(-polarity)
                         : polarity;
                 const std::int32_t weight_before = item.weight;
+                PlasticityWriteOutcome outcome =
+                    PlasticityWriteOutcome::changed;
                 if (item.plasticity_protected) {
                     if (plasticity_observer_) {
                         const auto& contact = network_.synapse(modulation_synapse);
@@ -2422,7 +2445,10 @@ void Runtime::apply_local_modulation(
                                 : 0,
                             record.expires_at, record.strength, record.candidates,
                             candidate, item.sender, item.effect, weight_before,
-                            item.weight, true, false});
+                            item.weight, true, false,
+                            PlasticityWriteOutcome::protected_synapse,
+                            network_.neuron(neuron).membrane_potential,
+                            item.activity_count});
                     }
                     continue;
                 }
@@ -2432,44 +2458,62 @@ void Runtime::apply_local_modulation(
                         config_.plasticity_maximum_weight);
                     if (item.weight >= limit) {
                         ++metrics_.plasticity_rejected_at_weight_limit;
-                        continue;
-                    }
-                    std::uint64_t incoming_weight = 0;
-                    if (item.effect == SynapticEffect::excitatory) {
-                        for (const SynapseId incoming : network_.incoming_synapses(neuron)) {
-                            const auto& input = network_.synapse(incoming);
-                            if (input.effect == SynapticEffect::excitatory &&
-                                input.weight > 0) {
-                                incoming_weight +=
-                                    static_cast<std::uint64_t>(input.weight);
+                        outcome = PlasticityWriteOutcome::positive_weight_limit;
+                    } else {
+                        std::uint64_t incoming_weight = 0;
+                        if (item.effect == SynapticEffect::excitatory) {
+                            for (const SynapseId incoming :
+                                 network_.incoming_synapses(neuron)) {
+                                const auto& input = network_.synapse(incoming);
+                                if (input.effect == SynapticEffect::excitatory &&
+                                    input.weight > 0) {
+                                    incoming_weight +=
+                                        static_cast<std::uint64_t>(input.weight);
+                                }
+                            }
+                        }
+                        const std::int32_t requested =
+                            config_.plasticity_positive_step * record.strength;
+                        const std::int32_t delta =
+                            std::min(requested, limit - item.weight);
+                        if (item.effect == SynapticEffect::excitatory &&
+                            static_cast<std::uint64_t>(delta) >
+                                config_.input_weight_budget -
+                                    std::min(config_.input_weight_budget,
+                                             incoming_weight)) {
+                            ++metrics_.plasticity_rejected_by_budget;
+                            outcome = PlasticityWriteOutcome::input_weight_budget;
+                        } else if (
+                            config_.experimental_plasticity_writes_suppressed) {
+                            ++metrics_.plasticity_suppressed_writes;
+                            outcome = PlasticityWriteOutcome::write_suppressed;
+                        } else {
+                            const bool was_zero = item.weight == 0;
+                            item.weight += delta;
+                            ++metrics_.plasticity_positive_changes;
+                            if (item.effect == SynapticEffect::inhibitory) {
+                                ++metrics_.inhibitory_positive_changes;
+                            }
+                            if (was_zero) {
+                                ++metrics_.plasticity_zero_to_one_changes;
                             }
                         }
                     }
-                    const std::int32_t requested =
-                        config_.plasticity_positive_step * record.strength;
-                    const std::int32_t delta = std::min(requested, limit - item.weight);
-                    if (item.effect == SynapticEffect::excitatory &&
-                        static_cast<std::uint64_t>(delta) >
-                        config_.input_weight_budget -
-                            std::min(config_.input_weight_budget, incoming_weight)) {
-                        ++metrics_.plasticity_rejected_by_budget;
-                        continue;
-                    }
-                    const bool was_zero = item.weight == 0;
-                    item.weight += delta;
-                    ++metrics_.plasticity_positive_changes;
-                    if (item.effect == SynapticEffect::inhibitory) {
-                        ++metrics_.inhibitory_positive_changes;
-                    }
-                    if (was_zero) ++metrics_.plasticity_zero_to_one_changes;
                 } else if (local_polarity < 0 && item.weight > 0) {
-                    item.weight = std::max<std::int32_t>(
-                        0, item.weight -
-                               config_.plasticity_negative_step * record.strength);
-                    ++metrics_.plasticity_negative_changes;
-                    if (item.effect == SynapticEffect::inhibitory) {
-                        ++metrics_.inhibitory_negative_changes;
+                    if (config_.experimental_plasticity_writes_suppressed) {
+                        ++metrics_.plasticity_suppressed_writes;
+                        outcome = PlasticityWriteOutcome::write_suppressed;
+                    } else {
+                        item.weight = std::max<std::int32_t>(
+                            0, item.weight -
+                                   config_.plasticity_negative_step * record.strength);
+                        ++metrics_.plasticity_negative_changes;
+                        if (item.effect == SynapticEffect::inhibitory) {
+                            ++metrics_.inhibitory_negative_changes;
+                        }
                     }
+                } else if (local_polarity < 0) {
+                    outcome = PlasticityWriteOutcome::negative_zero_floor;
                 }
                 if (plasticity_observer_) {
                     const auto& contact = network_.synapse(modulation_synapse);
@@ -2484,7 +2528,9 @@ void Runtime::apply_local_modulation(
                             : 0,
                         record.expires_at, record.strength, record.candidates,
                         candidate, item.sender, item.effect, weight_before,
-                        item.weight, false, item.weight != weight_before});
+                        item.weight, false, item.weight != weight_before,
+                        outcome, network_.neuron(neuron).membrane_potential,
+                        item.activity_count});
                 }
             }
             if (config_.consume_trace_on_modulation) {

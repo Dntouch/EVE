@@ -1,0 +1,12 @@
+phase,schedule,networks,robust,ever_both,valid
+B57_discovery_reproduction,fixed_16,384,242,384,384
+B57_confirmation_reproduction,fixed_16,384,254,384,384
+B58_discovery,fixed_16,384,240,384,384
+B58_independent_confirmation,fixed_16,384,244,384,384
+B58_timing_fixed_1,fixed_1,384,0,0,384
+B58_timing_fixed_12,fixed_12,384,0,384,384
+B58_timing_fixed_32,fixed_32,384,259,384,384
+B58_timing_irregular,irregular,384,156,384,384
+B58_control_R2,fixed_16,384,73,384,384
+B58_control_S5,fixed_16,384,73,384,384
+B58_control_no_learning,fixed_16,384,0,0,384

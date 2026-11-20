@@ -28,6 +28,8 @@ Dieser Ordner enthält bestätigte Entscheidungen zum Projekt sowie eine optiona
 | [0026](0026-vorhandene-recovery-nuetzlich-aber-nicht-ausreichend.md) | B.5.4 bestätigt einen Nutzen vorhandener Recovery, aber auch unzureichende Robustheit und eine strukturelle Subthreshold-Grenze. |
 | [0027](0027-subthreshold-relaxation-bleibt-experimentell.md) | B.5.5 bestätigt den kausalen Nutzen einer lokalen festen Subthreshold-Lebensdauer, lässt sie wegen verfehlter Zellrobustheit aber experimentell. |
 | [0028](0028-b56-lokalisiert-restfehler-auf-sensorische-gewichtsverluste.md) | B.5.6 lokalisiert den dominanten Restfehler auf sensorische Gewichtsverluste; eine neue Regel bleibt bis zur Ereigniskausalität in B.5.7 gesperrt. |
+| [0029](0029-b57-lokale-kreditzuordnung-ist-nicht-eindeutig.md) | B.5.7 trennt zeitliche Eligibility von kausaler Notwendigkeit; die lokale Kreditzuordnung bleibt für eine neue Regel zu mehrdeutig. |
+| [0030](0030-b58-faehigkeitserhalt-ist-nicht-dauerplastizitaet.md) | B.5.8 zeigt, dass Fähigkeitserhalt keine dauernde Plastizität verlangt, Umweltanpassung aber erneutes Lernen benötigt. |
 
 Nummer 0002 dokumentiert den anfänglich offenen Technologie-Stack historisch;
 sie ist keine aktuelle Architektursperre. Die Nummern 0004 bis 0010 sind

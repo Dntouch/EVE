@@ -144,6 +144,10 @@ struct ExperimentConfig {
     // state. Disabled by default and never scans neurons globally.
     bool subthreshold_relaxation_enabled{};
     std::uint64_t subthreshold_relaxation_delay{};
+    // B.5.8 research-only diagnostic gate. Neural processing, eligibility and
+    // modulation continue normally; only actual synaptic weight writes are
+    // suppressed. Disabled by default and not a production learning rule.
+    bool experimental_plasticity_writes_suppressed{};
 };
 
 struct Metrics {
@@ -210,6 +214,7 @@ struct Metrics {
     std::uint64_t scheduled_subthreshold_relaxations{};
     std::uint64_t processed_subthreshold_relaxations{};
     std::uint64_t stale_subthreshold_relaxations{};
+    std::uint64_t plasticity_suppressed_writes{};
 
     bool operator==(const Metrics& other) const noexcept {
         return processed_events == other.processed_events &&
@@ -294,7 +299,9 @@ struct Metrics {
                processed_subthreshold_relaxations ==
                    other.processed_subthreshold_relaxations &&
                stale_subthreshold_relaxations ==
-                   other.stale_subthreshold_relaxations;
+                   other.stale_subthreshold_relaxations &&
+               plasticity_suppressed_writes ==
+                   other.plasticity_suppressed_writes;
     }
 };
 

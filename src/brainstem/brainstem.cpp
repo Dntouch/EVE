@@ -225,7 +225,9 @@ ImpulseBatchResult Brainstem::receive_impulse_batch(
         ++neuron.input_event_count;
         ++synapse.activity_count;
 
-        if (config.learning_enabled && !synapse.plasticity_protected &&
+        if (config.learning_enabled &&
+            !config.experimental_plasticity_writes_suppressed &&
+            !synapse.plasticity_protected &&
             synapse.activity_count >= config.synaptic_learning_threshold) {
             if (synapse.weight < config.maximum_synapse_weight) {
                 const bool unlimited = config.input_weight_budget ==
