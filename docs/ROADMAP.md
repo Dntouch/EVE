@@ -141,6 +141,15 @@ standardmäßig deaktiviert. B.5.6 soll die verbleibenden Fehler unter S4-d16 in
 synaptische, inhibitorische und transiente Ursachen zerlegen, bevor eine
 weitere Regel oder Zeitvariante zulässig ist.
 
+B.5.6 beantwortet diese Zerlegung: In der frischen Bestätigung hatten alle 148
+nichtrobusten Netze beide Beziehungen bereits erworben. Frühere sensorische
+Gewichte reparieren 57/72 Detailfälle und aktuelle Gewichte zerstören 60/72
+frühere gemeinsame Fähigkeiten; isolierte inhibitorische und transiente
+Rücknahmen reparieren keinen Fall. S4-d16 ist zugleich deutlich
+rasterabhängig. B.5.7 soll deshalb die lokalen Eligibility-, Modulations- und
+Konkurrenzereignisse unmittelbar vor sensorischen Verluständerungen prüfen,
+ohne Gewichtsschutz oder Rollback vorwegzunehmen.
+
 ## Erfolgskriterien aus dem Konzept
 
 Ein geeigneter kontrollierter Test folgt der dort beschriebenen Abfolge:

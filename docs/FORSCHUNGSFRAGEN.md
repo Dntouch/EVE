@@ -121,3 +121,11 @@ bewusst trennt. Da je Stromfamilie und Zuordnung nur 36 bis 45 von 64 Seeds
 robust sind, bleibt offen, ob die Restfehler vor allem synaptisch,
 inhibitorisch oder durch eine für unterschiedliche lokale Ereignisdichten zu
 starre Zeitgrenze entstehen. Dies ist die kausale Leitfrage für B.5.6.
+B.5.6 zeigt, dass die bestätigte Restpopulation nicht am Erwerb scheitert:
+Alle 148 nichtrobusten Netze hatten beide Beziehungen zuvor autonom verfügbar.
+Sensorische Gewichtsrücknahmen reparieren 57/72 Detailfälle, während isolierte
+inhibitorische und transiente Rücknahmen keinen Endzustand reparieren. Die
+weitere Frage lautet daher nicht, ob eine Fähigkeit prinzipiell gespeichert
+werden kann, sondern welche lokalen Eligibility-, Modulations- und
+Konkurrenzereignisse einen bereits erfolgreichen sensorischen Pfad später
+schwächen. Diese Verlustkausalität ist die Leitfrage für B.5.7.

@@ -66,6 +66,10 @@ angepasst werden.
 - [Auftrag B.5.5](029-entwicklungsauftrag-forschungsstufe-b55.md)
 - [Technische Analyse B.5.5](029-technische-analyse-subthreshold-membrandynamik.md)
 - [Bericht B.5.5](029-forschungsbericht-forschungsstufe-b55.md)
+- [Auftrag B.5.6](030-entwicklungsauftrag-forschungsstufe-b56.md)
+- [Technische Kausalanalyse B.5.6](030-technische-analyse-nichtrobuste-lernverlaeufe.md)
+- [Bericht B.5.6](030-forschungsbericht-forschungsstufe-b56.md)
+- [Entscheidungsvorlage B.5.7](030-entscheidungsvorlage-forschungsstufe-b57.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
@@ -135,3 +139,9 @@ aber gegenläufig wirkende Abrufursache nach. Eine feste lokale Lebensdauer von
 16 Zeiteinheiten verbessert R2-50 bestätigt und halbiert Verluste, erreicht
 jedoch in keiner Stromfamilie-/Zuordnungszelle 48/64 robuste Seeds. Die neue
 Funktion bleibt deshalb abschaltbar, standardmäßig aus und experimentell.
+B.5.6 weist den Restfehler überwiegend sensorischen Gewichtsverlusten nach:
+Alle frischen nichtrobusten Netze hatten beide Beziehungen erworben, und 57/72
+Detailfälle werden durch frühere sensorische Gewichte repariert. Isolierte
+Hemmungs- und Transientzustände erklären keinen Endfehler. S4-d16 bleibt
+rasterabhängig und experimentell; B.5.7 soll die lokalen Verlustereignisse
+unmittelbar vor der Gewichtsänderung untersuchen.

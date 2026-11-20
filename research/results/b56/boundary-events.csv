@@ -1,0 +1,10 @@
+variant,input_time,delay,membrane_before,membrane_after,fired,eligibility,recovery_processed,S4_processed,S4_stale,valid
+S2_R2_p50,15,16,1,0,1,1,0,0,0,1
+S2_R2_p50,16,16,1,0,1,1,0,0,0,1
+S2_R2_p50,17,16,1,0,1,1,0,0,0,1
+S4_event_d16,15,16,1,0,1,1,0,0,0,1
+S4_event_d16,16,16,0,1,0,0,0,1,0,1
+S4_event_d16,17,16,0,1,0,0,0,1,0,1
+S5_disabled,15,16,1,0,1,1,0,0,0,1
+S5_disabled,16,16,1,0,1,1,0,0,0,1
+S5_disabled,17,16,1,0,1,1,0,0,0,1

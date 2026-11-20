@@ -12,11 +12,11 @@ vorgegebene Semantik aus.
 
 **Stand:** 20. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.5.5 – lokale
-Subthreshold-Membrandynamik
+**Jüngste abgeschlossene Forschungsstufe:** B.5.6 – kausale Analyse
+nichtrobuster Lernverläufe
 
-**Nächster Forschungsschwerpunkt:** B.5.6 – kausale Zerlegung verbleibender
-Nichtrobustheit
+**Nächster Forschungsschwerpunkt:** B.5.7 – lokale Ursachen sensorischer
+Gewichtsverluste nach erfolgreichem Erwerb
 
 EVE ist inzwischen ein ausführbarer Forschungsprototyp. Er besitzt eine
 deterministische, ereignisgesteuerte Laufzeit, ein eigenes neuronales Netz,
@@ -137,6 +137,14 @@ in keiner Stromfamilie-/Zuordnungszelle erreicht. Die Funktion bleibt
 standardmäßig deaktiviert und experimentell; der Forschungsstand wird zum
 Merge empfohlen.
 
+B.5.6 zeigt in einer frischen Bestätigung, dass alle 148 nichtrobusten
+S4-d16-Netze beide Beziehungen zuvor erworben hatten. In 57 von 72 detailliert
+untersuchten Fällen stellt die Rücknahme sensorischer Gewichte die gemeinsame
+Fähigkeit wieder her; isolierte Hemmungs-, Recovery- und S4-Zustände reparieren
+keinen Fall. S4 bleibt zudem stark rasterabhängig: bei Abstand 12 schadet es,
+bei Abstand 32 hilft es signifikant. Eine neue Regel wird nicht freigegeben;
+B.5.7 soll die lokalen Ursachen der sensorischen Verlustereignisse untersuchen.
+
 ### Einordnung des konsolidierten Stands
 
 - **Beschlossene Architektur:** deterministische Ereignislaufzeit, Trennung von
@@ -150,8 +158,8 @@ Merge empfohlen.
 - **Nachgewiesene Fähigkeiten:** Erwerb einer einzelnen Reiz-Handlungs-Beziehung,
   Anpassung nach Bewertungsumkehr sowie in B.5.1 natürlicher Erwerb, Verlust und
   Wiedererwerb aller untersuchten Sensorpfade.
-- **Offene Forschungsfragen:** kausale Zerlegung der verbleibenden
-  nichtrobusten S4-d16-Seeds, stabiler gleichzeitiger Erhalt konkurrierender
+- **Offene Forschungsfragen:** kausale Zerlegung der negativen sensorischen
+  Gewichtsänderungen nach gemeinsamem Erwerb, stabiler Erhalt konkurrierender
   Bindungen und die produktionsgeeignete Abgrenzung inhibitorischer
   Interferenz von transienten Zeitgrenzen.
 - **Nicht freigegebene Funktionen:** allgemeines adaptives Online-Lernen,

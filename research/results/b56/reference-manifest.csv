@@ -1,0 +1,7 @@
+reference,path,copy_policy,exists,bytes,commit
+B55,research/results/b55/seed-results.csv,immutable_reference_no_copy,1,1842382,a85c2156796bc37430c330e2529091a3d623a6af
+B55,research/results/b55/variant-summary.csv,immutable_reference_no_copy,1,5327,a85c2156796bc37430c330e2529091a3d623a6af
+B55,research/results/b55/paired-comparisons.csv,immutable_reference_no_copy,1,6840,a85c2156796bc37430c330e2529091a3d623a6af
+B55,research/results/b55/natural-trajectories.csv.gz,immutable_reference_no_copy,1,33396410,a85c2156796bc37430c330e2529091a3d623a6af
+B55,research/results/b55/confusion-matrices.csv.gz,immutable_reference_no_copy,1,215760,a85c2156796bc37430c330e2529091a3d623a6af
+B55,research/results/b55/persistence.csv,immutable_reference_no_copy,1,1034,a85c2156796bc37430c330e2529091a3d623a6af

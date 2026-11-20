@@ -1,0 +1,6 @@
+question,decision,evidence
+new_learning_rule,not_authorized,B56 is causal diagnosis without parameter optimization
+new_inhibition_rule,not_authorized,no preregistered causal threshold for production change
+new_memory_rule,not_authorized,existing local state-copy diagnostics only
+S4_default,disabled,production default unchanged
+B57_candidate,defer_to_results,derive only from replicated locally observable cause class
