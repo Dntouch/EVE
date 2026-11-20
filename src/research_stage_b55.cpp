@@ -1178,6 +1178,7 @@ void b55_manifest(const std::filesystem::path& output) {
 
 }  // namespace
 
+#ifndef EVE_RESEARCH_STAGE_B55_EMBEDDED
 int main(int argc, char** argv) {
     const std::filesystem::path output = argc > 1
         ? std::filesystem::path(argv[1])
@@ -1212,3 +1213,4 @@ int main(int argc, char** argv) {
         << rows.size() << " clusters=" << clusters.size() << '\n';
     return 0;
 }
+#endif

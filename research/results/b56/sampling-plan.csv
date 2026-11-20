@@ -1,0 +1,8 @@
+item,rule,declared_before_outcomes
+historical_discovery,seeds 1..64 x 3 families x 2 assignments,1
+historical_confirmation,seeds 10001..10064 x 3 families x 2 assignments,1
+fresh_confirmation,seeds 20001..20064 x 3 families x 2 assignments,1
+detailed_biographies,first 4 robust and first 4 nonrobust seeds in each phase-family-assignment cell,1
+N8_threshold,natural joint availability below 0.50,1
+irregular_gaps,independent deterministic draw from 8 12 16 20 24 32,1
+continuous_gaps,independent deterministic uniform draw from 1..32,1

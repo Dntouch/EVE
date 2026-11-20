@@ -5843,6 +5843,225 @@ void test_b55_subthreshold_relaxation_case(const std::uint32_t index) {
     }
 }
 
+void test_b56_nonrobust_causality_case(const std::uint32_t index) {
+    const auto make_config = [](const bool s4 = true) {
+        eve::ExperimentConfig config;
+        config.neuron_count = 8;
+        config.width = 2;
+        config.height = 2;
+        config.depth = 2;
+        config.initial_outgoing_synapses = 0;
+        config.firing_threshold = 2;
+        config.maximum_synapse_weight = 3;
+        config.learning_enabled = false;
+        config.growth_enabled = false;
+        config.reset_mode = eve::ResetMode::to_zero;
+        config.recovery_mode = eve::RecoveryMode::independent_with_membrane_relaxation;
+        config.refractory_input_events = 1;
+        config.recovery_delay = 16;
+        config.membrane_relaxation_percent = 50;
+        config.batch_simultaneous_inputs = true;
+        config.local_event_memory_capacity = 8;
+        config.subthreshold_relaxation_enabled = s4;
+        config.subthreshold_relaxation_delay = s4 ? 16 : 0;
+        return config;
+    };
+    const auto fixture = [&](const std::uint64_t seed, const bool s4 = true) {
+        eve::bios::Runtime runtime(make_config(s4), seed);
+        const auto excitatory =
+            runtime.add_experimental_synapse(0, 4, 1, false);
+        const auto inhibitory = runtime.add_experimental_synapse(
+            1, 4, 1, false, eve::SynapticEffect::inhibitory);
+        return std::tuple<eve::bios::Runtime, eve::SynapseId, eve::SynapseId>{
+            std::move(runtime), excitatory, inhibitory};
+    };
+
+    if (index == 0) {
+        const auto classify = [](const double x, const double y,
+                const bool ever_x, const bool ever_y, const bool final_x,
+                const bool final_y) {
+            return std::array<bool, 5>{{
+                x < .75 && y >= .75, y < .75 && x >= .75,
+                x < .75 && y < .75, !ever_x || !ever_y,
+                ever_x && ever_y && (!final_x || !final_y)}};
+        };
+        const auto value = classify(.50, .80, true, true, false, true);
+        require(value[0] && !value[1] && !value[2] && !value[3] && value[4],
+                "B.5.6 overlapping nonrobust classification is incorrect");
+    } else if (index == 1 || index == 2 || index == 8) {
+        auto [runtime, excitatory, inhibitory] = fixture(0x560001ULL + index);
+        static_cast<void>(inhibitory);
+        static_cast<void>(runtime.process_simultaneous_impulses({excitatory}));
+        auto left = runtime;
+        auto right = runtime;
+        require_equal(left.state_fingerprint(), right.state_fingerprint(),
+            index == 8 ? "B.5.6 copied starts differ" :
+            index == 2 ? "B.5.6 cue copies are not independent" :
+                         "B.5.6 repeated E1 starts differ");
+        static_cast<void>(left.advance_time_by(8));
+        require(left.state_fingerprint() != right.state_fingerprint(),
+                "B.5.6 independent evaluation copy did not diverge locally");
+    } else if (index == 3 || index == 4) {
+        auto [runtime, excitatory, inhibitory] = fixture(0x560003ULL + index);
+        const auto id = index == 3 ? excitatory : inhibitory;
+        auto changed = runtime;
+        changed.set_experimental_synapse_weight(id, 3);
+        require(changed.network().synapse(id).weight == 3 &&
+                    runtime.network().synapse(id).weight == 1 &&
+                    changed.network().validate(),
+                index == 3 ? "B.5.6 sensor intervention leaked" :
+                             "B.5.6 inhibition intervention leaked");
+    } else if (index == 5) {
+        auto [source, excitatory, inhibitory] = fixture(0x560005ULL);
+        static_cast<void>(inhibitory);
+        static_cast<void>(source.process_simultaneous_impulses({excitatory}));
+        auto target = source;
+        target.set_experimental_neuron_membrane(4, 0);
+        const auto transfer = target.set_experimental_transient_component_from(
+            source, eve::bios::ExperimentalTransientComponent::membrane);
+        require(transfer.valid && transfer.changed_values == 1 &&
+                    target.network().neuron(4).membrane_potential == 1,
+                "B.5.6 membrane intervention was not exact");
+    } else if (index == 6) {
+        auto [source, excitatory, inhibitory] = fixture(0x560006ULL);
+        static_cast<void>(inhibitory);
+        static_cast<void>(source.process_simultaneous_impulses({excitatory}));
+        auto target = source;
+        target.set_experimental_synapse_weight(excitatory, 3);
+        target.set_experimental_neuron_membrane(4, 0);
+        const auto transfer = target.set_experimental_transient_component_from(
+            source, eve::bios::ExperimentalTransientComponent::membrane);
+        require(transfer.valid && target.network().synapse(excitatory).weight == 3 &&
+                    target.network().neuron(4).membrane_potential == 1,
+                "B.5.6 combined factor intervention is invalid");
+    } else if (index == 7) {
+        auto [left, excitatory, inhibitory] = fixture(0x560007ULL);
+        auto right = left;
+        static_cast<void>(left.process_simultaneous_impulses({excitatory}));
+        static_cast<void>(right.process_simultaneous_impulses({inhibitory}));
+        require(left.state_fingerprint() != right.state_fingerprint(),
+                "B.5.6 different experience streams did not diverge");
+    } else if (index == 9 || index == 10) {
+        auto [left, excitatory, inhibitory] = fixture(0x560009ULL + index);
+        auto right = left;
+        const std::array<std::uint64_t, 6> gaps{{8, 12, 16, 20, 24, 32}};
+        for (std::size_t step = 0; step < gaps.size(); ++step) {
+            const auto gap = index == 9 ? gaps[step] : 1ULL + step * 5ULL;
+            static_cast<void>(left.advance_time_by(gap));
+            static_cast<void>(right.advance_time_by(gap));
+            const auto id = step % 2 == 0 ? excitatory : inhibitory;
+            static_cast<void>(left.process_simultaneous_impulses({id}));
+            static_cast<void>(right.process_simultaneous_impulses({id}));
+        }
+        require_equal(left.state_fingerprint(), right.state_fingerprint(),
+            index == 9 ? "B.5.6 irregular schedule is not deterministic" :
+                         "B.5.6 continuous stream is not deterministic");
+    } else if (index >= 11 && index <= 13) {
+        auto [runtime, excitatory, inhibitory] = fixture(0x560011ULL + index);
+        static_cast<void>(inhibitory);
+        static_cast<void>(runtime.process_simultaneous_impulses({excitatory}));
+        const auto time = static_cast<std::uint64_t>(15 + index - 11);
+        static_cast<void>(runtime.advance_time_to(time));
+        const auto second = runtime.process_simultaneous_impulses({excitatory});
+        require_equal(second.fired, index == 11,
+            index == 11 ? "B.5.6 pre-boundary relaxation is incorrect" :
+            index == 12 ? "B.5.6 due-time relaxation ordering is incorrect" :
+                          "B.5.6 post-boundary relaxation is incorrect");
+    } else if (index == 14) {
+        auto config = make_config();
+        config.learning_enabled = true;
+        config.eligibility_selection = eve::EligibilitySelection::all_recent;
+        config.eligibility_candidate_capacity = 8;
+        config.eligibility_decision_capacity = 8;
+        config.eligibility_duration = 16;
+        eve::bios::Runtime runtime(config, 0x560014ULL);
+        const auto strong = runtime.add_experimental_synapse(0, 4, 2, false);
+        static_cast<void>(runtime.process_simultaneous_impulses({strong}));
+        static_cast<void>(runtime.advance_time_to(16));
+        require(runtime.metrics().processed_recovery_events == 1 &&
+                    runtime.metrics().processed_eligibility_expiries == 1 &&
+                    runtime.network().validate(),
+                "B.5.6 eligibility/recovery boundary interaction is invalid");
+    } else if (index == 15) {
+        auto [reference, excitatory, inhibitory] = fixture(0x560015ULL, false);
+        auto disabled = reference;
+        static_cast<void>(reference.process_simultaneous_impulses({excitatory}));
+        static_cast<void>(disabled.process_simultaneous_impulses({excitatory}));
+        static_cast<void>(inhibitory);
+        require_equal(reference.state_fingerprint(), disabled.state_fingerprint(),
+                      "B.5.6 S4 disabled control changed");
+    } else if (index == 16) {
+        const auto target_a = [](const bool inverse, const std::uint8_t cue) {
+            return inverse ? cue == 1 : cue == 0;
+        };
+        require(target_a(false, 0) && !target_a(false, 1) &&
+                    !target_a(true, 0) && target_a(true, 1),
+                "B.5.6 normal/inverse target mapping is asymmetric");
+    } else if (index == 17) {
+        auto [runtime, excitatory, inhibitory] = fixture(0x560017ULL);
+        static_cast<void>(inhibitory);
+        const auto weight = runtime.network().synapse(excitatory).weight;
+        static_cast<void>(runtime.advance_time_by(2048));
+        require(runtime.network().synapse(excitatory).weight == weight &&
+                    runtime.network().validate(),
+                "B.5.6 time-free retention changed structure");
+    } else if (index == 18) {
+        const auto target = [](const std::uint32_t episode) {
+            return episode < 256;
+        };
+        require(target(255) && !target(256),
+                "B.5.6 reversal boundary is incorrect");
+    } else if (index == 19) {
+        eve::bios::Runtime runtime(make_config(), 0x560019ULL);
+        const auto protected_path =
+            runtime.add_experimental_synapse(0, 4, 1, true);
+        require(runtime.network().synapse(protected_path).plasticity_protected,
+                "B.5.6 protected exploration path is mutable");
+    } else if (index == 20) {
+        const auto path = std::filesystem::temp_directory_path() /
+            "eve-stage-b56-state.bin";
+        auto [runtime, excitatory, inhibitory] = fixture(0x560020ULL);
+        static_cast<void>(inhibitory);
+        static_cast<void>(runtime.process_simultaneous_impulses({excitatory}));
+        require(runtime.future_event_count() > 0 &&
+                    runtime.metrics().scheduled_subthreshold_relaxations == 1,
+                "B.5.6 persistence fixture has no pending S4 event");
+        runtime.save(path.string());
+        auto restored = eve::bios::Runtime::load(path.string());
+        require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                      "B.5.6 complete state did not persist");
+        static_cast<void>(runtime.advance_time_to(16));
+        static_cast<void>(restored.advance_time_to(16));
+        require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                      "B.5.6 pending S4 event diverged after restore");
+        require_equal(restored.metrics().processed_subthreshold_relaxations,
+                      1ULL, "B.5.6 restored pending S4 event was not processed");
+        static_cast<void>(std::filesystem::remove(path));
+    } else if (index == 21) {
+        auto [left, excitatory, inhibitory] = fixture(0x560021ULL);
+        auto right = left;
+        for (std::uint32_t step = 0; step < 16; ++step) {
+            const auto id = step % 2 == 0 ? excitatory : inhibitory;
+            static_cast<void>(left.process_simultaneous_impulses({id}));
+            static_cast<void>(right.process_simultaneous_impulses({id}));
+            static_cast<void>(left.advance_time_by(step + 1));
+            static_cast<void>(right.advance_time_by(step + 1));
+        }
+        require_equal(left.state_fingerprint(), right.state_fingerprint(),
+                      "B.5.6 deterministic continuation diverged");
+    } else if (index == 22) {
+        auto [runtime, excitatory, inhibitory] = fixture(0x560022ULL);
+        for (std::uint32_t step = 0; step < 64; ++step) {
+            const auto id = step % 2 == 0 ? excitatory : inhibitory;
+            static_cast<void>(runtime.process_simultaneous_impulses({id}));
+            static_cast<void>(runtime.advance_time_by(1));
+        }
+        require(runtime.network().validate() &&
+                    runtime.metrics().maximum_queue_size < 32,
+                "B.5.6 produced an invalid or unbounded neural state");
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -6380,6 +6599,36 @@ int main() {
         tests.emplace_back(
             std::string("B55 ") + b55_names[index],
             [index]() { test_b55_subthreshold_relaxation_case(index); });
+    }
+    const std::array<const char*, 23> b56_names{{
+        "nonrobust classification",
+        "reproducible E1 evaluation",
+        "independent cue copies",
+        "sensor causal intervention",
+        "inhibitory causal intervention",
+        "transient membrane intervention",
+        "combined factors",
+        "different experience streams",
+        "identical starting states",
+        "irregular cue gaps",
+        "continuous event stream",
+        "relaxation before input",
+        "relaxation exactly at input",
+        "relaxation after input",
+        "eligibility timing interaction",
+        "unchanged S4 disabled control",
+        "normal inverse target mapping",
+        "retention",
+        "environment reversal",
+        "protected exploration",
+        "complete persistence",
+        "deterministic continuation",
+        "valid neural states",
+    }};
+    for (std::uint32_t index = 0; index < b56_names.size(); ++index) {
+        tests.emplace_back(
+            std::string("B56 ") + b56_names[index],
+            [index]() { test_b56_nonrobust_causality_case(index); });
     }
 
     std::size_t failures = 0;

@@ -1,0 +1,4 @@
+phase,variant,schedule,networks,E1_X,E1_Y,joint_min,joint_ci_low,joint_ci_high,robust,events_per_network,fires_per_network,S4_processed,maximum_queue,maximum_memory,valid
+fresh_confirmation,S4_event_d16,fixed_16,384,0.786228,0.827779,0.614006,0.561868,0.660875,236,19164,4211.28,102696,27,25072,384
+historical_confirmation,S4_event_d16,fixed_16,384,0.804343,0.827689,0.632032,0.584919,0.681395,243,19165.4,4211.88,102879,28,25072,384
+historical_discovery,S4_event_d16,fixed_16,384,0.856228,0.80938,0.665687,0.618574,0.710109,256,19163.3,4211.24,103184,27,25072,384

@@ -1,0 +1,9 @@
+criterion,passed,evidence
+historical_reference_not_duplicated,1,reference-manifest.csv
+all_nonrobust_confirmation_networks_classified,1,network-classifications.csv
+robust_controls_sampled_symmetrically,1,detailed-selection.csv
+causal_interventions_diagnostic_only,1,causal-weight-interventions.csv
+timing_fixed_irregular_continuous,1,timing-seed-results.csv
+independent_fresh_confirmation,1,seeds 20001..20064
+persistence_deterministic,1,persistence.csv
+S4_default_disabled,1,core default unchanged

@@ -1,0 +1,6 @@
+group,enabled,role,parameter_optimization
+S4_event_d16,1,preregistered baseline,0
+S2_R2_p50,1,existing recovery control,0
+S5_disabled,1,disabled S4 implementation control,0
+S_no_learning,1,acquisition-negative control,0
+R0,0,optional historical control already referenced by B55,0
