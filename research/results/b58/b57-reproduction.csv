@@ -1,0 +1,3 @@
+phase,networks,robust,expected_robust,status
+B57_discovery,384,242,242,exact
+B57_confirmation,384,254,254,exact

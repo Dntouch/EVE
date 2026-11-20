@@ -1,0 +1,6 @@
+candidate,authorized,evidence,decision
+experimental_write_gate,1,diagnostic isolation only,default disabled
+new_local_learning_rule,0,causal information boundary under study,no production rule
+automatic_weight_protection,0,forbidden by protocol,not implemented
+S4_default,0,unchanged production default,disabled
+K18_K19,0,no independently confirmed local rule,not implemented

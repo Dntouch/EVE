@@ -17,38 +17,39 @@ reproduzierbaren Versuchsreihen.
 
 **Stand:** 20. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.5.7 – kausale Kreditzuordnung bei
-sensorischen Gewichtsverlusten
+**Jüngste abgeschlossene Forschungsstufe:** B.5.8 – Lernen, Nichtlernen und
+kausale Stabilität
 
-**Nächster Forschungsschwerpunkt:** B.5.8 – lokale Unterscheidung zwischen
-zeitlicher Eligibility und kausaler Notwendigkeit
+**Nächster Forschungsschwerpunkt:** B.5.9 – lokal beobachtbare Kriterien für
+nützliche und schädliche positive Plastizität
 
-B.5.7 zeigt: Die lokale Lernberechtigung ist zeitlich korrekt, aber bei
-negativer Rückmeldung nicht immer kausal eindeutig. Von 9.444 untersuchten
-negativen sensorischen Gewichtsänderungen beeinflussten 7.556 (80,01 %) die
-aktuell bewertete Motorantwort; 1.888 (19,99 %) waren zeitlich berechtigt, in
-der Einzelablation aber nicht notwendig. Ältere Eligibility-Spuren und
-natürliche Doppelabschwächungen wurden als Hauptursache ausgeschlossen.
+B.5.8 trennt erstmals vorhandene Fähigkeit von fortlaufender
+Gewichtsänderung. Nach einer stabilen Lernphase blieb die Fähigkeit bei
+unterdrückten Plastizitätsschreibvorgängen mindestens ebenso gut erhalten wie
+bei dauerhaft aktiver Plastizität. Nach einer Umweltumkehr war die erneut
+aktivierte Plastizität dagegen notwendig. Lernen ist damit phasenabhängig
+nützlich, aber kein dauerhafter Erhaltungszwang.
 
-| B.5.7-Befund | Ergebnis |
+| B.5.8-Befund | Ergebnis |
 |---|---:|
-| reproduzierte B.5.6-Referenz | 236/384 robuste Netze |
-| Fest-16 Discovery | 242/384 robuste Netze |
-| unabhängige Fest-16-Bestätigung | 254/384 robuste Netze |
-| kausal notwendige negative Änderungen | 7.556/9.444 |
-| zeitlich berechtigt, einzeln nicht notwendig | 1.888/9.444 |
-| negative Änderungen nach fehlender Motorantwort | 9.376/9.444 |
+| exakt reproduzierte B.5.7-Referenzen | 242/384 und 254/384 |
+| B.5.8 Fest-16 Discovery | 240/384 robuste Netze |
+| unabhängige Fest-16-Bestätigung | 244/384 robuste Netze |
+| stabile Phase, aktive Plastizität | 62/96 robuste Fälle |
+| stabile Phase, Schreiben unterdrückt | 90/96 robuste Fälle |
+| Umkehr, Plastizität aktiv/unterdrückt/reaktiviert | 60/96 · 0/96 · 61/96 |
 
-Eine pauschale Unterdrückung negativer Modulation wäre trotzdem falsch: In den
-natürlichen Fortsetzungen war sie häufig für die Wiederherstellung beider
-Beziehungen nützlich. Deshalb wurde keine neue Lernregel freigegeben. K13 und
-K14 bleiben deaktiviert; die experimentelle Subthreshold-Lebensdauer S4 ist
-standardmäßig ebenfalls aus.
+Positive Änderungen waren unmittelbar teils nützlich und teils schädlich;
+die beobachtbaren lokalen Signaturen trennten diese globalen Folgen nicht
+eindeutig. Daher wurde keine neue Lernregel freigegeben. Der neue Schreib-Gate
+dient nur der Kausaldiagnostik, ist standardmäßig aus und ändert weder die
+Modulationsroute noch die Eligibility-Verarbeitung. S4 bleibt ebenfalls
+standardmäßig deaktiviert.
 
-- [Forschungsbericht B.5.7](docs/experimente/031-forschungsbericht-forschungsstufe-b57.md)
-- [Technische Kausalanalyse B.5.7](docs/experimente/031-technische-kausalanalyse-sensorische-kreditzuordnung.md)
-- [Architekturentscheidung 0029](docs/entscheidungen/0029-b57-lokale-kreditzuordnung-ist-nicht-eindeutig.md)
-- [Entscheidungsvorlage B.5.8](docs/experimente/031-entscheidungsvorlage-forschungsstufe-b58.md)
+- [Forschungsbericht B.5.8](docs/experimente/032-forschungsbericht-forschungsstufe-b58.md)
+- [Technische Kausalanalyse B.5.8](docs/experimente/032-technische-kausalanalyse-lernen-und-nichtlernen.md)
+- [Architekturentscheidung 0030](docs/entscheidungen/0030-b58-faehigkeitserhalt-ist-nicht-dauerplastizitaet.md)
+- [Entscheidungsvorlage B.5.9](docs/experimente/032-entscheidungsvorlage-forschungsstufe-b59.md)
 
 EVE ist weder eine fertige allgemeine Intelligenz noch ein Nachweis von
 Bewusstsein oder bereits entstandener eigenständiger Intelligenz. Der Prototyp
@@ -69,7 +70,7 @@ prüfen und auch negative Ergebnisse nachvollziehbar festzuhalten.
 - konfigurierbare Aktivitätsregulation und strukturelles Wachstum,
 - versionierte Speicherung und Wiederherstellung vollständiger Zustände,
 - Diagnostik, Ereignisprotokolle und Zustandsfingerabdrücke,
-- 637 automatisierte Kerntests und reproduzierbare Forschungsrunner.
+- 665 automatisierte Kerntests und reproduzierbare Forschungsrunner.
 
 Die Forschungsvarianten aktivieren bewusst nur ausgewählte Mechanismen. Lernen,
 inhibitorische Plastizität, Wachstum und S4 sind keine pauschal eingeschalteten
@@ -107,7 +108,8 @@ nicht der dauerhaft robuste Erhalt mehrerer konkurrierender Beziehungen.
 | B.5.5 | Subthreshold-Membrandynamik | S4 hilft teilweise, bleibt experimentell |
 | B.5.6 | Restfehler unter S4-d16 | sensorische Gewichtsverluste dominieren |
 | B.5.7 | kausale sensorische Kreditzuordnung | zeitlich korrekt, kausal mehrdeutig |
-| B.5.8 | lokale Präzisierung der Kreditzuordnung | als nächste Grundlagenforschung empfohlen |
+| B.5.8 | Lernen, Nichtlernen und kausale Stabilität | Fähigkeitserhalt braucht keine Dauerplastizität; Umlernen schon |
+| B.5.9 | lokale Wirkung positiver Plastizität | als nächste Grundlagenforschung empfohlen |
 
 Alle Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen im
 [Experimentverzeichnis](docs/experimente/README.md). Maschinenlesbare
@@ -150,14 +152,14 @@ ctest --test-dir _build/cmake --output-on-failure
 
 ## Jüngste Forschung reproduzieren
 
-Der B.5.7-Runner baut die benötigten Programme, führt die Kerntests aus und
+Der B.5.8-Runner baut die benötigten Programme, führt die Kerntests aus und
 erzeugt die vollständige Versuchsmatrix neu:
 
 ```sh
-./scripts/run-research-stage-b57.sh research/results/b57
+./scripts/run-research-stage-b58.sh research/results/b58
 ```
 
-Der Lauf verarbeitet 4.224 Netze und mehr als 74 Millionen Ereignisse. Große
+Der Lauf verarbeitet 4.224 zentrale Netze sowie die kausalen Zustandskopien. Große
 Ereignistabellen werden deterministisch als gzip-Dateien gespeichert. Laufzeit
 und Speicherwerte sind maschinenabhängig; Ereignisfolgen, neuronale Zustände
 und Fingerabdrücke sind bei identischem Build, Seed und Eingabestrom

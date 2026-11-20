@@ -613,3 +613,41 @@ Die großen CSV-Dateien sind mit `gzip -n` deterministisch komprimiert.
 `performance.csv` und die Laufzeitspalten in `resources.csv` sind
 maschinenabhängig; alle Zustands-, Lern- und Ereignisdaten sind bei gleichem
 Build und Seed deterministisch. K12/K13 bleiben deaktiviert.
+
+## Forschungsstufe B.5.8 – Lernen, Nichtlernen und kausale Stabilität
+
+Build, Kerntests und vollständige Reproduktions-, Stabilitäts-, Umkehr- und
+Kausalmatrix:
+
+```sh
+scripts/run-research-stage-b58.sh research/results/b58
+```
+
+Der Runner reproduziert die B.5.7-Referenzen exakt und wertet 4.224 zentrale
+Netze aus. Entdeckung und unabhängige Bestätigung verwenden je 64 getrennte
+Seeds, drei Stromfamilien sowie normale und inverse Zuordnung. Festabstände 1,
+12, 16 und 32, ein unregelmäßiger Zeitplan, R2, S5 und No-Learning bilden die
+Zeit- und Mechanismuskontrollen.
+
+`stability-checkpoints.csv` vergleicht fortgesetzte aktive Plastizität (P0)
+mit identischen Kopien, in denen nur Gewichtsschreibvorgänge unterdrückt
+werden (P1). `reversal-checkpoints.csv` enthält aktive Umkehr (P2), weiterhin
+unterdrückte Umkehr (P3) und reaktivierte Plastizität (P4).
+`feedback-counterfactuals.csv` trennt natürliche, fehlende, neutrale,
+selektive, verzögerte und schreibunterdrückte Rückmeldung. Die
+Motorinterventionen stehen in `no-action-causality.csv`; die zwölf offenen
+B.5.6-Fälle in `historical-open-cases.csv`.
+
+`network-classifications.csv.gz`, `stable-experiences.csv.gz` und
+`plasticity-events.csv.gz` enthalten die großen deterministischen Rohdaten.
+`local-information-inventory.csv` und `local-indistinguishability.csv`
+dokumentieren, welche lokale Information bei gemischten globalen Folgen
+tatsächlich verfügbar war. Clusterbewusste Intervalle, Erfolgskriterien,
+Persistenz und Ressourcen stehen in den jeweiligen Zusammenfassungen.
+
+Der experimentelle Schreib-Gate konsumiert Eligibility und erhält die
+Modulationsroute, verhindert aber die Gewichtsänderung. Er ist standardmäßig
+deaktiviert und keine Produktionsregel. Das Persistenzformat 15 speichert den
+Gate, seine Metrik und tatsächlich ausstehende Modulationsereignisse.
+Laufzeit und RSS in `performance.csv` sind maschinenabhängig; alle fachlichen
+Ergebnisse sind bei identischem Build, Seed und Eingabestrom deterministisch.

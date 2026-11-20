@@ -1,0 +1,11 @@
+criterion,passed,evidence
+B57_exact_reproduction,1,b57-reproduction.csv
+activity_feedback_and_weight_change_separated,1,stable-experiences.csv.gz
+neutral_missing_and_suppressed_distinguished,1,feedback-counterfactuals.csv
+stable_active_and_suppressed_compared,1,stability-checkpoints.csv
+learning_after_stable_phase_compared,1,reversal-checkpoints.csv
+positive_and_negative_changes_observed,1,plasticity-events.csv.gz
+twelve_open_cases_reexamined,1,historical-open-cases.csv
+local_information_limit_tested,1,local-indistinguishability.csv
+independent_confirmation,1,seeds 60001..60064
+new_rule_not_required,1,mechanism-decision.csv

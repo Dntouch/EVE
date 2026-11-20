@@ -1,0 +1,15 @@
+information,locally_available,used_by_production_rule
+input_signal,1,1
+synapse_weight,1,1
+synaptic_effect,1,1
+membrane_potential,1,1
+local_fire,1,1
+local_activity_G3,1,1
+eligibility,1,1
+modulation_polarity,1,1
+time_relation,1,1
+global_correct_action,0,0
+cue_label_X_or_Y,0,0
+whole_network_success_history,0,0
+counter_relation_success,0,0
+diagnostic_causal_necessity,0,0

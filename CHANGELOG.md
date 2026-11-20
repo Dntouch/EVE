@@ -62,6 +62,16 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
   Lernverläufen, Umweltumkehr, Zustandskopien, Ressourcen- und
   Persistenzprüfung.
 - 23 zusätzliche B.5.4-Prüfungen; insgesamt 566/566 bestandene Kerntests.
+- Forschungsstufe B.5.5 mit lokaler Subthreshold-Relaxation, vollständiger
+  Zeitmatrix, Retention, Umweltumkehr und unabhängiger Bestätigung.
+- Forschungsstufe B.5.6 mit kausaler Zerlegung verbleibender Restfehler unter
+  S4-d16 sowie Persistenz eines tatsächlich ausstehenden S4-Ereignisses.
+- Forschungsstufe B.5.7 mit vollständigem lokalen Audit negativer
+  Kandidatenanwendungen und Einzelgewichtskausalität.
+- Forschungsstufe B.5.8 mit getrennten Zustandskopien für aktive,
+  unterdrückte und reaktivierte Plastizität, Rückmeldungsgegenproben,
+  Motorinterventionen und lokaler Informationsgrenze.
+- 28 zusätzliche B.5.8-Prüfungen; insgesamt 665/665 bestandene Kerntests.
 
 ### Geändert
 
@@ -80,3 +90,7 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
 - Persistenzformat 11 speichert den allgemeinen Plastizitätsschutz angeborener
   Synapsen; geschützte Verbindungen bleiben neuronisch aktiv, ändern ihr
   Gewicht aber weder durch Drei-Faktor- noch durch alte Aktivitätsplastizität.
+- Persistenzformat 15 speichert den standardmäßig deaktivierten
+  B.5.8-Schreib-Gate und die Zahl unterdrückter Plastizitätsversuche. Der Gate
+  lässt Modulationsroute und Eligibility-Verbrauch intakt und dient nur der
+  Kausaldiagnostik.

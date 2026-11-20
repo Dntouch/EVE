@@ -189,6 +189,7 @@ struct ModulatoryFeedbackResult {
     std::uint64_t positive_changes{};
     std::uint64_t negative_changes{};
     std::uint64_t zero_to_one_changes{};
+    std::uint64_t suppressed_writes{};
 };
 
 struct ActionContextEmission {
@@ -220,6 +221,15 @@ using SubthresholdRelaxationObserver =
 // Behaviour-neutral research observation emitted for every eligible candidate
 // considered by a locally arriving modulatory impulse.  Observers are not
 // persisted and cannot alter the neural state.
+enum class PlasticityWriteOutcome : std::uint8_t {
+    changed = 0,
+    protected_synapse = 1,
+    positive_weight_limit = 2,
+    input_weight_budget = 3,
+    negative_zero_floor = 4,
+    write_suppressed = 5,
+};
+
 struct PlasticityObservation {
     std::uint64_t event_index{};
     std::uint64_t simulated_time{};
@@ -241,6 +251,9 @@ struct PlasticityObservation {
     std::int32_t weight_after{};
     bool plasticity_protected{};
     bool changed{};
+    PlasticityWriteOutcome write_outcome{PlasticityWriteOutcome::changed};
+    std::int64_t receiver_membrane{};
+    std::uint32_t candidate_activity_count{};
 };
 
 using PlasticityObserver = std::function<void(const PlasticityObservation&)>;
@@ -352,6 +365,7 @@ public:
     void set_experimental_eligibility_records(
         NeuronId neuron,
         const std::vector<neural::EligibilityRecord>& records);
+    void set_experimental_plasticity_writes_suppressed(bool suppressed) noexcept;
     [[nodiscard]] ExperimentalTransientTransfer
     set_experimental_transient_component_from(
         const Runtime& source, ExperimentalTransientComponent component);

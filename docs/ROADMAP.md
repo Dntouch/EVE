@@ -150,6 +150,20 @@ rasterabhängig. B.5.7 soll deshalb die lokalen Eligibility-, Modulations- und
 Konkurrenzereignisse unmittelbar vor sensorischen Verluständerungen prüfen,
 ohne Gewichtsschutz oder Rollback vorwegzunehmen.
 
+B.5.7 zeigt, dass die Eligibility zeitlich korrekt, ihre kausale Bedeutung
+aber nicht eindeutig ist. Fehlende Motorantworten lösen fast alle negativen
+Änderungen aus, doch eine pauschale Unterdrückung negativer Modulation schadet
+späterem Wiedererwerb. B.5.8 muss deshalb Fähigkeitserhalt und aktives Lernen
+in kontrollierten Zustandskopien voneinander trennen.
+
+B.5.8 bestätigt diese Trennung. In stabilen Kopien verbessert die
+Schreibunterdrückung den Erhalt gegenüber fortgesetzter Plastizität; nach
+Umweltumkehr verhindert sie dagegen jede robuste Anpassung, bis Lernen wieder
+aktiviert wird. Positive Änderungen sind lokal nicht eindeutig als nützlich
+oder schädlich klassifizierbar. B.5.9 soll diese positive Plastizität
+prospektiv zerlegen, ohne einen globalen Lernphasen-Schalter als biologische
+Lösung vorwegzunehmen.
+
 ## Erfolgskriterien aus dem Konzept
 
 Ein geeigneter kontrollierter Test folgt der dort beschriebenen Abfolge:

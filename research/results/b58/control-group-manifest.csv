@@ -1,0 +1,21 @@
+group,description,enabled_in_production
+K0,B57 S4-d16 reference,0
+K1,natural positive and negative learning,0
+K2,no feedback,0
+K3,neutral feedback,0
+K4,diagnostic write suppression,0
+K5,active stable phase,0
+K6,suppressed stable phase,0
+K7,active reversal,0
+K8,suppressed reversal,0
+K9,reactivated reversal,0
+K10,no-action causality,0
+K11,single negative change,0
+K12,combined negative changes,0
+K13,positive competition,0
+K14,redundant contributions,0
+K15,twelve historical open cases,0
+K16,time schedules,0
+K17,no learning,0
+K18,new local rule not authorized,0
+K19,disabled K18 control,0

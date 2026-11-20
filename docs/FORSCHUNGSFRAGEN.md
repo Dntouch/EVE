@@ -129,3 +129,16 @@ weitere Frage lautet daher nicht, ob eine Fähigkeit prinzipiell gespeichert
 werden kann, sondern welche lokalen Eligibility-, Modulations- und
 Konkurrenzereignisse einen bereits erfolgreichen sensorischen Pfad später
 schwächen. Diese Verlustkausalität ist die Leitfrage für B.5.7.
+B.5.7 zeigt, dass zeitliche Eligibility allein keine eindeutige
+Kausalzuordnung liefert. Die meisten negativen Änderungen beeinflussen die
+bewertete Antwort, ein relevanter Anteil ist einzeln jedoch nicht notwendig;
+pauschale Unterdrückung würde nützliche Wiederanpassung blockieren. Offen ist,
+ob eine bereits erworbene Fähigkeit überhaupt fortlaufende Gewichtsänderungen
+benötigt und wann dieselbe Plastizität erneut kausal notwendig wird.
+B.5.8 beantwortet diese Frage phasenabhängig: Stabiler Fähigkeitserhalt gelingt
+ohne weitere Schreibvorgänge mindestens ebenso gut, Umweltumkehr dagegen nur
+mit aktiver oder reaktivierter Plastizität. Unter den beobachteten lokalen
+Signaturen teilen sich positive Änderungen in unmittelbar nützliche,
+schädliche und neutrale Folgen. Leitfrage für B.5.9 ist daher, welche
+zusätzliche lokal verfügbare Vorgeschichte diese positiven Wirkungen
+prospektiv trennt, ohne globale Phaseninformation einzuführen.
