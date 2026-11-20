@@ -70,6 +70,10 @@ angepasst werden.
 - [Technische Kausalanalyse B.5.6](030-technische-analyse-nichtrobuste-lernverlaeufe.md)
 - [Bericht B.5.6](030-forschungsbericht-forschungsstufe-b56.md)
 - [Entscheidungsvorlage B.5.7](030-entscheidungsvorlage-forschungsstufe-b57.md)
+- [Auftrag B.5.7](031-entwicklungsauftrag-forschungsstufe-b57.md)
+- [Technische Kausalanalyse B.5.7](031-technische-kausalanalyse-sensorische-kreditzuordnung.md)
+- [Bericht B.5.7](031-forschungsbericht-forschungsstufe-b57.md)
+- [Entscheidungsvorlage B.5.8](031-entscheidungsvorlage-forschungsstufe-b58.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
@@ -145,3 +149,9 @@ Detailfälle werden durch frühere sensorische Gewichte repariert. Isolierte
 Hemmungs- und Transientzustände erklären keinen Endfehler. S4-d16 bleibt
 rasterabhängig und experimentell; B.5.7 soll die lokalen Verlustereignisse
 unmittelbar vor der Gewichtsänderung untersuchen.
+B.5.7 rekonstruiert jede lokale Kandidatenanwendung und trennt zeitliche
+Eligibility von kausaler Notwendigkeit. Natürliche Cross-Experience- und
+Mehrfachanwendungen treten nicht auf; 19,99 % negativer sensorischer Änderungen
+sind für die aktuell bewertete Motorantwort nicht notwendig. Fehlende
+Motorantworten dominieren die negative Kreditzuordnung. Eine neue Lernregel
+wird nicht freigegeben; B.5.8 soll eine rein lokale Präzisierung untersuchen.

@@ -1,0 +1,4 @@
+phase,networks,robust,nonrobust,ever_both,valid
+B56_fresh_reproduction,384,236,148,384,384
+B57_discovery,384,242,142,384,384
+B57_independent_confirmation,384,254,130,384,384

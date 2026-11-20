@@ -1130,6 +1130,10 @@ void Runtime::set_subthreshold_relaxation_observer(
     subthreshold_relaxation_observer_ = std::move(observer);
 }
 
+void Runtime::set_plasticity_observer(PlasticityObserver observer) {
+    plasticity_observer_ = std::move(observer);
+}
+
 MotorCausality Runtime::analyze_motor_causality(
     const brainstem::MotorResponse& response,
     const brainstem::MotorCircuitResult& circuit,
@@ -1313,6 +1317,28 @@ void Runtime::set_experimental_neuron_membrane(
             "experimental membrane potential must be non-negative");
     }
     network_.neuron(neuron).membrane_potential = membrane_potential;
+}
+
+void Runtime::set_experimental_eligibility_records(
+    const NeuronId neuron,
+    const std::vector<neural::EligibilityRecord>& selected_records) {
+    if (neuron >= network_.neuron_count()) {
+        throw std::out_of_range("experimental eligibility neuron is out of range");
+    }
+    std::vector<std::vector<neural::EligibilityRecord>> records(
+        network_.neuron_count());
+    std::vector<std::uint64_t> generations(network_.neuron_count());
+    std::vector<std::uint64_t> overwrites(network_.neuron_count());
+    for (NeuronId id = 0; id < network_.neuron_count(); ++id) {
+        records[id] = id == neuron ? selected_records
+                                   : network_.eligibility_records(id);
+        generations[id] = network_.eligibility_generation(id);
+        overwrites[id] = network_.eligibility_overwrites(id);
+    }
+    network_.restore_eligibility(
+        network_.eligibility_candidate_capacity(),
+        network_.eligibility_decision_capacity(), records, generations,
+        overwrites);
 }
 
 ExperimentalTransientTransfer Runtime::set_experimental_transient_component_from(
@@ -2360,7 +2386,8 @@ void Runtime::create_local_plasticity_trace(
 }
 
 void Runtime::apply_local_modulation(
-    const NeuronId neuron, const std::int8_t polarity) {
+    const NeuronId neuron, const std::int8_t polarity,
+    const SynapseId modulation_synapse) {
     const auto records = network_.eligibility_records(neuron);
     std::vector<std::uint64_t> consumed;
     bool has_eligible_trace = false;
@@ -2374,13 +2401,31 @@ void Runtime::apply_local_modulation(
             for (const SynapseId candidate : record.candidates) {
                 auto& item = network_.synapse(candidate);
                 if (item.receiver != neuron) continue;
-                if (item.plasticity_protected) continue;
                 const std::int8_t local_polarity =
                     item.effect == SynapticEffect::inhibitory &&
                             config_.inhibitory_plasticity_mode ==
                                 InhibitoryPlasticityMode::contribution_aware
                         ? static_cast<std::int8_t>(-polarity)
                         : polarity;
+                const std::int32_t weight_before = item.weight;
+                if (item.plasticity_protected) {
+                    if (plasticity_observer_) {
+                        const auto& contact = network_.synapse(modulation_synapse);
+                        plasticity_observer_(PlasticityObservation{
+                            metrics_.processed_events, simulated_time_,
+                            modulation_synapse, contact.sender, neuron, polarity,
+                            local_polarity,
+                            static_cast<std::uint32_t>(records.size()),
+                            record.generation,
+                            record.expires_at >= config_.eligibility_duration
+                                ? record.expires_at - config_.eligibility_duration
+                                : 0,
+                            record.expires_at, record.strength, record.candidates,
+                            candidate, item.sender, item.effect, weight_before,
+                            item.weight, true, false});
+                    }
+                    continue;
+                }
                 if (local_polarity > 0) {
                     const std::int32_t limit = std::min(
                         config_.maximum_synapse_weight,
@@ -2425,6 +2470,21 @@ void Runtime::apply_local_modulation(
                     if (item.effect == SynapticEffect::inhibitory) {
                         ++metrics_.inhibitory_negative_changes;
                     }
+                }
+                if (plasticity_observer_) {
+                    const auto& contact = network_.synapse(modulation_synapse);
+                    plasticity_observer_(PlasticityObservation{
+                        metrics_.processed_events, simulated_time_,
+                        modulation_synapse, contact.sender, neuron, polarity,
+                        local_polarity,
+                        static_cast<std::uint32_t>(records.size()),
+                        record.generation,
+                        record.expires_at >= config_.eligibility_duration
+                            ? record.expires_at - config_.eligibility_duration
+                            : 0,
+                        record.expires_at, record.strength, record.candidates,
+                        candidate, item.sender, item.effect, weight_before,
+                        item.weight, false, item.weight != weight_before});
                 }
             }
             if (config_.consume_trace_on_modulation) {
@@ -2525,7 +2585,7 @@ void Runtime::process_impulse(
     const neural::Synapse before = network_.synapse(synapse);
     if (modulation != 0) {
         ++metrics_.modulation_impulses;
-        apply_local_modulation(before.receiver, modulation);
+        apply_local_modulation(before.receiver, modulation, synapse);
         // A modulatory receptor is a third-factor contact, not an ordinary
         // excitatory membrane input.  Processing stops locally: the signal
         // cannot enter G3, create a postsynaptic trace, or fire a motor output.

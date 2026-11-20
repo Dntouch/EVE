@@ -1,0 +1,4 @@
+phase,traced_networks,observations,changed,negative_changed,negative_necessary,negative_not_necessary,negative_immediate_loss,cross_experience,multiple_same_event,active_multiple,no_motor,wrong_unique,double_motor,counterfactual_sets,networks_with_nonnecessary,networks_with_necessary_loss
+B57_discovery,24,10282,9514,4669,3740,929,228,0,0,0,4634,35,0,1901,24,24
+B57_independent_confirmation,24,10413,9715,4775,3816,959,220,0,0,0,4742,33,0,1939,24,23
+B57_timing_fixed12,24,12140,9886,4875,2140,2735,1643,0,0,0,2301,2572,2,2844,24,24

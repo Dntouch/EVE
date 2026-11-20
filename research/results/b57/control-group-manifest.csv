@@ -1,0 +1,16 @@
+group,enabled,role,optimization
+K0_B56_S4_d16,1,unchanged production reference,0
+K1_S2_R2_p50,1,recovery control,0
+K2_S5_disabled,1,disabled S4 control,0
+K3_no_learning,1,acquisition-negative control,0
+K4_natural_negative,1,unchanged negative modulation,0
+K5_neutral_modulation,1,diagnostic copy,0
+K6_single_eligibility_ablation,1,selected and remaining records,0
+K7_single_sensor_change,1,causal pre-action copy,0
+K8_combined_sensor_changes,1,all-sensor causal copy,0
+K9_multiple_eligibility,1,natural versus deduplicated copy,0
+K10_older_eligibility,1,externally labeled age control,0
+K11_inhibitory_sensor_competition,1,inhibitory causal copy,0
+K12_time_gaps,1,fixed and irregular schedules,0
+K13_candidate_rule,0,not justified,0
+K14_duplicate_rule,0,not justified,0

@@ -1,0 +1,4 @@
+candidate,authorized,evidence,decision
+new_learning_mechanism,0,diagnostic stage only,no production change
+K13_selected_credit_rule,0,requires independent causal benefit,not tested
+K14_deduplication_rule,0,requires independent causal benefit,not tested
