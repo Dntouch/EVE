@@ -1,0 +1,6 @@
+reason,observations,refractory,eligibility_created,correct_episode
+inhibition_dominant,9087,0,0,4947
+insufficient_batch_excitation,12,0,0,0
+no_effective_excitation,2168,0,0,1995
+refractory_suppression,985,985,0,0
+subthreshold_integration,3373,0,0,3122

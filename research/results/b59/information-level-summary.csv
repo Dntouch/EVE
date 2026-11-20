@@ -1,0 +1,11 @@
+phase,level,signatures,mixed_signatures,observations,mixed_observations,mixed_observation_rate
+B59_discovery,L0,29,26,8786,8580,0.976554
+B59_discovery,L1,43,35,8786,8089,0.920669
+B59_discovery,L2,54,42,8786,7992,0.909629
+B59_discovery,L3,61,47,8786,7989,0.909288
+B59_discovery,L4,61,47,8786,7989,0.909288
+B59_independent_confirmation,L0,29,26,8799,8571,0.974088
+B59_independent_confirmation,L1,41,36,8799,8095,0.919991
+B59_independent_confirmation,L2,51,43,8799,7991,0.908171
+B59_independent_confirmation,L3,59,47,8799,7963,0.904989
+B59_independent_confirmation,L4,59,47,8799,7963,0.904989

@@ -17,39 +17,38 @@ reproduzierbaren Versuchsreihen.
 
 **Stand:** 20. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.5.8 – Lernen, Nichtlernen und
-kausale Stabilität
+**Jüngste abgeschlossene Forschungsstufe:** B.5.9 – lokale neuronale
+Entscheidungsmarge und synaptische Konkurrenz
 
-**Nächster Forschungsschwerpunkt:** B.5.9 – lokal beobachtbare Kriterien für
-nützliche und schädliche positive Plastizität
+**Nächster Forschungsschwerpunkt:** B.5.10 – lokale Änderungsgeschichte
+kausal schädlicher positiver Verstärkungen
 
-B.5.8 trennt erstmals vorhandene Fähigkeit von fortlaufender
-Gewichtsänderung. Nach einer stabilen Lernphase blieb die Fähigkeit bei
-unterdrückten Plastizitätsschreibvorgängen mindestens ebenso gut erhalten wie
-bei dauerhaft aktiver Plastizität. Nach einer Umweltumkehr war die erneut
-aktivierte Plastizität dagegen notwendig. Lernen ist damit phasenabhängig
-nützlich, aber kein dauerhafter Erhaltungszwang.
+B.5.9 verbindet tatsächliche erregende und hemmende Eingänge mit der lokalen
+Feuerentscheidung, Eligibility und späterer Gewichtsänderung. Die zusätzliche
+Information verbessert die unabhängige Prognose, bleibt aber stark
+mehrdeutig. Deshalb wird keine neue Lernregel freigegeben.
 
-| B.5.8-Befund | Ergebnis |
+| B.5.9-Befund | Ergebnis |
 |---|---:|
-| exakt reproduzierte B.5.7-Referenzen | 242/384 und 254/384 |
-| B.5.8 Fest-16 Discovery | 240/384 robuste Netze |
-| unabhängige Fest-16-Bestätigung | 244/384 robuste Netze |
-| stabile Phase, aktive Plastizität | 62/96 robuste Fälle |
-| stabile Phase, Schreiben unterdrückt | 90/96 robuste Fälle |
-| Umkehr, Plastizität aktiv/unterdrückt/reaktiviert | 60/96 · 0/96 · 61/96 |
+| exakt reproduzierte B.5.7-/B.5.8-Referenzen | 242/384 · 254/384 · 240/384 · 244/384 |
+| lokale Integrations-/Nichtfeuerereignisse | 27.913 / 15.625 |
+| L0-/L4-Prognose in unabhängiger Bestätigung | 49,49 % / 53,51 % |
+| bei L4 weiterhin mehrdeutige Beobachtungen | 90,50 % |
+| einzeln kausale positive Verlustverstärkungen | 10/52 |
+| historische Fälle durch kombinierte Rücknahme wiederhergestellt | 12/12 |
+| Stabilität aktiv/Schreiben unterdrückt | 62/96 · 90/96 robuste Fälle |
+| Umkehr aktiv/unterdrückt/reaktiviert | 60/96 · 0/96 · 61/96 |
 
-Positive Änderungen waren unmittelbar teils nützlich und teils schädlich;
-die beobachtbaren lokalen Signaturen trennten diese globalen Folgen nicht
-eindeutig. Daher wurde keine neue Lernregel freigegeben. Der neue Schreib-Gate
-dient nur der Kausaldiagnostik, ist standardmäßig aus und ändert weder die
-Modulationsroute noch die Eligibility-Verarbeitung. S4 bleibt ebenfalls
+Die lokale Entscheidungsmarge erklärt Feuerung und Nichtfeuern exakt, aber
+nicht den globalen Nutzen. In den zwölf historischen Fällen ist positive
+Konkurrenz nun bis auf zehn einzelne kausale Verstärkungen eingegrenzt. Der
+diagnostische Rollback ist keine neuronale Regel. Schreib-Gate und S4 bleiben
 standardmäßig deaktiviert.
 
-- [Forschungsbericht B.5.8](docs/experimente/032-forschungsbericht-forschungsstufe-b58.md)
-- [Technische Kausalanalyse B.5.8](docs/experimente/032-technische-kausalanalyse-lernen-und-nichtlernen.md)
-- [Architekturentscheidung 0030](docs/entscheidungen/0030-b58-faehigkeitserhalt-ist-nicht-dauerplastizitaet.md)
-- [Entscheidungsvorlage B.5.9](docs/experimente/032-entscheidungsvorlage-forschungsstufe-b59.md)
+- [Forschungsbericht B.5.9](docs/experimente/033-forschungsbericht-forschungsstufe-b59.md)
+- [Technische Kausalanalyse B.5.9](docs/experimente/033-technische-kausalanalyse-lokale-entscheidungsspielraeume.md)
+- [Architekturentscheidung 0031](docs/entscheidungen/0031-b59-lokale-integration-verbessert-diagnose-nicht-regelfreigabe.md)
+- [Entscheidungsvorlage B.5.10](docs/experimente/033-entscheidungsvorlage-forschungsstufe-b510.md)
 
 EVE ist weder eine fertige allgemeine Intelligenz noch ein Nachweis von
 Bewusstsein oder bereits entstandener eigenständiger Intelligenz. Der Prototyp
@@ -70,7 +69,7 @@ prüfen und auch negative Ergebnisse nachvollziehbar festzuhalten.
 - konfigurierbare Aktivitätsregulation und strukturelles Wachstum,
 - versionierte Speicherung und Wiederherstellung vollständiger Zustände,
 - Diagnostik, Ereignisprotokolle und Zustandsfingerabdrücke,
-- 665 automatisierte Kerntests und reproduzierbare Forschungsrunner.
+- 696 automatisierte Kerntests und reproduzierbare Forschungsrunner.
 
 Die Forschungsvarianten aktivieren bewusst nur ausgewählte Mechanismen. Lernen,
 inhibitorische Plastizität, Wachstum und S4 sind keine pauschal eingeschalteten
@@ -109,7 +108,8 @@ nicht der dauerhaft robuste Erhalt mehrerer konkurrierender Beziehungen.
 | B.5.6 | Restfehler unter S4-d16 | sensorische Gewichtsverluste dominieren |
 | B.5.7 | kausale sensorische Kreditzuordnung | zeitlich korrekt, kausal mehrdeutig |
 | B.5.8 | Lernen, Nichtlernen und kausale Stabilität | Fähigkeitserhalt braucht keine Dauerplastizität; Umlernen schon |
-| B.5.9 | lokale Wirkung positiver Plastizität | als nächste Grundlagenforschung empfohlen |
+| B.5.9 | lokale Entscheidungsmarge und positive Konkurrenz | Diagnose verbessert; zehn kausale Verlustverstärkungen; keine neue Regel |
+| B.5.10 | lokale Änderungsgeschichte | als nächste Kausalforschung empfohlen |
 
 Alle Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen im
 [Experimentverzeichnis](docs/experimente/README.md). Maschinenlesbare
@@ -152,11 +152,11 @@ ctest --test-dir _build/cmake --output-on-failure
 
 ## Jüngste Forschung reproduzieren
 
-Der B.5.8-Runner baut die benötigten Programme, führt die Kerntests aus und
+Der B.5.9-Runner baut die benötigten Programme, führt die Kerntests aus und
 erzeugt die vollständige Versuchsmatrix neu:
 
 ```sh
-./scripts/run-research-stage-b58.sh research/results/b58
+./scripts/run-research-stage-b59.sh research/results/b59
 ```
 
 Der Lauf verarbeitet 4.224 zentrale Netze sowie die kausalen Zustandskopien. Große

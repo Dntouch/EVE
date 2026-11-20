@@ -30,6 +30,7 @@ Dieser Ordner enthält bestätigte Entscheidungen zum Projekt sowie eine optiona
 | [0028](0028-b56-lokalisiert-restfehler-auf-sensorische-gewichtsverluste.md) | B.5.6 lokalisiert den dominanten Restfehler auf sensorische Gewichtsverluste; eine neue Regel bleibt bis zur Ereigniskausalität in B.5.7 gesperrt. |
 | [0029](0029-b57-lokale-kreditzuordnung-ist-nicht-eindeutig.md) | B.5.7 trennt zeitliche Eligibility von kausaler Notwendigkeit; die lokale Kreditzuordnung bleibt für eine neue Regel zu mehrdeutig. |
 | [0030](0030-b58-faehigkeitserhalt-ist-nicht-dauerplastizitaet.md) | B.5.8 zeigt, dass Fähigkeitserhalt keine dauernde Plastizität verlangt, Umweltanpassung aber erneutes Lernen benötigt. |
+| [0031](0031-b59-lokale-integration-verbessert-diagnose-nicht-regelfreigabe.md) | B.5.9 integriert die lokale Entscheidungsdiagnose, gibt wegen fortbestehender Mehrdeutigkeit aber keine neue Lernregel frei. |
 
 Nummer 0002 dokumentiert den anfänglich offenen Technologie-Stack historisch;
 sie ist keine aktuelle Architektursperre. Die Nummern 0004 bis 0010 sind

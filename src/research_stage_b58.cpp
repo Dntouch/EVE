@@ -910,6 +910,7 @@ void b58_summarize_results(const std::filesystem::path& output) {
 
 }  // namespace
 
+#ifndef EVE_RESEARCH_STAGE_B58_EMBEDDED
 int main(int argc, char** argv) {
     const auto output = argc > 1
         ? std::filesystem::path(argv[1])
@@ -1095,3 +1096,4 @@ int main(int argc, char** argv) {
               << sources.size() << " wall=" << wall << "s\n";
     return 0;
 }
+#endif

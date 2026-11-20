@@ -1,0 +1,24 @@
+group,description,implemented,production_enabled
+K0,unchanged B58 reference,1,0
+K1,B58 local signature L0,1,0
+K2,extended input information L1,1,0
+K3,decision margin L2,1,0
+K4,temporal information L3,1,0
+K5,competition information L4,1,0
+K6,single excitatory ablation,1,0
+K7,single inhibitory ablation,1,0
+K8,combined ablation,1,0
+K9,positive weight event,1,0
+K10,negative weight event,1,0
+K11,no-write diagnosis,1,0
+K12,nonfire diagnosis,1,0
+K13,active stable continuation,1,0
+K14,diagnostic write gate,1,0
+K15,active reversal,1,0
+K16,suppressed reversal,1,0
+K17,reactivated reversal,1,0
+K18,time schedules,1,0
+K19,twelve historical cases,1,0
+K20,no learning,1,0
+K21,new local rule,0,0
+K22,disabled K21 control,0,0

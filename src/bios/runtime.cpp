@@ -553,10 +553,28 @@ brainstem::ImpulseBatchResult Runtime::process_simultaneous_impulses(
                 result.applied_weight, result.effect, membrane_before,
                 batch.membrane_after, refractory_before,
                 network_.neuron(receiver).refractory_events_remaining,
-                result.fired, result.firing_suppressed, false, 0, false,
+                batch.fired, batch.firing_suppressed, false, 0, false,
                 network_.local_event_memory(receiver),
                 result.fired ? eligibility.generation : 0,
                 result.fired ? eligibility.candidates : std::vector<SynapseId>{},
+                batch.synapses,
+                [&batch] {
+                    std::vector<std::int32_t> weights;
+                    weights.reserve(batch.impulses.size());
+                    for (const auto& impulse : batch.impulses) {
+                        weights.push_back(impulse.applied_weight);
+                    }
+                    return weights;
+                }(),
+                batch.excitatory_contribution,
+                batch.inhibitory_contribution,
+                batch.excitatory_contribution - batch.inhibitory_contribution,
+                batch.membrane_at_decision,
+                batch.firing_threshold,
+                batch.decision_margin,
+                batch.refractory_before != 0,
+                batch.synapses.size() > 1,
+                static_cast<std::uint32_t>(index),
             });
         }
     }
@@ -2828,6 +2846,19 @@ void Runtime::process_impulse(
             network_.local_event_memory(before.receiver),
             eligibility.generation,
             eligibility.candidates,
+            std::vector<SynapseId>{synapse},
+            std::vector<std::int32_t>{result.applied_weight},
+            result.effect == SynapticEffect::excitatory
+                ? static_cast<std::int64_t>(result.applied_weight) : 0,
+            result.effect == SynapticEffect::inhibitory
+                ? -static_cast<std::int64_t>(result.applied_weight) : 0,
+            static_cast<std::int64_t>(result.applied_weight),
+            result.membrane_at_decision,
+            result.firing_threshold,
+            result.decision_margin,
+            result.refractory_before != 0,
+            false,
+            0,
         });
     }
 

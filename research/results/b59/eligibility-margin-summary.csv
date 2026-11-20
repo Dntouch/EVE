@@ -1,0 +1,5 @@
+polarity,margin_bin,observations,changed,immediate_beneficial,immediate_harmful,immediate_neutral,later_changed
+-1,positive,1521,1268,680,0,356,485
+-1,zero,1967,1216,638,0,620,709
+1,positive,5920,1412,744,1503,1939,1734
+1,zero,8177,1055,618,1657,3231,2671

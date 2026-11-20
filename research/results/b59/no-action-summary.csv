@@ -1,0 +1,5 @@
+intervention,cases,correct_after_intervention,valid
+baseline,96,0,1
+combined,96,0,1
+no_inhibition,96,0,1
+zero_decision_membrane,96,0,1

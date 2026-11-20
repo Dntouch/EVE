@@ -1,0 +1,8 @@
+copy,motor_class,experiences
+P0,M0_correct_autonomous,38827
+P0,M1_wrong_autonomous,5
+P0,M2_successful_exploration,1273
+P0,M3_unsuccessful_exploration,9047
+P1,M0_correct_autonomous,47595
+P1,M2_successful_exploration,793
+P1,M3_unsuccessful_exploration,764

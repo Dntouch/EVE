@@ -1,0 +1,6 @@
+comparison,estimate,ci_low,ci_high,cluster_unit
+stable_P1_minus_P0,0.116078,0.030933,0.18322,seed
+reversal_P2_minus_P3,0.826778,0.769169,0.880707,seed
+reversal_P4_minus_P3,0.817889,0.752899,0.873822,seed
+reversal_P4_minus_P2,-0.00888813,-0.0908288,0.0745924,seed
+L4_minus_L0_confirmation_accuracy,0.0422866,0.0277811,0.0590917,seed
