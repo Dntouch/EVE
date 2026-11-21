@@ -1,0 +1,11 @@
+criterion,passed,evidence
+shared_element_environment,1,task-definition.csv
+sequential_and_mixed_learning,1,network-results.csv.gz
+separate_V1_to_V10,1,v1-v10-dimensions.csv.gz
+complete_response_matrices,1,response-matrix.csv.gz
+causal_reuse_checks,1,causal-ablations.csv
+isolated_reorganization_writes,1,productive-reorganization.csv
+R0_R2_S4_same_tasks,1,aggregate-statistics.csv
+independent_confirmation,1,sampling-plan.csv
+pending_event_persistence,1,persistence.csv
+new_rule_not_released,1,mechanism-decision.csv

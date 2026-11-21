@@ -1,0 +1,30 @@
+group,description,implemented
+K0,historical X/Y reference,1
+K1,A only,1
+K2,B only,1
+K3,A then B,1
+K4,B then A,1
+K5,A then B then A,1
+K6,A then B then mixed,1
+K7,alternating,1
+K8,random mixed,1
+K9,independent elements,1
+K10,shared elements,1
+K11,C transfer,1
+K12,equal independent prefix,1
+K13,active common paths,1
+K14,single ablation,1
+K15,combined ablation,1
+K16,natural reorganization trajectory,1
+K17,isolated write omission through B510 interceptor,1
+K18,R0,1
+K19,R2-50,1
+K20,S4-d16,1
+K21,fixed topology,1
+K22,64-neuron capacity without target wiring,1
+K23,structural plasticity,0
+K24,no learning,1
+K25,diagnostic frozen writes,1
+K26,reactivated plasticity,1
+K27,historical E1/E2,1
+K28,context and sequence matrix,1

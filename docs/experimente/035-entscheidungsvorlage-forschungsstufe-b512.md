@@ -1,0 +1,60 @@
+# Entscheidungsvorlage – Forschungsstufe B.5.12
+
+## Empfohlene Forschungsfrage
+
+Welche direkt lokalen zeitlichen Zustände binden den gemeinsamen Präfix P an
+das spätere Element Q oder R, und warum erzeugt die bestehende Plastizität
+vorzeitige oder kontextfalsche Motorhandlungen?
+
+## Begründung
+
+B.5.11 zeigt unter strenger Zeitbewertung eine bestätigte Lücke zwischen
+geteilten und unabhängigen Folgen. Kein untersuchter Ablauf integriert A und B
+robust; zusätzliche unverdrahtete Neuronen helfen nicht. R2 und S4 erhöhen
+das mittlere Repertoire, lösen die Aufgabe aber nicht. Von 60 isolierten
+B-Schreibinterventionen sind zehn langfristig produktiv, zwölf schädlich und
+38 unentschieden. Zudem verhindert W1 nur 27 von 58 unmittelbaren
+A-Beeinträchtigungen; 31 Beeinträchtigungen fallen lediglich mit der
+ausgewählten Änderung zusammen.
+
+Die korrigierte Explorationswertung bestätigt außerdem, dass ein geplanter
+Explorationsschritt keine ausgeführte Handlung ist. Nur beobachtete korrekte
+Motoraktivität darf positive Modulation auslösen. Dadurch ändern sich R2- und
+S4-Verläufe, nicht aber die R0-Hauptaussage oder die historische Reproduktion.
+
+Der nächste Schritt sollte daher keinen Schreibselektor optimieren. Er sollte
+am Übergang zwischen P und Q/R untersuchen, welche lokalen Eligibility-,
+Membran-, Konkurrenz- und Modulationszustände eine vollständige Folge von
+einem vorzeitigen Teilmuster unterscheiden.
+
+## Mindestumfang
+
+- vorab festgelegte Elementabstände und Blockgrößen,
+- identische Seeds, Zuordnungen, Aufgaben und Erfahrungsmengen,
+- vollständige zeitliche Zustandskopien vor kritischen Übergängen,
+- W0/W1/W2-Gegenproben für produktive, schädliche und unentschiedene
+  Kandidaten sowie getrennte Koinzidenzkennzeichnung,
+- getrennte A-/B-Antwortmatrizen, Retention und Wiedererwerb,
+- Prüfung, ob ein lokal vorhandener Kontextzustand kausal trägt, ohne
+  Aufgabenlabel oder globale Phasenkennung,
+- unabhängige Bestätigung und unveränderte No-Learning-, R0-, R2- und
+  S4-Kontrollen,
+- keine Regelaktivierung allein wegen Korrelation oder Klassifikation,
+- Bewertung ausschließlich tatsächlich beobachteter Motoraktivität.
+
+## Nicht freigegeben
+
+- neue Eligibility- oder Schreibregel,
+- technisches A/B-Kontextlabel,
+- globaler Phasenschalter oder Reset,
+- automatische Gewichtsstabilisierung,
+- strukturelle Plastizität als pauschale Kapazitätslösung,
+- S4 als Produktionsstandard.
+
+## Entscheidung
+
+**B.5.12 durchführen: Ja – als kausale Analyse lokaler zeitlicher
+Kreditbindung und vorzeitiger Ausgabe in geteilten Folgen.**
+
+Eine neue neuronale Produktionsfunktion bleibt bis zu einem reproduzierten
+lokalen Kausalnachweis gesperrt.

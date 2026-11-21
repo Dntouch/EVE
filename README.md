@@ -15,42 +15,44 @@ reproduzierbaren Versuchsreihen.
 
 ## Projektstatus
 
-**Stand:** 20. November 2026
+**Stand:** 21. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.5.10 – prospektive Kausalität
-einzelner synaptischer Schreibereignisse
+**Jüngste abgeschlossene Forschungsstufe:** B.5.11 – neuronale Repräsentation,
+Lerninterferenz und Bewertungsvalidität
 
-**Nächster Forschungsschwerpunkt:** B.5.11 – präregistrierte aktive Prüfung
-eines minimalen lokalen Schreibselektors
+**Nächster Forschungsschwerpunkt:** B.5.12 – lokale zeitliche Kreditbindung
+und vorzeitige Ausgabe in geteilten Folgen
 
-B.5.10 isoliert eine einzelne konkrete Gewichtsoperation im normalen
-Modulationsweg. Historische Verlustverstärkungen werden auf konkrete
-Schreibschritte zurückgeführt; neue Ereignisse werden vor Kenntnis ihrer
-Folgewirkung ausgewählt und bis zu 128 Erfahrungen natürlich fortgesetzt.
-Die Kausaldiagnose ist belastbar, eine neue Lernregel jedoch nicht freigegeben.
+B.5.11 führt eine zeitliche Mehrfachlernaufgabe mit geteilten sensorischen
+Bestandteilen sowie zehn getrennte Bewertungsdimensionen ein. Unter strenger
+Zeitbewertung bleiben geteilte Aufgaben deutlich hinter unabhängigen Pfaden;
+vorzeitige Ausgaben sind ein zentraler Teil der Interferenz. Einzelne zunächst
+beeinträchtigende Schreibungen können später produktiv, schädlich oder
+unentschieden sein. Eine neue Lernregel wird nicht
+freigegeben.
 
-| B.5.10-Befund | Ergebnis |
+| B.5.11-Befund | Ergebnis |
 |---|---:|
 | exakt reproduzierte B.5.7-/B.5.8-Referenzen | 242/384 · 254/384 · 240/384 · 244/384 |
-| neue Discovery-/Bestätigungspopulation | 384 / 384 Netze |
-| prospektive Einzelereignisse | 119 |
-| erregende / inhibitorische Ereignisse | 77 / 42 |
-| unmittelbar notwendig / zunächst neutral | 21 / 98 |
-| später nützlich / später schädlich / weiter neutral | 3 / 11 / 84 |
-| historische Problemverbindungen / konkrete Schritte | 10 / 13 |
-| kombinierte historische Erhaltung | 12/12 |
-| Regressionstests | 726/726 |
+| zusammengefasste Netzläufe | 14.592 |
+| geteiltes A→B-Repertoire Discovery / Bestätigung | 0,859 / 0,901 |
+| gemischtes R0-Repertoire Discovery / Bestätigung | 0,797 / 0,891 |
+| unabhängiges A→B-Repertoire Discovery / Bestätigung | 1,490 / 1,464 |
+| produktive / schädliche / unentschiedene Detailereignisse | 10 / 12 / 38 |
+| W1 verhindert / verhindert nicht die unmittelbare A-Beeinträchtigung | 27 / 31 |
+| ausstehendes S4-Ereignis nach Laden korrekt fortgesetzt | 1/1 |
+| Regressionstests | 761/761 |
 
-Das Auslassen genau einer Operation erhält Eligibility-Verbrauch und weitere
-Schreibungen desselben Kontakts. 21 notwendige Erwerbs- und Umkehrschritte
-zeigen zugleich, warum eine pauschale Stabilisierung Lernen beschädigen würde.
-Extern rekonstruierte Historien sind kein lokaler Zustand und generalisieren
-schlechter. Schreib-Gate und S4 bleiben standardmäßig deaktiviert.
+Geteilte Elemente erschweren den zeitlich gültigen Abruf gegenüber der
+unabhängigen Kontrolle. C zeigt negativen Transfer. R2 und S4 erhöhen das
+mittlere Repertoire, lösen die Integration aber nicht robust. Schreib-Gate,
+strukturelles Wachstum und S4 bleiben standardmäßig deaktiviert.
 
-- [Forschungsbericht B.5.10](docs/experimente/034-forschungsbericht-forschungsstufe-b510.md)
-- [Technische Kausalanalyse B.5.10](docs/experimente/034-technische-kausalanalyse-einzelne-schreibereignisse.md)
-- [Architekturentscheidung 0032](docs/entscheidungen/0032-b510-einzelne-schreibkausalitaet-ohne-regelfreigabe.md)
-- [Entscheidungsvorlage B.5.11](docs/experimente/034-entscheidungsvorlage-forschungsstufe-b511.md)
+- [Forschungsbericht B.5.11](docs/experimente/035-forschungsbericht-forschungsstufe-b511.md)
+- [Technische Repräsentationsanalyse](docs/experimente/035-technische-analyse-neuronale-repraesentation.md)
+- [Methodische Neubewertung B.5.3–B.5.10](docs/experimente/035-methodische-neubewertung-b53-b510.md)
+- [Architekturentscheidung 0033](docs/entscheidungen/0033-b511-faehigkeit-ist-keine-unveraenderliche-synapse.md)
+- [Entscheidungsvorlage B.5.12](docs/experimente/035-entscheidungsvorlage-forschungsstufe-b512.md)
 
 EVE ist weder eine fertige allgemeine Intelligenz noch ein Nachweis von
 Bewusstsein oder bereits entstandener eigenständiger Intelligenz. Der Prototyp
@@ -71,7 +73,7 @@ prüfen und auch negative Ergebnisse nachvollziehbar festzuhalten.
 - konfigurierbare Aktivitätsregulation und strukturelles Wachstum,
 - versionierte Speicherung und Wiederherstellung vollständiger Zustände,
 - Diagnostik, Ereignisprotokolle und Zustandsfingerabdrücke,
-- 726 automatisierte Kerntests und reproduzierbare Forschungsrunner.
+- 761 automatisierte Kerntests und reproduzierbare Forschungsrunner.
 
 Die Forschungsvarianten aktivieren bewusst nur ausgewählte Mechanismen. Lernen,
 inhibitorische Plastizität, Wachstum und S4 sind keine pauschal eingeschalteten
@@ -112,7 +114,8 @@ nicht der dauerhaft robuste Erhalt mehrerer konkurrierender Beziehungen.
 | B.5.8 | Lernen, Nichtlernen und kausale Stabilität | Fähigkeitserhalt braucht keine Dauerplastizität; Umlernen schon |
 | B.5.9 | lokale Entscheidungsmarge und positive Konkurrenz | Diagnose verbessert; zehn kausale Verlustverstärkungen; keine neue Regel |
 | B.5.10 | einzelne Schreibkausalität und lokale Vorgeschichte | 13 historische Schritte kausal; 119 neue Ereignisse; keine neue Regel |
-| B.5.11 | minimaler lokaler Schreibselektor | als präregistrierte aktive Kausalprüfung empfohlen |
+| B.5.11 | gemeinsame Repräsentation und Bewertungsvalidität | strenge Zeitwertung zeigt Interferenz, negativen Transfer und produktive Einzelfälle |
+| B.5.12 | lokale Kreditbindung in geteilten Folgen | als nächste Kausalanalyse empfohlen |
 
 Alle Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen im
 [Experimentverzeichnis](docs/experimente/README.md). Maschinenlesbare
@@ -155,19 +158,19 @@ ctest --test-dir _build/cmake --output-on-failure
 
 ## Jüngste Forschung reproduzieren
 
-Der B.5.10-Runner baut die benötigten Programme, führt die Kerntests aus und
-erzeugt die vollständige Versuchsmatrix neu:
+Der B.5.11-Runner baut die benötigten Programme, führt die Kerntests aus und
+erzeugt historische Reproduktion, Mehrfachlern-, Transfer-, Membran- und
+Kausalmatrix neu:
 
 ```sh
-./scripts/run-research-stage-b510.sh research/results/b510
+./scripts/run-research-stage-b511.sh research/results/b511
 ```
 
-Der Lauf verarbeitet die Referenz-, neuen Seed- und Zeitpopulationen sowie
-die kausalen Zustandskopien. Große
-Ereignistabellen werden deterministisch als gzip-Dateien gespeichert. Laufzeit
-und Speicherwerte sind maschinenabhängig; Ereignisfolgen, neuronale Zustände
-und Fingerabdrücke sind bei identischem Build, Seed und Eingabestrom
-deterministisch.
+Der Lauf verarbeitet 64 Seeds je Familie und Zuordnung in getrennten
+Discovery-/Bestätigungsbereichen. Große Tabellen werden deterministisch als
+gzip-Dateien gespeichert. Laufzeit und Speicherwerte sind maschinenabhängig;
+Ereignisfolgen, neuronale Zustände und Fingerabdrücke sind bei identischem
+Build, Seed und Eingabestrom deterministisch.
 
 Runner älterer Forschungsstufen und die Bedeutung der Ergebnisdateien sind in
 der [Forschungsdaten-Dokumentation](research/README.md) beschrieben.

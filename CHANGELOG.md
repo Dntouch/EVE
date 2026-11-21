@@ -80,8 +80,17 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
   Gewichtsoperationen, isolierter Einzel-Schreibunterdrückung, W0–W4-Kopien,
   historischen Ereignisketten und prospektiven natürlichen Fortsetzungen.
 - 30 zusätzliche B.5.10-Prüfungen; insgesamt 726/726 bestandene Kerntests.
+- Forschungsstufe B.5.11 mit zeitlichen Aufgaben aus geteilten sensorischen
+  Elementen, getrennten V1–V10-Maßen, Kontextmatrizen, Transfer zu C,
+  Pfadablationen und isolierten W0/W1/W2-Reorganisationsgegenproben.
+- 35 zusätzliche B.5.11-Prüfungen; insgesamt 761/761 bestandene Kerntests.
 
 ### Geändert
+
+- B.5.11 bewertet Exploration ausschließlich anhand tatsächlich beobachteter
+  Motoraktivität und trennt Reorganisation in 10 produktive, 12 schädliche
+  und 38 unentschiedene W0/W1-Verläufe; Gleichstände gelten nicht mehr als
+  Schaden.
 
 - Der offizielle Projektname wurde von „EVE – Emergent Virtual Evolution“ auf
   „EVE“ verkürzt.

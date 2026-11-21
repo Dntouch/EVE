@@ -1,0 +1,5 @@
+phase,seeds,families,assignments,primary_conditions,episodes,selection
+discovery,90001..90064,3,2,9,192,predeclared
+confirmation,100001..100064,3,2,9,192,frozen from discovery
+transfer_discovery,90001..90064,3,2,5,64 plus controlled prefix,predeclared
+transfer_confirmation,100001..100064,3,2,5,64 plus controlled prefix,independent

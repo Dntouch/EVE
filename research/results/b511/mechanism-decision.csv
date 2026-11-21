@@ -1,0 +1,6 @@
+candidate,authorized,decision
+new_learning_rule,0,not part of B511
+automatic_representation_labels,0,forbidden
+isolated_write_interceptor,1,diagnostic only
+structural_plasticity,0,fixed-topology limit not yet causal justification
+S4_default,0,remains experimental and disabled by default
