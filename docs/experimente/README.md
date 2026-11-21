@@ -100,6 +100,13 @@ angepasst werden.
 - [Technische Architekturanalyse B.5.13](037-technische-architekturanalyse-rekrutierbarkeit.md)
 - [Bericht B.5.13](037-forschungsbericht-forschungsstufe-b513.md)
 - [Entscheidungsvorlage Forschungsphase C](037-entscheidungsvorlage-forschungsphase-c.md)
+- [Auftrag C.0](038-entwicklungsauftrag-forschungsphase-c0.md)
+- [C.0-Schutzvertrag](038-schutzvertrag-autonome-strukturbildung.md)
+- [Technische Analyse autonome Exploration](038-technische-analyse-autonome-exploration.md)
+- [Technische Analyse natürliche Funktionsbildung](038-technische-analyse-natuerliche-funktionsbildung.md)
+- [Wissenschaftliche Analyse C.0](038-wissenschaftliche-analyse-c0.md)
+- [Bericht C.0](038-forschungsbericht-forschungsphase-c0.md)
+- [Entscheidungsvorlage C.1](038-entscheidungsvorlage-forschungsphase-c1.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
@@ -227,3 +234,13 @@ Aufgaben entsteht kein unabhängig bestätigter Vorteil größerer Netze. Growth
 trifft außerdem in 221 von 3.840 Fällen geschützte Schnittstellenziele. Die
 Forschungsgrundlagen sind integrierbar, eine Produktionsaktivierung bleibt bis
 zu einer geschützten autonomen Forschungsphase C gesperrt.
+
+C.0 schließt diese Schutzlücke mit semantischen Rollen und einer expliziten
+Growth-Richtungsmatrix. 166.261 natürliche Growth-Ereignisse blieben in 12.800
+zentralen Läufen vollständig innerhalb des Vertrags. Die interne Exploration
+wird erstmals ausschließlich durch lokale neuronale Aktivität ausgelöst.
+Ohne Hilfskoinzidenz und ohne Growth-begründete positive Modulation erreichten
+19 Verbindungen S3 und bestanden W1 kausal; acht replizierten. Alle gingen
+jedoch in der nächsten Erfahrung wieder verloren, und K3 verbessert K0 nicht.
+Schutz, autonome Struktur und seltene natürliche Funktion sind bestätigt;
+Stabilität und Lernvorteil bleiben offen.

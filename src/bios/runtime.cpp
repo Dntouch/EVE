@@ -13,9 +13,10 @@ namespace eve::bios {
 namespace {
 
 constexpr std::array<char, 8> kPersistenceMagic{{'E', 'V', 'E', '0', '0', '1', '\r', '\n'}};
-constexpr std::uint32_t kPersistenceVersion = 15;
+constexpr std::uint32_t kPersistenceVersion = 16;
 constexpr std::uint64_t kNonZeroRngState = 0x9e3779b97f4a7c15ULL;
 constexpr std::uint64_t kGrowthSeedMask = 0xd1b54a32d192ed03ULL;
+constexpr std::uint64_t kExplorationSeedMask = 0x94d049bb133111ebULL;
 constexpr std::uint64_t kFnvPrime = 1099511628211ULL;
 
 void write_bytes(std::ostream& stream, const char* data, const std::size_t size) {
@@ -460,7 +461,8 @@ void DeterministicRng::set_state(const std::uint64_t state) {
 }
 
 Runtime::Runtime(ExperimentConfig config, const std::uint64_t seed)
-    : config_(std::move(config)), rng_(seed), growth_rng_(seed ^ kGrowthSeedMask) {
+    : config_(std::move(config)), rng_(seed), growth_rng_(seed ^ kGrowthSeedMask),
+      exploration_rng_(seed ^ kExplorationSeedMask) {
     validate_config();
     brainstem_.initialize_network(network_, config_, rng_);
 }
@@ -469,7 +471,8 @@ Runtime::Runtime(
     ExperimentConfig config,
     const std::uint64_t seed,
     SkipInitializationTag)
-    : config_(std::move(config)), rng_(seed), growth_rng_(seed ^ kGrowthSeedMask) {
+    : config_(std::move(config)), rng_(seed), growth_rng_(seed ^ kGrowthSeedMask),
+      exploration_rng_(seed ^ kExplorationSeedMask) {
     validate_config();
 }
 
@@ -835,6 +838,55 @@ std::vector<NeuronId> Runtime::exploration_reservations() const {
     std::sort(reserved.begin(), reserved.end());
     reserved.erase(std::unique(reserved.begin(), reserved.end()), reserved.end());
     return reserved;
+}
+
+void Runtime::configure_structural_protection(
+    const brainstem::StructuralProtectionContract& contract) {
+    if (contract.enabled &&
+        contract.neuron_roles.size() != network_.neuron_count()) {
+        throw std::invalid_argument(
+            "structural protection must classify every neuron");
+    }
+    for (const auto role : contract.neuron_roles) {
+        if (static_cast<std::uint8_t>(role) >
+            static_cast<std::uint8_t>(brainstem::StructuralRole::transition_contact)) {
+            throw std::invalid_argument("invalid structural neuron role");
+        }
+    }
+    structural_protection_ = contract;
+}
+
+const brainstem::StructuralProtectionContract&
+Runtime::structural_protection() const noexcept {
+    return structural_protection_;
+}
+
+void Runtime::configure_autonomous_exploration(
+    const brainstem::AutonomousExplorationConfig& config) {
+    if (config.enabled && config.trigger_probability_denominator == 0) {
+        throw std::invalid_argument(
+            "autonomous exploration trigger denominator must be positive");
+    }
+    autonomous_exploration_ = config;
+    autonomous_exploration_remaining_ = config.activation_budget;
+    exploration_rng_ = DeterministicRng(config.seed);
+}
+
+void Runtime::set_autonomous_exploration_enabled(const bool enabled) noexcept {
+    autonomous_exploration_.enabled = enabled;
+}
+
+const brainstem::AutonomousExplorationConfig&
+Runtime::autonomous_exploration_config() const noexcept {
+    return autonomous_exploration_;
+}
+
+std::uint32_t Runtime::autonomous_exploration_remaining() const noexcept {
+    return autonomous_exploration_remaining_;
+}
+
+std::uint64_t Runtime::autonomous_exploration_activations() const noexcept {
+    return autonomous_exploration_activations_;
 }
 
 brainstem::MotorCircuitResult Runtime::configure_motor_circuit(
@@ -1625,7 +1677,9 @@ Diagnostics Runtime::diagnostics() const {
     result.estimated_memory_bytes = sizeof(*this) + network_.estimated_memory_bytes() -
                                     sizeof(neural::Network) +
                                     queue_.size() * sizeof(Event) +
-                                    motor_output_.estimated_memory_bytes();
+                                    motor_output_.estimated_memory_bytes() +
+                                    structural_protection_.neuron_roles.capacity() *
+                                        sizeof(brainstem::StructuralRole);
     result.queued_events = queue_.size();
     result.ready_events = static_cast<std::size_t>(std::count_if(
         queue_.begin(), queue_.end(),
@@ -1642,6 +1696,30 @@ std::uint64_t Runtime::state_fingerprint() const noexcept {
     std::uint64_t hash = network_.state_fingerprint();
     mix_hash(hash, rng_.state());
     if (config_.growth_enabled) mix_hash(hash, growth_rng_.state());
+    if (structural_protection_.enabled ||
+        !structural_protection_.neuron_roles.empty()) {
+        mix_hash(hash, 0xC000ULL);
+        for (const auto role : structural_protection_.neuron_roles) {
+            mix_hash(hash, static_cast<std::uint8_t>(role));
+        }
+        for (const auto& row : structural_protection_.allowed_connections) {
+            for (const bool value : row) mix_hash(hash, value ? 1 : 0);
+        }
+    }
+    if (autonomous_exploration_.enabled ||
+        autonomous_exploration_.activation_budget != 0 ||
+        autonomous_exploration_activations_ != 0) {
+        mix_hash(hash, 0xC001ULL);
+        mix_hash(hash, autonomous_exploration_.enabled ? 1 : 0);
+        mix_hash(hash, autonomous_exploration_.activation_budget);
+        mix_hash(hash, autonomous_exploration_.trigger_probability_denominator);
+        mix_hash(hash, autonomous_exploration_.maximum_sender_outgoing);
+        mix_hash(hash, autonomous_exploration_.local_radius);
+        mix_hash(hash, autonomous_exploration_.seed);
+        mix_hash(hash, exploration_rng_.state());
+        mix_hash(hash, autonomous_exploration_remaining_);
+        mix_hash(hash, autonomous_exploration_activations_);
+    }
     mix_hash(hash, config_.neuron_count);
     mix_hash(hash, config_.width);
     mix_hash(hash, config_.height);
@@ -1930,6 +2008,24 @@ void Runtime::save(const std::string& path) const {
         write_u32(stream, evaluation_route_.added_synapses);
         write_u32(stream, evaluation_route_.adjusted_synapses);
     }
+    write_u8(stream, structural_protection_.enabled ? 1 : 0);
+    write_u32(stream, static_cast<std::uint32_t>(
+        structural_protection_.neuron_roles.size()));
+    for (const auto role : structural_protection_.neuron_roles) {
+        write_u8(stream, static_cast<std::uint8_t>(role));
+    }
+    for (const auto& row : structural_protection_.allowed_connections) {
+        for (const bool value : row) write_u8(stream, value ? 1 : 0);
+    }
+    write_u8(stream, autonomous_exploration_.enabled ? 1 : 0);
+    write_u32(stream, autonomous_exploration_.activation_budget);
+    write_u32(stream, autonomous_exploration_.trigger_probability_denominator);
+    write_u32(stream, autonomous_exploration_.maximum_sender_outgoing);
+    write_u32(stream, autonomous_exploration_.local_radius);
+    write_u64(stream, autonomous_exploration_.seed);
+    write_u64(stream, exploration_rng_.state());
+    write_u32(stream, autonomous_exploration_remaining_);
+    write_u64(stream, autonomous_exploration_activations_);
     stream.flush();
     if (!stream) {
         throw std::runtime_error("failed to finish writing EVE state: " + path);
@@ -2147,7 +2243,9 @@ Runtime Runtime::load(const std::string& path) {
     }
     for (std::uint64_t index = 0; index < queue_size; ++index) {
         const std::uint8_t kind_value = read_u8(stream);
-        const std::uint8_t maximum_kind = version >= 14
+        const std::uint8_t maximum_kind = version >= 16
+            ? static_cast<std::uint8_t>(EventKind::internal_exploration_fire)
+            : version >= 14
             ? static_cast<std::uint8_t>(EventKind::subthreshold_relaxation)
             : version >= 9
             ? static_cast<std::uint8_t>(EventKind::eligibility_decay)
@@ -2183,7 +2281,8 @@ Runtime Runtime::load(const std::string& path) {
             event.sequence = runtime.next_event_sequence_++;
         }
         if (event.kind == EventKind::fire || event.kind == EventKind::feedback_fire ||
-            event.kind == EventKind::modulation_fire) {
+            event.kind == EventKind::modulation_fire ||
+            event.kind == EventKind::internal_exploration_fire) {
             static_cast<void>(runtime.network_.neuron(event.target));
         } else if (event.kind == EventKind::impulse ||
                    event.kind == EventKind::feedback_impulse ||
@@ -2250,6 +2349,49 @@ Runtime Runtime::load(const std::string& path) {
                      "evaluation route synapse list");
             route.added_synapses = read_u32(stream);
             route.adjusted_synapses = read_u32(stream);
+        }
+    }
+
+    if (version >= 16) {
+        auto& protection = runtime.structural_protection_;
+        protection.enabled = read_bool(stream);
+        const std::uint32_t role_count = read_u32(stream);
+        if (role_count != 0 && role_count != neuron_count) {
+            throw std::runtime_error(
+                "persisted structural role count differs from network");
+        }
+        protection.neuron_roles.reserve(role_count);
+        for (std::uint32_t index = 0; index < role_count; ++index) {
+            const auto role = read_u8(stream);
+            if (role > static_cast<std::uint8_t>(
+                           brainstem::StructuralRole::transition_contact)) {
+                throw std::runtime_error("invalid persisted structural role");
+            }
+            protection.neuron_roles.push_back(
+                static_cast<brainstem::StructuralRole>(role));
+        }
+        for (auto& row : protection.allowed_connections) {
+            for (auto& value : row) value = read_bool(stream);
+        }
+        auto& exploration = runtime.autonomous_exploration_;
+        exploration.enabled = read_bool(stream);
+        exploration.activation_budget = read_u32(stream);
+        exploration.trigger_probability_denominator = read_u32(stream);
+        exploration.maximum_sender_outgoing = read_u32(stream);
+        exploration.local_radius = read_u32(stream);
+        exploration.seed = read_u64(stream);
+        runtime.exploration_rng_.set_state(read_u64(stream));
+        runtime.autonomous_exploration_remaining_ = read_u32(stream);
+        runtime.autonomous_exploration_activations_ = read_u64(stream);
+        if (exploration.enabled &&
+            exploration.trigger_probability_denominator == 0) {
+            throw std::runtime_error(
+                "invalid persisted autonomous exploration trigger");
+        }
+        if (runtime.autonomous_exploration_remaining_ >
+            exploration.activation_budget) {
+            throw std::runtime_error(
+                "persisted autonomous exploration exceeds budget");
         }
     }
 
@@ -2603,7 +2745,8 @@ void Runtime::process_fire(
     const bool feedback_context,
     const std::uint32_t context_signature,
     const bool context_feedback_origin,
-    const std::int8_t modulation) {
+    const std::int8_t modulation,
+    const bool allow_autonomous_exploration) {
     const auto outgoing = network_.outgoing_synapses(neuron);
     if (context_signature != 0 && config_.context_trace_capacity != 0) {
         if (config_.context_trace_duration >
@@ -2657,7 +2800,8 @@ void Runtime::process_fire(
     if (config_.growth_enabled) {
         ++metrics_.growth_attempts;
         const auto grown = brainstem_.attempt_growth(
-            network_, neuron, config_, growth_rng_);
+            network_, neuron, config_, growth_rng_,
+            structural_protection_.enabled ? &structural_protection_ : nullptr);
         if (grown.has_value()) {
             ++metrics_.grown_synapses;
             const neural::Synapse& item = network_.synapse(*grown);
@@ -2668,6 +2812,63 @@ void Runtime::process_fire(
             }
         }
     }
+    if (allow_autonomous_exploration && !feedback_context && modulation == 0) {
+        maybe_enqueue_autonomous_exploration(neuron);
+    }
+}
+
+void Runtime::maybe_enqueue_autonomous_exploration(
+    const NeuronId local_trigger) {
+    if (!autonomous_exploration_.enabled ||
+        autonomous_exploration_remaining_ == 0 ||
+        autonomous_exploration_.trigger_probability_denominator == 0 ||
+        network_.neuron(local_trigger).outgoing_count >
+            autonomous_exploration_.maximum_sender_outgoing ||
+        exploration_rng_.bounded(
+            autonomous_exploration_.trigger_probability_denominator) != 0) {
+        return;
+    }
+
+    const Coordinate origin = network_.coordinate(local_trigger);
+    const std::vector<NeuronId> legacy_reserved =
+        structural_protection_.enabled ? std::vector<NeuronId>{}
+                                       : exploration_reservations();
+    std::vector<NeuronId> candidates;
+    std::vector<NeuronId> unconnected;
+    for (NeuronId candidate = 0; candidate < network_.neuron_count(); ++candidate) {
+        if (candidate == local_trigger) continue;
+        if (structural_protection_.enabled) {
+            if (candidate >= structural_protection_.neuron_roles.size() ||
+                structural_protection_.neuron_roles[candidate] !=
+                    brainstem::StructuralRole::free_processing) {
+                continue;
+            }
+        } else if (std::binary_search(
+                       legacy_reserved.begin(), legacy_reserved.end(), candidate)) {
+            continue;
+        }
+        const Coordinate position = network_.coordinate(candidate);
+        const auto distance = std::max({
+            origin.x > position.x ? origin.x - position.x : position.x - origin.x,
+            origin.y > position.y ? origin.y - position.y : position.y - origin.y,
+            origin.z > position.z ? origin.z - position.z : position.z - origin.z});
+        if (autonomous_exploration_.local_radius != 0 &&
+            distance > autonomous_exploration_.local_radius) {
+            continue;
+        }
+        candidates.push_back(candidate);
+        const auto& neuron = network_.neuron(candidate);
+        if (neuron.incoming_count == 0 && neuron.outgoing_count == 0) {
+            unconnected.push_back(candidate);
+        }
+    }
+    const auto& pool = unconnected.empty() ? candidates : unconnected;
+    if (pool.empty()) return;
+    const NeuronId selected = pool[exploration_rng_.bounded(
+        static_cast<std::uint32_t>(pool.size()))];
+    --autonomous_exploration_remaining_;
+    ++autonomous_exploration_activations_;
+    enqueue_event(EventKind::internal_exploration_fire, selected, simulated_time_);
 }
 
 void Runtime::process_impulse(
@@ -3098,6 +3299,9 @@ void Runtime::process_event(const Event& event) {
         break;
     case EventKind::subthreshold_relaxation:
         process_subthreshold_relaxation(event);
+        break;
+    case EventKind::internal_exploration_fire:
+        process_fire(event.target, false, 0, false, 0, false);
         break;
     }
 }

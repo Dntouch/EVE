@@ -1,0 +1,7 @@
+role,may_send_growth,may_receive_growth,purpose
+innate_sensory,0,0,sensory_interface
+innate_motor,0,0,motor_interface
+evaluation_feedback,0,0,technical_feedback
+protected_brainstem,0,0,innate_control
+free_processing,1,1,unrestricted_learning_capacity
+transition_contact,1,1,explicit_interface_transition

@@ -35,6 +35,7 @@ Dieser Ordner enthält bestätigte Entscheidungen zum Projekt sowie eine optiona
 | [0033](0033-b511-faehigkeit-ist-keine-unveraenderliche-synapse.md) | B.5.11 trennt momentanen Abruf, langfristiges Repertoire und kausale Reorganisation; eine neue Lernregel bleibt gesperrt. |
 | [0034](0034-b512-erster-erfolg-ist-keine-beherrschung.md) | B.5.12 trennt frühe Vorstrukturierung, ersten Abruf, zuverlässige Fähigkeit, Verfestigung und Wiedererwerb; eine neue Lernregel bleibt gesperrt. |
 | [0035](0035-b513-rekrutierbarkeit-bestaetigt-produktionsgrowth-gesperrt.md) | B.5.13 bestätigt vollständige technische Rekrutierbarkeit; Produktions-Growth bleibt wegen Schutzlücke und fehlendem natürlichem Vorteil gesperrt. |
+| [0036](0036-c0-schutz-bestaetigt-funktionale-autonomie-offen.md) | C.0 bestätigt geschützte autonome Strukturbildung; funktionale Autonomie und Produktionsfreigabe bleiben offen. |
 
 Nummer 0002 dokumentiert den anfänglich offenen Technologie-Stack historisch;
 sie ist keine aktuelle Architektursperre. Die Nummern 0004 bis 0010 sind

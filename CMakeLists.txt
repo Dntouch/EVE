@@ -135,6 +135,9 @@ target_link_libraries(eve_research_stage_b512 PRIVATE eve_core)
 add_executable(eve_research_stage_b513 src/research_stage_b513.cpp)
 target_link_libraries(eve_research_stage_b513 PRIVATE eve_core)
 
+add_executable(eve_research_stage_c0 src/research_stage_c0.cpp)
+target_link_libraries(eve_research_stage_c0 PRIVATE eve_core)
+
 include(CTest)
 if(BUILD_TESTING)
     add_executable(eve_tests tests/test_main.cpp)

@@ -88,6 +88,12 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
   zeitlichen Latent-Learning-Kontrollen, Verfestigungs-, Retentions-,
   Wiedererwerbs- und Mehrfachlernmatrizen sowie W0/W1/W2-Gegenproben.
 - 25 zusätzliche B.5.12-Prüfungen; insgesamt 786/786 bestandene Kerntests.
+- Forschungsstufe B.5.13 mit vollständiger technischer Rekrutierbarkeit,
+  Growth aus zuvor unverbundenen Neuronen und kausaler Positivkontrolle.
+- Forschungsphase C.0 mit semantischem Growth-Schutzvertrag,
+  ereignisgetriebener autonomer interner Exploration, S0–S5-Diagnostik,
+  K0–K8-Kontrollen und W0–W6-Kausalplan über fünf Netzgrößen.
+- 20 zusätzliche C.0-Prüfungen; insgesamt 827/827 bestandene Kerntests.
 
 ### Geändert
 
@@ -98,6 +104,11 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
 - B.5.12 trennt neuronale Veränderung, Teillernen, ersten Abruf,
   zuverlässige Beherrschung, Verfestigung, Retention und Wiedererwerb als
   eigene Bewertungsstadien; S4 bleibt standardmäßig deaktiviert.
+- Persistenzformat 16 speichert den semantischen Schutzvertrag, erlaubte
+  Growth-Richtungen, autonome Explorationskonfiguration, getrennten
+  Zufallszustand, Restbudget und Aktivierungszähler.
+- Growth prüft bei aktivem C.0-Vertrag Sender- und Empfängerrolle; autonome
+  Exploration ist lokal, budgetiert, nichtrekursiv und standardmäßig aus.
 
 - Der offizielle Projektname wurde von „EVE – Emergent Virtual Evolution“ auf
   „EVE“ verkürzt.

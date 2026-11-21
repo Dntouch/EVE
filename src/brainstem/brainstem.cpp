@@ -36,6 +36,31 @@ std::uint64_t next_assignment_random(std::uint64_t& state) noexcept {
 
 }  // namespace
 
+StructuralProtectionContract StructuralProtectionContract::protected_default(
+    const std::uint32_t neuron_count) {
+    StructuralProtectionContract result;
+    result.enabled = true;
+    result.neuron_roles.assign(neuron_count, StructuralRole::free_processing);
+    const auto free = static_cast<std::size_t>(StructuralRole::free_processing);
+    const auto transition = static_cast<std::size_t>(StructuralRole::transition_contact);
+    result.allowed_connections[free][free] = true;
+    result.allowed_connections[free][transition] = true;
+    result.allowed_connections[transition][free] = true;
+    result.allowed_connections[transition][transition] = true;
+    return result;
+}
+
+bool StructuralProtectionContract::permits(
+    const NeuronId sender, const NeuronId receiver) const {
+    if (!enabled) return true;
+    if (sender >= neuron_roles.size() || receiver >= neuron_roles.size()) return false;
+    const auto source = static_cast<std::size_t>(neuron_roles[sender]);
+    const auto target = static_cast<std::size_t>(neuron_roles[receiver]);
+    return source < allowed_connections.size() &&
+        target < allowed_connections[source].size() &&
+        allowed_connections[source][target];
+}
+
 void MotorOutput::configure(
     const std::uint32_t neuron_count,
     const MotorOutputConfig& config) {
@@ -500,8 +525,13 @@ std::optional<SynapseId> Brainstem::attempt_growth(
     neural::Network& network,
     const NeuronId sender,
     const ExperimentConfig& config,
-    bios::DeterministicRng& rng) const {
+    bios::DeterministicRng& rng,
+    const StructuralProtectionContract* protection) const {
     const neural::Neuron& source = network.neuron(sender);
+    if (protection != nullptr && protection->enabled &&
+        sender >= protection->neuron_roles.size()) {
+        return std::nullopt;
+    }
     if (!should_attempt_growth(source.outgoing_count, rng)) {
         return std::nullopt;
     }
@@ -513,6 +543,10 @@ std::optional<SynapseId> Brainstem::attempt_growth(
         std::vector<NeuronId> candidates;
         for (NeuronId candidate = 0; candidate < network.neuron_count(); ++candidate) {
             if (candidate == sender || network.has_synapse(sender, candidate)) {
+                continue;
+            }
+            if (protection != nullptr &&
+                !protection->permits(sender, candidate)) {
                 continue;
             }
             if (chebyshev_distance(origin, network.coordinate(candidate)) == radius) {

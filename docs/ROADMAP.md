@@ -205,10 +205,15 @@ Drei-Faktor-Plastizität kausal wirksam werden. Zusätzliche Kapazität verbesse
 die historischen Aufgaben jedoch nicht unabhängig bestätigt. Growth kennt die
 Schutzreservierungen nicht und traf in 221 von 3.840 Fällen geschützte Ziele.
 
-Die nächste, noch nicht nummerierte Forschungsphase C untersucht deshalb
-geschützte autonome Strukturbildung unter natürlicher Konsequenz. Sie muss
-einen lokalen Growth-Schutzvertrag und einen natürlichen Nutzennachweis liefern,
-bevor automatische Mechanismen als Produktionsstandard erwogen werden.
+C.0 implementiert und bestätigt anschließend den lokalen Growth-Schutzvertrag
+sowie eine durch echte Feuerereignisse ausgelöste autonome interne
+Exploration. In 166.261 Growth-Ereignissen tritt keine Schutzverletzung auf.
+1.802 Verbindungen werden natürlich positiv, 19 erreichen S3 und bestehen die
+W1-Kausalprobe; acht davon liegen in der Bestätigung. Alle 19 verlieren die
+Funktion jedoch schon nach einer weiteren natürlichen Erfahrung, und K3 zeigt
+keinen Lernvorteil gegenüber K0. Eine mögliche C.1-Stufe muss deshalb den
+Übergang S4→S5 und die Stabilität kausal isolieren. Automatische Mechanismen
+bleiben bis dahin als Produktionsstandard gesperrt.
 
 ## Erfolgskriterien aus dem Konzept
 

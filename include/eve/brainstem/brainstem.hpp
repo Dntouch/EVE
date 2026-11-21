@@ -169,6 +169,37 @@ struct ExplorationResult {
     std::uint32_t reserved_neuron_count{};
 };
 
+// C.0: semantic structural roles replace implicit neuron-id exclusions.  The
+// contract is deliberately task agnostic: it only describes interface safety
+// and the locally permitted direction of structural growth.
+enum class StructuralRole : std::uint8_t {
+    free_processing = 0,
+    innate_sensory = 1,
+    innate_motor = 2,
+    evaluation_feedback = 3,
+    protected_brainstem = 4,
+    transition_contact = 5,
+};
+
+struct StructuralProtectionContract {
+    bool enabled{};
+    std::vector<StructuralRole> neuron_roles;
+    std::array<std::array<bool, 6>, 6> allowed_connections{};
+
+    [[nodiscard]] static StructuralProtectionContract protected_default(
+        std::uint32_t neuron_count);
+    [[nodiscard]] bool permits(NeuronId sender, NeuronId receiver) const;
+};
+
+struct AutonomousExplorationConfig {
+    bool enabled{};
+    std::uint32_t activation_budget{};
+    std::uint32_t trigger_probability_denominator{1};
+    std::uint32_t maximum_sender_outgoing{4};
+    std::uint32_t local_radius{2};
+    std::uint64_t seed{1};
+};
+
 enum class MotorCircuitMode : std::uint8_t {
     none = 0,
     direct_completion_path = 1,
@@ -422,7 +453,8 @@ public:
         neural::Network& network,
         NeuronId sender,
         const ExperimentConfig& config,
-        bios::DeterministicRng& rng) const;
+        bios::DeterministicRng& rng,
+        const StructuralProtectionContract* protection = nullptr) const;
 
     [[nodiscard]] std::vector<EncodedByte> encode_utf8_bytes(
         const std::vector<std::uint8_t>& bytes,

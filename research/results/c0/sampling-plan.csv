@@ -1,0 +1,3 @@
+phase,seeds,seed_start,assignment_policy,predeclared
+discovery,64,100000,normal_and_inverse,1
+confirmation,64,200000,normal_and_inverse,1

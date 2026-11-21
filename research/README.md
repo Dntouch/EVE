@@ -821,3 +821,34 @@ Mechanismusentscheidung und Erfolgskriterien bleiben separat nachvollziehbar.
 Große Rohdaten werden mit `gzip -n` deterministisch komprimiert. Laufzeit und
 RSS sind maschinenabhängig. Automatisches Growth, interne Exploration und S4
 werden nicht als Produktionsstandard aktiviert.
+
+## Forschungsphase C.0 – geschützte autonome Selbstorganisation
+
+Build, 827 Kerntests und vollständige Schutz-, Autonomie-, Struktur- und
+Kontrollmatrix:
+
+```sh
+scripts/run-research-stage-c0.sh
+```
+
+Discovery und Bestätigung verwenden getrennte 64-Seed-Bereiche. Die zentrale
+K3-Matrix umfasst zehn Aufgabenfamilien und Netze mit 32, 128, 256, 512 sowie
+2.048 Neuronen. `autonomous-trials.csv.gz` enthält alle 12.800 zentralen
+Versuche. `natural-growth-connections.csv.gz` protokolliert jede neue
+Verbindung mit Senderzustand, Rollen, Zielzustand, Zeitpunkt, Anfangsgewicht
+und späterer Aktivität. `recruitment-stages.csv.gz` trennt S0 bis S5.
+
+`protection-contract.csv` beschreibt die sechs semantischen Rollen und die
+erlaubten Growth-Richtungen. `control-groups.csv.gz` enthält K0 bis K8;
+`causal-interventions.csv.gz` enthält W0 bis W6 für alle 19 natürlichen
+S3-Pfade. W1 entfernt 19/19 Zielaktivierungen; W6 erhält 19/19 Pfade über die
+nächste Erfahrung, während W4/W5 sie nicht erhalten.
+`persistence.csv`, `historical-regression.csv`, `resources.csv`,
+`success-criteria.csv` und `mechanism-decision.csv` dokumentieren exakte
+Fortsetzung, B.5.11–B.5.13-Kompatibilität, Aufwand und die getrennte
+Mergeentscheidung.
+
+C.0 bestätigt Kriterium A (Schutz und freie Rekrutierbarkeit) und B
+(natürlich funktionaler Pfad), nicht aber C (unabhängig bestätigter
+Lernvorteil).
+Automatische Exploration, Growth und S4 bleiben Produktionsstandard aus.

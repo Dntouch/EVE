@@ -1,0 +1,9 @@
+field,value
+central_control,K3_protected_combined
+episodes,16
+checkpoints,1;2;4;8;16
+exploration_budget,8
+growth_budget,local_outgoing_probability
+functional_threshold,weight_ge_firing_threshold
+learning_success,B512_stage_rules
+production_S4,disabled
