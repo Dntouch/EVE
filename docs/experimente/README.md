@@ -82,6 +82,10 @@ angepasst werden.
 - [Technische Kausalanalyse B.5.9](033-technische-kausalanalyse-lokale-entscheidungsspielraeume.md)
 - [Bericht B.5.9](033-forschungsbericht-forschungsstufe-b59.md)
 - [Entscheidungsvorlage B.5.10](033-entscheidungsvorlage-forschungsstufe-b510.md)
+- [Auftrag B.5.10](034-entwicklungsauftrag-forschungsstufe-b510.md)
+- [Technische Kausalanalyse B.5.10](034-technische-kausalanalyse-einzelne-schreibereignisse.md)
+- [Bericht B.5.10](034-forschungsbericht-forschungsstufe-b510.md)
+- [Entscheidungsvorlage B.5.11](034-entscheidungsvorlage-forschungsstufe-b511.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
@@ -179,3 +183,10 @@ Die zwölf historischen Fälle werden auf positive Konkurrenz und zehn einzeln
 kausale Verstärkungen eingegrenzt. Diagnose und Produktionslogik bleiben
 getrennt; B.5.10 soll die lokale Vorgeschichte dieser Schreibereignisse
 prospektiv untersuchen.
+B.5.10 setzt am tatsächlichen Schreibkontakt an. 13 konkrete Schritte auf
+zehn historischen Problemverbindungen sind kausal; von 119 prospektiv
+ausgewählten Änderungen sind 21 unmittelbar notwendig und 98 zunächst
+neutral. Vierzehn neutrale Änderungen werden später wirksam. Eine einzelne
+Operation kann isoliert ausgelassen werden, doch extern rekonstruierte
+Historien liefern keinen freigabefähigen lokalen Selektor. B.5.11 soll deshalb
+eine vorab festgelegte A/B-Hypothese aktiv auf neuen Seeds prüfen.

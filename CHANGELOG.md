@@ -76,6 +76,10 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
   erregenden und hemmenden Beiträgen, Einzel- und Kombinationsablationen,
   L0–L4-Informationsvergleich sowie kausaler Analyse positiver Konkurrenz.
 - 31 zusätzliche B.5.9-Prüfungen; insgesamt 696/696 bestandene Kerntests.
+- Forschungsstufe B.5.10 mit exakter Vorher-Beobachtung konkreter
+  Gewichtsoperationen, isolierter Einzel-Schreibunterdrückung, W0–W4-Kopien,
+  historischen Ereignisketten und prospektiven natürlichen Fortsetzungen.
+- 30 zusätzliche B.5.10-Prüfungen; insgesamt 726/726 bestandene Kerntests.
 
 ### Geändert
 
@@ -101,3 +105,7 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
 - Die B.5.9-Impulsbeobachtung erfasst Membran, Feuergrenze,
   Entscheidungsmarge, Beitragsarten und Refraktärzustand ohne zusätzliche
   persistente Zustände; Persistenzformat 15 bleibt unverändert.
+- Die B.5.10-Plastizitätsbeobachtung erfasst vorgeschlagenes Gewicht, Delta
+  und Mechanismus direkt vor der Mutation. Ein leerer, nicht persistierter
+  Forschungs-Interceptor kann genau diese Operation isoliert auslassen;
+  Persistenzformat 15 bleibt unverändert.

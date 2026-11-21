@@ -687,3 +687,40 @@ Die großen CSV-Dateien werden mit `gzip -n` deterministisch komprimiert.
 Erfolgskriterien und die Nichtfreigabe einer neuen Lernregel. Laufzeit und RSS
 sind maschinenabhängig; fachliche Ereignisse und Zustände sind bei identischem
 Build, Seed und Eingabestrom deterministisch.
+
+## Forschungsstufe B.5.10 – prospektive Einzel-Schreibkausalität
+
+Build, 726 Kerntests und vollständige Referenz-, Zeit-, Kausal- und
+Bestätigungsmatrix:
+
+```sh
+scripts/run-research-stage-b510.sh research/results/b510
+```
+
+Der Runner reproduziert B.5.7 und B.5.8/B.5.9 exakt. Die neuen Populationen
+verwenden getrennte Seedbereiche 70001–70064 und 80001–80064 mit drei
+Stromfamilien und beiden Zuordnungen. Fest-1, Fest-12, Fest-16, Fest-32,
+unregelmäßige Abstände und No-Learning bilden die Zeitkontrollen. Die
+B.5.8-Stabilitäts- und Umkehrkopien bleiben erhalten.
+
+`prospective-write-events.csv.gz` enthält den tatsächlichen Schreibzeitpunkt,
+Vorher- und Zielgewicht, Delta, Mechanismus, Eligibility und aktuelle lokale
+Integration. `write-interventions.csv` dokumentiert W0 bis W4 einschließlich
+Fingerabdruckgleichheit und Zahl ausgelassener Operationen.
+`natural-followups.csv.gz` verfolgt W0 und W1 nach 1, 4, 8, 16, 32, 64 und
+128 natürlichen Erfahrungen mit eigener Motorantwort und tatsächlicher
+Rückmeldung.
+
+`historical-write-events.csv` und `historical-event-summary.csv` zerlegen die
+zehn bekannten Problemverbindungen in konkrete Schritte und kombinierte
+Interventionen. `write-history.csv`, `information-availability.csv`,
+`information-model-signatures.csv` und `information-model-predictions.csv`
+trennen direkt lokale A/B-Information von extern rekonstruierter C-Historie
+und zukünftiger D-Wirkung.
+
+Große Tabellen werden mit `gzip -n` deterministisch komprimiert.
+`reference-reproduction.csv`, `persistence.csv`, `resources.csv`,
+`success-criteria.csv` und `mechanism-decision.csv` dokumentieren Reproduktion,
+Fortsetzung, Aufwand und die Nichtfreigabe einer neuen Lernregel. Laufzeit und
+RSS sind maschinenabhängig; Ereignisse, Zustände und Fingerabdrücke sind bei
+identischem Build, Seed und Eingabestrom deterministisch.

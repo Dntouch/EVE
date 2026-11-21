@@ -1,0 +1,14 @@
+phase,family,assignment,seed,first_joint,first_loss,event_episode,synapse,weight_before,weight_after,suppressed,W1_preserves_both,W1_X,W1_Y,valid
+historical_discovery,0,inverse,2,10,11,11,0,1,2,1,1,1,1,1
+historical_discovery,0,inverse,6,27,34,28,3,0,1,1,1,1,1,1
+historical_discovery,0,inverse,6,27,34,34,3,1,2,1,1,1,1,1
+historical_discovery,1,normal,10,29,31,31,2,1,2,1,1,1,1,1
+historical_discovery,1,inverse,13,9,17,17,3,1,2,1,1,1,1,1
+historical_discovery,2,normal,6,31,33,33,2,1,2,1,1,1,1,1
+historical_discovery,2,inverse,7,7,11,8,3,0,1,1,1,1,1,1
+historical_discovery,2,inverse,7,7,11,11,3,1,2,1,1,1,1,1
+historical_discovery,2,inverse,21,12,14,14,7,0,1,1,1,1,1,1
+historical_confirmation,0,inverse,10008,9,10,10,7,0,1,1,1,1,1,1
+historical_confirmation,2,inverse,10008,8,14,9,0,0,1,1,1,1,1,1
+historical_confirmation,2,inverse,10008,8,14,14,0,1,2,1,1,1,1,1
+fresh_confirmation,1,normal,20001,6,8,8,1,1,2,1,1,1,1,1

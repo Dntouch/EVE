@@ -1162,6 +1162,11 @@ void Runtime::set_plasticity_observer(PlasticityObserver observer) {
     plasticity_observer_ = std::move(observer);
 }
 
+void Runtime::set_experimental_plasticity_write_interceptor(
+    PlasticityWriteInterceptor interceptor) {
+    plasticity_write_interceptor_ = std::move(interceptor);
+}
+
 MotorCausality Runtime::analyze_motor_causality(
     const brainstem::MotorResponse& response,
     const brainstem::MotorCircuitResult& circuit,
@@ -2447,26 +2452,43 @@ void Runtime::apply_local_modulation(
                         ? static_cast<std::int8_t>(-polarity)
                         : polarity;
                 const std::int32_t weight_before = item.weight;
+                std::int32_t proposed_weight = weight_before;
+                std::int32_t requested_delta = 0;
                 PlasticityWriteOutcome outcome =
                     PlasticityWriteOutcome::changed;
-                if (item.plasticity_protected) {
-                    if (plasticity_observer_) {
-                        const auto& contact = network_.synapse(modulation_synapse);
-                        plasticity_observer_(PlasticityObservation{
+                const auto make_observation =
+                    [&](const std::int32_t weight_after,
+                        const bool protected_state, const bool changed,
+                        const PlasticityWriteOutcome write_outcome) {
+                        const auto& contact =
+                            network_.synapse(modulation_synapse);
+                        PlasticityObservation observation{
                             metrics_.processed_events, simulated_time_,
-                            modulation_synapse, contact.sender, neuron, polarity,
-                            local_polarity,
+                            modulation_synapse, contact.sender, neuron,
+                            polarity, local_polarity,
                             static_cast<std::uint32_t>(records.size()),
                             record.generation,
                             record.expires_at >= config_.eligibility_duration
-                                ? record.expires_at - config_.eligibility_duration
+                                ? record.expires_at -
+                                      config_.eligibility_duration
                                 : 0,
-                            record.expires_at, record.strength, record.candidates,
-                            candidate, item.sender, item.effect, weight_before,
-                            item.weight, true, false,
-                            PlasticityWriteOutcome::protected_synapse,
+                            record.expires_at, record.strength,
+                            record.candidates, candidate, item.sender,
+                            item.effect, weight_before, weight_after,
+                            protected_state, changed, write_outcome,
                             network_.neuron(neuron).membrane_potential,
-                            item.activity_count});
+                            item.activity_count};
+                        observation.proposed_weight = proposed_weight;
+                        observation.requested_delta = requested_delta;
+                        observation.mechanism =
+                            PlasticityMechanism::eligibility_modulation;
+                        return observation;
+                    };
+                if (item.plasticity_protected) {
+                    if (plasticity_observer_) {
+                        plasticity_observer_(make_observation(
+                            item.weight, true, false,
+                            PlasticityWriteOutcome::protected_synapse));
                     }
                     continue;
                 }
@@ -2494,6 +2516,8 @@ void Runtime::apply_local_modulation(
                             config_.plasticity_positive_step * record.strength;
                         const std::int32_t delta =
                             std::min(requested, limit - item.weight);
+                        proposed_weight = item.weight + delta;
+                        requested_delta = delta;
                         if (item.effect == SynapticEffect::excitatory &&
                             static_cast<std::uint64_t>(delta) >
                                 config_.input_weight_budget -
@@ -2505,6 +2529,14 @@ void Runtime::apply_local_modulation(
                             config_.experimental_plasticity_writes_suppressed) {
                             ++metrics_.plasticity_suppressed_writes;
                             outcome = PlasticityWriteOutcome::write_suppressed;
+                        } else if (plasticity_write_interceptor_ &&
+                                   plasticity_write_interceptor_(
+                                       make_observation(
+                                           proposed_weight, false, true,
+                                           PlasticityWriteOutcome::changed))) {
+                            ++metrics_.plasticity_suppressed_writes;
+                            outcome = PlasticityWriteOutcome::
+                                isolated_write_suppressed;
                         } else {
                             const bool was_zero = item.weight == 0;
                             item.weight += delta;
@@ -2518,13 +2550,23 @@ void Runtime::apply_local_modulation(
                         }
                     }
                 } else if (local_polarity < 0 && item.weight > 0) {
+                    proposed_weight = std::max<std::int32_t>(
+                        0, item.weight -
+                               config_.plasticity_negative_step *
+                                   record.strength);
+                    requested_delta = proposed_weight - item.weight;
                     if (config_.experimental_plasticity_writes_suppressed) {
                         ++metrics_.plasticity_suppressed_writes;
                         outcome = PlasticityWriteOutcome::write_suppressed;
+                    } else if (plasticity_write_interceptor_ &&
+                               plasticity_write_interceptor_(make_observation(
+                                   proposed_weight, false, true,
+                                   PlasticityWriteOutcome::changed))) {
+                        ++metrics_.plasticity_suppressed_writes;
+                        outcome = PlasticityWriteOutcome::
+                            isolated_write_suppressed;
                     } else {
-                        item.weight = std::max<std::int32_t>(
-                            0, item.weight -
-                                   config_.plasticity_negative_step * record.strength);
+                        item.weight = proposed_weight;
                         ++metrics_.plasticity_negative_changes;
                         if (item.effect == SynapticEffect::inhibitory) {
                             ++metrics_.inhibitory_negative_changes;
@@ -2534,21 +2576,9 @@ void Runtime::apply_local_modulation(
                     outcome = PlasticityWriteOutcome::negative_zero_floor;
                 }
                 if (plasticity_observer_) {
-                    const auto& contact = network_.synapse(modulation_synapse);
-                    plasticity_observer_(PlasticityObservation{
-                        metrics_.processed_events, simulated_time_,
-                        modulation_synapse, contact.sender, neuron, polarity,
-                        local_polarity,
-                        static_cast<std::uint32_t>(records.size()),
-                        record.generation,
-                        record.expires_at >= config_.eligibility_duration
-                            ? record.expires_at - config_.eligibility_duration
-                            : 0,
-                        record.expires_at, record.strength, record.candidates,
-                        candidate, item.sender, item.effect, weight_before,
+                    plasticity_observer_(make_observation(
                         item.weight, false, item.weight != weight_before,
-                        outcome, network_.neuron(neuron).membrane_potential,
-                        item.activity_count});
+                        outcome));
                 }
             }
             if (config_.consume_trace_on_modulation) {

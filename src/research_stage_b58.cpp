@@ -151,6 +151,8 @@ const char* b58_outcome_name(const eve::bios::PlasticityWriteOutcome outcome) {
     case eve::bios::PlasticityWriteOutcome::input_weight_budget: return "budget";
     case eve::bios::PlasticityWriteOutcome::negative_zero_floor: return "zero_floor";
     case eve::bios::PlasticityWriteOutcome::write_suppressed: return "suppressed";
+    case eve::bios::PlasticityWriteOutcome::isolated_write_suppressed:
+        return "isolated_suppressed";
     }
     return "unknown";
 }

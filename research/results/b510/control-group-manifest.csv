@@ -1,0 +1,19 @@
+group,description,implemented
+K0,B59 reference,1
+K1,natural individual write W0,1
+K2,isolated omitted write W1,1
+K3,identical control W2,1
+K4,combined omissions W3,1
+K5,global diagnostic gate W4,1
+K6,historical connections,1
+K7,acquisition,1
+K8,reversal,1
+K9,inhibitory positive writes,1
+K10,immediate neutral,1
+K11,delayed effects,1
+K12,cumulative writes,1
+K13-K16,external local-history diagnostics,1
+K17-K20,B58 stability and reversal controls,1
+K21,time schedules,1
+K22,no learning,1
+K23-K24,new rule and disabled control,0
