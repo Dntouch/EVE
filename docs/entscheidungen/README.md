@@ -33,6 +33,7 @@ Dieser Ordner enthält bestätigte Entscheidungen zum Projekt sowie eine optiona
 | [0031](0031-b59-lokale-integration-verbessert-diagnose-nicht-regelfreigabe.md) | B.5.9 integriert die lokale Entscheidungsdiagnose, gibt wegen fortbestehender Mehrdeutigkeit aber keine neue Lernregel frei. |
 | [0032](0032-b510-einzelne-schreibkausalitaet-ohne-regelfreigabe.md) | B.5.10 integriert die isolierte Einzel-Schreibdiagnose, gibt aber keinen automatischen lokalen Schreibselektor frei. |
 | [0033](0033-b511-faehigkeit-ist-keine-unveraenderliche-synapse.md) | B.5.11 trennt momentanen Abruf, langfristiges Repertoire und kausale Reorganisation; eine neue Lernregel bleibt gesperrt. |
+| [0034](0034-b512-erster-erfolg-ist-keine-beherrschung.md) | B.5.12 trennt frühe Vorstrukturierung, ersten Abruf, zuverlässige Fähigkeit, Verfestigung und Wiedererwerb; eine neue Lernregel bleibt gesperrt. |
 
 Nummer 0002 dokumentiert den anfänglich offenen Technologie-Stack historisch;
 sie ist keine aktuelle Architektursperre. Die Nummern 0004 bis 0010 sind

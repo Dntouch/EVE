@@ -1,0 +1,10 @@
+stage,definition,behavior_alone_sufficient
+activity,observed neural processing,0
+change,experience-dependent neural state change,0
+partial_learning,functional task-specific effect before reliable skill,0
+latent_learning,controlled later advantage without prior successful recall,0
+first_recall,first correct autonomous response,1
+reliable_skill,at least five of six valid contexts correct,1
+consolidation,improved reliability after further experience,0
+retention,availability after time or competing experience,1
+reacquisition,return after demonstrated impairment,1

@@ -1,0 +1,13 @@
+criterion,passed,evidence
+complete_learning_curves,1,learning-curves.csv.gz
+simple_learnable_reference,1,simple-reference.csv.gz
+first_success_separate_from_reliability,1,learning-curves.csv.gz
+unsuccessful_pretraining_population,1,latent-learning.csv.gz
+functional_pretraining_controls,1,latent-learning.csv.gz
+experience_and_time_controls,1,consolidation.csv.gz
+temporary_impairment_and_reacquisition,1,impairment-reacquisition.csv.gz
+multiple_learning_stages,1,multi-learning.csv.gz
+isolated_and_combined_writes,1,consolidation-interventions.csv
+independent_confirmation,1,sampling-plan.csv
+pending_event_persistence,1,persistence.csv
+new_rule_not_released,1,mechanism-decision.csv

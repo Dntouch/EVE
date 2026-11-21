@@ -1055,6 +1055,7 @@ void b511_manifests(const std::filesystem::path& output) {
 
 }  // namespace
 
+#ifndef EVE_RESEARCH_STAGE_B511_EMBEDDED
 int main(int argc, char** argv) {
     const auto output = argc > 1 ? std::filesystem::path(argv[1])
         : std::filesystem::path("research/results/b511");
@@ -1176,3 +1177,4 @@ int main(int argc, char** argv) {
               << "s\n";
     return 0;
 }
+#endif

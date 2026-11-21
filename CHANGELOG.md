@@ -84,6 +84,10 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
   Elementen, getrennten V1–V10-Maßen, Kontextmatrizen, Transfer zu C,
   Pfadablationen und isolierten W0/W1/W2-Reorganisationsgegenproben.
 - 35 zusätzliche B.5.11-Prüfungen; insgesamt 761/761 bestandene Kerntests.
+- Forschungsstufe B.5.12 mit vollständigen Lernkurven, einfachen und
+  zeitlichen Latent-Learning-Kontrollen, Verfestigungs-, Retentions-,
+  Wiedererwerbs- und Mehrfachlernmatrizen sowie W0/W1/W2-Gegenproben.
+- 25 zusätzliche B.5.12-Prüfungen; insgesamt 786/786 bestandene Kerntests.
 
 ### Geändert
 
@@ -91,6 +95,9 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
   Motoraktivität und trennt Reorganisation in 10 produktive, 12 schädliche
   und 38 unentschiedene W0/W1-Verläufe; Gleichstände gelten nicht mehr als
   Schaden.
+- B.5.12 trennt neuronale Veränderung, Teillernen, ersten Abruf,
+  zuverlässige Beherrschung, Verfestigung, Retention und Wiedererwerb als
+  eigene Bewertungsstadien; S4 bleibt standardmäßig deaktiviert.
 
 - Der offizielle Projektname wurde von „EVE – Emergent Virtual Evolution“ auf
   „EVE“ verkürzt.

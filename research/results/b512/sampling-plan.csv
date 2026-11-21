@@ -1,0 +1,4 @@
+phase,seeds,families,assignments,checkpoints,selection
+discovery,90001..90064,3,2,0|1|2|4|8|16|32|64|128|256|512,predeclared
+confirmation,100001..100064,3,2,0|1|2|4|8|16|32|64|128|256|512,independent
+interventions,first 5 seeds,3,2,post-first-recall write,predeclared

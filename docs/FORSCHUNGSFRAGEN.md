@@ -166,3 +166,14 @@ vorhandenen zeitlichen Zustände den gemeinsamen Präfix P an Q oder R binden
 und vorzeitige Motorhandlungen verhindern. Diese Kausalfrage – nicht ein
 weiterer globaler Stabilitäts- oder Schreibselektor – ist die Leitfrage für
 B.5.12.
+
+B.5.12 beantwortet zunächst die methodisch vorgelagerte Lernfrage. Eine
+einfache Einzelreiz-Referenz zeigt kontrolliert, dass aufgabenspezifische
+Vorstrukturierung schon vor der ersten autonomen richtigen Antwort funktional
+werden kann. Die komplexe zeitliche Aufgabe bestätigt diesen Vorteil nicht.
+Der erste Erfolg tritt in allen R0-Netzen früh auf, ohne dass eines das
+Kriterium zuverlässiger Beherrschung erreicht. Weitere passende Erfahrung
+verbessert den Abruf, bloße Pause nicht; Wiedererwerb ist im Mittel langsamer
+als naiver Ersterwerb. Offen bleibt damit die ursprünglich verschobene Frage,
+welche lokalen Zustände den Präfix P zeitlich korrekt an Q oder R binden und
+vorzeitige Ausgabe verhindern. Sie wird zur Leitfrage für B.5.13.

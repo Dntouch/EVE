@@ -190,6 +190,16 @@ lösen die Integration nicht stabil. B.5.12 soll deshalb vorzeitige Ausgabe und
 lokale zeitliche Kreditbindung innerhalb geteilter Folgen kausal isolieren,
 ohne Aufgabenlabels, globalen Phasenschalter oder neue Regel vorwegzunehmen.
 
+B.5.12 verschiebt diese Kreditbindungsanalyse bewusst um eine Stufe und prüft
+zuerst, was im bisherigen System überhaupt als Lernen gilt. Eine einfache
+Referenz weist funktionale aufgabenspezifische Vorstrukturierung vor dem ersten
+autonomen Erfolg nach. In der zeitlichen Aufgabe entsteht derselbe Vorteil
+nicht. Weitere passende Erfahrung verbessert den Abruf gegenüber Pause, aber
+alle R0-Netze bleiben unter dem Kriterium zuverlässiger Beherrschung.
+Wiedererwerb nach A→B gelingt vollständig, ist im Mittel jedoch langsamer als
+naiver Erwerb. B.5.13 untersucht nun mit diesen strengeren Lernstadien die
+lokale zeitliche Bindung von P an Q/R und vorzeitige Ausgabe.
+
 ## Erfolgskriterien aus dem Konzept
 
 Ein geeigneter kontrollierter Test folgt der dort beschriebenen Abfolge:

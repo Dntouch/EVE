@@ -760,3 +760,32 @@ Bootstrap-Intervalle, `paired-statistics.csv` den gepaarten Vergleich
 geteilter und unabhängiger Pfade. `persistence.csv` prüft einen tatsächlich
 ausstehenden S4-Termin. S4, strukturelle Plastizität und neue Lernregeln
 bleiben deaktiviert.
+
+## Forschungsstufe B.5.12 – Lernstadien und Verfestigung
+
+Build, 786 Kerntests, vollständige B.5.11-Reproduktion und B.5.12-Matrix:
+
+```sh
+scripts/run-research-stage-b512.sh research/results/b512
+```
+
+Discovery (90001–90064) und Bestätigung (100001–100064) verwenden je drei
+Stromfamilien und beide Zuordnungen. `learning-curves.csv.gz` enthält R0,
+R2-50, S4-d16, No-Learning und Frozen-Writes an den Kontrollpunkten 0 bis
+512. `simple-reference.csv.gz` ist die positive Sensitivitätskontrolle für
+frühe aufgabenspezifische Vorstrukturierung. `latent-learning.csv.gz` prüft
+denselben Anspruch in der zeitlichen A-Aufgabe mit unerfahrener,
+unabhängiger und reiner Zeitkontrolle.
+
+`consolidation.csv.gz` trennt weitere passende Erfahrung, Pause, unabhängige
+und gemischte Erfahrung nach dem ersten Erfolg.
+`impairment-reacquisition.csv.gz` vergleicht Wiedererwerb nach nachgewiesener
+Beeinträchtigung mit naivem Ersterwerb. `multi-learning.csv.gz` verfolgt
+A→B→A→gemischt. `consolidation-interventions.csv` enthält isolierte
+W0/W1/W2-Schreibungen und die kombinierte Schreibunterdrückung.
+
+`b511-reproduction.csv` weist 21/21 bytegenau reproduzierte fachliche
+B.5.11-Dateien aus. `aggregate-statistics.csv` und `paired-statistics.csv`
+enthalten seed-geclusterte Intervalle. `persistence.csv` prüft ein tatsächlich
+ausstehendes S4-Ereignis. Große Tabellen werden mit `gzip -n` deterministisch
+komprimiert; Laufzeit und RSS bleiben maschinenabhängig.

@@ -1,0 +1,24 @@
+group,description,implemented
+K0,unexperienced network,1
+K1,A experience,1
+K2,independent experience,1
+K3,equal time without experience,1
+K4,A pretraining without prior success,1
+K5,equal subsequent A training,1
+K6,first autonomous success,1
+K7,more A after first success,1
+K8,pause after first success,1
+K9,other experience after success,1
+K10,mixed experience after success,1
+K11,impaired A recall,1
+K12,A reacquisition,1
+K13,A then B,1
+K14,A then B then A,1
+K15,A then B then mixed,1
+K16,no learning,1
+K17,diagnostic write suppression,1
+K18,R0,1
+K19,R2-50,1
+K20,S4-d16,1
+K21,B511 corrected evaluation,1
+K22,extended learning-stage evaluation,1

@@ -17,42 +17,42 @@ reproduzierbaren Versuchsreihen.
 
 **Stand:** 21. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.5.11 – neuronale Repräsentation,
-Lerninterferenz und Bewertungsvalidität
+**Jüngste abgeschlossene Forschungsstufe:** B.5.12 – Teillernen, latentes
+Lernen, Verfestigung und Fähigkeitsentwicklung
 
-**Nächster Forschungsschwerpunkt:** B.5.12 – lokale zeitliche Kreditbindung
+**Nächster Forschungsschwerpunkt:** B.5.13 – lokale zeitliche Kreditbindung
 und vorzeitige Ausgabe in geteilten Folgen
 
-B.5.11 führt eine zeitliche Mehrfachlernaufgabe mit geteilten sensorischen
-Bestandteilen sowie zehn getrennte Bewertungsdimensionen ein. Unter strenger
-Zeitbewertung bleiben geteilte Aufgaben deutlich hinter unabhängigen Pfaden;
-vorzeitige Ausgaben sind ein zentraler Teil der Interferenz. Einzelne zunächst
-beeinträchtigende Schreibungen können später produktiv, schädlich oder
-unentschieden sein. Eine neue Lernregel wird nicht
-freigegeben.
+B.5.12 trennt Veränderung, Teillernen, ersten Abruf, zuverlässige Fähigkeit,
+Verfestigung, Retention und Wiedererwerb. Eine einfache Referenz weist
+aufgabenspezifische Vorstrukturierung vor der ersten autonomen Antwort nach.
+Die komplexe zeitliche Aufgabe bestätigt diesen Vorteil dagegen nicht. Weitere
+passende Erfahrung stabilisiert den Abruf gegenüber Pause, ohne zuverlässige
+Beherrschung zu garantieren. Eine neue Lernregel wird nicht freigegeben.
 
-| B.5.11-Befund | Ergebnis |
+| B.5.12-Befund | Ergebnis |
 |---|---:|
-| exakt reproduzierte B.5.7-/B.5.8-Referenzen | 242/384 · 254/384 · 240/384 · 244/384 |
-| zusammengefasste Netzläufe | 14.592 |
-| geteiltes A→B-Repertoire Discovery / Bestätigung | 0,859 / 0,901 |
-| gemischtes R0-Repertoire Discovery / Bestätigung | 0,797 / 0,891 |
-| unabhängiges A→B-Repertoire Discovery / Bestätigung | 1,490 / 1,464 |
-| produktive / schädliche / unentschiedene Detailereignisse | 10 / 12 / 38 |
-| W1 verhindert / verhindert nicht die unmittelbare A-Beeinträchtigung | 27 / 31 |
+| B.5.11-Ergebnisdateien bytegenau reproduziert | 21/21 |
+| Primärnetze Discovery / Bestätigung | 384 / 384 |
+| einfache Vorstrukturierung: Erfahrungen bis Erfolg | −1,089 / −0,859 |
+| zeitliche Vorstrukturierung: Erfahrungen bis Erfolg | +0,205 / +0,184 |
+| weitere A-Erfahrung minus Pause: finale A-Rate | +0,330 / +0,347 |
+| R0-Netze mit erstem Erfolg bis Erfahrung 16 | 384/384 · 384/384 |
+| R0-Netze mit zuverlässiger Beherrschung | 0/384 · 0/384 |
+| beeinträchtigt und anschließend wiedererworben | 250/250 · 232/232 |
 | ausstehendes S4-Ereignis nach Laden korrekt fortgesetzt | 1/1 |
-| Regressionstests | 761/761 |
+| Regressionstests | 786/786 |
 
-Geteilte Elemente erschweren den zeitlich gültigen Abruf gegenüber der
-unabhängigen Kontrolle. C zeigt negativen Transfer. R2 und S4 erhöhen das
-mittlere Repertoire, lösen die Integration aber nicht robust. Schreib-Gate,
-strukturelles Wachstum und S4 bleiben standardmäßig deaktiviert.
+Ein erster Treffer und eine Gewichtsänderung sind keine ausreichenden
+Lernendpunkte. Vollständige Lernkurven, kontextuelle Zuverlässigkeit,
+Zeit-/Aktivitätskontrollen und Wiedererwerb gegen naive Netze werden deshalb
+dauerhafter Forschungsstandard. S4 bleibt standardmäßig deaktiviert.
 
-- [Forschungsbericht B.5.11](docs/experimente/035-forschungsbericht-forschungsstufe-b511.md)
-- [Technische Repräsentationsanalyse](docs/experimente/035-technische-analyse-neuronale-repraesentation.md)
-- [Methodische Neubewertung B.5.3–B.5.10](docs/experimente/035-methodische-neubewertung-b53-b510.md)
-- [Architekturentscheidung 0033](docs/entscheidungen/0033-b511-faehigkeit-ist-keine-unveraenderliche-synapse.md)
-- [Entscheidungsvorlage B.5.12](docs/experimente/035-entscheidungsvorlage-forschungsstufe-b512.md)
+- [Forschungsbericht B.5.12](docs/experimente/036-forschungsbericht-forschungsstufe-b512.md)
+- [Technische Kausalanalyse](docs/experimente/036-technische-kausalanalyse-lernentwicklung.md)
+- [Methodische Bewertung](docs/experimente/036-methodische-bewertung-lernkriterien.md)
+- [Architekturentscheidung 0034](docs/entscheidungen/0034-b512-erster-erfolg-ist-keine-beherrschung.md)
+- [Entscheidungsvorlage B.5.13](docs/experimente/036-entscheidungsvorlage-forschungsstufe-b513.md)
 
 EVE ist weder eine fertige allgemeine Intelligenz noch ein Nachweis von
 Bewusstsein oder bereits entstandener eigenständiger Intelligenz. Der Prototyp
@@ -73,7 +73,7 @@ prüfen und auch negative Ergebnisse nachvollziehbar festzuhalten.
 - konfigurierbare Aktivitätsregulation und strukturelles Wachstum,
 - versionierte Speicherung und Wiederherstellung vollständiger Zustände,
 - Diagnostik, Ereignisprotokolle und Zustandsfingerabdrücke,
-- 761 automatisierte Kerntests und reproduzierbare Forschungsrunner.
+- 786 automatisierte Kerntests und reproduzierbare Forschungsrunner.
 
 Die Forschungsvarianten aktivieren bewusst nur ausgewählte Mechanismen. Lernen,
 inhibitorische Plastizität, Wachstum und S4 sind keine pauschal eingeschalteten
@@ -115,7 +115,8 @@ nicht der dauerhaft robuste Erhalt mehrerer konkurrierender Beziehungen.
 | B.5.9 | lokale Entscheidungsmarge und positive Konkurrenz | Diagnose verbessert; zehn kausale Verlustverstärkungen; keine neue Regel |
 | B.5.10 | einzelne Schreibkausalität und lokale Vorgeschichte | 13 historische Schritte kausal; 119 neue Ereignisse; keine neue Regel |
 | B.5.11 | gemeinsame Repräsentation und Bewertungsvalidität | strenge Zeitwertung zeigt Interferenz, negativen Transfer und produktive Einzelfälle |
-| B.5.12 | lokale Kreditbindung in geteilten Folgen | als nächste Kausalanalyse empfohlen |
+| B.5.12 | Teillernen, Verfestigung und Lernstadien | einfache latente Vorstrukturierung bestätigt; komplexe Übertragung und zuverlässige Beherrschung nicht bestätigt |
+| B.5.13 | lokale Kreditbindung in geteilten Folgen | als nächste Kausalanalyse empfohlen |
 
 Alle Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen im
 [Experimentverzeichnis](docs/experimente/README.md). Maschinenlesbare
@@ -158,12 +159,12 @@ ctest --test-dir _build/cmake --output-on-failure
 
 ## Jüngste Forschung reproduzieren
 
-Der B.5.11-Runner baut die benötigten Programme, führt die Kerntests aus und
-erzeugt historische Reproduktion, Mehrfachlern-, Transfer-, Membran- und
-Kausalmatrix neu:
+Der B.5.12-Runner baut die benötigten Programme, führt die Kerntests aus,
+reproduziert B.5.11 vollständig und erzeugt Lernkurven, latente Kontrollen,
+Verfestigungs-, Wiedererwerbs- und Mehrfachlernmatrizen neu:
 
 ```sh
-./scripts/run-research-stage-b511.sh research/results/b511
+./scripts/run-research-stage-b512.sh research/results/b512
 ```
 
 Der Lauf verarbeitet 64 Seeds je Familie und Zuordnung in getrennten
