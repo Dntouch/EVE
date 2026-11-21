@@ -241,6 +241,9 @@ zentralen Läufen vollständig innerhalb des Vertrags. Die interne Exploration
 wird erstmals ausschließlich durch lokale neuronale Aktivität ausgelöst.
 Ohne Hilfskoinzidenz und ohne Growth-begründete positive Modulation erreichten
 19 Verbindungen S3 und bestanden W1 kausal; acht replizierten. Alle gingen
-jedoch in der nächsten Erfahrung wieder verloren, und K3 verbessert K0 nicht.
-Schutz, autonome Struktur und seltene natürliche Funktion sind bestätigt;
-Stabilität und Lernvorteil bleiben offen.
+jedoch in der unveränderten W0-Fortsetzung nach der nächsten Erfahrung wieder
+verloren. Genau 19 Abschwächungen der neuen Kante sind dafür isoliert kausal;
+29 weitere Schreibungen nicht. Im untersuchten einfachen
+128-Neuronen-K3/K0-Vergleich entsteht kein Vorteil. Schutz, autonome Struktur
+und seltene unmittelbare Funktion sind bestätigt; Erhaltung und ein Beitrag
+zu erlernten Fähigkeiten bleiben offen.

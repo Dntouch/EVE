@@ -29,4 +29,7 @@ nur den vorregistrierten Seedbereich, nicht die neuronale Auswahl.
 
 K2 bestätigt Exploration ohne Growth; K1 bestätigt Growth ohne autonome
 Exploration. K0 bleibt vollständig statisch. Bei deaktiviertem C.0-Pfad bleibt
-das historische Verhalten exakt erhalten.
+das historische Verhalten exakt erhalten. Die kombinierte Aktivierung von
+Exploration und Growth verlangt dagegen zwingend einen vollständigen sicheren
+Schutzvertrag; dieselbe Prüfung gilt bei späteren Umschaltungen und nach dem
+Laden persistierter Zustände.

@@ -92,8 +92,10 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
   Growth aus zuvor unverbundenen Neuronen und kausaler Positivkontrolle.
 - Forschungsphase C.0 mit semantischem Growth-Schutzvertrag,
   ereignisgetriebener autonomer interner Exploration, S0–S5-Diagnostik,
-  K0–K8-Kontrollen und W0–W6-Kausalplan über fünf Netzgrößen.
-- 20 zusätzliche C.0-Prüfungen; insgesamt 827/827 bestandene Kerntests.
+  aktuellen K0–K7-Kontrollen, historischer K8-Referenz und W0–W6-Kausalplan
+  über fünf Netzgrößen.
+- Fünf zusätzliche C.0-Schutzprüfungen; insgesamt 832/832 bestandene
+  Kerntests.
 
 ### Geändert
 
@@ -109,6 +111,13 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
   Zufallszustand, Restbudget und Aktivierungszähler.
 - Growth prüft bei aktivem C.0-Vertrag Sender- und Empfängerrolle; autonome
   Exploration ist lokal, budgetiert, nichtrekursiv und standardmäßig aus.
+- Kombinierte autonome Exploration und Growth verlangen bei Erstaktivierung,
+  späterer Umschaltung und nach Persistenz zwingend einen sicheren Vertrag.
+- C.0 führt W0 nun als echte interventionsfreie Folgeerfahrung aus und
+  isoliert 19 funktionsmindernde 2→1-Schreibungen von 29 weiteren
+  funktionsneutralen Schreibungen; K8 ist kein aktueller Messwert mehr.
+- B.5.11, B.5.12 und B.5.13 werden im C.0-Runner tatsächlich neu ausgeführt
+  und über 49 deterministische Ergebnisdateien mit den Referenzen verglichen.
 
 - Der offizielle Projektname wurde von „EVE – Emergent Virtual Evolution“ auf
   „EVE“ verkürzt.

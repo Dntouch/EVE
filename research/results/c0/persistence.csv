@@ -1,2 +1,2 @@
-pending_events,roles,exploration_rng,budget,new_synapses,identical_load,identical_continuation,valid
-1,1,1,1,1,1,1,1
+pending_events,roles,exploration_rng,budget,new_synapses,identical_load,identical_continuation,unsafe_combined_enable_rejected,post_load_contract_removal_rejected,valid
+1,1,1,1,1,1,1,1,1,1

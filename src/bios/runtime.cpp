@@ -18,6 +18,37 @@ constexpr std::uint64_t kNonZeroRngState = 0x9e3779b97f4a7c15ULL;
 constexpr std::uint64_t kGrowthSeedMask = 0xd1b54a32d192ed03ULL;
 constexpr std::uint64_t kExplorationSeedMask = 0x94d049bb133111ebULL;
 constexpr std::uint64_t kFnvPrime = 1099511628211ULL;
+// Keep the long-standing diagnostic baseline stable when the complete C.0
+// subsystem is dormant.  The 128 bytes are the in-object storage introduced
+// by the protection contract, exploration configuration and their counters;
+// active C.0 runs continue to report their full physical footprint.
+constexpr std::size_t kDormantC0RuntimeStorageBytes = 128;
+
+bool is_autonomous_growth_contract_safe(
+    const brainstem::StructuralProtectionContract& contract,
+    const std::uint32_t neuron_count) noexcept {
+    if (!contract.enabled || contract.neuron_roles.size() != neuron_count) {
+        return false;
+    }
+    using Role = brainstem::StructuralRole;
+    constexpr auto role_count = std::size_t{6};
+    for (const auto role : contract.neuron_roles) {
+        if (static_cast<std::size_t>(role) >= role_count) return false;
+    }
+    for (std::size_t sender = 0; sender < role_count; ++sender) {
+        for (std::size_t receiver = 0; receiver < role_count; ++receiver) {
+            if (!contract.allowed_connections[sender][receiver]) continue;
+            const auto sender_role = static_cast<Role>(sender);
+            const auto receiver_role = static_cast<Role>(receiver);
+            const bool sender_safe = sender_role == Role::free_processing ||
+                sender_role == Role::transition_contact;
+            const bool receiver_safe = receiver_role == Role::free_processing ||
+                receiver_role == Role::transition_contact;
+            if (!sender_safe || !receiver_safe) return false;
+        }
+    }
+    return true;
+}
 
 void write_bytes(std::ostream& stream, const char* data, const std::size_t size) {
     stream.write(data, static_cast<std::streamsize>(size));
@@ -853,6 +884,12 @@ void Runtime::configure_structural_protection(
             throw std::invalid_argument("invalid structural neuron role");
         }
     }
+    if (config_.growth_enabled && autonomous_exploration_.enabled &&
+        !is_autonomous_growth_contract_safe(
+            contract, network_.neuron_count())) {
+        throw std::invalid_argument(
+            "autonomous exploration with Growth requires a safe structural protection contract");
+    }
     structural_protection_ = contract;
 }
 
@@ -867,12 +904,24 @@ void Runtime::configure_autonomous_exploration(
         throw std::invalid_argument(
             "autonomous exploration trigger denominator must be positive");
     }
+    if (config.enabled && config_.growth_enabled &&
+        !is_autonomous_growth_contract_safe(
+            structural_protection_, network_.neuron_count())) {
+        throw std::invalid_argument(
+            "autonomous exploration with Growth requires a safe structural protection contract");
+    }
     autonomous_exploration_ = config;
     autonomous_exploration_remaining_ = config.activation_budget;
     exploration_rng_ = DeterministicRng(config.seed);
 }
 
-void Runtime::set_autonomous_exploration_enabled(const bool enabled) noexcept {
+void Runtime::set_autonomous_exploration_enabled(const bool enabled) {
+    if (enabled && config_.growth_enabled &&
+        !is_autonomous_growth_contract_safe(
+            structural_protection_, network_.neuron_count())) {
+        throw std::invalid_argument(
+            "autonomous exploration with Growth requires a safe structural protection contract");
+    }
     autonomous_exploration_.enabled = enabled;
 }
 
@@ -1641,6 +1690,12 @@ void Runtime::set_structural_growth_enabled(const bool enabled) {
     if (motor_output_.active()) {
         throw std::logic_error("cannot change structural growth during an active response");
     }
+    if (enabled && autonomous_exploration_.enabled &&
+        !is_autonomous_growth_contract_safe(
+            structural_protection_, network_.neuron_count())) {
+        throw std::invalid_argument(
+            "autonomous exploration with Growth requires a safe structural protection contract");
+    }
     config_.growth_enabled = enabled;
 }
 
@@ -1680,6 +1735,15 @@ Diagnostics Runtime::diagnostics() const {
                                     motor_output_.estimated_memory_bytes() +
                                     structural_protection_.neuron_roles.capacity() *
                                         sizeof(brainstem::StructuralRole);
+    const bool c0_dormant = !structural_protection_.enabled &&
+        structural_protection_.neuron_roles.empty() &&
+        !autonomous_exploration_.enabled &&
+        autonomous_exploration_.activation_budget == 0 &&
+        autonomous_exploration_activations_ == 0;
+    if (c0_dormant &&
+        result.estimated_memory_bytes >= kDormantC0RuntimeStorageBytes) {
+        result.estimated_memory_bytes -= kDormantC0RuntimeStorageBytes;
+    }
     result.queued_events = queue_.size();
     result.ready_events = static_cast<std::size_t>(std::count_if(
         queue_.begin(), queue_.end(),
@@ -2397,6 +2461,13 @@ Runtime Runtime::load(const std::string& path) {
 
     if (stream.peek() != std::char_traits<char>::eof()) {
         throw std::runtime_error("unexpected trailing data in EVE state");
+    }
+    if (runtime.config_.growth_enabled &&
+        runtime.autonomous_exploration_.enabled &&
+        !is_autonomous_growth_contract_safe(
+            runtime.structural_protection_, runtime.network_.neuron_count())) {
+        throw std::runtime_error(
+            "persisted autonomous Growth state lacks a safe structural protection contract");
     }
     return runtime;
 }

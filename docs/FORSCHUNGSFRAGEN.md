@@ -203,6 +203,9 @@ teilweise beantwortet.
 Frage 6 ist auch funktional teilweise beantwortet: 19 natürlich gewachsene
 Verbindungen erreichen ohne Hilfskoinzidenz S3 und sind einzeln kausal; acht
 Fälle replizieren in der Bestätigung. Offen bleibt der stabile Übergang von S4
-zu S5. Alle 19 Effekte verschwinden nach einer weiteren Erfahrung, und K3
-verbessert K0 nicht. Eine mögliche C.1-Stufe muss diese Instabilität ohne
-automatische Verstärkung, Zielwissen oder globale Suche untersuchen.
+zu S5. Alle 19 Effekte verschwinden in der unveränderten W0-Fortsetzung nach
+einer weiteren Erfahrung. Genau die jeweilige 2→1-Abschwächung der neuen Kante
+ist isoliert funktionsmindernd; 29 weitere Schreibungen sind es nicht. K3
+verbessert K0 im untersuchten einfachen 128-Neuronen-Vergleich nicht. Eine
+mögliche C.1-Stufe muss diese Instabilität ohne automatische Verstärkung,
+pauschalen Gewichtsschutz, Rollback, Zielwissen oder globale Suche untersuchen.

@@ -824,7 +824,7 @@ werden nicht als Produktionsstandard aktiviert.
 
 ## Forschungsphase C.0 – geschützte autonome Selbstorganisation
 
-Build, 827 Kerntests und vollständige Schutz-, Autonomie-, Struktur- und
+Build, 832 Kerntests und vollständige Schutz-, Autonomie-, Struktur- und
 Kontrollmatrix:
 
 ```sh
@@ -839,16 +839,22 @@ Verbindung mit Senderzustand, Rollen, Zielzustand, Zeitpunkt, Anfangsgewicht
 und späterer Aktivität. `recruitment-stages.csv.gz` trennt S0 bis S5.
 
 `protection-contract.csv` beschreibt die sechs semantischen Rollen und die
-erlaubten Growth-Richtungen. `control-groups.csv.gz` enthält K0 bis K8;
+erlaubten Growth-Richtungen. `control-groups.csv.gz` enthält 2.048 aktuelle
+K0- bis K7-Läufe; `historical-controls.csv` weist K8 ausschließlich als
+B.5.13-Referenz aus.
 `causal-interventions.csv.gz` enthält W0 bis W6 für alle 19 natürlichen
-S3-Pfade. W1 entfernt 19/19 Zielaktivierungen; W6 erhält 19/19 Pfade über die
-nächste Erfahrung, während W4/W5 sie nicht erhalten.
+S3-Pfade. Die echte W0-Fortsetzung, W2, W4 und W5 erhalten 0/19 Pfade; W1
+entfernt die unmittelbare Zielaktivierung und W6 erhält 19/19 über die nächste
+Erfahrung. `continuation-weight-writes.csv.gz` protokolliert die 48 konkreten
+W0-Schreibungen und ihre isolierten Gegenproben: 19 Abschwächungen der neuen
+Kante sind funktionsmindernd, 29 weitere Schreibungen nicht.
 `persistence.csv`, `historical-regression.csv`, `resources.csv`,
 `success-criteria.csv` und `mechanism-decision.csv` dokumentieren exakte
-Fortsetzung, B.5.11–B.5.13-Kompatibilität, Aufwand und die getrennte
+Fortsetzung, die tatsächlich ausgeführte und über 49 Ergebnisdateien
+verglichene B.5.11–B.5.13-Reproduktion, Aufwand und die getrennte
 Mergeentscheidung.
 
 C.0 bestätigt Kriterium A (Schutz und freie Rekrutierbarkeit) und B
-(natürlich funktionaler Pfad), nicht aber C (unabhängig bestätigter
-Lernvorteil).
+(natürlich funktionaler Pfad), nicht aber C (Lernvorteil im untersuchten
+einfachen 128-Neuronen-K3/K0-Vergleich).
 Automatische Exploration, Growth und S4 bleiben Produktionsstandard aus.

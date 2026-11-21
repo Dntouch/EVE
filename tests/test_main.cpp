@@ -8256,6 +8256,79 @@ void test_c0_protected_autonomous_structural_learning_case(
         require(runtime.network().validate() &&
                     runtime.autonomous_exploration_remaining() == 3,
                 "C.0 produced an invalid protected autonomous state");
+    } else if (index == 20) {
+        eve::ExperimentConfig config;
+        config.neuron_count = 32;
+        config.width = 4;
+        config.height = 4;
+        config.depth = 2;
+        config.initial_outgoing_synapses = 0;
+        config.growth_enabled = true;
+        eve::bios::Runtime unprotected(config, 0xC020ULL);
+        eve::brainstem::AutonomousExplorationConfig exploration;
+        exploration.enabled = true;
+        exploration.activation_budget = 1;
+        bool rejected = false;
+        try { unprotected.configure_autonomous_exploration(exploration); }
+        catch (const std::invalid_argument&) { rejected = true; }
+        require(rejected,
+                "C.0 allowed combined autonomous Growth without a contract");
+    } else if (index == 21) {
+        runtime.set_autonomous_exploration_enabled(false);
+        auto unsafe = runtime.structural_protection();
+        const auto sensory = static_cast<std::size_t>(
+            eve::brainstem::StructuralRole::innate_sensory);
+        const auto free = static_cast<std::size_t>(
+            eve::brainstem::StructuralRole::free_processing);
+        unsafe.allowed_connections[free][sensory] = true;
+        runtime.configure_structural_protection(unsafe);
+        bool rejected = false;
+        try { runtime.set_autonomous_exploration_enabled(true); }
+        catch (const std::invalid_argument&) { rejected = true; }
+        require(rejected,
+                "C.0 accepted an unsafe direction matrix for autonomous Growth");
+    } else if (index == 22) {
+        eve::ExperimentConfig config;
+        config.neuron_count = 32;
+        config.width = 4;
+        config.height = 4;
+        config.depth = 2;
+        config.initial_outgoing_synapses = 0;
+        config.growth_enabled = false;
+        eve::bios::Runtime exploration_only(config, 0xC022ULL);
+        eve::brainstem::AutonomousExplorationConfig exploration;
+        exploration.enabled = true;
+        exploration.activation_budget = 1;
+        exploration_only.configure_autonomous_exploration(exploration);
+        bool rejected = false;
+        try { exploration_only.set_structural_growth_enabled(true); }
+        catch (const std::invalid_argument&) { rejected = true; }
+        require(rejected,
+                "C.0 later Growth activation bypassed the protection contract");
+    } else if (index == 23) {
+        auto disabled = runtime.structural_protection();
+        disabled.enabled = false;
+        bool rejected = false;
+        try { runtime.configure_structural_protection(disabled); }
+        catch (const std::invalid_argument&) { rejected = true; }
+        require(rejected,
+                "C.0 allowed protection removal while autonomous Growth was active");
+    } else if (index == 24) {
+        const auto file = std::filesystem::temp_directory_path() /
+            "eve-stage-c0-contract.bin";
+        runtime.save(file.string());
+        auto restored = eve::bios::Runtime::load(file.string());
+        bool rejected = false;
+        auto disabled = restored.structural_protection();
+        disabled.enabled = false;
+        try { restored.configure_structural_protection(disabled); }
+        catch (const std::invalid_argument&) { rejected = true; }
+        require(rejected &&
+                    restored.structural_protection().enabled &&
+                    restored.autonomous_exploration_config().enabled &&
+                    restored.config().growth_enabled,
+                "C.0 persisted contract did not survive later reconfiguration");
+        static_cast<void>(std::filesystem::remove(file));
     }
 }
 
@@ -8967,7 +9040,7 @@ int main() {
             std::string("B513 ") + b513_names[index],
             [index]() { test_b513_recruitment_growth_exploration_case(index); });
     }
-    const std::array<const char*, 20> c0_names{{
+    const std::array<const char*, 25> c0_names{{
         "semantic protection inventory", "protected Growth targets",
         "explicit transition contacts", "id-independent protection",
         "local autonomous trigger", "exploration budget",
@@ -8978,6 +9051,11 @@ int main() {
         "protected autonomous target", "2048-neuron resource bound",
         "complete role inventory", "safe direction matrix",
         "zero-information Growth", "valid autonomous state",
+        "unprotected combined activation rejected",
+        "unsafe matrix activation rejected",
+        "later Growth activation rejected",
+        "active contract removal rejected",
+        "persisted contract reconfiguration guarded",
     }};
     for (std::uint32_t index = 0; index < c0_names.size(); ++index) {
         tests.emplace_back(

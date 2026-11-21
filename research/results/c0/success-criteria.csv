@@ -1,6 +1,6 @@
 criterion,passed,evidence
 A_protection_and_free_recruitability,1,autonomous-trials.csv.gz
 B_natural_functional_path_without_helper,1,causal-interventions.csv.gz
-C_independent_learning_advantage,0,control-groups.csv.gz
+C_simple_128_K3_over_K0_learning_advantage,0,control-groups.csv.gz
 persistence_and_determinism,1,persistence.csv
 historical_B511_B513_exact,1,historical-regression.csv

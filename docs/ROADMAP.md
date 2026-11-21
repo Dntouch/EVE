@@ -209,11 +209,15 @@ C.0 implementiert und bestätigt anschließend den lokalen Growth-Schutzvertrag
 sowie eine durch echte Feuerereignisse ausgelöste autonome interne
 Exploration. In 166.261 Growth-Ereignissen tritt keine Schutzverletzung auf.
 1.802 Verbindungen werden natürlich positiv, 19 erreichen S3 und bestehen die
-W1-Kausalprobe; acht davon liegen in der Bestätigung. Alle 19 verlieren die
-Funktion jedoch schon nach einer weiteren natürlichen Erfahrung, und K3 zeigt
-keinen Lernvorteil gegenüber K0. Eine mögliche C.1-Stufe muss deshalb den
-Übergang S4→S5 und die Stabilität kausal isolieren. Automatische Mechanismen
-bleiben bis dahin als Produktionsstandard gesperrt.
+W1-Kausalprobe; acht davon liegen in der Bestätigung. Die unveränderte
+W0-Fortsetzung verliert 19/19 Funktionen nach einer weiteren natürlichen
+Erfahrung. Isolierte Gegenproben führen dies auf genau 19 Abschwächungen der
+neuen Kante zurück; 29 weitere Schreibungen haben keinen isolierten
+Funktionseffekt. Im untersuchten einfachen 128-Neuronen-K3/K0-Vergleich zeigt
+sich kein Lernvorteil. Eine mögliche C.1-Stufe muss deshalb den Übergang S4→S5
+und die Stabilität kausal isolieren, ohne pauschalen Gewichtsschutz oder
+Rollback. Automatische Mechanismen bleiben bis dahin als Produktionsstandard
+gesperrt.
 
 ## Erfolgskriterien aus dem Konzept
 

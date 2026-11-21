@@ -31,10 +31,10 @@ constexpr std::array<const char*, 10> kTasks{{
     "simple_sensorimotor", "competing_relations", "P_to_Q_or_R", "A_to_B",
     "mixed_A_B", "reacquisition", "partial_latent_learning",
     "retention_consolidation", "transfer", "B512_learning_checkpoints"}};
-constexpr std::array<const char*, 9> kControls{{
+constexpr std::array<const char*, 8> kControls{{
     "K0_fixed", "K1_growth_only", "K2_exploration_only",
     "K3_protected_combined", "K4_static_zero_extras", "K5_random_structure",
-    "K6_no_learning", "K7_no_natural_modulation", "K8_B513_positive_control"}};
+    "K6_no_learning", "K7_no_natural_modulation"}};
 
 struct TrialResult {
     std::uint32_t free_neurons{};
@@ -140,6 +140,29 @@ const char* role_name(const eve::brainstem::StructuralRole role) {
     return "invalid";
 }
 
+const char* write_outcome_name(const eve::bios::PlasticityWriteOutcome outcome) {
+    using Outcome = eve::bios::PlasticityWriteOutcome;
+    switch (outcome) {
+    case Outcome::changed: return "changed";
+    case Outcome::protected_synapse: return "protected_synapse";
+    case Outcome::positive_weight_limit: return "positive_weight_limit";
+    case Outcome::input_weight_budget: return "input_weight_budget";
+    case Outcome::negative_zero_floor: return "negative_zero_floor";
+    case Outcome::write_suppressed: return "write_suppressed";
+    case Outcome::isolated_write_suppressed: return "isolated_write_suppressed";
+    }
+    return "unknown";
+}
+
+const char* intervention_name(const std::uint32_t intervention) {
+    constexpr std::array<const char*, 7> names{{
+        "natural_continuation", "selected_edge_ablation",
+        "copied_natural_continuation", "all_functional_edges_ablation",
+        "growth_disabled_continuation", "exploration_disabled_continuation",
+        "weight_writes_suppressed_continuation"}};
+    return names.at(intervention);
+}
+
 bool growth_enabled(const std::string& control) {
     return control != "K0_fixed" && control != "K2_exploration_only";
 }
@@ -152,21 +175,7 @@ TrialResult run_trial(const std::string& phase, const std::string& task,
                       const std::string& control, const std::uint32_t neurons,
                       const bool inverse, const std::uint64_t seed,
                       std::ofstream* connections, std::ofstream* curves,
-                      std::ofstream* causal) {
-    if (control == "K8_B513_positive_control") {
-        TrialResult positive;
-        positive.free_neurons = neurons > 20 ? neurons - 20 : 0;
-        positive.explorations = 1;
-        positive.grown = 1;
-        positive.positive_edges = 1;
-        positive.changed_edges = 1;
-        positive.functional_edges = 1;
-        positive.correct_experiences = 1;
-        positive.positive_writes = 2;
-        positive.repertoire = 1;
-        positive.valid = true;
-        return positive;
-    }
+                      std::ofstream* causal, std::ofstream* writes) {
     const bool growth = growth_enabled(control);
     const bool exploration = exploration_enabled(control);
     const bool plasticity = control != "K6_no_learning";
@@ -340,11 +349,23 @@ TrialResult run_trial(const std::string& phase, const std::string& task,
         for (const auto selected : functional_ids) {
             const auto sender = runtime.network().synapse(selected).sender;
             const auto target = runtime.network().synapse(selected).receiver;
-            bool baseline_fired = false;
+            const auto probe_target = [sender, target](eve::bios::Runtime copy) {
+                bool target_fired = false;
+                copy.set_fire_observer(
+                    [&](const eve::bios::FireObservation& event) {
+                        target_fired = target_fired || event.neuron == target;
+                    });
+                copy.enqueue_fire(sender);
+                static_cast<void>(copy.run());
+                return target_fired;
+            };
+            const bool pre_continuation_fired = probe_target(runtime);
             bool single_ablation_fired = false;
             for (std::uint32_t intervention = 0; intervention <= 6;
                  ++intervention) {
                 auto copy = runtime;
+                const auto selected_weight_before =
+                    copy.network().synapse(selected).weight;
                 if (intervention == 1)
                     copy.set_experimental_synapse_weight(selected, 0);
                 if (intervention == 3)
@@ -357,30 +378,100 @@ TrialResult run_trial(const std::string& phase, const std::string& task,
                 if (intervention == 6)
                     copy.set_experimental_plasticity_writes_suppressed(true);
                 int continuation_correct = -1;
-                if (intervention >= 4) {
+                std::vector<eve::bios::PlasticityObservation> observations;
+                copy.set_plasticity_observer(
+                    [&](const eve::bios::PlasticityObservation& observation) {
+                        observations.push_back(observation);
+                    });
+                const bool continuation_executed =
+                    intervention == 0 || intervention == 2 || intervention >= 4;
+                if (continuation_executed) {
                     continuation_correct = b511_episode(
                         copy, circuit, b511_pattern(B511Task::a, false, inverse),
                         static_cast<std::uint8_t>((seed + 16) & 1U), true).correct;
                 }
-                bool target_fired = false;
-                copy.set_fire_observer(
-                    [&](const eve::bios::FireObservation& event) {
-                        target_fired = target_fired || event.neuron == target;
-                    });
-                copy.enqueue_fire(sender);
-                static_cast<void>(copy.run());
-                if (intervention == 0) baseline_fired = target_fired;
+                const auto selected_weight_after =
+                    copy.network().synapse(selected).weight;
+                const bool target_fired = probe_target(copy);
                 if (intervention == 1) single_ablation_fired = target_fired;
                 *causal << phase << ',' << task << ','
                     << (inverse ? "inverse" : "normal") << ',' << neurons << ','
                     << seed << ',' << selected << ",W" << intervention << ','
-                    << continuation_correct << ',' << target_fired << ','
-                    << (intervention == 0 ? 0
-                        : static_cast<int>(baseline_fired) -
-                              static_cast<int>(target_fired)) << ",1\n";
+                    << intervention_name(intervention) << ','
+                    << continuation_executed << ',' << continuation_correct << ','
+                    << pre_continuation_fired << ',' << target_fired << ','
+                    << selected_weight_before << ',' << selected_weight_after << ','
+                    << (selected_weight_after - selected_weight_before) << ','
+                    << std::count_if(
+                           observations.begin(), observations.end(),
+                           [](const auto& item) {
+                               return item.changed && item.requested_delta > 0;
+                           }) << ','
+                    << std::count_if(
+                           observations.begin(), observations.end(),
+                           [](const auto& item) {
+                               return item.changed && item.requested_delta < 0;
+                           }) << ','
+                    << (static_cast<int>(pre_continuation_fired) -
+                        static_cast<int>(target_fired)) << ",1\n";
+
+                if (writes != nullptr && continuation_executed) {
+                    for (std::size_t write_index = 0;
+                         write_index < observations.size(); ++write_index) {
+                        const auto& observation = observations[write_index];
+                        int isolated_target_fired = -1;
+                        const char* isolated_effect = "not_isolated";
+                        if (intervention == 0 && observation.changed) {
+                            auto isolated = runtime;
+                            isolated.set_experimental_plasticity_write_interceptor(
+                                [&](const eve::bios::PlasticityObservation& candidate) {
+                                    return candidate.event_index ==
+                                               observation.event_index &&
+                                        candidate.candidate == observation.candidate &&
+                                        candidate.weight_before ==
+                                            observation.weight_before &&
+                                        candidate.proposed_weight ==
+                                            observation.proposed_weight;
+                                });
+                            static_cast<void>(b511_episode(
+                                isolated, circuit,
+                                b511_pattern(B511Task::a, false, inverse),
+                                static_cast<std::uint8_t>((seed + 16) & 1U), true));
+                            isolated_target_fired = probe_target(isolated);
+                            if (isolated_target_fired == target_fired) {
+                                isolated_effect = "no_isolated_function_effect";
+                            } else if (isolated_target_fired) {
+                                isolated_effect = "write_contributed_to_function_loss";
+                            } else {
+                                isolated_effect =
+                                    "write_contributed_to_function_retention";
+                            }
+                        }
+                        const char* relation = observation.candidate == selected
+                            ? "selected_edge"
+                            : observation.receiver == target
+                                ? "same_target" : "other_edge";
+                        *writes << phase << ',' << task << ','
+                            << (inverse ? "inverse" : "normal") << ','
+                            << neurons << ',' << seed << ',' << selected << ",W"
+                            << intervention << ',' << intervention_name(intervention)
+                            << ',' << write_index << ',' << observation.event_index
+                            << ',' << observation.candidate << ','
+                            << observation.candidate_sender << ','
+                            << observation.receiver << ',' << relation << ','
+                            << static_cast<int>(observation.modulation_polarity)
+                            << ',' << observation.weight_before << ','
+                            << observation.weight_after << ','
+                            << observation.requested_delta << ','
+                            << observation.changed << ','
+                            << write_outcome_name(observation.write_outcome) << ','
+                            << target_fired << ',' << isolated_target_fired << ','
+                            << isolated_effect << '\n';
+                    }
+                }
             }
             result.causally_verified_functional_edges +=
-                baseline_fired && !single_ablation_fired;
+                pre_continuation_fired && !single_ablation_fired;
         }
     }
     result.valid = runtime.network().validate();
@@ -404,7 +495,10 @@ int main(int argc, char** argv) {
     protocol << "field,value\ncentral_control,K3_protected_combined\n"
         "episodes,16\ncheckpoints,1;2;4;8;16\nexploration_budget,8\n"
         "growth_budget,local_outgoing_probability\nfunctional_threshold,weight_ge_firing_threshold\n"
-        "learning_success,B512_stage_rules\nproduction_S4,disabled\n";
+        "learning_success,B512_stage_rules\ncurrent_controls,K0-K7\n"
+        "K8_status,historical_B513_reference_only\n"
+        "W0_status,unintervened_identical_natural_continuation\n"
+        "production_S4,disabled\n";
 
     std::ofstream roles(output / "protection-contract.csv");
     roles << "role,may_send_growth,may_receive_growth,purpose\n"
@@ -433,7 +527,17 @@ int main(int argc, char** argv) {
         "functional_growth_edges,positive_writes,negative_writes\n";
     std::ofstream causal(output / "causal-interventions.csv");
     causal << "phase,task,assignment,neurons,seed,synapse,intervention,"
-        "continuation_correct,target_fired,effect,applicable\n";
+        "intervention_name,continuation_executed,continuation_correct,"
+        "target_fired_before_continuation,target_fired_after,"
+        "selected_weight_before,selected_weight_after,selected_weight_delta,"
+        "positive_writes,negative_writes,function_effect,applicable\n";
+    std::ofstream writes(output / "continuation-weight-writes.csv");
+    writes << "phase,task,assignment,neurons,seed,selected_synapse,intervention,"
+        "intervention_name,write_index,event_index,candidate_synapse,"
+        "candidate_sender,receiver,relation,modulation_polarity,weight_before,"
+        "weight_after,requested_delta,changed,write_outcome,"
+        "continued_target_fired,isolated_suppression_target_fired,"
+        "isolated_function_effect\n";
     std::uint64_t confirmed_functional_edges = 0;
     std::uint64_t confirmed_causal_edges = 0;
     std::uint64_t central_functional_edges = 0;
@@ -449,7 +553,8 @@ int main(int argc, char** argv) {
                             neurons * 10ULL + sample;
                         const auto result = run_trial(
                             phase_row.first, kTasks[task_index], kControls[3],
-                            neurons, inverse, seed, &connections, &curves, &causal);
+                            neurons, inverse, seed, &connections, &curves, &causal,
+                            &writes);
                         const bool equivalent = neurons != 32 &&
                             result.free_neurons >= 24;
                         trials << phase_row.first << ',' << kTasks[task_index]
@@ -496,7 +601,7 @@ int main(int argc, char** argv) {
                     const auto result = run_trial(
                         phase_row.first, "simple_sensorimotor", control, 128,
                         inverse, phase_row.second + inverse * 1000ULL + sample,
-                        nullptr, nullptr, nullptr);
+                        nullptr, nullptr, nullptr, nullptr);
                     controls << phase_row.first << ','
                         << (inverse ? "inverse" : "normal") << ',' << control << ','
                         << phase_row.second + inverse * 1000ULL + sample << ','
@@ -504,9 +609,7 @@ int main(int argc, char** argv) {
                         << result.protected_violations << ',' << result.positive_edges
                         << ',' << result.functional_edges << ','
                         << result.correct_experiences << ',' << result.repertoire << ','
-                        << (std::string(control) == "K8_B513_positive_control"
-                                ? "controlled_technical_proof" : "natural_no_helper")
-                        << '\n';
+                        << "current_C0_measurement" << '\n';
                     const std::string key = std::string(phase_row.first) + ':' +
                         (inverse ? "inverse:" : "normal:") + control;
                     control_correct[key] += result.correct_experiences;
@@ -515,6 +618,12 @@ int main(int argc, char** argv) {
             }
         }
     }
+
+    std::ofstream historical_controls(output / "historical-controls.csv");
+    historical_controls << "control,status,source,interpretation\n"
+        "K8_B513_positive_control,historical_reference_only,"
+        "research/results/b513/functional-growth.csv.gz,"
+        "not_a_current_C0_measurement\n";
 
     const bool confirmed_learning_advantage =
         control_correct["confirmation:normal:K3_protected_combined"] >
@@ -545,31 +654,48 @@ int main(int argc, char** argv) {
     static_cast<void>(restored.run());
     const bool identical_continuation =
         original.state_fingerprint() == restored.state_fingerprint();
+    auto guarded = restored;
+    auto disabled_contract = guarded.structural_protection();
+    disabled_contract.enabled = false;
+    bool post_load_contract_removal_rejected = false;
+    try {
+        guarded.configure_structural_protection(disabled_contract);
+    } catch (const std::invalid_argument&) {
+        post_load_contract_removal_rejected = true;
+    }
+    auto unprotected_config = config_for(128, true, true);
+    eve::bios::Runtime unprotected(unprotected_config, 0xC0BADULL);
+    auto unsafe_exploration = auto_config;
+    bool unsafe_combined_enable_rejected = false;
+    try {
+        unprotected.configure_autonomous_exploration(unsafe_exploration);
+    } catch (const std::invalid_argument&) {
+        unsafe_combined_enable_rejected = true;
+    }
     std::filesystem::remove(state);
     std::ofstream persistence(output / "persistence.csv");
     persistence << "pending_events,roles,exploration_rng,budget,new_synapses,"
-        "identical_load,identical_continuation,valid\n"
+        "identical_load,identical_continuation,unsafe_combined_enable_rejected,"
+        "post_load_contract_removal_rejected,valid\n"
         << "1,1,1,1,1," << identical_load << ',' << identical_continuation << ','
+        << unsafe_combined_enable_rejected << ','
+        << post_load_contract_removal_rejected << ','
         << restored.network().validate() << '\n';
 
-    std::ofstream historical(output / "historical-regression.csv");
-    historical << "stage,mechanisms_disabled,exact_regression,tests\n"
-        "B511,1,1,35\nB512,1,1,25\nB513,1,1,21\n";
     std::ofstream success(output / "success-criteria.csv");
     success << "criterion,passed,evidence\n"
         "A_protection_and_free_recruitability,1,autonomous-trials.csv.gz\n"
         "B_natural_functional_path_without_helper," <<
             (confirmed_functional_edges > 0 && confirmed_causal_edges > 0) <<
             ",causal-interventions.csv.gz\n"
-        "C_independent_learning_advantage," << confirmed_learning_advantage <<
+        "C_simple_128_K3_over_K0_learning_advantage," << confirmed_learning_advantage <<
             ",control-groups.csv.gz\n"
-        "persistence_and_determinism,1,persistence.csv\n"
-        "historical_B511_B513_exact,1,historical-regression.csv\n";
+        "persistence_and_determinism,1,persistence.csv\n";
     std::ofstream decision(output / "mechanism-decision.csv");
     decision << "component,merge_recommendation,production_default,rationale\n"
         "protection_contract,yes,enabled_when_autonomy_enabled,all_safety_tests_pass\n"
-        "autonomous_exploration,yes_infrastructure_only,disabled,no_natural_learning_proof\n"
-        "protected_growth,yes_infrastructure_only,disabled,no_natural_functional_path\n"
+        "autonomous_exploration,yes_infrastructure_only,disabled,no_causal_learned_skill_contribution\n"
+        "protected_growth,yes_infrastructure_only,disabled,natural_function_but_no_simple_128_K3_K0_advantage\n"
         "new_learning_rule,no,absent,no_causal_bottleneck_rule_authorized\n"
         "S4,no,disabled,unchanged_production_default\n";
 

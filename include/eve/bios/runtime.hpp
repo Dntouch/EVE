@@ -366,7 +366,7 @@ public:
     structural_protection() const noexcept;
     void configure_autonomous_exploration(
         const brainstem::AutonomousExplorationConfig& config);
-    void set_autonomous_exploration_enabled(bool enabled) noexcept;
+    void set_autonomous_exploration_enabled(bool enabled);
     [[nodiscard]] const brainstem::AutonomousExplorationConfig&
     autonomous_exploration_config() const noexcept;
     [[nodiscard]] std::uint32_t autonomous_exploration_remaining() const noexcept;

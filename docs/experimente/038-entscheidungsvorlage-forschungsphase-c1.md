@@ -9,7 +9,10 @@ Stabilisierung natürlicher S4-Pfade und Übergang S4 → S5
 C.0 bestätigt geschützte autonome Exploration, Strukturbildung und 19
 natürlich funktionale, einzeln kausale S3-Pfade. Acht Fälle replizieren in der
 Bestätigung. Alle 19 verlieren die Wirkung jedoch in der nächsten natürlichen
-Erfahrung; K3 verbessert K0 nicht.
+Erfahrung. Die echte W0-Fortsetzung lokalisiert dies auf 19 konkrete
+2→1-Abschwächungen der neuen Kante; 29 weitere Schreibungen sind isoliert
+funktionsneutral. Im untersuchten einfachen 128-Neuronen-Vergleich verbessert
+K3 K0 nicht.
 
 ## Empfohlene Leitfrage
 
@@ -34,6 +37,7 @@ abgebaut wird, und kann ein solcher Pfad ohne Zielwissen S5 erreichen?
 - periodische globale Scans,
 - Lösungspfad- oder Aufgabenlabel,
 - automatisches Verstärken neuer Synapsen,
+- pauschaler Gewichtsschutz oder automatischer Rollback,
 - neue Regel ohne lokalisierten kausalen Engpass,
 - Produktionsaktivierung von Exploration, Growth oder S4.
 

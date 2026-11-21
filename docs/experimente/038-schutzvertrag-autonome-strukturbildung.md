@@ -15,6 +15,13 @@ Jedes Neuron erhält eine persistierte semantische Rolle. Die Prüfung hängt
 nicht von fest codierten Neuron-IDs ab. Eine unvollständige Rollenliste wird
 abgelehnt.
 
+Wenn autonome interne Exploration und Growth gleichzeitig aktiv sind, ist
+dieser vollständige und sichere Vertrag eine Runtime-Invariante. Ungeschützte
+Erstkonfiguration, spätere Aktivierung von Growth oder Exploration, Entfernen
+des Vertrags sowie Laden eines ungeschützten kombinierten Zustands werden
+abgelehnt. Reine historische Growth- oder Explorationsmodi bleiben davon
+unberührt.
+
 ## Erlaubte Verbindungstypen
 
 Der sichere Standard erlaubt ausschließlich:
@@ -36,11 +43,15 @@ Growth-Kandidatenauswahl geprüft. Exploration wählt bei aktivem Vertrag nur
 - kein rekursiver Explorationstrigger durch das explorative Feuer,
 - lokale räumliche Reichweite zwei,
 - Growth behält seine lokale, vom Ausgangsgrad abhängige Wahrscheinlichkeit,
+- die kombinierte Aktivierung ist ohne gültigen Vertrag unmöglich,
 - keine automatische Löschregel und kein globaler Lösungsscan.
 
 ## Ergebnis
 
 In 12.800 zentralen Versuchen entstanden 166.261 Growth-Ereignisse ohne einen
 einzigen unzulässigen Sender oder Empfänger. Alle 12.800 Netze blieben gültig.
+Fünf gezielte Regressionstests prüfen Erstaktivierung, unsichere
+Richtungsmatrix, spätere Konfigurationsänderung, Vertragsentfernung und
+Persistenz.
 Die 32-Neuronen-Variante besitzt nur 14 freie Verarbeitungsknoten und wird
 deshalb nicht als kapazitiv äquivalent zu den größeren Varianten bewertet.

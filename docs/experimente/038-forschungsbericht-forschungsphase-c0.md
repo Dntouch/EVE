@@ -17,16 +17,22 @@ globaler Scan.
 Die natürliche Funktionsbildung gelingt selten: Von 166.261 neuen
 Verbindungen erhielten 1.802 positives Gewicht und 19 erreichten Gewicht 2.
 Alle 19 aktivierten ihr Ziel und verloren diese Wirkung unter W1; acht Fälle
-liegen in der unabhängigen Bestätigung. Schon eine weitere natürliche
-Erfahrung entfernt jedoch alle 19 Effekte, sofern W6 spätere Schreibungen
-nicht unterdrückt. Ein Lernvorteil entsteht nicht.
+liegen in der unabhängigen Bestätigung. Eine unveränderte W0-Fortsetzung mit
+einer weiteren natürlichen Erfahrung entfernt jedoch alle 19 Effekte. W2,
+W4 und W5 reproduzieren diesen Verlust; nur W6 mit unterdrückten
+Gewichtsschreibungen erhält 19/19. Isolierte Gegenproben zeigen: In jedem Fall
+ist die Abschwächung der neuen Verbindung von 2 auf 1 funktionsmindernd; 29
+weitere tatsächlich ausgeführte Schreibungen verändern die spätere Funktion
+isoliert nicht. Im untersuchten einfachen K3/K0-Vergleich entsteht kein
+Lernvorteil.
 
 ## Umfang und Ergebnis
 
 | Größe | Wert |
 |---|---:|
 | zentrale Discovery-/Bestätigungsläufe | 12.800 |
-| Kontrollläufe K0–K8 | 2.304 |
+| aktuelle Kontrollläufe K0–K7 | 2.048 |
+| K8 | historische B.5.13-Referenz, kein aktueller Messwert |
 | Seeds je Phase und Familie | 64 |
 | Netzgrößen | 32, 128, 256, 512, 2.048 |
 | autonome interne Aktivierungen | 102.400 |
@@ -35,8 +41,10 @@ nicht unterdrückt. Ein Lernvorteil entsteht nicht.
 | positive natürliche Growth-Pfade | 1.802 |
 | funktionale und W1-kausale S3-Pfade | 19/19 |
 | bestätigte S3-Pfade | 8 |
-| nach einer weiteren Erfahrung erhalten | 0/19 |
-| bestandene Regressionstests | 827/827 |
+| nach unveränderter W0-Folgeerfahrung erhalten | 0/19 |
+| konkrete W0-Gewichtsschreibungen | 48 |
+| davon isoliert funktionsmindernd | 19 |
+| bestandene Regressionstests | 832/832 |
 
 ## Antworten A–N
 
@@ -73,23 +81,31 @@ Kontrollvorteil erzeugt.
 
 ### F – Natürliche Funktionsbildung
 
-Bestätigt, aber selten und instabil. 19 natürliche Pfade aktivieren ihr Ziel;
-acht replizieren in der Bestätigung. K8 bleibt davon getrennte technische
-Positivkontrolle.
+Bestätigt, aber selten und nur unmittelbar nachgewiesen. 19 natürliche Pfade
+aktivieren ihr Ziel; acht replizieren in der Bestätigung. K8 ist ausschließlich
+als historische B.5.13-Referenz ausgewiesen und kein aktueller C.0-Messwert.
 
 ### G – Lernkurven
 
 Die historischen Aufgabenfamilien zeigen Strukturzuwachs, 1.802 positive
-Growth-Gewichte und 19 S3-Pfade. K3 und K0 erzielen in beiden Zuordnungen
-jedoch exakt 544 korrekte Erfahrungen und Repertoire 64 je 64 Seeds. Ein
-B.5.12-Lernstufenvorteil ist nicht bestätigt.
+Growth-Gewichte und 19 S3-Pfade. In der untersuchten einfachen
+128-Neuronen-Kontrollfamilie der Bestätigung erzielen K3 und K0 in beiden
+Zuordnungen jeweils exakt 544 korrekte Erfahrungen und Repertoiresumme 64 je
+64 Seeds. Nur für diesen Vergleich ist kein Lernvorteil nachgewiesen; eine
+allgemeine Aussage über andere Aufgaben oder Trainingsumfänge folgt daraus
+nicht.
 
 ### H – Kausale Interventionen
 
-W0–W6 wurden in 133 echten Kopien ausgeführt. W0 aktiviert 19/19 Ziele, W1
-0/19. W4 und W5 verlieren nach einer weiteren Erfahrung alle Effekte; W6
-erhält 19/19. Damit sind unmittelbare Funktion und spätere Instabilität
-getrennt kausal lokalisiert.
+W0–W6 wurden in 133 echten Kopien ausgeführt. Vor der Fortsetzung aktivieren
+die 19 ausgewählten Verbindungen ihr Ziel; W1 senkt dies durch Einzelablation
+auf 0/19. Die echte, interventionsfreie W0-Folgeerfahrung sowie W2, W4 und W5
+enden bei 0/19, W6 bei 19/19. W0 enthält 48 konkrete negative
+Gewichtsschreibungen: Die 19 Abschwächungen der ausgewählten neuen Verbindung
+von 2 auf 1 sind in isolierter Schreibunterdrückung jeweils kausal für den
+Funktionsverlust; 19 Schreibungen an dasselbe Ziel und zehn an andere Kanten
+zeigen isoliert keinen Funktionseffekt. Gewichtsänderung wird damit nicht
+pauschal als schädlich klassifiziert.
 
 ### I – Größen
 
@@ -100,7 +116,7 @@ freie Struktur, aber keinen Funktionsvorteil.
 ### J – Ressourcen
 
 Exploration ist budgetiert, Growth lokal probabilistisch, Events bleiben
-gebunden. Der gemessene Lauf benötigte rund 8,7 MiB Peak-RSS; Laufzeitwerte
+gebunden. Der gemessene Lauf benötigte rund 9,9 MiB Peak-RSS; Laufzeitwerte
 sind maschinenabhängig.
 
 ### K – Persistenz
@@ -111,8 +127,10 @@ Restbudget, Aktivierungszähler, pending Events, neue Synapsen und sämtliche
 
 ### L – Historische Regression
 
-B.5.11, B.5.12 und B.5.13 bleiben bei deaktivierten C.0-Mechanismen exakt.
-Alle 827 Tests bestehen.
+B.5.11, B.5.12 und B.5.13 wurden mit deaktivierten C.0-Mechanismen tatsächlich
+neu ausgeführt. 21, 15 und 13 deterministische Ergebnisdateien stimmen
+inhaltlich exakt mit den historischen Referenzen überein. Alle 832 Tests
+bestehen.
 
 ### M – Neue Regel
 
@@ -131,7 +149,7 @@ Lernregel oder pauschaler Gewichtsschutz wird ausdrücklich nicht empfohlen.
 
 - **A – Schutz und freie Rekrutierbarkeit:** bestanden.
 - **B – natürlicher funktionaler Pfad:** bestanden.
-- **C – unabhängig bestätigter Lernvorteil:** nicht bestanden.
+- **C – Lernvorteil im vorab untersuchten K3/K0-Vergleich:** nicht bestanden.
 
 Das negative Ergebnis begrenzt die Aussage von Meilenstein 002 korrekt: EVE
 kann freie Neuronen technisch und nun auch strukturell sicher rekrutieren und

@@ -32,7 +32,8 @@ entstehen.
 
 Discovery und unabhängige Bestätigung verwenden je 64 Seeds. Geprüft werden
 32, 128, 256, 512 und 2.048 Neuronen, zehn historische Aufgabenfamilien, die
-Kontrollen K0–K8, die Rekrutierungsstufen S0–S5 und die kausalen
+aktuellen Kontrollen K0–K7 mit K8 als ausdrücklich historischer Referenz, die
+Rekrutierungsstufen S0–S5 und die kausalen
 Interventionen W0–W6. Schutz, Ressourcen, Persistenz, deterministische
 Fortsetzung und die exakte historische Regression B.5.11–B.5.13 werden
 getrennt bewertet.
@@ -42,8 +43,8 @@ getrennt bewertet.
 1. **A – Sicherheit:** Schutzvertrag und freie Rekrutierbarkeit bestehen.
 2. **B – Funktion:** Mindestens ein natürlich gewachsener Pfad wird ohne
    Versuchshilfe funktional und besteht eine gezielte Kausalprüfung.
-3. **C – Lernen:** Ein Lernvorteil wird in der unabhängigen Bestätigung
-   reproduziert.
+3. **C – Lernen:** Ein Lernvorteil wird im vorab festgelegten K3/K0-Vergleich
+   der unabhängigen Bestätigung reproduziert.
 
 Ein negatives Ergebnis bei B oder C ist zulässig und darf nicht durch eine
 technische Positivkontrolle ersetzt werden.

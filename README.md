@@ -28,13 +28,17 @@ Sensorik, Motorik, Bewertung und Stammhirn vor Growth, während freie Neuronen
 rekrutierbar bleiben. Interne Exploration wird nun durch lokale neuronale
 Aktivität statt durch den Forschungsrunner ausgelöst. Die sichere autonome
 Strukturbildung ist bestätigt. Seltene neue Pfade werden natürlich funktional
-und kausal wirksam, sind aber schon nach einer weiteren Erfahrung wieder
-verloren; ein Lernvorteil ist nicht bestätigt.
+und kausal wirksam, sind aber in der untersuchten unmittelbaren Fortsetzung
+schon nach einer weiteren Erfahrung wieder verloren. Der Verlust geht in allen
+19 Fällen auf die konkrete Abschwächung der neuen Verbindung von 2 auf 1
+zurück; 29 weitere Schreibungen waren isoliert ohne Funktionseffekt. Ein
+Lernvorteil ist im untersuchten K3/K0-Vergleich nicht bestätigt.
 
 | C.0-Befund | Ergebnis |
 |---|---:|
 | zentrale Discovery-/Bestätigungsläufe | 12.800 |
-| Kontrollläufe K0–K8 | 2.304 |
+| aktuelle Kontrollläufe K0–K7 | 2.048 |
+| K8 | ausschließlich historische B.5.13-Referenz |
 | Netzgrößen | 32 · 128 · 256 · 512 · 2.048 |
 | autonome interne Aktivierungen | 102.400 |
 | geschützte Growth-Ereignisse | 166.261 |
@@ -42,8 +46,10 @@ verloren; ein Lernvorteil ist nicht bestätigt.
 | positive natürliche Growth-Pfade | 1.802 |
 | natürliche funktionale und W1-kausale Pfade | 19/19 |
 | davon unabhängige Bestätigung | 8 |
-| bestätigter Lernvorteil K3 gegenüber K0 | keiner |
-| Regressionstests | 827/827 |
+| nach unveränderter W0-Folgeerfahrung erhalten | 0/19 |
+| isoliert kausale funktionsmindernde Schreibungen | 19/48 |
+| Lernvorteil K3 gegenüber K0 im untersuchten Vergleich | keiner |
+| Regressionstests | 832/832 |
 
 Vollständige Rekrutierbarkeit und tatsächliche funktionale Nutzung werden
 künftig getrennt bewertet. S4 bleibt standardmäßig deaktiviert; weder eine
@@ -76,7 +82,7 @@ prüfen und auch negative Ergebnisse nachvollziehbar festzuhalten.
 - lokale, budgetierte und persistierbare autonome interne Exploration,
 - versionierte Speicherung und Wiederherstellung vollständiger Zustände,
 - Diagnostik, Ereignisprotokolle und Zustandsfingerabdrücke,
-- 827 automatisierte Kerntests und reproduzierbare Forschungsrunner.
+- 832 automatisierte Kerntests und reproduzierbare Forschungsrunner.
 
 Die Forschungsvarianten aktivieren bewusst nur ausgewählte Mechanismen. Lernen,
 inhibitorische Plastizität, Wachstum und S4 sind keine pauschal eingeschalteten
@@ -141,7 +147,7 @@ nicht der dauerhaft robuste Erhalt mehrerer konkurrierender Beziehungen.
 | B.5.11 | gemeinsame Repräsentation und Bewertungsvalidität | strenge Zeitwertung zeigt Interferenz, negativen Transfer und produktive Einzelfälle |
 | B.5.12 | Teillernen, Verfestigung und Lernstadien | einfache latente Vorstrukturierung bestätigt; komplexe Übertragung und zuverlässige Beherrschung nicht bestätigt |
 | B.5.13 | vollständige neuronale Rekrutierbarkeit, Growth und interne Exploration | technisch bestätigt; schutzbereinigter Lernvorteil nicht bestätigt, Growth-Schutz offen |
-| C.0 | geschützte autonome neuronale Selbstorganisation | Schutz, autonome Struktur und 19 natürliche S3-Pfade bestätigt; Pfade instabil, kein Lernvorteil |
+| C.0 | geschützte autonome neuronale Selbstorganisation | Schutz, autonome Struktur und 19 natürliche S3-Pfade bestätigt; W0-Fortsetzung 0/19, kein Vorteil im untersuchten K3/K0-Vergleich |
 | C.1 | Stabilisierung S4→S5 | als mögliche Folgestufe vorbereitet, noch nicht beauftragt |
 
 Alle Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen im

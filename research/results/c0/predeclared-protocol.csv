@@ -6,4 +6,7 @@ exploration_budget,8
 growth_budget,local_outgoing_probability
 functional_threshold,weight_ge_firing_threshold
 learning_success,B512_stage_rules
+current_controls,K0-K7
+K8_status,historical_B513_reference_only
+W0_status,unintervened_identical_natural_continuation
 production_S4,disabled
