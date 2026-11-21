@@ -5,6 +5,10 @@
 > Alternativpfad-Ablationen und die Diagnose jedes Schritts 0–256 wurden erst
 > nach der methodischen Kritik ergänzt. Sie sind post-hoc Korrekturen und
 > werden nicht rückwirkend als präregistriert ausgegeben.
+>
+> K1 (Gewicht 2/1/0) und K2 (zeitlicher Alternativpfadverlauf) wurden als
+> weitere post-hoc Kausalproben ergänzt. Ihr Protokoll und ihre Rohdaten liegen
+> getrennt unter `method-correction/additional-probes`.
 
 ## Geltungsbereich
 

@@ -7,6 +7,9 @@ H0–H3-Analyse, Alternativpfad-Ablationen und vollständige Zeitleiste sind ein
 am 21. November 2026 ergänzte post-hoc Methodenkorrektur; sie waren kein Teil
 der ursprünglichen Präregistrierung.
 
+K1 und K2 sind eine zweite, ebenfalls post-hoc gekennzeichnete Ergänzung. Ihre
+Rohdaten werden separat unter `additional-probes` geführt.
+
 ## Drei getrennte Kausalfragen
 
 1. **Aktuelle Motorentscheidung:** H0 gegen H1, Intervention vor der
@@ -33,9 +36,26 @@ Korrektheit werden frühe Aktivierung, Doppelaktivierung, direkte Zielaktivität
 sowie die Zahl aktiver Neuronen und Synapsen gespeichert.
 
 Ergebnis: Der ausgewählte Pfad ist in 38/38 Fällen handlungskausal und trägt
-zur falschen Doppelantwort bei. Eine vor der Erfahrung wirksame Unterdrückung
-wäre situativ nützlich. Dieser Befund sagt nicht, dass die erst danach
-ausgeführte Schreibung die bereits vergangene Handlung verändert.
+zur falschen Doppelantwort bei. Eine vollständige Deaktivierung vor der
+Erfahrung ist situativ nützlich. Dieser Befund darf nicht auf die partielle
+2→1-Abschwächung übertragen werden.
+
+## K1 – Gewicht 2, 1 und 0
+
+| Variante | Gewicht vor Erfahrung | aktuelle Handlung | nächste Handlung |
+|---|---:|---|---|
+| K1.0 | 2 | 38 falsche Doppelantworten | 38 korrekt |
+| K1.1 | 1 | 38 falsche Doppelantworten | 38 korrekt |
+| K1.2 | 0 | 38 korrekte Einzelantworten | 38 falsch |
+| K1.3 | 2 | exakt identisch zu K1.0 | exakt identisch |
+
+K1.0 wird durch negative Rückmeldung von 2 auf 1 geschrieben, K1.1 von 1 auf
+0. Beide bleiben in der aktuellen Erfahrung falsch und sind in der nächsten
+Erfahrung korrekt. K1.2 löst dagegen eine korrekte Handlung und positive
+Schriften aus, ist in der nächsten Erfahrung aber falsch. Die natürliche
+2→1-Abschwächung ist damit situativ neutral. Nur vollständige Deaktivierung
+verhindert die aktuelle Doppelantwort; sie erzeugt zugleich eine andere
+Lerntrajektorie.
 
 ## W0–W9 und Schreibkausalität
 
@@ -65,13 +85,27 @@ Die Korrektur verwendet fünf Evidenzstufen:
 Über alle 38 ausgewählten Pfade bestehen je zwei kontrolliert aktivierbare
 Alternativen. Eine Alternative pro Fall ist fähigkeitskausal; ihre zusätzliche
 Ablation bei bereits entferntem ursprünglichem Pfad reduziert das Repertoire.
-Die kombinierte Ablation bestätigt diesen Übernahmebefund in 38/38 Fällen.
 
-Keine Alternativablation verändert dagegen die neuronale Antwort der
-kritischen natürlichen Erfahrung. Die Alternativen übernehmen somit eine
-kontrolliert nachgewiesene Abruffunktion, ohne dass ihre Beteiligung am
-ursprünglichen Fehler behauptet wird. Nur für diesen Fähigkeitsabruf wird von
-funktionaler Reorganisation gesprochen.
+## K2 – zeitlicher Verlauf alternativer Pfade
+
+K2.0–K2.4 prüfen natürliche Kopie, Ablation des ursprünglichen Pfads,
+Einzelablation der Alternative, gemeinsame Ablation und Identitätskontrolle.
+Die Proben laufen vor der kritischen Erfahrung, unmittelbar danach, bei
+1/2/4/8/16/32/64/128/256 Folgeerfahrungen und zusätzlich an jedem Verlust-
+oder Wiederkehrereignis.
+
+- verfolgte alternative Eingänge: 499,
+- bereits vor dem kritischen Verlust vorhanden: 499,
+- bereits vorher kontrolliert funktional: 76,
+- erstmals später kontrolliert funktional: 0,
+- nie kontrolliert funktional: 423,
+- bereits vorher fähigkeitskausal und ersetzend: 38/38 Fälle,
+- kausal an der kritischen natürlichen Entscheidung: 0/38 Fälle.
+
+Damit ist die frühere Bezeichnung „Funktionsübernahme“ zeitlich nicht
+gerechtfertigt. K2 belegt vorbestehende verteilte Unterstützung. Schwankende
+Beiträge an späteren Verlust-/Wiederkehrpunkten sind Zustandsabhängigkeit,
+aber kein Nachweis eines neu entstandenen Übergangs auf alternative Pfade.
 
 ## Zeitlich vollständige Funktionsdiagnose
 
@@ -110,5 +144,12 @@ Freigabe einer Lernregel.
 - `direct-function-timeline.csv`: Diagnose jedes Schritts,
 - `long-term-assessment.csv`: begrenzte W0/W1-Langzeitaussage,
 - `causal-matrix.csv.gz`: unveränderte W0–W9-Gegenproben.
+
+Unter `research/results/c1/method-correction/additional-probes` liegen:
+
+- `k1-partial-attenuation.csv`,
+- `k2-alternative-path-timeline.csv.gz`,
+- `k2-transition-summary.csv`,
+- Protokoll-, Determinismus-, Persistenz- und Regressionsnachweise.
 
 Alle Dateien liegen unter `research/results/c1/method-correction`.

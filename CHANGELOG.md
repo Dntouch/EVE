@@ -105,6 +105,10 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
 - Post-hoc Methodenkorrektur für C.1 mit H0–H3 vor der Erfahrung,
   funktionalen Einzel-/Kombinationsablationen alternativer Pfade und
   diagnostischer Funktionsprüfung nach jedem Schritt 0–256.
+- Ergänzende K1/K2-Kausalproben: Die tatsächliche 2→1-Abschwächung ist 38-mal
+  neutral; alle fähigkeitsrelevanten Alternativen bestehen bereits vor dem
+  kritischen Verlust. Zwei neue Regressionstests erhöhen den Stand auf
+  834/834.
 
 ### Geändert
 
@@ -117,9 +121,9 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
   gemeinsame Erfolgskennzahl; natürliche Nullverletzungen ersetzen keine
   gezielten Negativtests.
 - C.1 trennt A – Integrität, B – Kausalität, C – situative Angemessenheit und
-  D – Langzeitwirkung. Die korrigierte Vor-Erfahrungs-Ablation weist 38/38
-  Synapsen als handlungskausal und ihre Abschwächungsrichtung als situativ
-  nützlich aus; die Langzeitverläufe bleiben heterogen.
+  D – Langzeitwirkung. Die Vor-Erfahrungs-Ablation weist 38/38 Synapsen als
+  handlungskausal aus; K1 begrenzt diesen Befund auf die vollständige Ablation
+  und klassifiziert 2→1 als neutral. Die Langzeitverläufe bleiben heterogen.
 - Prospektive Synapsenregistrierung verhindert die ausschließliche Auswahl
   später erfolgreicher Pfade. Diagnoseinterventionen W0–W9 bleiben auf
   vollständige Forschungszustandskopien beschränkt.

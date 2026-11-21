@@ -67,6 +67,12 @@ korrigierte Lauf ergänzt H0–H3-Handlungskausalität,
 Alternativpfad-Ablationen, eine Diagnose jedes Schritts 0–256 und einen
 bytegenauen Wiederholungslauf.
 
+Die ergänzenden post-hoc Proben werden mit
+`scripts/run-research-stage-c1-additional-probes.sh` ausgeführt und liegen
+unter `research/results/c1/method-correction/additional-probes`. K1 trennt
+Gewicht 2, 1 und 0; K2 verfolgt alternative Pfade mit K2.0–K2.4 über feste
+Horizonte sowie sämtliche Verlust- und Wiederkehrereignisse.
+
 ## Experiment 002 – neuronale Selbstregulation
 
 Build, Tests und vollständige 512er-Matrix:

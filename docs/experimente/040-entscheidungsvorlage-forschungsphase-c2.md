@@ -9,15 +9,16 @@ Lokale Handlungsbeiträge und verteilte Pfadentwicklung
 C.1 lokalisiert die 2→1-Abschwächung auf neu erzeugte Eligibility und lokale
 negative Modulation. Die korrigierte Vor-Erfahrungs-Ablation zeigt zusätzlich,
 dass alle 38 ausgewählten Synapsen die falsche Doppelantwort kausal
-mitverursachen; die Abschwächungsrichtung ist situativ nützlich. Die erst nach
-der Handlung erfolgende Schreibung ändert die nächste Entscheidung jedoch in
-0/38 Fällen.
+mitverursachen. K1 zeigt jedoch, dass nur die vollständige Ablation den Fehler
+verhindert; die tatsächliche 2→1-Abschwächung ist in 38/38 Fällen situativ
+neutral.
 
 Alle Einzelpfade werden zwischenzeitlich erneut funktional und sind bei
-Schritt 256 wieder inaktiv. Kontrollierte Ablationen belegen in 38/38 Fällen
-eine fähigkeitsrelevante Funktionsübernahme durch alternative Pfade. Die
-Langzeitwirkung des einmaligen Erhalts bleibt mit 16/10/7/5 gemischt und von
-auseinanderlaufenden Lerntrajektorien abhängig.
+Schritt 256 wieder inaktiv. K2 belegt in 38/38 Fällen fähigkeitsrelevante
+Alternativen, aber keinen späteren Funktionsübergang: Die ersetzenden Pfade
+sind bereits vor dem kritischen Verlust funktional. Die Langzeitwirkung des
+einmaligen Erhalts bleibt mit 16/10/7/5 gemischt und von auseinanderlaufenden
+Lerntrajektorien abhängig.
 
 ## Leitfrage
 
@@ -46,8 +47,8 @@ verteilt erworbene Fähigkeiten über unabhängige Aufgaben?
 ## Entscheidung vor Beauftragung
 
 C.2 ist als präregistrierte Diagnosephase sinnvoll. Aus C.1 ausreichend
-abgesichert sind die Trennung der drei Kausalfragen, die situativ nützliche
-Abschwächungsrichtung und die fähigkeitsrelevante Pfadübernahme. Nicht
-abgesichert ist eine lokale Regel, die aus diesen Befunden zuverlässig eine
-langfristig günstige Lerntrajektorie wählt. Pauschaler Schutz erfolgreicher
-Synapsen bleibt ausgeschlossen.
+abgesichert sind die Trennung der Kausalfragen, die Neutralität der
+tatsächlichen Teilabschwächung und die vorbestehende verteilte Unterstützung.
+Nicht abgesichert sind ein später Funktionsübergang oder eine lokale Regel,
+die zuverlässig eine langfristig günstige Lerntrajektorie wählt. Pauschaler
+Schutz erfolgreicher Synapsen bleibt ausgeschlossen.

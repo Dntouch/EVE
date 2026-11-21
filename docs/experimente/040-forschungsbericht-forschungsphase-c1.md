@@ -20,22 +20,30 @@ post-hoc ergänzten H0–H3-Interventionen, Ablationen alternativer Eingänge un
 Schritt-für-Schritt-Diagnosen liegen getrennt unter
 `research/results/c1/method-correction`.
 
+Die nochmals post-hoc ergänzten Proben K1 und K2 liegen ausschließlich unter
+`research/results/c1/method-correction/additional-probes`. Sie korrigieren die
+Interpretation der partiellen Abschwächung und der alternativen Pfade, ohne
+frühere Rohdaten zu verändern.
+
 ## Korrigierter Kurzbefund
 
 - Alle 38 ausgewählten Synapsen waren an der fehlerhaften Motorentscheidung
   kausal beteiligt: H0 erzeugte 38/38-mal eine falsche Doppelantwort, H1 mit
   vor der Erfahrung deaktivierter Synapse 38/38-mal die korrekte Einzelantwort.
   H2 reproduzierte H0 in 38/38 Fällen exakt.
-- Die Abschwächungsrichtung ist deshalb situativ in 38/38 Fällen nützlich,
-  nicht neutral. Die tatsächliche 2→1-Schreibung erfolgte jedoch erst nach der
-  Handlung und änderte die nächste untersuchte Entscheidung in 0/38 Fällen.
+- Die vollständige H1-Ablation ist in 38/38 Fällen nützlich. K1 zeigt jedoch,
+  dass Gewicht 1 wie Gewicht 2 weiterhin 38/38 falsche Doppelantworten erzeugt.
+  Die tatsächlich untersuchte 2→1-Abschwächung ist daher situativ 38-mal
+  neutral; nur Gewicht 0 verhindert den Fehler.
 - Die unmittelbare direkte Zielwirkung der ausgewählten Synapse ist in 38/38
   Fällen kausal nachgewiesen.
-- Jeder Fall besitzt kontrolliert aktivierbare Alternativen. Einzel- und
-  Kombinationsablationen zeigen in 38/38 Fällen eine fähigkeitsrelevante
-  Alternative, die bei Ablation des ursprünglichen Pfads eine Aufgabenfunktion
-  übernimmt. In der kritischen natürlichen Erfahrung änderte ihre
-  Einzelablation die gemessene neuronale Antwort dagegen in 0/38 Fällen.
+- Jeder Fall besitzt kontrolliert aktivierbare und fähigkeitsrelevante
+  Alternativen. K2 zeigt aber, dass diese Unterstützung bereits vor dem
+  kritischen Verlust vorhanden ist: 499/499 verfolgte Alternativen existieren
+  vorher, 76 sind bereits kontrolliert funktional und 38 ersetzen den
+  ursprünglichen Pfad bereits in der Vorverlustprobe. Kein alternativer Pfad
+  wird erstmals später funktional. Ein zeitlicher Funktionsübergang ist damit
+  nicht belegt.
 - Die ursprüngliche direkte Funktion kehrt in 38/38 Fällen zwischenzeitlich
   zurück: erstmals zwischen Erfahrung 10 und 47, insgesamt an 388
   diagnostizierten Schritten nach dem ersten Verlust. Es treten 356 erneute
@@ -49,7 +57,7 @@ Schritt-für-Schritt-Diagnosen liegen getrennt unter
 | Kennzahl | Ergebnis |
 |---|---:|
 | unabhängiger Sicherheits-Preflight | 12/12 |
-| Regressionstests | 832/832 |
+| Regressionstests | 834/834 |
 | B.5.11 / B.5.12 / B.5.13 Referenzdateien | 21 / 15 / 13 exakt |
 | C.0 Referenzdateien | 14 exakt |
 | historische C.0-Funktionsfälle | 19/19 |
@@ -59,6 +67,7 @@ Schritt-für-Schritt-Diagnosen liegen getrennt unter
 | Discovery / unabhängige Bestätigung | 7 / 12 |
 | ausgewählte Fälle insgesamt | 38 |
 | exakte Wiederholung aller korrigierten C.1-Shards | bestanden |
+| exakte Wiederholung aller K1/K2-Shards | bestanden |
 | Persistenz mit ausstehenden Ereignissen | bestanden |
 
 ## Vier getrennte Dimensionen
@@ -85,13 +94,20 @@ Doppelantwort. Davon getrennt zeigt W0/W1, dass die spätere 2→1-Schreibung in
 0/38 Fällen die nächste Entscheidung verändert. Die direkte Senderprobe zeigt
 in 38/38 Fällen die unmittelbare Zielwirkung.
 
+K1 setzt das Gewicht vor derselben Erfahrung auf 2, 1 oder 0; K1.3 ist die
+Identitätskontrolle. Gewicht 2 und 1 ergeben jeweils 38 falsche
+Doppelantworten, Gewicht 0 ergibt 38 korrekte Einzelantworten. Nach K1.0 und
+K1.1 ist die nächste Entscheidung jeweils 38-mal korrekt; nach K1.2 dagegen
+38-mal falsch, weil die abweichende korrekte Handlung positive Schriften
+auslöst. Partielle Abschwächung und vollständige Ablation sind kausal nicht
+gleichwertig.
+
 ### C – Situative Angemessenheit
 
-Die bisherige Einstufung 38 neutral wird korrigiert. Da die
-Vor-Erfahrungs-Ablation den tatsächlichen Fehler in allen Fällen behebt, ist
-die Abschwächungsrichtung 38-mal situativ nützlich. Das ist keine Behauptung,
-dass die erst nach der Handlung erfolgende Schreibung rückwirkend geholfen
-hätte; ihr Ein-Schritt-Folgeeffekt wurde nicht nachgewiesen.
+Die tatsächliche 2→1-Abschwächung ist 38-mal neutral: Vor der Erfahrung auf
+Gewicht 1 gesetzt, verändert sie weder Handlung noch Korrektheit gegenüber
+Gewicht 2. Die vollständige Deaktivierung auf Gewicht 0 ist 38-mal nützlich,
+darf aber nicht stellvertretend für die natürliche Teilabschwächung stehen.
 
 ### D – Langzeitwirkung
 
@@ -115,12 +131,15 @@ trajektorienabhängig.
 Pro ausgewähltem Pfad werden strukturelle, potenziell funktionale,
 kontrolliert funktionale, neuronal kausale und fähigkeitskausale Alternativen
 getrennt. In jedem Fall bestehen zwei kontrolliert aktivierbare Alternativen;
-eine davon ist in der Abrufprobe fähigkeitskausal. Die gemeinsame Ablation von
-ausgewähltem Pfad und tatsächlichen Alternativen senkt das Repertoire in
-38/38 Fällen. Damit ist Aufgabenfunktionsübernahme nachgewiesen und der Begriff
-funktionale Reorganisation für diesen eng definierten Abrufbefund zulässig.
-Eine Beteiligung dieser Alternativen an der kritischen natürlichen Erfahrung
-ist dagegen nicht nachgewiesen.
+eine davon ist in der Abrufprobe fähigkeitskausal. K2 verfolgt 499 alternative
+Eingänge mit K2.0–K2.4 vor und nach dem Verlust, an allen festen Horizonten und
+an jedem Verlust-/Wiederkehrereignis. Alle 499 Verbindungen bestehen bereits
+vor dem kritischen Verlust. Die 76 jemals kontrolliert funktionalen
+Alternativen sind ausnahmslos schon an der Vorverlustprobe funktional; 423
+werden nie kontrolliert funktional. Alle 38 ersetzenden Pfade unterstützen den
+Abruf bereits vor dem Verlust. Die Daten belegen daher vorbestehende verteilte
+Unterstützung, aber keinen späteren Funktionsübergang und keine funktionale
+Reorganisation im zeitlichen Sinn.
 
 Die direkte Funktion wurde in diagnostischen Zustandskopien nach jedem Schritt
 0–256 geprüft. Alle 38 Pfade verlieren und gewinnen Funktion mehrfach; kein
@@ -131,19 +150,19 @@ Funktionslosigkeit wurden entfernt.
 
 1. **Handlungskausalität:** Ja, 38/38 Synapsen waren kausal an der falschen
    Doppelantwort beteiligt.
-2. **Situative Abschwächung:** 38 nützlich, 0 schädlich, 0 neutral,
-   0 unentschieden; die tatsächliche Schreibung lag zeitlich nach der Handlung.
+2. **Situative 2→1-Abschwächung:** 0 nützlich, 0 schädlich, 38 neutral,
+   0 unentschieden. Nur die 2→0-Ablation ist situativ nützlich.
 3. **Funktionale Alternativen:** Ja, kontrollierte Zielaktivierung in 38/38
    Fällen.
-4. **Aufgabenübernahme:** Ja, durch Einzel- und Kombinationsablation in 38/38
-   Fällen für den kontrollierten Fähigkeitsabruf.
+4. **Zeitlicher Funktionsübergang:** Nein. Die 38 ersetzenden Pfade sind schon
+   vor dem Verlust funktional und fähigkeitsrelevant.
 5. **Zwischenzeitliche Wiederkehr:** Ja, 38/38, erstmals bei Schritt 10–47;
    danach wiederholte Verluste, 0/38 bei Schritt 256.
 6. **Langzeitklassen:** Ja, 16/10/7/5 bleiben gültig, aber nur als
    trajektorienabhängige W0/W1-Vergleiche.
 7. **Für C.2 abgesichert:** Eligibility und lokale Modulation erklären die
-   Schreibung; Handlungsbeitrag, spätere Schreibwirkung, direkte Zielwirkung,
-   Fähigkeitsübernahme und zeitliche Wiederkehr müssen getrennt bleiben.
+   Schreibung; partielle Abschwächung, vollständige Ablation, bestehende
+   Redundanz und zeitlicher Übergang müssen getrennt bleiben.
 
 ## Merge- und Produktionsentscheidung
 

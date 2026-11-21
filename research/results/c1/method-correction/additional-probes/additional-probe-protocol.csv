@@ -1,0 +1,10 @@
+field,value
+methodological_status,post_hoc_additional_C1_probes_2026-11-21
+K1_variants,K1.0_weight_2;K1.1_weight_1;K1.2_weight_0;K1.3_identity
+K2_variants,K2.0_natural;K2.1_original_ablated;K2.2_alternative_ablated;K2.3_both_ablated;K2.4_identity
+K2_scheduled_horizons,0;1;2;4;8;16;32;64;128;256
+K2_extra_horizons,every_original_loss_or_reemergence
+feedback,actual_action_receives_natural_consequence
+diagnostics,state_copies_only
+threshold_changes,none
+production_rule_changes,none
