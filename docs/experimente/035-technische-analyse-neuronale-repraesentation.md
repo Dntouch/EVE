@@ -15,9 +15,12 @@ zweiten Element gilt als autonomer Abruf. Jede frühe Handlung macht die
 Episode auch dann falsch, wenn später der Zielmotor feuert. Eine frühe,
 fehlende, doppelte oder andere eindeutige Handlung bleibt in der
 Antwortmatrix separat sichtbar.
-Falls keine späte Antwort entsteht, verwendet der bestehende geschützte Pfad
-die vorab erzeugte Explorationsfolge. Erst die beobachtete Handlung bestimmt
-positive oder negative Modulation.
+Falls keine späte Antwort entsteht, aktiviert der bestehende geschützte Pfad
+die vorab erzeugte Explorationsfolge. Die Planung selbst zählt nicht als
+Handlung: Erst ein tatsächlich beobachtetes eindeutiges Motorfeuer bestimmt
+positive Modulation. Unterdrückte, ausgebliebene, falsche, frühe oder doppelte
+Motoraktivität wird negativ bewertet. Fünf Regressionstests sichern diese
+Trennung gegen erneute Verwechslung von Explorationsplan und Motorausführung.
 
 ## Bewertungsisolation
 
@@ -49,10 +52,12 @@ Die Reorganisationsanalyse kopiert den exakten Zustand vor einer B-Erfahrung:
 
 Kandidat, Ereignisindex, Vorher- und Zielgewicht müssen am tatsächlichen
 Kontakt übereinstimmen. Danach erhalten W0, W1 und W2 dieselben äußeren
-A/B-Pläne, erzeugen aber ihre eigenen Handlungen und Rückmeldungen. Produktiv
-ist ein Ereignis nur, wenn A zunächst schlechter wird und W0 später ein
-größeres Repertoire als W1 besitzt. Andernfalls wird es nicht nachträglich als
-nützliche Reorganisation bezeichnet.
+A/B-Pläne, erzeugen aber ihre eigenen Handlungen und Rückmeldungen. Die
+langfristige Klasse wird ausschließlich aus dem Repertoirevergleich gebildet:
+W0 > W1 ist produktiv, W0 < W1 schädlich und W0 = W1 unentschieden.
+Gewichtserhöhung und -senkung werden getrennt ausgewiesen. Ebenso getrennt
+bleiben unmittelbare A-Beeinträchtigung, deren tatsächliche Verhinderung durch
+W1 und ein bloßes Fortbestehen der Beeinträchtigung trotz Auslassung.
 
 ## Membran- und Kapazitätskontrollen
 
@@ -88,6 +93,8 @@ Dateien sind `response-matrix.csv.gz`, `network-results.csv.gz`,
 ## Technische Entscheidung
 
 Die Infrastruktur greift nicht in neuronales Lernen ein und kann integriert
-werden. Nicht freigegeben sind Aufgabenlabels im Netz, automatische
+werden. Die Korrektur betrifft ausschließlich Umweltbewertung und
+Forschungsklassifikation; sie fügt keine neuronale Produktionsregel hinzu.
+Nicht freigegeben sind Aufgabenlabels im Netz, automatische
 Repräsentationszusammenführung, ein Schreibselektor, Rollback, globaler Reset,
 strukturelles Wachstum und S4 als Standard.

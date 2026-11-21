@@ -181,9 +181,11 @@ lokaler Zustand.
 
 B.5.11 prüft erstmals Fähigkeiten statt nur einzelner Gewichte. Unter strenger
 Zeitbewertung bleiben Aufgaben mit geteiltem P deutlich hinter unabhängigen
-Pfaden; vorzeitige Ausgaben sind Teil des Fehlers. Zehn isolierte
-Schreibereignisse sind trotz unmittelbarer A-Beeinträchtigung später produktiv;
-48 bleiben nachteilig. R2, S4 und bloß zusätzliche unverdrahtete Kapazität
+Pfaden; vorzeitige Ausgaben sind Teil des Fehlers. Von 60 isolierten
+Schreibereignissen sind zehn später produktiv, zwölf schädlich und 38
+unentschieden. W1 verhindert nur 27 von 58 unmittelbaren
+A-Beeinträchtigungen; 31 fallen mit der ausgewählten Änderung zusammen. R2,
+S4 und bloß zusätzliche unverdrahtete Kapazität
 lösen die Integration nicht stabil. B.5.12 soll deshalb vorzeitige Ausgabe und
 lokale zeitliche Kreditbindung innerhalb geteilter Folgen kausal isolieren,
 ohne Aufgabenlabels, globalen Phasenschalter oder neue Regel vorwegzunehmen.

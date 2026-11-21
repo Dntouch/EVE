@@ -727,7 +727,7 @@ identischem Build, Seed und Eingabestrom deterministisch.
 
 ## Forschungsstufe B.5.11 – Repräsentation und Lerninterferenz
 
-Build, 756 Kerntests, historische Reproduktion und vollständige
+Build, 761 Kerntests, historische Reproduktion und vollständige
 Mehrfachlernmatrix:
 
 ```sh
@@ -747,7 +747,10 @@ zehn Dimensionen getrennt; es gibt keinen globalen Lernscore.
 `component-overlap.csv.gz` beschreibt aktive Neuronen und Synapsen.
 `causal-ablations.csv` trennt einzelne, kombinierte und allgemeine
 Ausgabeengpässe. `productive-reorganization.csv` enthält W0/W1/W2-Verläufe
-für konkrete B-Schreibungen mit unmittelbarer A-Änderung.
+für konkrete B-Schreibungen mit unmittelbarer A-Änderung, trennt positive und
+negative Gewichtsänderungen und klassifiziert W0 gegenüber W1 als produktiv,
+schädlich oder unentschieden. Eigene Spalten zeigen, ob W1 die unmittelbare
+Beeinträchtigung verhindert oder diese trotz Auslassung fortbesteht.
 `transfer-c.csv.gz` vergleicht C ohne Vortraining, nach A, B, A+B und nach
 unabhängigen Kontrollaufgaben.
 

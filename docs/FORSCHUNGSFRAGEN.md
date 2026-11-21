@@ -157,9 +157,10 @@ die Bestätigung nicht. Offen ist, ob eine vorab festgelegte Kombination
 ausschließlich vorhandener A/B-Merkmale verzögert schädliche Änderungen aktiv
 vermeidet, ohne notwendige Anpassung zu unterdrücken.
 
-B.5.11 zeigt, dass diese Auswahlfrage zu eng war. Dieselbe zunächst
-beeinträchtigende Schreiboperation kann langfristig produktiv oder schädlich
-sein. Unter strenger Zeitbewertung bleiben geteilte A/B-Folgen deutlich hinter
+B.5.11 zeigt, dass diese Auswahlfrage zu eng war. Eine zunächst
+beeinträchtigende Schreiboperation kann langfristig produktiv, schädlich oder
+unentschieden sein; in 31 von 58 Fällen bleibt die Beeinträchtigung sogar nach
+Auslassung der ausgewählten Änderung bestehen. Unter strenger Zeitbewertung bleiben geteilte A/B-Folgen deutlich hinter
 unabhängigen Aufgaben; C zeigt negativen Transfer. Offen ist nun, welche lokal
 vorhandenen zeitlichen Zustände den gemeinsamen Präfix P an Q oder R binden
 und vorzeitige Motorhandlungen verhindern. Diese Kausalfrage – nicht ein

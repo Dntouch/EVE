@@ -9,6 +9,8 @@
 #pragma GCC diagnostic pop
 #endif
 
+#include "eve/research/b511_episode_evaluation.hpp"
+
 #include <sys/resource.h>
 
 #include <array>
@@ -64,6 +66,8 @@ struct B511Episode {
     bool early_b{};
     bool response_a{};
     bool response_b{};
+    bool exploration_a{};
+    bool exploration_b{};
     bool final_a{};
     bool final_b{};
     bool explored{};
@@ -258,11 +262,13 @@ B511Episode b511_episode(
         if (event.neuron == circuit.base.motors[0]) {
             if (phase == 0) result.early_a = true;
             else if (phase == 1) result.response_a = true;
+            else result.exploration_a = true;
             result.final_a = true;
         }
         if (event.neuron == circuit.base.motors[1]) {
             if (phase == 0) result.early_b = true;
             else if (phase == 1) result.response_b = true;
+            else result.exploration_b = true;
             result.final_b = true;
         }
     });
@@ -283,13 +289,13 @@ B511Episode b511_episode(
         runtime.enqueue_fire(circuit.base.explorers[exploration]);
         static_cast<void>(runtime.run());
     }
-    const bool evaluated_a = result.response_a ||
-        (result.explored && exploration == 0);
-    const bool evaluated_b = result.response_b ||
-        (result.explored && exploration == 1);
-    result.correct = !result.early_a && !result.early_b &&
-        b511_correct(pattern.target_a, evaluated_a, evaluated_b);
-    result.modulation = static_cast<std::int8_t>(result.correct ? 1 : -1);
+    const eve::research::B511MotorActivity activity{
+        result.early_a, result.early_b, result.response_a, result.response_b,
+        result.explored, result.exploration_a, result.exploration_b};
+    result.correct = eve::research::b511_episode_success(
+        pattern.target_a, activity);
+    result.modulation = eve::research::b511_episode_modulation(
+        pattern.target_a, activity);
     if (learn) {
         static_cast<void>(runtime.process_modulatory_feedback(result.modulation));
     }
@@ -819,11 +825,23 @@ void b511_reorganization_population(
                         runtime, circuit, false, inverse);
                     const auto final1 = b511_evaluate(w1, circuit, false, inverse);
                     const auto final2 = b511_evaluate(w2, circuit, false, inverse);
+                    const bool positive_weight_change =
+                        selected.proposed_weight > selected.weight_before;
+                    const bool negative_weight_change =
+                        selected.proposed_weight < selected.weight_before;
                     const bool initial_impairment = before_a && !after_a;
-                    const bool productive = initial_impairment &&
+                    const bool w1_prevented_impairment =
+                        initial_impairment && isolated_a;
+                    const bool coincident_impairment =
+                        initial_impairment && !isolated_a;
+                    const bool productive =
                         final0.repertoire > final1.repertoire;
-                    const bool long_term_harm = initial_impairment &&
-                        final0.repertoire <= final1.repertoire;
+                    const bool harmful =
+                        final0.repertoire < final1.repertoire;
+                    const bool tied =
+                        final0.repertoire == final1.repertoire;
+                    const char* reorganization_class = productive
+                        ? "productive" : harmful ? "harmful" : "tied";
                     out << phase << ',' << family << ','
                         << b511_assignment(inverse) << ',' << seed << ','
                         << episode << ',' << selected.event_index << ','
@@ -833,7 +851,13 @@ void b511_reorganization_population(
                         << after_a << ',' << isolated_a << ',' << immediate_b
                         << ',' << isolated_b << ',' << final0.repertoire << ','
                         << final1.repertoire << ',' << final2.repertoire << ','
-                        << productive << ',' << long_term_harm << ','
+                        << positive_weight_change << ','
+                        << negative_weight_change << ','
+                        << initial_impairment << ','
+                        << w1_prevented_impairment << ','
+                        << coincident_impairment << ','
+                        << reorganization_class << ','
+                        << productive << ',' << harmful << ',' << tied << ','
                         << runtime.network().validate() << ','
                         << w1.network().validate() << ','
                         << w2.network().validate() << '\n';
@@ -843,7 +867,7 @@ void b511_reorganization_population(
                     out << phase << ',' << family << ','
                         << b511_assignment(inverse) << ',' << seed
                         << ",-1,-1,-1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,"
-                           "1,1,1\n";
+                           "0,0,0,not_found,0,0,0,1,1,1\n";
                 }
             }
         }
@@ -1069,7 +1093,7 @@ int main(int argc, char** argv) {
     components << "phase,condition,membrane,family,assignment,seed,A_neurons,B_neurons,C_neurons,A_synapses,B_synapses,C_synapses,AB_overlap,AC_overlap,BC_overlap\n";
     ablations << "phase,family,assignment,seed,ablation,synapse,sender,receiver,weight_or_count,general_bottleneck,causal_A,causal_B,causal_multiple,valid\n";
     transfer << "phase,pretraining,family,assignment,seed,first_C,final_C,writes,shared_synapses,valid\n";
-    reorganization << "phase,family,assignment,seed,episode,event,synapse,weight_before,weight_after,suppressed,W2_identical,A_before,A_after_natural,A_after_omission,B_after_natural,B_after_omission,W0_final_repertoire,W1_final_repertoire,W2_final_repertoire,productive,long_term_harm,W0_valid,W1_valid,W2_valid\n";
+    reorganization << "phase,family,assignment,seed,episode,event,synapse,weight_before,weight_after,suppressed,W2_identical,A_before,A_after_natural,A_after_omission,B_after_natural,B_after_omission,W0_final_repertoire,W1_final_repertoire,W2_final_repertoire,positive_weight_change,negative_weight_change,initial_A_impairment,W1_prevented_A_impairment,coincident_A_impairment,reorganization_class,productive,harmful,tied,W0_valid,W1_valid,W2_valid\n";
 
     const std::vector<std::string> conditions{
         "A_only", "B_only", "A_B", "B_A", "A_B_A", "A_B_mixed",

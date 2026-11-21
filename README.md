@@ -26,8 +26,9 @@ und vorzeitige Ausgabe in geteilten Folgen
 B.5.11 führt eine zeitliche Mehrfachlernaufgabe mit geteilten sensorischen
 Bestandteilen sowie zehn getrennte Bewertungsdimensionen ein. Unter strenger
 Zeitbewertung bleiben geteilte Aufgaben deutlich hinter unabhängigen Pfaden;
-vorzeitige Ausgaben sind ein zentraler Teil der Interferenz. Einzelne zunächst beeinträchtigende Schreibungen können später
-produktiv oder langfristig schädlich sein. Eine neue Lernregel wird nicht
+vorzeitige Ausgaben sind ein zentraler Teil der Interferenz. Einzelne zunächst
+beeinträchtigende Schreibungen können später produktiv, schädlich oder
+unentschieden sein. Eine neue Lernregel wird nicht
 freigegeben.
 
 | B.5.11-Befund | Ergebnis |
@@ -37,13 +38,14 @@ freigegeben.
 | geteiltes A→B-Repertoire Discovery / Bestätigung | 0,859 / 0,901 |
 | gemischtes R0-Repertoire Discovery / Bestätigung | 0,797 / 0,891 |
 | unabhängiges A→B-Repertoire Discovery / Bestätigung | 1,490 / 1,464 |
-| produktive / langfristig schädliche Detailereignisse | 10 / 48 |
+| produktive / schädliche / unentschiedene Detailereignisse | 10 / 12 / 38 |
+| W1 verhindert / verhindert nicht die unmittelbare A-Beeinträchtigung | 27 / 31 |
 | ausstehendes S4-Ereignis nach Laden korrekt fortgesetzt | 1/1 |
-| Regressionstests | 756/756 |
+| Regressionstests | 761/761 |
 
 Geteilte Elemente erschweren den zeitlich gültigen Abruf gegenüber der
-unabhängigen Kontrolle. C zeigt negativen Transfer. R2 und S4 verbessern das
-Repertoire leicht, lösen die Integration aber nicht robust. Schreib-Gate,
+unabhängigen Kontrolle. C zeigt negativen Transfer. R2 und S4 erhöhen das
+mittlere Repertoire, lösen die Integration aber nicht robust. Schreib-Gate,
 strukturelles Wachstum und S4 bleiben standardmäßig deaktiviert.
 
 - [Forschungsbericht B.5.11](docs/experimente/035-forschungsbericht-forschungsstufe-b511.md)
@@ -71,7 +73,7 @@ prüfen und auch negative Ergebnisse nachvollziehbar festzuhalten.
 - konfigurierbare Aktivitätsregulation und strukturelles Wachstum,
 - versionierte Speicherung und Wiederherstellung vollständiger Zustände,
 - Diagnostik, Ereignisprotokolle und Zustandsfingerabdrücke,
-- 756 automatisierte Kerntests und reproduzierbare Forschungsrunner.
+- 761 automatisierte Kerntests und reproduzierbare Forschungsrunner.
 
 Die Forschungsvarianten aktivieren bewusst nur ausgewählte Mechanismen. Lernen,
 inhibitorische Plastizität, Wachstum und S4 sind keine pauschal eingeschalteten

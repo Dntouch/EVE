@@ -10,9 +10,17 @@ vorzeitige oder kontextfalsche Motorhandlungen?
 
 B.5.11 zeigt unter strenger Zeitbewertung eine bestätigte Lücke zwischen
 geteilten und unabhängigen Folgen. Kein untersuchter Ablauf integriert A und B
-robust; zusätzliche unverdrahtete Neuronen helfen nicht. R2 und S4 verbessern
-das Repertoire leicht, lösen die Aufgabe aber nicht. Einzelne B-Schreibungen können produktiv oder
-langfristig schädlich sein, obwohl beide Klassen A zunächst beeinträchtigen.
+robust; zusätzliche unverdrahtete Neuronen helfen nicht. R2 und S4 erhöhen
+das mittlere Repertoire, lösen die Aufgabe aber nicht. Von 60 isolierten
+B-Schreibinterventionen sind zehn langfristig produktiv, zwölf schädlich und
+38 unentschieden. Zudem verhindert W1 nur 27 von 58 unmittelbaren
+A-Beeinträchtigungen; 31 Beeinträchtigungen fallen lediglich mit der
+ausgewählten Änderung zusammen.
+
+Die korrigierte Explorationswertung bestätigt außerdem, dass ein geplanter
+Explorationsschritt keine ausgeführte Handlung ist. Nur beobachtete korrekte
+Motoraktivität darf positive Modulation auslösen. Dadurch ändern sich R2- und
+S4-Verläufe, nicht aber die R0-Hauptaussage oder die historische Reproduktion.
 
 Der nächste Schritt sollte daher keinen Schreibselektor optimieren. Er sollte
 am Übergang zwischen P und Q/R untersuchen, welche lokalen Eligibility-,
@@ -24,13 +32,15 @@ einem vorzeitigen Teilmuster unterscheiden.
 - vorab festgelegte Elementabstände und Blockgrößen,
 - identische Seeds, Zuordnungen, Aufgaben und Erfahrungsmengen,
 - vollständige zeitliche Zustandskopien vor kritischen Übergängen,
-- W0/W1/W2-Gegenproben für produktive und schädliche Kandidaten,
+- W0/W1/W2-Gegenproben für produktive, schädliche und unentschiedene
+  Kandidaten sowie getrennte Koinzidenzkennzeichnung,
 - getrennte A-/B-Antwortmatrizen, Retention und Wiedererwerb,
 - Prüfung, ob ein lokal vorhandener Kontextzustand kausal trägt, ohne
   Aufgabenlabel oder globale Phasenkennung,
 - unabhängige Bestätigung und unveränderte No-Learning-, R0-, R2- und
   S4-Kontrollen,
-- keine Regelaktivierung allein wegen Korrelation oder Klassifikation.
+- keine Regelaktivierung allein wegen Korrelation oder Klassifikation,
+- Bewertung ausschließlich tatsächlich beobachteter Motoraktivität.
 
 ## Nicht freigegeben
 

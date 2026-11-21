@@ -5,8 +5,10 @@
 B.5.11 widerlegt die früheren lokalen Kausalbefunde nicht. Es begrenzt deren
 Interpretation: Eine Änderung kann eine aktuell geprüfte X/Y-Antwort kausal
 verschlechtern und dennoch in einem späteren Mehrfachlernverlauf produktiv
-sein. Lokaler Mechanismus, momentane Leistung und langfristiges Repertoire
-müssen daher getrennt benannt werden.
+sein. Umgekehrt ist ein zeitgleich beobachteter Verlust nicht automatisch von
+der ausgewählten Änderung verursacht. Lokaler Mechanismus, momentane Leistung,
+isolierte Kausalität und langfristiges Repertoire müssen daher getrennt
+benannt werden.
 
 | Stufe | weiterhin gültig | bewertungsabhängige Grenze | neue Einordnung |
 |---|---|---|---|
@@ -17,7 +19,7 @@ müssen daher getrennt benannt werden.
 | B.5.7 | Eligibility-Kandidaten und konkrete Änderungen sind exakt rekonstruierbar | Notwendigkeit galt für eine aktuelle Motorantwort | gemeinsame Zukunftswirkung muss separat fortgeführt werden |
 | B.5.8 | Dauerplastizität ist für Erhalt nicht nötig, für Anpassung aber schon | gesperrte Gewichte schützen den alten Aufgabenraum | sie verhindern mögliche Reorganisation und Erweiterung |
 | B.5.9 | lokale Beiträge, Konkurrenz und Marge sind korrekte Mechanismusdiagnosen | lokale Signaturen bestimmen keine semantische Schadensklasse | hohe Überlappung ist noch keine gemeinsame Repräsentation |
-| B.5.10 | einzelne Schreiboperationen lassen sich sauber kausal isolieren | nützlich/neutral/schädlich bezog sich auf das damalige Beobachtungsfenster | derselbe Interceptor belegt in B.5.11 produktive und schädliche Reorganisation |
+| B.5.10 | einzelne Schreiboperationen lassen sich sauber kausal isolieren | nützlich/neutral/schädlich bezog sich auf das damalige Beobachtungsfenster | derselbe Interceptor trennt in B.5.11 produktive, schädliche und unentschiedene Reorganisation |
 
 ## Neue Terminologie
 
@@ -28,6 +30,12 @@ müssen daher getrennt benannt werden.
   Erfahrungen erneut; das beweist Vorstrukturierung, nicht deren Form.
 - **Produktive Reorganisation:** das isolierte Auslassen der zunächst
   beeinträchtigenden Änderung vermindert das spätere Repertoire.
+- **Schädliche Reorganisation:** das isolierte Auslassen erhöht das spätere
+  Repertoire.
+- **Unentschiedene Reorganisation:** W0 und W1 besitzen dasselbe spätere
+  Repertoire; dies ist kein langfristiger Schadensnachweis.
+- **Koinzidente Beeinträchtigung:** A fällt nach der Änderung aus, bleibt aber
+  auch in W1 ohne die ausgewählte Änderung beeinträchtigt.
 - **Ungeklärt:** Beobachtungsfenster oder Gegenprobe reichen nicht.
 
 Die Begriffe „nützlich“, „neutral“ und „schädlich“ benötigen daher immer
@@ -40,4 +48,6 @@ Zukünftige Berichte müssen Antwortmatrix, Retention, Wiedererwerb, Transfer,
 zeitlichen Kontext, kausale Pfade und Ressourcen getrennt ausweisen. Eine
 höhere Summe richtiger Antworten darf nicht als universell besseres Lernen
 bezeichnet werden. Ebenso darf eine kurzfristige Verschlechterung ohne W1-
-Gegenprobe nicht als produktiv gerechtfertigt werden.
+Gegenprobe weder als produktiv noch als durch die ausgewählte Änderung
+verursacht ausgegeben werden. Ein Repertoiregleichstand ist unentschieden,
+nicht schädlich.

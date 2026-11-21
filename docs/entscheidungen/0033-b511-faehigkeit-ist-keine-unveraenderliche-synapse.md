@@ -15,16 +15,22 @@ keine neue Produktionsregel eingeführt.
 
 Unter strenger Zeitbewertung bleiben geteilte A/B-Folgen deutlich hinter
 unabhängigen Pfaden. Aktivitätsüberlappung belegt keine gemeinsame
-kausale Repräsentation. Vor allem zeigen isolierte W1-Gegenproben beide
-Möglichkeiten: Zehn zunächst A-beeinträchtigende Schreibungen sind später
-produktiv, 48 langfristig nachteilig. Pauschaler Gewichtsschutz würde damit
-echte Reorganisation ebenso verhindern wie Schaden.
+kausale Repräsentation. Isolierte W1-Gegenproben zeigen drei mögliche
+Langzeitklassen: zehn produktive, zwölf schädliche und 38 unentschiedene
+Verläufe. Von 58 unmittelbaren A-Beeinträchtigungen verhindert W1 27; 31
+bleiben trotz Auslassung bestehen und sind daher der ausgewählten Änderung
+nicht einzeln zuzuschreiben. Pauschaler Gewichtsschutz würde damit echte
+Reorganisation ebenso verhindern wie Schaden, während Gleichstände keinen
+Schadensnachweis liefern.
 
 ## Folgen
 
 - Die B.5.11-Forschungsumgebung und V1–V10-Auswertung werden integriert.
 - S4, strukturelles Wachstum und Schreib-Gate bleiben standardmäßig aus.
 - Externe Aufgabenbezeichnungen werden nicht neuronaler Zustand.
-- Produktive Reorganisation benötigt eine isolierte kausale Gegenprobe.
+- Produktive und schädliche Reorganisation benötigen eine isolierte kausale
+  Gegenprobe; W0 = W1 bleibt ausdrücklich unentschieden.
+- Positive Modulation setzt tatsächlich beobachtete korrekte Motoraktivität
+  voraus; ein Explorationsplan ist keine Handlung.
 - B.5.12 untersucht vorzeitige Ausgabe und lokale zeitliche Kreditbindung in
   geteilten Folgen, nicht einen globalen Stabilisierungsmechanismus.

@@ -18,12 +18,13 @@ Unabhängige Eingänge sind mit 0,766, 0,613 und 1,464 deutlich besser.
 Gemeinsame Aktivität ist damit nicht automatisch eine gemeinsame funktionale
 Repräsentation. In den Detailablationen war keine einzelne nichttriviale
 Synapse für A und B zugleich notwendig. Dagegen belegt die isolierte
-Schreibgegenprobe erstmals produktive Reorganisation auf Einzelfallebene:
-Von 58 B-Schreibereignissen mit unmittelbarer A-Beeinträchtigung waren zehn
-nach natürlicher Fortsetzung für ein größeres Endrepertoire notwendig; 48
-blieben langfristig nachteilig. Zwei weitere Ereignisse verbesserten A
-unmittelbar. Diese kandidatinformierte Detailstichprobe ist
-kein Schätzer für deren Populationshäufigkeit.
+Schreibgegenprobe erstmals produktive Reorganisation auf Einzelfallebene.
+Über alle 60 Interventionen sind zehn produktiv, zwölf schädlich und 38
+unentschieden. Von 58 Ereignissen mit unmittelbarer A-Beeinträchtigung
+verhindert W1 diese in 27 Fällen; in 31 Fällen fällt die ausgewählte Änderung
+nur mit der Beeinträchtigung zusammen. Zwei weitere Ereignisse verbessern A
+unmittelbar und enden unentschieden. Diese kandidatinformierte
+Detailstichprobe ist kein Schätzer für deren Populationshäufigkeit.
 
 ## Präregistrierte Aufgabe und Stichprobe
 
@@ -104,9 +105,10 @@ kein Transfernachweis.
 
 ## Repräsentation und kausale Reorganisation
 
-In den Einzelablationen waren 228 gemeinsam aktive Synapsenkandidaten
-vorhanden. 20 kausale Einzelbeiträge lagen auf allgemeinen geschützten
-Ausgabepfaden; keine einzelne nicht geschützte Synapse war für A und B zugleich
+In den Einzelablationen waren 170 gemeinsam aktive Synapsenkandidaten
+vorhanden. 52 lagen auf allgemeinen geschützten Ausgabepfaden; 14 davon
+beeinflussten A oder B kausal. Unter den 118 aufgabennäheren Kandidaten
+beeinflussten vier B, aber keine einzelne Synapse war für A und B zugleich
 notwendig. Kombinierte Ablation getrennt kausaler Beiträge konnte beide
 Aufgaben entfernen, belegt aber keine einzelne gemeinsame Repräsentation.
 
@@ -115,10 +117,17 @@ Discovery und Bestätigung. Sie fand je Phase 29 konkrete
 B-Schreibereignisse, nach denen A unmittelbar nicht mehr abrufbar war, sowie
 je ein unmittelbar verbesserndes Ereignis. W1 ließ genau das Ereignis aus,
 W2 reproduzierte W0 in 60/60 Fällen exakt. Nach 64 weiteren tatsächlichen
-A/B-Erfahrungen waren je 5/29 beeinträchtigende Ereignisse produktiv: W0
-besaß ein größeres Repertoire als W1. Die übrigen 24/29 je Phase waren
-langfristig nachteilig. Damit sind sowohl
-produktive Reorganisation als auch echte negative Interferenz kausal belegt.
+A/B-Erfahrungen waren in Discovery 5 produktiv, 7 schädlich und 18
+unentschieden; in der Bestätigung 5, 5 und 20. Insgesamt stehen damit 10
+produktive, 12 schädliche und 38 unentschiedene Verläufe fest.
+
+47 Änderungen erhöhten und 13 senkten ein Gewicht. Alle 47 Erhöhungen
+begleiteten eine unmittelbare A-Beeinträchtigung; W1 verhinderte sie in 16
+Fällen, während sie in 31 Fällen trotz Auslassung bestehen blieb. Von den 13
+Senkungen beeinträchtigten 11 A, und W1 verhinderte alle 11; zwei verbesserten
+A unmittelbar. Damit sind produktive Reorganisation und negative Interferenz
+belegt, aber ein bloßes zeitliches Zusammentreffen darf nicht als
+Einzelkausalität ausgegeben werden.
 
 ## R0, R2 und S4
 
@@ -127,12 +136,13 @@ Für A→B→gemischt ergaben sich:
 | Variante | Discovery A / B / Repertoire | Bestätigung A / B / Repertoire |
 |---|---:|---:|
 | R0 | 0,391 / 0,461 / 0,797 | 0,432 / 0,472 / 0,891 |
-| R2-50 | 0,480 / 0,489 / 1,083 | 0,428 / 0,441 / 0,974 |
-| S4-d16 | 0,455 / 0,438 / 1,026 | 0,429 / 0,410 / 0,964 |
+| R2-50 | 0,530 / 0,534 / 1,177 | 0,470 / 0,499 / 1,036 |
+| S4-d16 | 0,521 / 0,464 / 1,078 | 0,532 / 0,470 / 1,115 |
 
-R2 und S4 erhöhen das Repertoire gegenüber R0 in beiden Phasen leicht, ihre
-Bestätigungsintervalle überlappen jedoch und keine Variante erreicht robuste
-Integration. S4 bleibt standardmäßig deaktiviert.
+R2 und S4 erhöhen das mittlere Repertoire gegenüber R0 in beiden Phasen. Das
+Bestätigungsintervall von S4 liegt oberhalb des R0-Intervalls; trotzdem bleibt
+das mittlere Repertoire weit unter zwei und keine Variante integriert beide
+Aufgaben robust. S4 bleibt standardmäßig deaktiviert.
 
 Eine 64-Neuronen-Kapazitätskontrolle ohne zusätzliche zielkodierte Verdrahtung
 war exakt gleich zur 32-Neuronen-R0-Discovery. Mehr ungenutzte Neuronen lösen
@@ -164,11 +174,12 @@ Fähigkeiten wurden nicht nachgewiesen.
 **K.** E1/E2 und Paar-Summen messen primär momentane Leistung unter engem
 Startzustand. **L.** V1–V10 müssen getrennt bleiben.
 
-**M.** R2/S4 können die zeitliche Dynamik verändern und erhöhen das Repertoire
-leicht, lösen die Integration aber nicht robust. **N.** Eligibility und Modulation ermöglichen
-Erwerb und Reorganisation; dieselbe lokale Schreiblogik erzeugt produktive wie
-schädliche Fälle. **O.** Die feste Topologie reicht für die unabhängige
-Kontrolle besser als für geteilte Folgen. **P.** Nein; geteilte Elemente sind
+**M.** R2/S4 verändern die zeitliche Dynamik und erhöhen das mittlere
+Repertoire, lösen die Integration aber nicht robust. **N.** Eligibility und
+Modulation ermöglichen Erwerb und Reorganisation; dieselbe lokale
+Schreiblogik erzeugt produktive, schädliche und unentschiedene Fälle. **O.**
+Die feste Topologie reicht für die unabhängige Kontrolle besser als für
+geteilte Folgen. **P.** Nein; geteilte Elemente sind
 deutlich weniger effizient als die unabhängige Kontrolle. **Q.** Redundanz ist
 sinnvoll, wenn sie gemischte Abrufbarkeit oder Fehlertoleranz kausal erhöht;
 das wurde hier nicht allgemein nachgewiesen. **R.** Frühere lokale
@@ -179,7 +190,10 @@ Kreditbindung innerhalb geteilter Folgen kausal isolieren.
 
 ## Validierung, Grenzen und Merge-Empfehlung
 
-756/756 Tests bestehen. Der Persistenztest speichert einen Zustand mit einem
+761/761 Tests bestehen. Fünf neue Regressionstests prüfen unterdrückte,
+fehlende, erfolgreiche, falsche sowie frühe/doppelte Exploration. Positive
+Modulation entsteht ausschließlich nach tatsächlich beobachteter korrekter
+Motoraktivität. Der Persistenztest speichert einen Zustand mit einem
 tatsächlich ausstehenden S4-Ereignis; Laden und Fortsetzung sind identisch.
 Alle ausgewerteten Netze sind gültig, die Topologie bleibt fest und es
 entstehen null zusätzliche persistente Bytes je Neuron oder Synapse.
@@ -194,7 +208,8 @@ universelles Lernkriterium. Laufzeit und RSS sind maschinenabhängig.
 
 Die Empfehlung gilt für Forschungsumgebung, getrennte Auswertung,
 Diagnoseschnittstellen, Tests, Rohdaten und Dokumentation. Wissenschaftlich
-werden zeitliche Interferenz, negative Transferwirkung und
-produktive Einzelfall-Reorganisation integriert. Eine neue neuronale
+werden zeitliche Interferenz, negative Transferwirkung und die getrennten
+produktiven, schädlichen und unentschiedenen Einzelfallverläufe integriert.
+Eine neue neuronale
 Produktionsregel, automatische Stabilisierung, strukturelle Plastizität oder
 S4-Aktivierung wird nicht freigegeben.

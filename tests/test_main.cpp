@@ -1,4 +1,5 @@
 #include "eve/bios/runtime.hpp"
+#include "eve/research/b511_episode_evaluation.hpp"
 #include "eve/brainstem/brainstem.hpp"
 #include "eve/neural/network.hpp"
 #include "eve/types.hpp"
@@ -7292,6 +7293,24 @@ void test_b511_representation_and_interference_case(const std::uint32_t index) {
     const auto correct_b = [](const Probe& row) {
         return row.late_b && !row.late_a;
     };
+    const auto observed_exploration = [](
+        Fixture& value, const bool attempted,
+        const std::vector<std::uint8_t>& actions) {
+        eve::research::B511MotorActivity activity;
+        activity.exploration_attempted = attempted;
+        value.runtime.set_fire_observer(
+            [&](const eve::bios::FireObservation& event) {
+                activity.exploration_a = activity.exploration_a ||
+                    event.neuron == value.motors[0];
+                activity.exploration_b = activity.exploration_b ||
+                    event.neuron == value.motors[1];
+            });
+        for (const auto action : actions)
+            value.runtime.enqueue_fire(value.explorers[action]);
+        static_cast<void>(value.runtime.run());
+        value.runtime.set_fire_observer({});
+        return activity;
+    };
 
     auto fixture = make_fixture();
     configure_shared(fixture);
@@ -7464,6 +7483,38 @@ void test_b511_representation_and_interference_case(const std::uint32_t index) {
     } else if (index == 29) {
         require(fixture.runtime.network().validate(),
                 "B.5.11 produced an invalid neural state");
+    } else if (index == 30) {
+        fixture.runtime.set_experimental_synapse_weight(
+            fixture.exploration_paths[0], 0);
+        const auto activity = observed_exploration(fixture, true, {0});
+        require(!activity.exploration_a &&
+                    eve::research::b511_episode_modulation(true, activity) < 0,
+                "B.5.11 rewarded a suppressed exploration");
+    } else if (index == 31) {
+        const auto activity = observed_exploration(fixture, false, {});
+        require(eve::research::b511_episode_modulation(true, activity) < 0,
+                "B.5.11 rewarded a missing exploration");
+    } else if (index == 32) {
+        const auto activity = observed_exploration(fixture, true, {0});
+        require(activity.exploration_a && !activity.exploration_b &&
+                    eve::research::b511_episode_modulation(true, activity) > 0,
+                "B.5.11 rejected an observed successful exploration");
+    } else if (index == 33) {
+        const auto activity = observed_exploration(fixture, true, {1});
+        require(activity.exploration_b && !activity.exploration_a &&
+                    eve::research::b511_episode_modulation(true, activity) < 0,
+                "B.5.11 rewarded a wrong observed exploration");
+    } else if (index == 34) {
+        const auto double_activity = observed_exploration(
+            fixture, true, {0, 1});
+        auto early_activity = double_activity;
+        early_activity.exploration_b = false;
+        early_activity.early_a = true;
+        require(eve::research::b511_episode_modulation(
+                    true, double_activity) < 0 &&
+                    eve::research::b511_episode_modulation(
+                    true, early_activity) < 0,
+                "B.5.11 accepted a double or early motor response");
     }
 }
 
@@ -8117,7 +8168,7 @@ int main() {
             std::string("B510 ") + b510_names[index],
             [index]() { test_b510_prospective_write_causality_case(index); });
     }
-    const std::array<const char*, 30> b511_names{{
+    const std::array<const char*, 35> b511_names{{
         "momentary response versus capability", "A-only acquisition",
         "B-only acquisition", "A then B", "B then A", "A then B then A",
         "A and B integration", "mixed learning", "shared sensor elements",
@@ -8129,6 +8180,9 @@ int main() {
         "identical full copies", "diagnosis does not train original",
         "protected exploration", "pending-event persistence",
         "deterministic continuation", "resource bound", "valid neural state",
+        "suppressed exploration", "missing exploration",
+        "successful exploration", "wrong exploration",
+        "early and double exploration",
     }};
     for (std::uint32_t index = 0; index < b511_names.size(); ++index) {
         tests.emplace_back(

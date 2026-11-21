@@ -195,8 +195,10 @@ neutral. Vierzehn neutrale Änderungen werden später wirksam. Eine einzelne
 Operation kann isoliert ausgelassen werden, doch extern rekonstruierte
 Historien liefern keinen freigabefähigen lokalen Selektor. B.5.11 erweitert
 deshalb den Bewertungsraum. Unter strenger Zeitbewertung bleiben geteilte
-A/B-Folgen deutlich hinter unabhängigen Pfaden. Von 58 detaillierten
-B-Schreibungen mit unmittelbarer A-Beeinträchtigung sind zehn später kausal
-produktiv und 48 langfristig nachteilig. Aktivitätsüberlappung allein belegt
+A/B-Folgen deutlich hinter unabhängigen Pfaden. Von 60 detaillierten
+B-Schreibinterventionen sind zehn langfristig produktiv, zwölf schädlich und
+38 unentschieden. Nur 27 von 58 unmittelbaren A-Beeinträchtigungen werden durch
+W1 verhindert; die übrigen 31 sind mit der ausgewählten Änderung koinzident.
+Aktivitätsüberlappung allein belegt
 keine gemeinsame Repräsentation. B.5.12 soll vorzeitige Ausgabe und lokale
 zeitliche Kreditbindung innerhalb geteilter Folgen isolieren.
