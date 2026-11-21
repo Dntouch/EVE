@@ -789,3 +789,35 @@ B.5.11-Dateien aus. `aggregate-statistics.csv` und `paired-statistics.csv`
 enthalten seed-geclusterte Intervalle. `persistence.csv` prüft ein tatsächlich
 ausstehendes S4-Ereignis. Große Tabellen werden mit `gzip -n` deterministisch
 komprimiert; Laufzeit und RSS bleiben maschinenabhängig.
+
+## Forschungsstufe B.5.13 – neuronale Rekrutierbarkeit
+
+Build, 807 Kerntests, bytegenaue B.5.12-Reproduktion und vollständige
+B.5.13-Matrix:
+
+```sh
+scripts/run-research-stage-b513.sh research/results/b513
+```
+
+Discovery (110001–110064) und Bestätigung (120001–120064) verwenden je drei
+Stromfamilien, beide Zuordnungen und Netze mit 32, 128, 256, 512 und 2.048
+Neuronen. `neuron-accessibility.csv.gz` ist das vollständige
+Zugänglichkeitsinventar. `recruitment-trials.csv.gz` enthält 3.840 erste
+explorative Growth-Ereignisse. `functional-growth.csv.gz` verfolgt 768
+kontrollierte Pfade von Gewicht null bis zur kausalen Wiederverwendung und
+enthält W0–W7.
+
+`b511-b512-task-comparison.csv.gz` wiederholt die historischen Aufgaben mit
+fester Topologie und begrenzter interner Exploration plus Growth; Retention,
+Wiedererwerb, Transfer und geschützte Growth-Ziele bleiben getrennt.
+`task-learning-curves.csv.gz` protokolliert die zeitliche Entwicklung in
+Achter-Schritten statt nur des Endzustands.
+`aggregate-statistics.csv` enthält 95-%-Bootstrap-Intervalle und gepaarte
+Größeneffekte. `exclusion-audit.csv` dokumentiert Growth-Ziele in geschützten
+Bereichen. `historical-b512-reproduction.csv` weist die bytegenaue Reproduktion
+der deterministischen B.5.12-Fachdateien aus. Persistenz, Ressourcen,
+Mechanismusentscheidung und Erfolgskriterien bleiben separat nachvollziehbar.
+
+Große Rohdaten werden mit `gzip -n` deterministisch komprimiert. Laufzeit und
+RSS sind maschinenabhängig. Automatisches Growth, interne Exploration und S4
+werden nicht als Produktionsstandard aktiviert.

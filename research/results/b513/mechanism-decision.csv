@@ -1,0 +1,6 @@
+candidate,authorized,decision
+new_learning_rule,0,not introduced
+default_growth_activation,0,not production ready
+default_internal_exploration,0,not production ready
+research_growth_and_exploration,1,diagnostic only
+S4_default,0,disabled

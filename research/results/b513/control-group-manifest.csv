@@ -1,0 +1,9 @@
+control,meaning
+W0,normal growth plus internal exploration and three-factor learning
+W1,targeted ablation of the learned new edge
+W2,identical untouched copy and continuation
+W3,growth disabled
+W4,internal exploration disabled
+W5,plasticity writes suppressed
+W6,static extra zero-weight edge with identical learning exposure
+W7,protected-interface target audit and random structural baseline

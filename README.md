@@ -17,42 +17,38 @@ reproduzierbaren Versuchsreihen.
 
 **Stand:** 21. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.5.12 – Teillernen, latentes
-Lernen, Verfestigung und Fähigkeitsentwicklung
-
-**Nächster Forschungsschwerpunkt:** B.5.13 – vollständige neuronale
+**Jüngste abgeschlossene Forschungsstufe:** B.5.13 – vollständige neuronale
 Rekrutierbarkeit, Growth und interne Exploration
 
-B.5.12 trennt Veränderung, Teillernen, ersten Abruf, zuverlässige Fähigkeit,
-Verfestigung, Retention und Wiedererwerb. Eine einfache Referenz weist
-aufgabenspezifische Vorstrukturierung vor der ersten autonomen Antwort nach.
-Die komplexe zeitliche Aufgabe bestätigt diesen Vorteil dagegen nicht. Weitere
-passende Erfahrung stabilisiert den Abruf gegenüber Pause, ohne zuverlässige
-Beherrschung zu garantieren. Eine neue Lernregel wird nicht freigegeben.
+**Nächster Forschungsschwerpunkt:** Forschungsphase C – geschützte autonome
+Strukturbildung unter natürlicher Konsequenz
 
-| B.5.12-Befund | Ergebnis |
+B.5.13 zeigt, dass jedes nicht geschützte lernfähige Neuron intern exploriert
+und durch Growth rekrutiert werden kann. Neu gewachsene Nullgewicht-Synapsen
+erreichen mit den vorhandenen lokalen Regeln Eligibility, Gewicht 2 und
+kausale Wiederverwendung. Auf den natürlichen historischen Aufgaben entsteht
+jedoch kein unabhängig bestätigter Größenvorteil. Growth respektiert zudem die
+Schutzreservierungen noch nicht; eine Produktionsaktivierung bleibt gesperrt.
+
+| B.5.13-Befund | Ergebnis |
 |---|---:|
-| B.5.11-Ergebnisdateien bytegenau reproduziert | 21/21 |
-| Primärnetze Discovery / Bestätigung | 384 / 384 |
-| einfache Vorstrukturierung: Erfahrungen bis Erfolg | −1,089 / −0,859 |
-| zeitliche Vorstrukturierung: Erfahrungen bis Erfolg | +0,205 / +0,184 |
-| weitere A-Erfahrung minus Pause: finale A-Rate | +0,330 / +0,347 |
-| R0-Netze mit erstem Erfolg bis Erfahrung 16 | 384/384 · 384/384 |
-| R0-Netze mit zuverlässiger Beherrschung | 0/384 · 0/384 |
-| beeinträchtigt und anschließend wiedererworben | 250/250 · 232/232 |
-| ausstehendes S4-Ereignis nach Laden korrekt fortgesetzt | 1/1 |
-| Regressionstests | 786/786 |
+| Rekrutierungsnetze | 3.840 |
+| kontrollierte funktionale Growth-Pfade | 768/768 |
+| gezielte Ablation entfernt den neuen Effekt | 768/768 |
+| Netzgrößen | 32 · 128 · 256 · 512 · 2.048 |
+| Growth-Ziele in geschützten Schnittstellen | 221/3.840 |
+| schutzbereinigter natürlicher Repertoirevorteil | keiner |
+| deterministische B.5.12-Dateien reproduziert | 15/15 |
+| Regressionstests | 807/807 |
 
-Ein erster Treffer und eine Gewichtsänderung sind keine ausreichenden
-Lernendpunkte. Vollständige Lernkurven, kontextuelle Zuverlässigkeit,
-Zeit-/Aktivitätskontrollen und Wiedererwerb gegen naive Netze werden deshalb
-dauerhafter Forschungsstandard. S4 bleibt standardmäßig deaktiviert.
+Vollständige Rekrutierbarkeit und tatsächliche funktionale Nutzung werden
+künftig getrennt bewertet. S4 bleibt standardmäßig deaktiviert; weder eine
+neue Lernregel noch dauerhaftes automatisches Growth ist freigegeben.
 
-- [Forschungsbericht B.5.12](docs/experimente/036-forschungsbericht-forschungsstufe-b512.md)
-- [Technische Kausalanalyse](docs/experimente/036-technische-kausalanalyse-lernentwicklung.md)
-- [Methodische Bewertung](docs/experimente/036-methodische-bewertung-lernkriterien.md)
-- [Architekturentscheidung 0034](docs/entscheidungen/0034-b512-erster-erfolg-ist-keine-beherrschung.md)
-- [Entscheidungsvorlage B.5.13](docs/experimente/036-entscheidungsvorlage-forschungsstufe-b513.md)
+- [Forschungsbericht B.5.13](docs/experimente/037-forschungsbericht-forschungsstufe-b513.md)
+- [Technische Architekturanalyse](docs/experimente/037-technische-architekturanalyse-rekrutierbarkeit.md)
+- [Architekturentscheidung 0035](docs/entscheidungen/0035-b513-rekrutierbarkeit-bestaetigt-produktionsgrowth-gesperrt.md)
+- [Entscheidungsvorlage Forschungsphase C](docs/experimente/037-entscheidungsvorlage-forschungsphase-c.md)
 
 EVE ist weder eine fertige allgemeine Intelligenz noch ein Nachweis von
 Bewusstsein oder bereits entstandener eigenständiger Intelligenz. Der Prototyp
@@ -73,7 +69,7 @@ prüfen und auch negative Ergebnisse nachvollziehbar festzuhalten.
 - konfigurierbare Aktivitätsregulation und strukturelles Wachstum,
 - versionierte Speicherung und Wiederherstellung vollständiger Zustände,
 - Diagnostik, Ereignisprotokolle und Zustandsfingerabdrücke,
-- 786 automatisierte Kerntests und reproduzierbare Forschungsrunner.
+- 807 automatisierte Kerntests und reproduzierbare Forschungsrunner.
 
 Die Forschungsvarianten aktivieren bewusst nur ausgewählte Mechanismen. Lernen,
 inhibitorische Plastizität, Wachstum und S4 sind keine pauschal eingeschalteten
@@ -116,7 +112,8 @@ nicht der dauerhaft robuste Erhalt mehrerer konkurrierender Beziehungen.
 | B.5.10 | einzelne Schreibkausalität und lokale Vorgeschichte | 13 historische Schritte kausal; 119 neue Ereignisse; keine neue Regel |
 | B.5.11 | gemeinsame Repräsentation und Bewertungsvalidität | strenge Zeitwertung zeigt Interferenz, negativen Transfer und produktive Einzelfälle |
 | B.5.12 | Teillernen, Verfestigung und Lernstadien | einfache latente Vorstrukturierung bestätigt; komplexe Übertragung und zuverlässige Beherrschung nicht bestätigt |
-| B.5.13 | vollständige neuronale Rekrutierbarkeit, Growth und interne Exploration | als nächste Forschungsstufe festgelegt |
+| B.5.13 | vollständige neuronale Rekrutierbarkeit, Growth und interne Exploration | technisch bestätigt; natürlicher Lernvorteil und Growth-Schutz noch offen |
+| Forschungsphase C | geschützte autonome Strukturbildung | als nächster, noch nicht nummerierter Forschungsschwerpunkt vorbereitet |
 
 Alle Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen im
 [Experimentverzeichnis](docs/experimente/README.md). Maschinenlesbare
@@ -159,12 +156,12 @@ ctest --test-dir _build/cmake --output-on-failure
 
 ## Jüngste Forschung reproduzieren
 
-Der B.5.12-Runner baut die benötigten Programme, führt die Kerntests aus,
-reproduziert B.5.11 vollständig und erzeugt Lernkurven, latente Kontrollen,
-Verfestigungs-, Wiedererwerbs- und Mehrfachlernmatrizen neu:
+Der B.5.13-Runner baut die benötigten Programme, führt die Kerntests aus,
+reproduziert B.5.12 und erzeugt Inventar, Rekrutierungs-, Kausal-, Größen- und
+historische Aufgabenmatrizen neu:
 
 ```sh
-./scripts/run-research-stage-b512.sh research/results/b512
+./scripts/run-research-stage-b513.sh research/results/b513
 ```
 
 Der Lauf verarbeitet 64 Seeds je Familie und Zuordnung in getrennten

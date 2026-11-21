@@ -7824,6 +7824,250 @@ void test_b512_learning_development_case(const std::uint32_t index) {
     }
 }
 
+void test_b513_recruitment_growth_exploration_case(const std::uint32_t index) {
+    const auto config = [] {
+        eve::ExperimentConfig value;
+        value.neuron_count = 32;
+        value.width = 4;
+        value.height = 4;
+        value.depth = 2;
+        value.initial_outgoing_synapses = 0;
+        value.firing_threshold = 2;
+        value.maximum_synapse_weight = 4;
+        value.input_weight_budget = 32;
+        value.learning_enabled = false;
+        value.growth_enabled = true;
+        value.reset_mode = eve::ResetMode::to_zero;
+        value.local_event_memory_capacity = 8;
+        value.eligibility_selection = eve::EligibilitySelection::active_phase;
+        value.eligibility_candidate_capacity = 8;
+        value.eligibility_decision_capacity = 8;
+        value.eligibility_duration = 64;
+        value.plasticity_trace_mode = eve::PlasticityTraceMode::g3_recent;
+        value.modulation_mode = eve::ModulationMode::ternary;
+        value.consume_trace_on_modulation = true;
+        return value;
+    }();
+    const std::vector<eve::NeuronId> protected_neurons{0, 1, 2, 3, 4, 5, 6, 7};
+    const auto exploration = [&protected_neurons](const std::uint64_t seed,
+                                                   const std::uint32_t count = 1) {
+        eve::brainstem::ExplorationConfig value;
+        value.mode = count == 1 ? eve::brainstem::ExplorationMode::single
+                                : eve::brainstem::ExplorationMode::multiple;
+        value.target_policy =
+            eve::brainstem::ExplorationTargetPolicy::processing_neurons_only;
+        value.activation_count = count;
+        value.activation_budget = count;
+        value.seed = seed;
+        value.additional_reserved_neurons = protected_neurons;
+        return value;
+    };
+    struct GrownPath {
+        eve::bios::Runtime runtime;
+        eve::NeuronId source{};
+        eve::NeuronId target{};
+        eve::SynapseId synapse{};
+    };
+    const auto grow_from_exploration = [&] (const std::uint64_t seed) {
+        eve::bios::Runtime runtime(config, seed);
+        const auto selected = runtime.enqueue_exploration(exploration(seed));
+        require_equal(selected.activated_neurons.size(), std::size_t{1},
+                      "B.5.13 single exploration did not select one neuron");
+        const auto source = selected.activated_neurons.front();
+        static_cast<void>(runtime.run());
+        require_equal(runtime.network().synapse_count(), std::uint32_t{1},
+                      "B.5.13 first explored fire did not grow exactly one edge");
+        const auto& edge = runtime.network().synapse(0);
+        return GrownPath{std::move(runtime), source, edge.receiver, 0};
+    };
+    const auto add_modulation_route = [](eve::bios::Runtime& runtime,
+                                         const eve::NeuronId target) {
+        eve::brainstem::EvaluationRouteConfig route;
+        route.mode = eve::brainstem::EvaluationRouteMode::sensory_input;
+        route.first_input_neuron = 24;
+        route.graded_channel_count = 5;
+        route.fanout_per_source = 1;
+        route.weight = 1;
+        const auto configured = runtime.configure_evaluation_route(route);
+        const auto source = *std::find_if(
+            configured.input_neurons.begin(), configured.input_neurons.end(),
+            [&runtime, target](const eve::NeuronId candidate) {
+                return candidate != target &&
+                    !runtime.network().has_synapse(candidate, target);
+            });
+        static_cast<void>(runtime.add_experimental_synapse(
+            source, target, 0, true));
+    };
+    const auto prime_grown_path = [&](GrownPath& path) {
+        path.runtime.set_structural_growth_enabled(false);
+        eve::NeuronId helper = 0;
+        while (helper == path.source || helper == path.target) ++helper;
+        static_cast<void>(path.runtime.add_experimental_synapse(
+            helper, path.target, 2, true));
+        add_modulation_route(path.runtime, path.target);
+        path.runtime.enqueue_fire(path.source);
+        path.runtime.enqueue_fire(helper);
+        static_cast<void>(path.runtime.run());
+        const auto records = path.runtime.network().eligibility_records(path.target);
+        require(!records.empty(), "B.5.13 coactivation created no eligibility");
+        bool found = false;
+        for (const auto& record : records) {
+            found = found || std::find(record.candidates.begin(), record.candidates.end(),
+                                       path.synapse) != record.candidates.end();
+        }
+        require(found, "B.5.13 grown zero edge did not enter eligibility");
+    };
+
+    if (index == 0 || index == 1 || index == 5 || index == 11) {
+        eve::bios::Runtime runtime(config, 0x513000ULL + index);
+        const auto selected = runtime.enqueue_exploration(exploration(91 + index, 24));
+        const std::set<eve::NeuronId> activated(
+            selected.activated_neurons.begin(), selected.activated_neurons.end());
+        require_equal(activated.size(), std::size_t{24},
+                      "B.5.13 learnable inventory is not fully selectable");
+        for (eve::NeuronId neuron = 8; neuron < 32; ++neuron)
+            require(activated.count(neuron) == 1,
+                    "B.5.13 learnable neuron is unreachable");
+        for (const auto neuron : protected_neurons)
+            require(activated.count(neuron) == 0,
+                    "B.5.13 protected neuron entered processing exploration");
+    } else if (index == 2) {
+        eve::bios::Runtime runtime(config, 0x513102ULL);
+        static_cast<void>(runtime.add_experimental_synapse(8, 9, 0));
+        const auto before = runtime.network().synapse_count();
+        for (std::uint32_t attempt = 0; attempt < 64 &&
+             runtime.network().synapse_count() == before; ++attempt) {
+            runtime.enqueue_fire(8);
+            static_cast<void>(runtime.run());
+        }
+        require(runtime.network().synapse_count() > before,
+                "B.5.13 growth from an already connected neuron failed");
+    } else if (index == 3 || index == 4 || index == 6) {
+        const auto path = grow_from_exploration(0x513200ULL + index);
+        const auto& edge = path.runtime.network().synapse(path.synapse);
+        require(edge.sender == path.source && edge.receiver == path.target &&
+                    edge.sender != edge.receiver && edge.weight == 0 &&
+                    path.runtime.network().neuron(path.target).incoming_count == 1,
+                "B.5.13 explored growth edge has invalid initial structure");
+    } else if (index == 7 || index == 8) {
+        auto path = grow_from_exploration(0x513300ULL + index);
+        prime_grown_path(path);
+        const auto feedback = path.runtime.process_modulatory_feedback(1);
+        require(path.runtime.network().synapse(path.synapse).weight == 1 &&
+                    feedback.zero_to_one_changes > 0,
+                "B.5.13 grown eligibility was not positively weighted");
+    } else if (index == 9) {
+        auto path = grow_from_exploration(0x513309ULL);
+        prime_grown_path(path);
+        static_cast<void>(path.runtime.process_modulatory_feedback(1));
+        eve::NeuronId helper = 0;
+        while (helper == path.source || helper == path.target) ++helper;
+        path.runtime.enqueue_fire(path.source);
+        path.runtime.enqueue_fire(helper);
+        static_cast<void>(path.runtime.run());
+        static_cast<void>(path.runtime.process_modulatory_feedback(1));
+        require_equal(path.runtime.network().synapse(path.synapse).weight, 2,
+                      "B.5.13 grown edge did not reach causal strength");
+        bool target_fired = false;
+        path.runtime.set_fire_observer([&](const eve::bios::FireObservation& event) {
+            target_fired = target_fired || event.neuron == path.target;
+        });
+        path.runtime.enqueue_fire(path.source);
+        static_cast<void>(path.runtime.run());
+        require(target_fired, "B.5.13 weighted grown edge was not reused");
+    } else if (index == 10) {
+        auto batched = config;
+        batched.batch_simultaneous_inputs = true;
+        eve::bios::Runtime runtime(batched, 0x513310ULL);
+        const auto excitatory = runtime.add_experimental_synapse(8, 10, 1);
+        const auto inhibitory = runtime.add_experimental_synapse(
+            9, 10, 1, false, eve::SynapticEffect::inhibitory);
+        const auto batch = runtime.process_simultaneous_impulses(
+            {excitatory, inhibitory});
+        require(batch.excitatory_contribution == 1 &&
+                    batch.inhibitory_contribution == 1 && !batch.fired,
+                "B.5.13 excitatory/inhibitory integration changed");
+    } else if (index == 12) {
+        auto left = grow_from_exploration(0x513312ULL);
+        auto right = grow_from_exploration(0x513312ULL);
+        require_equal(left.source, right.source,
+                      "B.5.13 exploration stream is not reproducible");
+        require_equal(left.runtime.state_fingerprint(), right.runtime.state_fingerprint(),
+                      "B.5.13 separated deterministic streams diverged");
+    } else if (index == 13 || index == 14) {
+        auto path = grow_from_exploration(0x513400ULL + index);
+        for (std::uint32_t attempt = 0; attempt < 64; ++attempt) {
+            path.runtime.enqueue_fire(path.source);
+            static_cast<void>(path.runtime.run());
+        }
+        std::set<eve::NeuronId> targets;
+        for (const auto synapse : path.runtime.network().outgoing_synapses(path.source)) {
+            const auto& edge = path.runtime.network().synapse(synapse);
+            require(edge.sender != edge.receiver,
+                    "B.5.13 growth created a self-connection");
+            require(targets.insert(edge.receiver).second,
+                    "B.5.13 growth created a duplicate connection");
+        }
+    } else if (index == 15) {
+        auto original = grow_from_exploration(0x513415ULL);
+        auto restored = original.runtime;
+        for (const auto neuron : {original.source, original.target}) {
+            original.runtime.enqueue_fire(neuron);
+            restored.enqueue_fire(neuron);
+        }
+        static_cast<void>(original.runtime.run());
+        static_cast<void>(restored.run());
+        require_equal(original.runtime.state_fingerprint(),
+                      restored.state_fingerprint(),
+                      "B.5.13 deterministic growth continuation diverged");
+    } else if (index == 16 || index == 17 || index == 18) {
+        auto path = grow_from_exploration(0x513500ULL + index);
+        path.runtime.set_experimental_neuron_membrane(path.target, 1);
+        path.runtime.schedule_boundary(path.runtime.simulated_time() + 8, index);
+        const auto file = std::filesystem::temp_directory_path() /
+            ("eve-stage-b513-" + std::to_string(index) + ".bin");
+        path.runtime.save(file.string());
+        auto restored = eve::bios::Runtime::load(file.string());
+        require_equal(path.runtime.state_fingerprint(), restored.state_fingerprint(),
+                      "B.5.13 persisted structural/neural state changed");
+        require(restored.network().has_synapse(path.source, path.target) &&
+                    restored.network().neuron(path.target).membrane_potential == 1 &&
+                    restored.future_event_count() == path.runtime.future_event_count(),
+                "B.5.13 persisted synapse, neuron, or queue is incomplete");
+        if (index == 18)
+            require(restored.future_event_count() > 0,
+                    "B.5.13 persisted queue has no truly pending event");
+        static_cast<void>(std::filesystem::remove(file));
+    } else if (index == 19) {
+        auto large = config;
+        large.neuron_count = 2048;
+        large.width = 8;
+        large.height = 8;
+        large.depth = 32;
+        eve::bios::Runtime runtime(large, 0x513519ULL);
+        auto request = exploration(519, 16);
+        static_cast<void>(runtime.enqueue_exploration(request));
+        static_cast<void>(runtime.run());
+        require(runtime.network().validate() &&
+                    runtime.network().synapse_count() <= 16 &&
+                    runtime.metrics().maximum_queue_size <= 64,
+                "B.5.13 2048-neuron resource or event bound failed");
+    } else if (index == 20) {
+        auto disabled = config;
+        disabled.growth_enabled = false;
+        eve::bios::Runtime left(disabled, 0x513520ULL);
+        eve::bios::Runtime right(disabled, 0x513520ULL);
+        for (const auto neuron : {eve::NeuronId{8}, eve::NeuronId{9}}) {
+            left.enqueue_fire(neuron);
+            right.enqueue_fire(neuron);
+        }
+        static_cast<void>(left.run());
+        static_cast<void>(right.run());
+        require_equal(left.state_fingerprint(), right.state_fingerprint(),
+                      "B.5.13 disabled reference changed historical behavior");
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -8514,6 +8758,23 @@ int main() {
         tests.emplace_back(
             std::string("B512 ") + b512_names[index],
             [index]() { test_b512_learning_development_case(index); });
+    }
+    const std::array<const char*, 21> b513_names{{
+        "every learnable neuron recruitable", "protected innate separation",
+        "growth from existing", "growth from explored",
+        "connection to previously unconnected", "exploration reachability",
+        "new connection starts at zero", "eligibility on new connection",
+        "positive write on new connection", "functional reuse",
+        "excitatory inhibitory integration", "protected exploration",
+        "separated deterministic random streams", "no duplicate connection",
+        "no self-connection", "deterministic growth continuation",
+        "persist new synapses", "persist neuron state", "valid persisted queue",
+        "bounded memory and events", "disabled historical reference",
+    }};
+    for (std::uint32_t index = 0; index < b513_names.size(); ++index) {
+        tests.emplace_back(
+            std::string("B513 ") + b513_names[index],
+            [index]() { test_b513_recruitment_growth_exploration_case(index); });
     }
 
     std::size_t failures = 0;
