@@ -100,8 +100,11 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
   prospektiver Registrierung von 166.880 neuen Verbindungen, W0–W9,
   Angemessenheitsdiagnose und Langzeitverläufen bis 256 Erfahrungen.
 - 19 neue funktionale Einzelkausalfälle, davon zwölf in unabhängiger
-  Bestätigung; 0/19 nach einer Erfahrung erhalten und 0/38 bis Erfahrung 256
-  erneut direkt funktional.
+  Bestätigung; 0/19 nach einer Erfahrung erhalten und 0/38 bei Erfahrung 256
+  direkt funktional.
+- Post-hoc Methodenkorrektur für C.1 mit H0–H3 vor der Erfahrung,
+  funktionalen Einzel-/Kombinationsablationen alternativer Pfade und
+  diagnostischer Funktionsprüfung nach jedem Schritt 0–256.
 
 ### Geändert
 
@@ -114,8 +117,9 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
   gemeinsame Erfolgskennzahl; natürliche Nullverletzungen ersetzen keine
   gezielten Negativtests.
 - C.1 trennt A – Integrität, B – Kausalität, C – situative Angemessenheit und
-  D – Langzeitwirkung. Die 38 unmittelbaren Gegenproben sind situativ neutral,
-  die Langzeitverläufe dagegen heterogen.
+  D – Langzeitwirkung. Die korrigierte Vor-Erfahrungs-Ablation weist 38/38
+  Synapsen als handlungskausal und ihre Abschwächungsrichtung als situativ
+  nützlich aus; die Langzeitverläufe bleiben heterogen.
 - Prospektive Synapsenregistrierung verhindert die ausschließliche Auswahl
   später erfolgreicher Pfade. Diagnoseinterventionen W0–W9 bleiben auf
   vollständige Forschungszustandskopien beschränkt.

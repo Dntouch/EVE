@@ -219,10 +219,11 @@ pauschalen Gewichtsschutz, Rollback, Zielwissen oder globale Suche untersuchen.
 C.1 beantwortet die unmittelbare Ursache: In allen 19 historischen und 19
 prospektiven Fällen erzeugt die neue Erfahrung eine lokale Eligibility und
 negative Modulation; die konkrete 2→1-Schreibung entfernt die direkte
-Funktion. Die Synapse ist aktiv, ihr Erhalt ändert die tatsächlich ausgeführte
-falsche Doppelantwort aber nicht. Frage 7 bleibt deshalb kontextabhängig:
-Langfristig sind 16 Verläufe nützlich, zehn schädlich, sieben neutral und fünf
-kontextabhängig. Kein ausgewählter Pfad wird bis Erfahrung 256 wieder direkt
-funktional, aber alle Verläufe bilden alternative funktionale Eingänge. Eine
-mögliche C.2-Stufe muss daher lokale Handlungsbeiträge und verteilte
-Reorganisation untersuchen, nicht pauschalen Einzelgewichtserhalt.
+Funktion. Die korrigierte Vor-Erfahrungs-Ablation zeigt zusätzlich, dass alle
+38 Synapsen die falsche Doppelantwort kausal mitverursachen und ihre
+Abschwächungsrichtung situativ nützlich ist. Langfristig bleiben 16 Verläufe
+nützlich, zehn schädlich, sieben neutral und fünf kontextabhängig. Alle Pfade
+werden zeitweise erneut funktional, sind bei Schritt 256 aber inaktiv;
+fähigkeitsrelevante Alternativpfade sind in 38/38 Fällen kausal belegt. Eine
+mögliche C.2-Stufe muss lokale Handlungsbeiträge und verteilte Reorganisation
+untersuchen, nicht pauschalen Einzelgewichtserhalt.

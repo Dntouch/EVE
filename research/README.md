@@ -57,10 +57,15 @@ und zusammengeführt:
 scripts/run-research-stage-c1.sh
 ```
 
-Die Ergebnisse liegen unter `research/results/c1`. Große Ereignis-,
+Die ursprünglichen Ergebnisse liegen unter `research/results/c1`; die
+post-hoc Methodenkorrektur wird getrennt unter
+`research/results/c1/method-correction` erzeugt. Große Ereignis-,
 Eligibility-, Kausal- und Langzeitdateien werden deterministisch komprimiert.
 `four-dimension-assessment.csv` trennt Integrität, Kausalität, situative
-Angemessenheit und Langzeitwirkung; es gibt keine Gesamtpunktzahl.
+Angemessenheit und Langzeitwirkung; es gibt keine Gesamtpunktzahl. Der
+korrigierte Lauf ergänzt H0–H3-Handlungskausalität,
+Alternativpfad-Ablationen, eine Diagnose jedes Schritts 0–256 und einen
+bytegenauen Wiederholungslauf.
 
 ## Experiment 002 – neuronale Selbstregulation
 

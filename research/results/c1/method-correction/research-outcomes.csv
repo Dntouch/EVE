@@ -1,0 +1,7 @@
+criterion,passed,value,evidence
+historical_19_reproduced,1,19,historical-case-reconstruction.csv
+prospective_registration_complete,1,166880,prospective-connections.csv
+prospective_functional_observed,1,19,prospective-connections.csv
+retention_observed,0,0,longitudinal-checkpoints.csv
+reemergence_observed,1,19,direct-function-timeline.csv
+ability_contribution_observed,1,15,prospective-connections.csv

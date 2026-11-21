@@ -1,0 +1,8 @@
+population,dimension,assessment,evidence,not_a_combined_score
+all,A_integrity,permitted,structural-safety-preflight.csv,1
+historical,B_causality,demonstrated,causal-matrix.csv,1
+historical,C_situational,case_specific,action-causality.csv,1
+historical,D_long_term,case_specific,direct-function-timeline.csv,1
+prospective,B_causality,case_specific,causal-matrix.csv,1
+prospective,C_situational,case_specific,action-causality.csv,1
+prospective,D_long_term,case_specific,direct-function-timeline.csv,1

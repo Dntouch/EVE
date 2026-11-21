@@ -1,100 +1,102 @@
 # Forschungsbericht – Forschungsphase C.1
 
-## Neuronale Reorganisation und natürliche Plastizität
+## Methodisch korrigierter Abschluss
 
 **Datum:** 21. November 2026
-**Status:** abgeschlossen; Reorganisationsursache kausal lokalisiert, keine
-neue Produktions-Lernregel freigegeben
 
-## Kurzbefund
+**Status:** nachträgliche methodische Korrektur abgeschlossen; keine neue
+Produktions-Lernregel freigegeben
 
-C.1 reproduziert alle 19 historischen C.0-Fälle und findet in einer vorab
-registrierten neuen Population von 166.880 Growth-Verbindungen weitere 19
-funktionale, einzeln kausale Pfade. Sieben entstehen in Discovery, zwölf in
-der unabhängigen Bestätigung.
+## Korrekturhinweis
 
-Alle 38 untersuchten Pfade werden in der nächsten Erfahrung aktiv. Diese
-Erfahrung erzeugt am betroffenen Empfänger eine neue Eligibility mit drei
-Kandidaten und erhält wegen einer doppelten, falschen Motorantwort negative
-Modulation. Die ausgewählte neue Synapse wird in 38/38 Fällen von Gewicht 2
-auf 1 abgeschwächt. W1, W3, W4 und W5 erhalten ihre direkte Funktion; W2
-reproduziert W0. Damit ist die in dieser Erfahrung neu erzeugte Eligibility
-des ausgewählten Kandidaten kausal notwendig. W6–W8 verhindern die konkrete
-Abschwächung nicht; W9 erhält sie durch seine W4-Komponente.
+Der ursprüngliche C.1-Lauf setzte W0 und W1 erst bei der Gewichtsschreibung
+nach der Motorhandlung auseinander. Aus ihrer identischen Handlung durfte
+daher keine Neutralität der beteiligten Synapse abgeleitet werden. Ebenso
+belegten andere starke Eingänge und einzelne Kontrollpunkte weder eine
+funktionale Reorganisation noch kontinuierliche Funktionslosigkeit.
 
-Die Abschwächung ist unmittelbar direkt funktionsmindernd, ändert aber in
-keinem der 38 Fälle die tatsächlich ausgeführte Doppelantwort oder deren
-negative Konsequenz. Die situative Angemessenheit wird deshalb in allen
-Fällen als neutral bewertet – getrennt von der nachgewiesenen direkten
-Funktionskausalität.
+Die ursprünglichen Daten unter `research/results/c1` bleiben unverändert. Die
+post-hoc ergänzten H0–H3-Interventionen, Ablationen alternativer Eingänge und
+Schritt-für-Schritt-Diagnosen liegen getrennt unter
+`research/results/c1/method-correction`.
 
-W1 erhält den Pfad genau eine Erfahrung lang, aber 0/38 Pfade sind nach 256
-Erfahrungen direkt funktional. In allen Fällen existieren dann alternative
-funktionale Eingänge. Die langfristigen W0/W1-Verläufe sind heterogen: 16
-nützlich, zehn schädlich, sieben neutral und fünf kontextabhängig. Es gibt
-keinen einheitlichen Vorteil des Erhalts und keine Grundlage für pauschalen
-Gewichtsschutz.
+## Korrigierter Kurzbefund
 
-## Umfang
+- Alle 38 ausgewählten Synapsen waren an der fehlerhaften Motorentscheidung
+  kausal beteiligt: H0 erzeugte 38/38-mal eine falsche Doppelantwort, H1 mit
+  vor der Erfahrung deaktivierter Synapse 38/38-mal die korrekte Einzelantwort.
+  H2 reproduzierte H0 in 38/38 Fällen exakt.
+- Die Abschwächungsrichtung ist deshalb situativ in 38/38 Fällen nützlich,
+  nicht neutral. Die tatsächliche 2→1-Schreibung erfolgte jedoch erst nach der
+  Handlung und änderte die nächste untersuchte Entscheidung in 0/38 Fällen.
+- Die unmittelbare direkte Zielwirkung der ausgewählten Synapse ist in 38/38
+  Fällen kausal nachgewiesen.
+- Jeder Fall besitzt kontrolliert aktivierbare Alternativen. Einzel- und
+  Kombinationsablationen zeigen in 38/38 Fällen eine fähigkeitsrelevante
+  Alternative, die bei Ablation des ursprünglichen Pfads eine Aufgabenfunktion
+  übernimmt. In der kritischen natürlichen Erfahrung änderte ihre
+  Einzelablation die gemessene neuronale Antwort dagegen in 0/38 Fällen.
+- Die ursprüngliche direkte Funktion kehrt in 38/38 Fällen zwischenzeitlich
+  zurück: erstmals zwischen Erfahrung 10 und 47, insgesamt an 388
+  diagnostizierten Schritten nach dem ersten Verlust. Es treten 356 erneute
+  Verluste auf. Am Schritt 256 sind weiterhin 0/38 Pfade direkt funktional.
+- Die W0/W1-Langzeitklassen bleiben unverändert: 16 nützlich, zehn schädlich,
+  sieben neutral und fünf kontextabhängig. Sie beschreiben Unterschiede
+  vollständiger Lerntrajektorien, nicht die Güte einer einzelnen Synapse.
+
+## Umfang und Reproduktion
 
 | Kennzahl | Ergebnis |
 |---|---:|
-| unabhängige Sicherheitsprüfungen | 12/12 |
-| historische C.0-Fälle reproduziert | 19/19 |
+| unabhängiger Sicherheits-Preflight | 12/12 |
+| Regressionstests | 832/832 |
+| B.5.11 / B.5.12 / B.5.13 Referenzdateien | 21 / 15 / 13 exakt |
+| C.0 Referenzdateien | 14 exakt |
+| historische C.0-Funktionsfälle | 19/19 |
 | prospektive Läufe | 12.800 |
-| neue Verbindungen | 166.880 |
-| funktionale, einzeln kausale Verbindungen | 19 |
-| davon Discovery / Bestätigung | 7 / 12 |
-| funktionale Fälle nach einer natürlichen Erfahrung | 0/19 |
-| historische kritische 2→1-Schreibungen | 19 |
-| historische weitere tatsächliche Schreibungen | 29 |
-| W0/W2 deterministisch identisch | 38/38 |
-| situative Bewertung neutral | 38/38 |
-| direkte Wiederkehr bis Erfahrung 256 | 0/38 |
-| alternative funktionale Eingänge bei Erfahrung 256 | 38/38 |
+| registrierte neue Verbindungen | 166.880 |
+| funktionale prospektive Fälle | 19 |
+| Discovery / unabhängige Bestätigung | 7 / 12 |
+| ausgewählte Fälle insgesamt | 38 |
+| exakte Wiederholung aller korrigierten C.1-Shards | bestanden |
+| Persistenz mit ausstehenden Ereignissen | bestanden |
 
 ## Vier getrennte Dimensionen
 
 ### A – Integrität
 
-Der unabhängige Preflight bestand alle zwölf Rollen-, Richtungs-,
-Fehlkonfigurations-, Reconfigurations-, Persistenz- und Provokationstests.
-Alle untersuchten freien Synapsen und ihre Plastizität waren nach dem Vertrag
-zulässig. Kein funktionales Ergebnis wurde zur Sicherheitsbewertung benutzt.
+Der unabhängige Preflight bestand vor allen Lernexperimenten. Alle
+Veränderungen waren nach Architekturentscheidung 0037 zulässig. Keine
+Funktions- oder Erfolgsbeobachtung wurde zur Legitimierung eines
+Integritätsverstoßes verwendet.
 
 ### B – Kausalität
 
-In den 19 historischen Fortsetzungen gab es 48 tatsächliche Schriften: 19 an
-der ausgewählten neuen Synapse, 19 an einem weiteren Kandidaten desselben
-Empfängers und zehn an anderen Empfängern. Die kritischen 19 Schriften waren
-jeweils 2→1. In der neuen prospektiven Population entstanden 52 tatsächliche
-Schriften, davon erneut 19 kritische 2→1-Schriften.
+H0, H1 und H2 starten aus demselben Zustand. H1 setzt nur die ausgewählte
+Synapse vor Beginn der natürlichen Erfahrung diagnostisch auf null. Die
+abweichende Handlung erhält ihre tatsächlich entstandene positive
+Rückmeldung. H3 entfernt kombiniert die konkurrierenden Eingänge. Erfasst
+werden Motorantwort, frühe und doppelte Aktivierung, Korrektheit, Konsequenz,
+Zielaktivität sowie weitere Neuronen- und Synapsenaktivität.
 
-W0 entfernt 38/38 direkte Funktionen. W1 lässt nur die kritische Schreibung
-aus und erhält 38/38; W3 und W5 erhalten sie ebenfalls. W4 entfernt den
-ausgewählten Kandidaten nach seiner neuen Eligibility-Aufnahme unmittelbar
-vor der Modulation und erhält 38/38. W2 ist identisch zu W0. Damit sind neue
-Eligibility, konkrete Schreibung und lokale Modulationswirkung kausal
-notwendig. Growth und weitere Exploration sind nicht die unmittelbare Ursache.
+Der Handlungsbeitrag ist eindeutig: Die ausgewählte Synapse verursacht in
+38/38 Fällen den Übergang von der korrekten Einzelantwort zur falschen
+Doppelantwort. Davon getrennt zeigt W0/W1, dass die spätere 2→1-Schreibung in
+0/38 Fällen die nächste Entscheidung verändert. Die direkte Senderprobe zeigt
+in 38/38 Fällen die unmittelbare Zielwirkung.
 
 ### C – Situative Angemessenheit
 
-Die ausgewählte Synapse ist aktiv, doch W0 und W1 führen in allen Fällen zur
-gleichen doppelten Motorantwort, gleichen Fehlbewertung und gleichen
-Modulation. Das Unterlassen der funktionsmindernden Schreibung verbessert
-diese Erfahrung nicht. Bewertung: 38 neutral, keine als nützlich, schädlich,
-kontextabhängig oder unentschieden.
-
-Dieser Befund zeigt eine lokale Kreditgrenze: Die negative Modulation ist für
-die fehlerhafte Gesamtantwort nachvollziehbar, beweist aber nicht, dass jede
-der drei lokalen Kandidatensynapsen entscheidungskausal war.
+Die bisherige Einstufung 38 neutral wird korrigiert. Da die
+Vor-Erfahrungs-Ablation den tatsächlichen Fehler in allen Fällen behebt, ist
+die Abschwächungsrichtung 38-mal situativ nützlich. Das ist keine Behauptung,
+dass die erst nach der Handlung erfolgende Schreibung rückwirkend geholfen
+hätte; ihr Ein-Schritt-Folgeeffekt wurde nicht nachgewiesen.
 
 ### D – Langzeitwirkung
 
-Nach 256 Folgeerfahrungen ist weder unter W0 noch nach einmaligem W1-Erhalt
-eine ausgewählte Verbindung direkt funktional. Alternative funktionale
-Eingänge liegen in allen 38 Fällen vor. Die Endpunkte unterscheiden sich
-dennoch durch die veränderte Entwicklungstrajektorie:
+Die ursprünglichen Kategorien bleiben bei unveränderten Schwellenwerten
+bestehen:
 
 | Population | nützlich | schädlich | neutral | kontextabhängig |
 |---|---:|---:|---:|---:|
@@ -102,49 +104,52 @@ dennoch durch die veränderte Entwicklungstrajektorie:
 | prospektiv | 9 | 6 | 4 | 0 |
 | gesamt | 16 | 10 | 7 | 5 |
 
-W0 erzielt insgesamt elf mehr korrekte Folgeerfahrungen als W1, aber zwei
-Repertoirepunkte weniger. Dieser gemischte Aggregatbefund ist ausdrücklich
-keine allgemeine Erfolgszahl.
+Jede Zeile nennt nun die geprüfte Fähigkeit (Abruf von Aufgabe A und B), den
+kausalen Unterschied, den Maßstab (korrekte Erfahrungen und/oder finales
+Repertoire), die nachgewiesene Rolle alternativer Pfade und die Abhängigkeit
+von auseinanderlaufenden Lerntrajektorien. Alle 38 Vergleiche sind
+trajektorienabhängig.
 
-## Abschlussfragen A–P
+## Alternative Pfade und Wiederkehr
 
-- **A/B:** Die Abschwächungen entstanden aus in derselben Erfahrung neu
-  erzeugter lokaler Eligibility, negativer Modulation und der konkreten
-  Drei-Faktor-Schreibung; sie stammten nicht aus einer früheren Erfahrung.
-- **C:** Die Synapsen waren aktiv, änderten die negativ bewertete
-  Doppelantwort in W1 aber nicht nachweisbar.
-- **D:** Genau die 38 ausgewählten 2→1-Schreibungen waren für den direkten
-  Funktionsverlust notwendig; W3/W4/W5 bestätigen Eligibility und lokale
-  Schreibursache.
-- **E:** Sämtliche Veränderungen waren nach dem Schutzvertrag zulässig.
-- **F:** Die unmittelbare Handlungswirkung war neutral.
-- **G:** Langzeitwirkungen waren heterogen: 16 nützlich, zehn schädlich,
-  sieben neutral, fünf kontextabhängig.
-- **H:** Keine der 38 direkten Funktionen entstand bis Erfahrung 256 erneut.
-- **I/J:** Alle Verläufe besaßen nach 256 Erfahrungen alternative funktionale
-  Eingänge; die ursprüngliche einzelne Synapse blieb nicht der Träger einer
-  Fähigkeit.
-- **K/L:** Lokal vorhanden waren Aktivität, dreigliedrige Eligibility,
-  Modulation und Empfängerzustand. Nicht vorhanden war die externe
-  Information, dass das Unterlassen dieser einzelnen Schreibung die Handlung
-  nicht verbessert beziehungsweise welche Langzeittrajektorie günstiger ist.
-- **M:** Die prospektive Bestätigung fand zwölf neue funktionale Fälle und
-  reproduzierte die unmittelbare Ursache vollständig.
-- **N:** Funktionale Fälle waren nicht monoton größenabhängig: 3/5/4/0/7 für
-  32/128/256/512/2.048 Neuronen. 32 bleibt ein Kapazitätsrandfall; größere
-  Netze zeigen keinen einfachen Stabilitätsvorteil.
-- **O:** Eine neue Lernregel ist nicht begründet. Die unmittelbare Schreibung
-  ist lokal unspezifisch, ihre Langzeitwirkung aber gemischt.
-- **P:** C.2 sollte lokale Handlungsbeitragsinformation untersuchen, ohne
-  externe Zielinformation einzuspeisen, und alternative verteilte Pfade als
-  primäre Einheit statt einzelne Synapsen behandeln.
+Pro ausgewähltem Pfad werden strukturelle, potenziell funktionale,
+kontrolliert funktionale, neuronal kausale und fähigkeitskausale Alternativen
+getrennt. In jedem Fall bestehen zwei kontrolliert aktivierbare Alternativen;
+eine davon ist in der Abrufprobe fähigkeitskausal. Die gemeinsame Ablation von
+ausgewähltem Pfad und tatsächlichen Alternativen senkt das Repertoire in
+38/38 Fällen. Damit ist Aufgabenfunktionsübernahme nachgewiesen und der Begriff
+funktionale Reorganisation für diesen eng definierten Abrufbefund zulässig.
+Eine Beteiligung dieser Alternativen an der kritischen natürlichen Erfahrung
+ist dagegen nicht nachgewiesen.
+
+Die direkte Funktion wurde in diagnostischen Zustandskopien nach jedem Schritt
+0–256 geprüft. Alle 38 Pfade verlieren und gewinnen Funktion mehrfach; kein
+Fall ist am letzten Schritt funktional. Aussagen über kontinuierliche
+Funktionslosigkeit wurden entfernt.
+
+## Antworten auf die Abschlussfragen
+
+1. **Handlungskausalität:** Ja, 38/38 Synapsen waren kausal an der falschen
+   Doppelantwort beteiligt.
+2. **Situative Abschwächung:** 38 nützlich, 0 schädlich, 0 neutral,
+   0 unentschieden; die tatsächliche Schreibung lag zeitlich nach der Handlung.
+3. **Funktionale Alternativen:** Ja, kontrollierte Zielaktivierung in 38/38
+   Fällen.
+4. **Aufgabenübernahme:** Ja, durch Einzel- und Kombinationsablation in 38/38
+   Fällen für den kontrollierten Fähigkeitsabruf.
+5. **Zwischenzeitliche Wiederkehr:** Ja, 38/38, erstmals bei Schritt 10–47;
+   danach wiederholte Verluste, 0/38 bei Schritt 256.
+6. **Langzeitklassen:** Ja, 16/10/7/5 bleiben gültig, aber nur als
+   trajektorienabhängige W0/W1-Vergleiche.
+7. **Für C.2 abgesichert:** Eligibility und lokale Modulation erklären die
+   Schreibung; Handlungsbeitrag, spätere Schreibwirkung, direkte Zielwirkung,
+   Fähigkeitsübernahme und zeitliche Wiederkehr müssen getrennt bleiben.
 
 ## Merge- und Produktionsentscheidung
 
-**C.1 nach `main` mergen: Ja – als Forschungsinfrastruktur und dokumentiertes
-Ergebnis.**
+**C.1 nach `main` mergen: Ja – für Forschungsinfrastruktur, korrigierte
+Methodik und wissenschaftliche Befunde.**
 
-Der Preflight, die prospektive Registrierung, W0–W9, Langzeitdiagnostik,
-Persistenz- und Reproduktionspipeline sind mergefähig. Es wird keine neue
-Lernregel, kein Gewichtsschutz, kein Rollback und keine Produktionsaktivierung
-von Growth, Exploration oder S4-d16 freigegeben.
+**Produktionsfreigabe: Nein.** Es wird keine neue Lernregel, kein pauschaler
+Gewichtsschutz, kein Einfrieren, kein Rollback und keine Aktivierung von
+Growth, interner Exploration oder S4-d16 freigegeben.

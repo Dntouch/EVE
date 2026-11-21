@@ -60,6 +60,9 @@ struct C1Outputs {
     std::ofstream longitudinal;
     std::ofstream long_term_assessment;
     std::ofstream reorganization;
+    std::ofstream action_causality;
+    std::ofstream alternative_paths;
+    std::ofstream function_timeline;
 
     explicit C1Outputs(const std::filesystem::path& output)
         : reconstruction(output / "historical-case-reconstruction.csv"),
@@ -69,7 +72,10 @@ struct C1Outputs {
           appropriateness(output / "situational-appropriateness.csv"),
           longitudinal(output / "longitudinal-checkpoints.csv"),
           long_term_assessment(output / "long-term-assessment.csv"),
-          reorganization(output / "distributed-reorganization.csv") {
+          reorganization(output / "distributed-reorganization.csv"),
+          action_causality(output / "action-causality.csv"),
+          alternative_paths(output / "alternative-path-evidence.csv"),
+          function_timeline(output / "direct-function-timeline.csv") {
         reconstruction << "population,phase,task,assignment,neurons,seed,selected_synapse,"
             "episode,event,weight_before,weight_after,sender,receiver,effect,"
             "receiver_membrane,receiver_refractory,active_selected,response,correct,"
@@ -91,21 +97,35 @@ struct C1Outputs {
             "positive_writes,negative_writes,integrity,causality,"
             "situational_assessment,long_term_assessment\n";
         appropriateness << "population,phase,task,assignment,neurons,seed,synapse,"
-            "selected_active,natural_action,counterfactual_action,natural_correct,"
-            "counterfactual_correct,natural_consequence,counterfactual_consequence,"
-            "classification,reason,integrity,causality\n";
+            "selected_active,h0_action,h1_action,h0_correct,h1_correct,"
+            "h0_consequence,h1_consequence,classification,reason,integrity,"
+            "action_causality,next_decision_write_effect,direct_target_effect,"
+            "deterministic_control\n";
         longitudinal << "population,phase,task,assignment,neurons,seed,synapse,"
             "variant,experiences,selected_weight,target_fires,cumulative_correct,"
-            "repertoire,network_synapses,alternative_functional_inputs,"
+            "repertoire,network_synapses,potential_alternative_inputs,"
             "selected_reused,valid\n";
         long_term_assessment << "population,phase,task,assignment,neurons,seed,"
             "synapse,natural_correct_256,omitted_correct_256,"
             "natural_repertoire_256,omitted_repertoire_256,"
             "natural_target_function_256,omitted_target_function_256,"
-            "classification,integrity,causality\n";
+            "classification,evaluated_function,causal_difference,metric_scope,"
+            "alternative_role,trajectory_dependent,integrity,causality\n";
         reorganization << "population,phase,task,assignment,neurons,seed,synapse,"
-            "variant,experiences,selected_functional,alternative_functional_inputs,"
+            "variant,experiences,selected_functional,potential_alternative_inputs,"
             "repertoire,path_reuse,interpretation\n";
+        action_causality << "population,phase,task,assignment,neurons,seed,synapse,"
+            "variant,intervention,action,early_activation,double_activation,correct,"
+            "natural_consequence,selected_active,target_active,active_neurons,"
+            "active_synapses,deterministic_identity\n";
+        alternative_paths << "population,phase,task,assignment,neurons,seed,"
+            "selected_synapse,alternative_synapse,scope,structural,potential,"
+            "controlled_target_activation,neural_causal,ability_causal,"
+            "selected_ablation_compensation,role,baseline_repertoire,"
+            "ablated_repertoire,valid\n";
+        function_timeline << "population,phase,task,assignment,neurons,seed,"
+            "synapse,variant,experience,direct_functional,after_first_loss,"
+            "reemergence_event,repeated_loss_event,run_length,final_checkpoint\n";
     }
 };
 
@@ -142,7 +162,25 @@ struct MatrixOutcome {
     bool target_after{};
     std::uint64_t positive_writes{};
     std::uint64_t negative_writes{};
+    bool early_activation{};
+    bool double_activation{};
+    bool target_active_during_experience{};
+    std::size_t active_neurons{};
+    std::size_t active_synapses{};
     std::vector<eve::bios::PlasticityObservation> observations;
+};
+
+struct AbilityProfile {
+    bool a{};
+    bool b{};
+
+    std::uint32_t repertoire() const {
+        return static_cast<std::uint32_t>(a) + static_cast<std::uint32_t>(b);
+    }
+
+    bool operator==(const AbilityProfile& other) const {
+        return a == other.a && b == other.b;
+    }
 };
 
 std::string action_name(const B511Episode& row) {
@@ -192,6 +230,16 @@ std::uint32_t c1_repertoire(const eve::bios::Runtime& source,
         b511_probe(b, circuit, b511_pattern(B511Task::b, false, inverse)).correct);
 }
 
+AbilityProfile c1_ability_profile(const eve::bios::Runtime& source,
+                                  const B511Circuit& circuit,
+                                  const bool inverse) {
+    auto a = source;
+    auto b = source;
+    return AbilityProfile{
+        b511_probe(a, circuit, b511_pattern(B511Task::a, false, inverse)).correct,
+        b511_probe(b, circuit, b511_pattern(B511Task::b, false, inverse)).correct};
+}
+
 bool c1_target_fires(const eve::bios::Runtime& source,
                      const eve::SynapseId selected) {
     auto copy = source;
@@ -205,6 +253,14 @@ bool c1_target_fires(const eve::bios::Runtime& source,
     return fired;
 }
 
+bool c1_selected_direct_function(const eve::bios::Runtime& source,
+                                 const eve::SynapseId selected) {
+    if (!c1_target_fires(source, selected)) return false;
+    auto ablated = source;
+    ablated.set_experimental_synapse_weight(selected, 0);
+    return !c1_target_fires(ablated, selected);
+}
+
 std::uint32_t alternative_functional_inputs(
     const eve::bios::Runtime& runtime, const eve::SynapseId selected) {
     const auto target = runtime.network().synapse(selected).receiver;
@@ -215,6 +271,31 @@ std::uint32_t alternative_functional_inputs(
             ++count;
     }
     return count;
+}
+
+std::vector<eve::SynapseId> alternative_inputs(
+    const eve::bios::Runtime& runtime, const eve::SynapseId selected) {
+    const auto target = runtime.network().synapse(selected).receiver;
+    std::vector<eve::SynapseId> result;
+    for (const auto id : runtime.network().incoming_synapses(target))
+        if (id != selected) result.push_back(id);
+    return result;
+}
+
+bool isolated_input_activates_target(const eve::bios::Runtime& source,
+                                     const eve::SynapseId selected,
+                                     const eve::SynapseId alternative) {
+    auto copy = source;
+    const auto target = copy.network().synapse(selected).receiver;
+    for (const auto id : copy.network().incoming_synapses(target))
+        if (id != alternative) copy.set_experimental_synapse_weight(id, 0);
+    bool fired = false;
+    copy.set_fire_observer([&](const eve::bios::FireObservation& observation) {
+        fired = fired || observation.neuron == target;
+    });
+    copy.enqueue_fire(copy.network().synapse(alternative).sender);
+    static_cast<void>(copy.run());
+    return fired;
 }
 
 eve::bios::Runtime c1_runtime(const std::uint32_t neurons,
@@ -268,7 +349,7 @@ MatrixOutcome run_matrix_variant(
     auto copy = baseline;
     MatrixOutcome result;
     result.weight_before = copy.network().synapse(selected).weight;
-    result.target_before = c1_target_fires(copy, selected);
+    result.target_before = c1_selected_direct_function(copy, selected);
     const auto receiver = copy.network().synapse(selected).receiver;
     if (variant == 3) copy.set_experimental_plasticity_writes_suppressed(true);
     if (variant == 6 || variant == 9) isolate_selected_input(copy, selected);
@@ -310,8 +391,14 @@ MatrixOutcome run_matrix_variant(
     result.correct = row.correct;
     result.modulation = row.modulation;
     result.selected_active = row.active_synapses.count(selected) != 0;
+    result.early_activation = row.early_a || row.early_b;
+    result.double_activation = row.final_a && row.final_b;
+    result.target_active_during_experience =
+        row.active_neurons.count(receiver) != 0;
+    result.active_neurons = row.active_neurons.size();
+    result.active_synapses = row.active_synapses.size();
     result.weight_after = copy.network().synapse(selected).weight;
-    result.target_after = c1_target_fires(copy, selected);
+    result.target_after = c1_selected_direct_function(copy, selected);
     result.positive_writes = after.plasticity_positive_changes -
         before.plasticity_positive_changes;
     result.negative_writes = after.plasticity_negative_changes -
@@ -319,21 +406,95 @@ MatrixOutcome run_matrix_variant(
     return result;
 }
 
+MatrixOutcome run_action_variant(
+    const eve::bios::Runtime& baseline, const B511Circuit& circuit,
+    const std::string& task, const bool inverse, const std::uint64_t seed,
+    const eve::SynapseId selected, const std::uint32_t variant) {
+    auto copy = baseline;
+    MatrixOutcome result;
+    const auto receiver = copy.network().synapse(selected).receiver;
+    result.weight_before = copy.network().synapse(selected).weight;
+    result.target_before = c1_selected_direct_function(copy, selected);
+    if (variant == 1)
+        copy.set_experimental_synapse_weight(selected, 0);
+    if (variant == 3)
+        isolate_selected_input(copy, selected);
+    const auto before = copy.metrics();
+    const auto row = b511_episode(
+        copy, circuit,
+        b511_pattern(c1_task_for_episode(task, 16), false, inverse),
+        static_cast<std::uint8_t>((seed + 16) & 1U), true);
+    const auto after = copy.metrics();
+    result.action = action_name(row);
+    result.correct = row.correct;
+    result.modulation = row.modulation;
+    result.selected_active = row.active_synapses.count(selected) != 0;
+    result.early_activation = row.early_a || row.early_b;
+    result.double_activation = row.final_a && row.final_b;
+    result.target_active_during_experience =
+        row.active_neurons.count(receiver) != 0;
+    result.active_neurons = row.active_neurons.size();
+    result.active_synapses = row.active_synapses.size();
+    result.weight_after = copy.network().synapse(selected).weight;
+    result.target_after = c1_selected_direct_function(copy, selected);
+    result.positive_writes = after.plasticity_positive_changes -
+        before.plasticity_positive_changes;
+    result.negative_writes = after.plasticity_negative_changes -
+        before.plasticity_negative_changes;
+    return result;
+}
+
+bool write_changes_next_decision(
+    const eve::bios::Runtime& baseline, const B511Circuit& circuit,
+    const std::string& task, const bool inverse, const std::uint64_t seed,
+    const eve::SynapseId selected) {
+    auto natural = baseline;
+    auto omitted = baseline;
+    omitted.set_experimental_plasticity_write_interceptor(
+        [selected](const eve::bios::PlasticityObservation& observation) {
+            return observation.candidate == selected &&
+                observation.weight_before == 2 &&
+                observation.proposed_weight == 1;
+        });
+    const auto first_task = c1_task_for_episode(task, 16);
+    static_cast<void>(b511_episode(
+        natural, circuit, b511_pattern(first_task, false, inverse),
+        static_cast<std::uint8_t>((seed + 16) & 1U), true));
+    static_cast<void>(b511_episode(
+        omitted, circuit, b511_pattern(first_task, false, inverse),
+        static_cast<std::uint8_t>((seed + 16) & 1U), true));
+    omitted.set_experimental_plasticity_write_interceptor({});
+    const auto next_task = c1_task_for_episode(task, 17);
+    const auto natural_next = b511_episode(
+        natural, circuit, b511_pattern(next_task, false, inverse),
+        static_cast<std::uint8_t>((seed + 17) & 1U), false);
+    const auto omitted_next = b511_episode(
+        omitted, circuit, b511_pattern(next_task, false, inverse),
+        static_cast<std::uint8_t>((seed + 17) & 1U), false);
+    return action_name(natural_next) != action_name(omitted_next) ||
+        natural_next.correct != omitted_next.correct;
+}
+
 std::pair<std::string, std::string> situational_assessment(
-    const MatrixOutcome& natural, const MatrixOutcome& skipped) {
+    const MatrixOutcome& natural, const MatrixOutcome& ablated,
+    const bool deterministic) {
+    if (!deterministic)
+        return {"undecided", "H0 and H2 were not deterministically identical"};
     if (!natural.selected_active) {
         return {"undecided",
                 "selected synapse was not active in the evaluated experience"};
     }
-    if (natural.correct != skipped.correct) {
+    if (natural.correct != ablated.correct) {
         if (natural.correct)
-            return {"useful", "natural write changed an incorrect counterfactual to correct"};
-        return {"harmful", "omitting the write changed the natural error to correct"};
+            return {"harmful", "pre-experience ablation changed a correct action to incorrect"};
+        return {"useful", "pre-experience ablation changed the natural error to correct"};
     }
-    if (natural.action == skipped.action)
-        return {"neutral", "isolated omission did not change action or correctness"};
-    return {"context_dependent",
-            "action changed while task-level correctness remained equal"};
+    if (natural.action == ablated.action &&
+        natural.early_activation == ablated.early_activation &&
+        natural.double_activation == ablated.double_activation)
+        return {"neutral", "pre-experience ablation left the motor response unchanged"};
+    return {"undecided",
+            "motor response changed without a task-level correctness difference"};
 }
 
 void write_matrix_rows(
@@ -350,6 +511,10 @@ void write_matrix_rows(
         "eligibility_competition_growth_exploration_joint"}};
     for (std::uint32_t variant = 0; variant < outcomes.size(); ++variant)
         outcomes[variant] = run_matrix_variant(
+            baseline, circuit, task, inverse, seed, selected, variant);
+    std::array<MatrixOutcome, 4> actions;
+    for (std::uint32_t variant = 0; variant < actions.size(); ++variant)
+        actions[variant] = run_action_variant(
             baseline, circuit, task, inverse, seed, selected, variant);
     for (const auto& observation : outcomes[0].observations) {
         outputs.eligibility << population << ',' << phase << ',' << task << ','
@@ -372,12 +537,26 @@ void write_matrix_rows(
             << mechanism_name(observation.mechanism) << ','
             << (observation.candidate == selected) << '\n';
     }
-    const auto situational = situational_assessment(outcomes[0], outcomes[1]);
     const bool deterministic =
         outcomes[0].action == outcomes[2].action &&
         outcomes[0].correct == outcomes[2].correct &&
         outcomes[0].weight_after == outcomes[2].weight_after &&
         outcomes[0].target_after == outcomes[2].target_after;
+    const bool action_deterministic =
+        actions[0].action == actions[2].action &&
+        actions[0].correct == actions[2].correct &&
+        actions[0].early_activation == actions[2].early_activation &&
+        actions[0].double_activation == actions[2].double_activation &&
+        actions[0].target_active_during_experience ==
+            actions[2].target_active_during_experience &&
+        actions[0].active_neurons == actions[2].active_neurons &&
+        actions[0].active_synapses == actions[2].active_synapses;
+    const auto situational = situational_assessment(
+        actions[0], actions[1], action_deterministic);
+    const bool next_decision_effect = write_changes_next_decision(
+        baseline, circuit, task, inverse, seed, selected);
+    const bool direct_target_effect =
+        c1_selected_direct_function(baseline, selected);
     for (std::uint32_t variant = 0; variant < outcomes.size(); ++variant) {
         const auto& row = outcomes[variant];
         const char* causal = variant == 2 && !deterministic ? "undecided" :
@@ -395,16 +574,128 @@ void write_matrix_rows(
             << ",permitted," << causal << ',' << situational.first
             << ",undecided\n";
     }
+    constexpr std::array<const char*, 4> action_names{{
+        "natural_experience", "selected_synapse_pre_experience_ablation",
+        "identical_control", "competing_inputs_combined_ablation"}};
+    for (std::uint32_t variant = 0; variant < actions.size(); ++variant) {
+        const auto& row = actions[variant];
+        outputs.action_causality << population << ',' << phase << ',' << task
+            << ',' << b511_assignment(inverse) << ',' << neurons << ',' << seed
+            << ',' << selected << ",H" << variant << ',' << action_names[variant]
+            << ',' << row.action << ',' << row.early_activation << ','
+            << row.double_activation << ',' << row.correct << ','
+            << static_cast<int>(row.modulation) << ',' << row.selected_active << ','
+            << row.target_active_during_experience << ',' << row.active_neurons
+            << ',' << row.active_synapses << ','
+            << (variant == 2 ? action_deterministic : true) << '\n';
+    }
     outputs.appropriateness << population << ',' << phase << ',' << task << ','
         << b511_assignment(inverse) << ',' << neurons << ',' << seed << ','
-        << selected << ',' << outcomes[0].selected_active << ','
-        << outcomes[0].action << ',' << outcomes[1].action << ','
-        << outcomes[0].correct << ',' << outcomes[1].correct << ','
-        << static_cast<int>(outcomes[0].modulation) << ','
-        << static_cast<int>(outcomes[1].modulation) << ',' << situational.first
+        << selected << ',' << actions[0].selected_active << ','
+        << actions[0].action << ',' << actions[1].action << ','
+        << actions[0].correct << ',' << actions[1].correct << ','
+        << static_cast<int>(actions[0].modulation) << ','
+        << static_cast<int>(actions[1].modulation) << ',' << situational.first
         << ',' << '"' << situational.second << '"'
-        << ",permitted," << (deterministic ? "demonstrated" : "undecided")
+        << ",permitted,"
+        << (action_deterministic ? "demonstrated" : "undecided") << ','
+        << (next_decision_effect ? "demonstrated" : "not_demonstrated") << ','
+        << (direct_target_effect ? "demonstrated" : "not_demonstrated") << ','
+        << action_deterministic << '\n';
+}
+
+struct AlternativeEvidenceSummary {
+    std::uint32_t structural{};
+    std::uint32_t potential{};
+    std::uint32_t actual{};
+    std::uint32_t neural_causal{};
+    std::uint32_t ability_causal{};
+    bool task_takeover{};
+};
+
+AlternativeEvidenceSummary write_alternative_evidence(
+    C1Outputs& outputs, const std::string& population, const char* phase,
+    const std::string& task, const bool inverse, const std::uint32_t neurons,
+    const std::uint64_t seed, const eve::SynapseId selected,
+    const eve::bios::Runtime& baseline, const B511Circuit& circuit) {
+    AlternativeEvidenceSummary summary;
+    const auto alternatives = alternative_inputs(baseline, selected);
+    summary.structural = alternatives.size();
+    const auto base_ability = c1_ability_profile(baseline, circuit, inverse);
+    const auto natural = run_action_variant(
+        baseline, circuit, task, inverse, seed, selected, 0);
+    auto selected_ablated = baseline;
+    selected_ablated.set_experimental_synapse_weight(selected, 0);
+    const auto selected_ablated_ability =
+        c1_ability_profile(selected_ablated, circuit, inverse);
+    std::vector<eve::SynapseId> actual_alternatives;
+
+    for (const auto alternative : alternatives) {
+        const auto& edge = baseline.network().synapse(alternative);
+        const bool potential = edge.weight >= baseline.config().firing_threshold;
+        const bool actual = isolated_input_activates_target(
+            baseline, selected, alternative);
+        summary.potential += potential;
+        summary.actual += actual;
+        if (actual) actual_alternatives.push_back(alternative);
+
+        auto ablated = baseline;
+        ablated.set_experimental_synapse_weight(alternative, 0);
+        const auto ablated_action = run_action_variant(
+            ablated, circuit, task, inverse, seed, selected, 0);
+        const bool neural_causal =
+            natural.action != ablated_action.action ||
+            natural.early_activation != ablated_action.early_activation ||
+            natural.double_activation != ablated_action.double_activation ||
+            natural.target_active_during_experience !=
+                ablated_action.target_active_during_experience ||
+            natural.active_neurons != ablated_action.active_neurons;
+        const auto ablated_ability = c1_ability_profile(ablated, circuit, inverse);
+        const bool ability_causal = !(base_ability == ablated_ability);
+
+        auto selected_and_alternative_ablated = selected_ablated;
+        selected_and_alternative_ablated.set_experimental_synapse_weight(
+            alternative, 0);
+        const auto combined_ability = c1_ability_profile(
+            selected_and_alternative_ablated, circuit, inverse);
+        const bool compensation =
+            selected_ablated_ability.repertoire() > combined_ability.repertoire();
+        summary.neural_causal += neural_causal;
+        summary.ability_causal += ability_causal;
+        summary.task_takeover = summary.task_takeover || compensation;
+        const char* role = compensation ? "task_function_takeover" :
+            ability_causal ? "ability_relevant_other_or_shared_function" :
+            neural_causal ? "neural_function_only" :
+            actual ? "controlled_target_activation_only" :
+            potential ? "potential_only" : "structural_only";
+        outputs.alternative_paths << population << ',' << phase << ',' << task
+            << ',' << b511_assignment(inverse) << ',' << neurons << ',' << seed
+            << ',' << selected << ',' << alternative << ",single,1,"
+            << potential << ',' << actual << ',' << neural_causal << ','
+            << ability_causal << ',' << compensation << ',' << role << ','
+            << base_ability.repertoire() << ',' << ablated_ability.repertoire()
+            << ',' << ablated.network().validate() << '\n';
+    }
+
+    auto combined = selected_ablated;
+    for (const auto alternative : actual_alternatives)
+        combined.set_experimental_synapse_weight(alternative, 0);
+    const auto combined_ability = c1_ability_profile(combined, circuit, inverse);
+    const bool combined_takeover = selected_ablated_ability.repertoire() >
+        combined_ability.repertoire();
+    summary.task_takeover = summary.task_takeover || combined_takeover;
+    outputs.alternative_paths << population << ',' << phase << ',' << task << ','
+        << b511_assignment(inverse) << ',' << neurons << ',' << seed << ','
+        << selected << ",-1,combined," << !alternatives.empty() << ','
+        << !actual_alternatives.empty() << ',' << !actual_alternatives.empty()
+        << ",0," << combined_takeover << ',' << combined_takeover << ','
+        << (combined_takeover ? "combined_task_function_takeover" :
+            actual_alternatives.empty() ? "no_actual_alternative" :
+            "actual_alternatives_without_task_takeover") << ','
+        << selected_ablated_ability.repertoire() << ','
+        << combined_ability.repertoire() << ',' << combined.network().validate()
         << '\n';
+    return summary;
 }
 
 struct LongTermResult {
@@ -414,6 +705,9 @@ struct LongTermResult {
     std::uint32_t omitted_correct{};
     std::uint32_t natural_repertoire{};
     std::uint32_t omitted_repertoire{};
+    int first_reemergence{-1};
+    std::uint32_t functional_after_loss{};
+    std::uint32_t repeated_losses{};
     std::string assessment{"undecided"};
 };
 
@@ -421,7 +715,8 @@ LongTermResult run_long_term(
     C1Outputs& outputs, const std::string& population, const char* phase,
     const std::string& task, const bool inverse, const std::uint32_t neurons,
     const std::uint64_t seed, const eve::SynapseId selected,
-    const eve::bios::Runtime& baseline, const B511Circuit& circuit) {
+    const eve::bios::Runtime& baseline, const B511Circuit& circuit,
+    const AlternativeEvidenceSummary& alternative_evidence) {
     auto natural = baseline;
     auto omitted = baseline;
     omitted.set_experimental_plasticity_write_interceptor(
@@ -434,11 +729,42 @@ LongTermResult run_long_term(
     std::uint32_t natural_correct = 0;
     std::uint32_t omitted_correct = 0;
     std::size_t checkpoint = 0;
+    struct TimelineState {
+        bool previous{};
+        bool loss_seen{};
+        std::uint32_t run_length{};
+    };
+    TimelineState natural_timeline;
+    TimelineState omitted_timeline;
+    const auto write_timeline = [&](const char* variant,
+                                    const eve::bios::Runtime& runtime,
+                                    const std::uint32_t experience,
+                                    TimelineState& state,
+                                    const bool natural_variant) {
+        const bool functional = c1_selected_direct_function(runtime, selected);
+        const bool reemergence = state.loss_seen && functional && !state.previous;
+        const bool repeated_loss = state.loss_seen && !functional && state.previous;
+        if (!functional) state.loss_seen = true;
+        state.run_length = functional ? state.run_length + 1 : 0;
+        if (natural_variant && state.loss_seen && functional)
+            ++result.functional_after_loss;
+        if (natural_variant && reemergence && result.first_reemergence < 0)
+            result.first_reemergence = static_cast<int>(experience);
+        if (natural_variant && repeated_loss) ++result.repeated_losses;
+        outputs.function_timeline << population << ',' << phase << ',' << task
+            << ',' << b511_assignment(inverse) << ',' << neurons << ',' << seed
+            << ',' << selected << ',' << variant << ',' << experience << ','
+            << functional << ',' << state.loss_seen << ',' << reemergence << ','
+            << repeated_loss << ',' << state.run_length << ','
+            << (experience == 256) << '\n';
+        state.previous = functional;
+        return functional;
+    };
     const auto write_checkpoint = [&](const char* variant,
                                       const eve::bios::Runtime& runtime,
                                       const std::uint32_t experiences,
                                       const std::uint32_t correct) {
-        const bool target = c1_target_fires(runtime, selected);
+        const bool target = c1_selected_direct_function(runtime, selected);
         const auto alternatives = alternative_functional_inputs(runtime, selected);
         const auto repertoire = c1_repertoire(runtime, circuit, inverse);
         const bool reused = target && repertoire > 1;
@@ -453,13 +779,17 @@ LongTermResult run_long_term(
             << b511_assignment(inverse) << ',' << neurons << ',' << seed << ','
             << selected << ',' << variant << ',' << experiences << ',' << target
             << ',' << alternatives << ',' << repertoire << ',' << reused << ','
-            << (alternatives > 0 ? "alternative_path_present" :
+            << (alternatives > 0 ? "potential_alternative_present_unproven" :
                 target ? "selected_path_functional" : "no_functional_input")
             << '\n';
         return std::pair<bool, std::uint32_t>{target, repertoire};
     };
     auto natural_state = write_checkpoint("W0_natural", natural, 0, 0);
     auto omitted_state = write_checkpoint("W1_critical_write_omitted", omitted, 0, 0);
+    static_cast<void>(write_timeline(
+        "W0_natural", natural, 0, natural_timeline, true));
+    static_cast<void>(write_timeline(
+        "W1_critical_write_omitted", omitted, 0, omitted_timeline, false));
     for (std::uint32_t experience = 1; experience <= 256; ++experience) {
         const auto selected_task = c1_task_for_episode(task, 15 + experience);
         const auto natural_row = b511_episode(
@@ -472,6 +802,14 @@ LongTermResult run_long_term(
         omitted_correct += omitted_row.correct;
         if (experience == 1)
             omitted.set_experimental_plasticity_write_interceptor({});
+        const bool natural_functional = write_timeline(
+            "W0_natural", natural, experience, natural_timeline, true);
+        static_cast<void>(write_timeline(
+            "W1_critical_write_omitted", omitted, experience,
+            omitted_timeline, false));
+        if (experience == 1) result.retained_after_one = natural_functional;
+        if (experience > 1 && natural_timeline.loss_seen && natural_functional)
+            result.reemerged = true;
         if (experience == kC1Horizons[checkpoint + 1]) {
             ++checkpoint;
             natural_state = write_checkpoint(
@@ -479,8 +817,6 @@ LongTermResult run_long_term(
             omitted_state = write_checkpoint(
                 "W1_critical_write_omitted", omitted, experience,
                 omitted_correct);
-            if (experience == 1) result.retained_after_one = natural_state.first;
-            if (experience > 1 && natural_state.first) result.reemerged = true;
         }
     }
     result.natural_correct = natural_correct;
@@ -504,12 +840,29 @@ LongTermResult run_long_term(
         result.assessment = "context_dependent";
     else
         result.assessment = "neutral";
+    const bool trajectory_dependent =
+        natural.state_fingerprint() != omitted.state_fingerprint();
+    const char* causal_difference = correct_better ? "more_correct_experiences" :
+        correct_worse ? "fewer_correct_experiences" :
+        repertoire_better ? "larger_final_repertoire" :
+        repertoire_worse ? "smaller_final_repertoire" :
+        natural_state.first != omitted_state.first ? "different_direct_function" :
+        "no_measured_difference";
+    const char* alternative_role = alternative_evidence.task_takeover
+        ? "task_takeover_demonstrated"
+        : alternative_evidence.ability_causal > 0
+            ? "ability_relevant_without_takeover"
+            : alternative_evidence.actual > 0
+                ? "target_activation_without_ability_evidence"
+                : "no_actual_functional_alternative";
     outputs.long_term_assessment << population << ',' << phase << ',' << task
         << ',' << b511_assignment(inverse) << ',' << neurons << ',' << seed << ','
         << selected << ',' << natural_correct << ',' << omitted_correct << ','
         << result.natural_repertoire << ',' << result.omitted_repertoire << ','
         << natural_state.first << ',' << omitted_state.first << ','
-        << result.assessment << ",permitted,demonstrated\n";
+        << result.assessment << ",task_A_and_B_recall," << causal_difference
+        << ",correct_experiences_and_final_repertoire," << alternative_role << ','
+        << trajectory_dependent << ",permitted,demonstrated\n";
     return result;
 }
 
@@ -647,7 +1000,7 @@ TrialSummary run_c1_trial(
     summary.memory = runtime.diagnostics().estimated_memory_bytes;
     std::map<eve::SynapseId, LongTermResult> long_term;
     for (const auto selected : selected_ids) {
-        const bool pre_function = c1_target_fires(runtime, selected);
+        const bool pre_function = c1_selected_direct_function(runtime, selected);
         auto ablated = runtime;
         ablated.set_experimental_synapse_weight(selected, 0);
         const bool ablated_function = c1_target_fires(ablated, selected);
@@ -655,9 +1008,12 @@ TrialSummary run_c1_trial(
         std::array<MatrixOutcome, 10> matrix;
         write_matrix_rows(outputs, population, phase, task, inverse, neurons,
                           seed, selected, runtime, circuit, matrix);
-        long_term[selected] = run_long_term(
+        const auto alternative_evidence = write_alternative_evidence(
             outputs, population, phase, task, inverse, neurons, seed, selected,
             runtime, circuit);
+        long_term[selected] = run_long_term(
+            outputs, population, phase, task, inverse, neurons, seed, selected,
+            runtime, circuit, alternative_evidence);
         summary.retained += long_term[selected].retained_after_one;
         summary.reemerged += long_term[selected].reemerged;
     }
@@ -666,7 +1022,7 @@ TrialSummary run_c1_trial(
         for (const auto& history : histories) {
             const bool functional = history.final_weight >=
                 runtime.config().firing_threshold &&
-                c1_target_fires(runtime, history.id);
+                c1_selected_direct_function(runtime, history.id);
             bool causal = false;
             if (functional) {
                 auto copy = runtime;
@@ -772,7 +1128,7 @@ int main(int argc, char** argv) {
     const auto started = std::chrono::steady_clock::now();
     const std::filesystem::path output = argc > 1
         ? std::filesystem::path(argv[1])
-        : std::filesystem::path("research/results/c1");
+        : std::filesystem::path("research/results/c1/method-correction");
     const std::uint32_t samples = argc > 2
         ? static_cast<std::uint32_t>(std::stoul(argv[2])) : kSeeds;
     const std::string phase_filter = argc > 3 ? argv[3] : "both";
@@ -801,6 +1157,14 @@ int main(int argc, char** argv) {
         "network_sizes,32;128;256;512;2048\n"
         "horizons,0;1;2;4;8;16;32;64;128;256\n"
         "causal_matrix,W0-W9\n"
+        "methodological_status,post_hoc_correction_2026-11-21\n"
+        "action_causality,H0-H3_pre_experience_interventions\n"
+        "H0,unchanged_connection_and_natural_experience\n"
+        "H1,selected_synapse_disabled_before_experience\n"
+        "H2,unchanged_deterministic_control_copy\n"
+        "H3,competing_inputs_ablated_before_experience\n"
+        "alternative_evidence,structural;potential;controlled_functional;causal;ability\n"
+        "function_timeline,every_experience_0_through_256_in_diagnostic_copy\n"
         "W1,omit_only_selected_2_to_1_write\n"
         "W4,remove_selected_candidate_from_local_eligibility\n"
         "W5,suppress_local_modulation_writes_at_selected_receiver\n"
@@ -875,11 +1239,11 @@ int main(int argc, char** argv) {
     dimensions << "population,dimension,assessment,evidence,not_a_combined_score\n"
         "all,A_integrity,permitted,structural-safety-preflight.csv,1\n"
         "historical,B_causality,demonstrated,causal-matrix.csv,1\n"
-        "historical,C_situational,case_specific,situational-appropriateness.csv,1\n"
-        "historical,D_long_term,case_specific,longitudinal-checkpoints.csv,1\n"
+        "historical,C_situational,case_specific,action-causality.csv,1\n"
+        "historical,D_long_term,case_specific,direct-function-timeline.csv,1\n"
         "prospective,B_causality,case_specific,causal-matrix.csv,1\n"
-        "prospective,C_situational,case_specific,situational-appropriateness.csv,1\n"
-        "prospective,D_long_term,case_specific,longitudinal-checkpoints.csv,1\n";
+        "prospective,C_situational,case_specific,action-causality.csv,1\n"
+        "prospective,D_long_term,case_specific,direct-function-timeline.csv,1\n";
 
     std::ofstream outcomes(output / "research-outcomes.csv");
     outcomes << "criterion,passed,value,evidence\n"
@@ -893,7 +1257,7 @@ int main(int argc, char** argv) {
         "retention_observed," << (prospective_retained > 0) << ','
         << prospective_retained << ",longitudinal-checkpoints.csv\n"
         "reemergence_observed," << (prospective_reemerged > 0) << ','
-        << prospective_reemerged << ",longitudinal-checkpoints.csv\n";
+        << prospective_reemerged << ",direct-function-timeline.csv\n";
 
     const auto wall = std::chrono::duration<double>(
         std::chrono::steady_clock::now() - started).count();
@@ -921,6 +1285,8 @@ int main(int argc, char** argv) {
         "C1_diagnostic_runner,yes,research_only,separates_four_assessment_dimensions\n"
         "prospective_registry,yes,research_only,prevents_success_only_selection\n"
         "W0_W9_interventions,yes,research_only,controlled_state_copies\n"
+        "H0_H3_action_interventions,yes,research_only,pre_experience_causal_test\n"
+        "alternative_path_ablations,yes,research_only,function_and_ability_evidence\n"
         "new_learning_rule,no,absent,no_rule_preregistered_or_authorized\n"
         "growth,no,disabled,research_evidence_only\n"
         "internal_exploration,no,disabled,research_evidence_only\n"

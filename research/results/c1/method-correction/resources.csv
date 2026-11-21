@@ -1,0 +1,12 @@
+metric,value
+wall_seconds_shard_sum,153.646
+peak_rss_kib,14540
+prospective_trials,12800
+historical_cases,19
+prospective_growth,166880
+prospective_functional,19
+prospective_retained_after_one,0
+prospective_reemerged,19
+production_growth_enabled,0
+production_exploration_enabled,0
+production_S4_d16_enabled,0

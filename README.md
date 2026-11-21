@@ -68,9 +68,11 @@ Langzeitwirkung ist gemischt, weshalb keine Erhaltungsregel freigegeben wird.
 | neue funktionale Einzelkausalfälle | 19 |
 | davon unabhängige Bestätigung | 12 |
 | nach einer Erfahrung erhalten | 0/19 |
-| unmittelbare Angemessenheit | 38/38 neutral |
-| direkte Wiederkehr bis Erfahrung 256 | 0/38 |
-| alternative funktionale Eingänge bei Erfahrung 256 | 38/38 |
+| handlungskausal an falscher Doppelantwort | 38/38 |
+| situative Abschwächungsrichtung | 38/38 nützlich |
+| zwischenzeitliche direkte Wiederkehr | 38/38 |
+| fähigkeitsrelevante alternative Pfade | 38/38 |
+| direkte Funktion bei Erfahrung 256 | 0/38 |
 | neue Produktions-Lernregel | keine |
 
 Vollständige Rekrutierbarkeit und tatsächliche funktionale Nutzung werden
@@ -182,7 +184,7 @@ nicht der dauerhaft robuste Erhalt mehrerer konkurrierender Beziehungen.
 | B.5.12 | Teillernen, Verfestigung und Lernstadien | einfache latente Vorstrukturierung bestätigt; komplexe Übertragung und zuverlässige Beherrschung nicht bestätigt |
 | B.5.13 | vollständige neuronale Rekrutierbarkeit, Growth und interne Exploration | technisch bestätigt; schutzbereinigter Lernvorteil nicht bestätigt, Growth-Schutz offen |
 | C.0 | geschützte autonome neuronale Selbstorganisation | Schutz, autonome Struktur und 19 natürliche S3-Pfade bestätigt; W0-Fortsetzung 0/19, kein Vorteil im untersuchten K3/K0-Vergleich |
-| C.1 | natürliche Reorganisation und Schicksal neuer Pfade | 19 historische und 19 prospektive Fälle kausal analysiert; situativ neutral, langfristig gemischt; keine neue Regel |
+| C.1 | natürliche Reorganisation und Schicksal neuer Pfade | Methodik korrigiert: 38 handlungskausale Pfade, 38 funktionale Übernahmen, zeitweilige Wiederkehr; langfristig gemischt; keine neue Regel |
 | C.2 | lokale Handlungsbeiträge und verteilte Pfade | als mögliche Diagnosephase vorbereitet |
 
 Alle Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen im

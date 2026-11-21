@@ -7,10 +7,17 @@ Lokale Handlungsbeiträge und verteilte Pfadentwicklung
 ## Ausgangslage
 
 C.1 lokalisiert die 2→1-Abschwächung auf neu erzeugte Eligibility und lokale
-negative Modulation. Das isolierte Unterlassen erhält die direkte Funktion,
-ändert aber die unmittelbar falsche Doppelantwort nicht. Nach 256 Erfahrungen
-sind alle ausgewählten Einzelpfade inaktiv; alternative funktionale Eingänge
-haben sich gebildet. Die Langzeitwirkung des einmaligen Erhalts ist gemischt.
+negative Modulation. Die korrigierte Vor-Erfahrungs-Ablation zeigt zusätzlich,
+dass alle 38 ausgewählten Synapsen die falsche Doppelantwort kausal
+mitverursachen; die Abschwächungsrichtung ist situativ nützlich. Die erst nach
+der Handlung erfolgende Schreibung ändert die nächste Entscheidung jedoch in
+0/38 Fällen.
+
+Alle Einzelpfade werden zwischenzeitlich erneut funktional und sind bei
+Schritt 256 wieder inaktiv. Kontrollierte Ablationen belegen in 38/38 Fällen
+eine fähigkeitsrelevante Funktionsübernahme durch alternative Pfade. Die
+Langzeitwirkung des einmaligen Erhalts bleibt mit 16/10/7/5 gemischt und von
+auseinanderlaufenden Lerntrajektorien abhängig.
 
 ## Leitfrage
 
@@ -26,6 +33,10 @@ verteilt erworbene Fähigkeiten über unabhängige Aufgaben?
 - prospektive Auswahl bei Ereignisentstehung,
 - lokale Kandidateninformationen gegen echte Einzel- und
   Kombinationsinterventionen validieren,
+- Interventionen vor Handlung, bei Schreibung und beim späteren Abruf getrennt
+  planen,
+- zeitlich dichte Diagnosen verwenden, damit vorübergehende Wiederkehr nicht
+  zwischen Kontrollpunkten verschwindet,
 - einzelne Synapse, lokaler Pfad und gesamtes Fähigkeitsrepertoire getrennt
   bewerten,
 - mindestens W0, W1, Write-Gate-, Beitrags- und Konkurrenzkontrollen,
@@ -34,7 +45,9 @@ verteilt erworbene Fähigkeiten über unabhängige Aufgaben?
 
 ## Entscheidung vor Beauftragung
 
-C.2 ist als Diagnosephase sinnvoll. Eine neue Produktions-Lernregel darf erst
-untersucht werden, wenn ein lokal verfügbares Signal vorab operationalisiert
-und gegen die gemischten C.1-Langzeitverläufe falsifizierbar gemacht wurde.
-Pauschaler Schutz erfolgreicher Synapsen bleibt ausgeschlossen.
+C.2 ist als präregistrierte Diagnosephase sinnvoll. Aus C.1 ausreichend
+abgesichert sind die Trennung der drei Kausalfragen, die situativ nützliche
+Abschwächungsrichtung und die fähigkeitsrelevante Pfadübernahme. Nicht
+abgesichert ist eine lokale Regel, die aus diesen Befunden zuverlässig eine
+langfristig günstige Lerntrajektorie wählt. Pauschaler Schutz erfolgreicher
+Synapsen bleibt ausgeschlossen.

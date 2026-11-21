@@ -1,5 +1,11 @@
 # Präregistrierter Versuchsplan C.1
 
+> **Transparenzhinweis vom 21. November 2026:** Dieser Plan dokumentiert die
+> ursprüngliche Präregistrierung. H0–H3, die funktionalen
+> Alternativpfad-Ablationen und die Diagnose jedes Schritts 0–256 wurden erst
+> nach der methodischen Kritik ergänzt. Sie sind post-hoc Korrekturen und
+> werden nicht rückwirkend als präregistriert ausgegeben.
+
 ## Geltungsbereich
 
 Dieser Plan wird vor der Interpretation der C.1-Ergebnisse festgeschrieben.
@@ -46,11 +52,36 @@ ihre eigene natürliche Konsequenz. W2 muss W0 deterministisch reproduzieren.
 W1 bleibt nur in der ersten Folgeerfahrung aktiv; danach laufen beide
 Langzeitkopien natürlich weiter.
 
-Situative Klassen werden ausschließlich aus tatsächlicher Aktivität und dem
-W0/W1-Handlungs-/Ergebnisvergleich abgeleitet. Fehlt Aktivität der Synapse,
-lautet die Bewertung `unentschieden`. Langzeitklassen basieren auf
+Die ursprünglich vorgesehene situative Ableitung aus W0/W1 erwies sich als
+unzureichend, weil deren Intervention erst nach der Handlung greift. Dieser
+Teil des Plans ist durch den folgenden, ausdrücklich post-hoc ergänzten
+Korrekturblock methodisch ersetzt. Langzeitklassen basieren weiterhin auf
 kumulativem Erfolg, Repertoire und verbleibender Funktion nach 256
 Erfahrungen. Die Integritätsklasse wird nie daraus abgeleitet.
+
+## Post-hoc Methodenkorrektur
+
+Die ergänzte Handlungskausalität vergleicht aus identischem Ausgangszustand:
+
+- H0 unveränderte natürliche Erfahrung,
+- H1 diagnostische Synapsendeaktivierung vor der Erfahrung,
+- H2 unveränderte Determinismuskontrolle,
+- H3 kombinierte Ablation konkurrierender Eingänge.
+
+Die jeweilige tatsächliche Handlung erhält ihre eigene natürliche Rückmeldung.
+Handlungsbeitrag, Folgeeffekt der späteren Gewichtsschreibung und direkte
+Zielaktivierung werden getrennt ausgewiesen. Unklare Fälle werden
+`unentschieden`, nicht automatisch neutral.
+
+Alternative Eingänge werden strukturell, potenziell funktional, kontrolliert
+funktional, neuronal kausal und fähigkeitskausal getrennt. Einzel- und
+Kombinationsablationen sind erforderlich, bevor von funktionaler
+Reorganisation gesprochen wird.
+
+Die direkte Funktion wird nach jedem Schritt 0–256 in einer diagnostischen
+Zustandskopie geprüft. Erfasst werden erster erneuter Nachweis, Dauer,
+Häufigkeit, erneuter Verlust und Endzustand. Die Schwellenwerte des
+ursprünglichen Plans bleiben unverändert.
 
 ## Statistik
 

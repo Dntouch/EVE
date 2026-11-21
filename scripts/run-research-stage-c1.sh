@@ -2,7 +2,7 @@
 set -euo pipefail
 
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-output_dir="${root_dir}/research/results/c1"
+output_dir="${root_dir}/research/results/c1/method-correction"
 work_dir="$(mktemp -d)"
 preflight_result="${work_dir}/structural-safety-preflight.csv"
 trap 'rm -rf "${work_dir}"' EXIT
@@ -17,6 +17,8 @@ make -C "${root_dir}" _build/eve_research_stage_c1 _build/eve_tests \
 "${root_dir}/_build/eve_structural_safety_preflight" "${preflight_result}"
 "${root_dir}/_build/eve_tests"
 
+# Preserve the original C.1 publication.  This directory is a post-hoc
+# methodological correction and is regenerated independently.
 rm -rf "${output_dir}"
 mkdir -p "${output_dir}"
 cp "${preflight_result}" "${output_dir}/structural-safety-preflight.csv"
@@ -106,16 +108,31 @@ reproduce_stage B513 "${root_dir}/_build/eve_research_stage_b513" \
 reproduce_stage C0 "${root_dir}/_build/eve_research_stage_c0" \
     "${root_dir}/research/results/c0"
 
+run_c1_shards() {
+    local target="$1"
+    mkdir -p "${target}"
+    "${root_dir}/_build/eve_research_stage_c1" \
+        "${target}/discovery-0" 64 discovery 0 5 1
+    "${root_dir}/_build/eve_research_stage_c1" \
+        "${target}/discovery-1" 64 discovery 5 10 0
+    "${root_dir}/_build/eve_research_stage_c1" \
+        "${target}/confirmation-0" 64 confirmation 0 5 0
+    "${root_dir}/_build/eve_research_stage_c1" \
+        "${target}/confirmation-1" 64 confirmation 5 10 0
+}
+
 shard_root="${work_dir}/c1-shards"
-mkdir -p "${shard_root}"
-"${root_dir}/_build/eve_research_stage_c1" \
-    "${shard_root}/discovery-0" 64 discovery 0 5 1
-"${root_dir}/_build/eve_research_stage_c1" \
-    "${shard_root}/discovery-1" 64 discovery 5 10 0
-"${root_dir}/_build/eve_research_stage_c1" \
-    "${shard_root}/confirmation-0" 64 confirmation 0 5 0
-"${root_dir}/_build/eve_research_stage_c1" \
-    "${shard_root}/confirmation-1" 64 confirmation 5 10 0
+repeat_root="${work_dir}/c1-repeat"
+run_c1_shards "${shard_root}"
+run_c1_shards "${repeat_root}"
+
+while IFS= read -r -d '' first; do
+    relative="${first#${shard_root}/}"
+    [[ "${relative}" == */resources.csv ]] && continue
+    cmp -s "${first}" "${repeat_root}/${relative}"
+done < <(find "${shard_root}" -type f -print0 | sort -z)
+printf 'scope,exact_repeat\ncorrected_C1_all_shards,1\n' \
+    > "${output_dir}/determinism.csv"
 
 merge_csv() {
     local name="$1"
@@ -134,6 +151,8 @@ merge_csv() {
 for csv in historical-case-reconstruction.csv \
         eligibility-modulation-analysis.csv prospective-connections.csv \
         causal-matrix.csv situational-appropriateness.csv \
+        action-causality.csv alternative-path-evidence.csv \
+        direct-function-timeline.csv \
         long-term-assessment.csv \
         longitudinal-checkpoints.csv distributed-reorganization.csv \
         bootstrap-statistics.csv; do
@@ -158,7 +177,7 @@ historical_19_reproduced,$((historical_count == 19)),${historical_count},histori
 prospective_registration_complete,1,${growth_count},prospective-connections.csv
 prospective_functional_observed,$((functional_count > 0)),${functional_count},prospective-connections.csv
 retention_observed,$((retained_count > 0)),${retained_count},longitudinal-checkpoints.csv
-reemergence_observed,$((reemerged_count > 0)),${reemerged_count},longitudinal-checkpoints.csv
+reemergence_observed,$((reemerged_count > 0)),${reemerged_count},direct-function-timeline.csv
 ability_contribution_observed,$((ability_count > 0)),${ability_count},prospective-connections.csv
 EOF
 
@@ -194,9 +213,17 @@ printf 'A,independent_structural_safety_preflight,1,structural-safety-preflight.
     >> "${output_dir}/success-criteria.csv"
 printf 'B,historical_causal_reconstruction,1,causal-matrix.csv.gz\n' \
     >> "${output_dir}/success-criteria.csv"
-printf 'C,situational_assessment_completed,1,situational-appropriateness.csv\n' \
+printf 'B,pre_experience_action_causality,1,action-causality.csv\n' \
+    >> "${output_dir}/success-criteria.csv"
+printf 'B,alternative_path_function_and_ablation,1,alternative-path-evidence.csv\n' \
+    >> "${output_dir}/success-criteria.csv"
+printf 'C,situational_assessment_corrected,1,situational-appropriateness.csv\n' \
+    >> "${output_dir}/success-criteria.csv"
+printf 'D,every_step_function_timeline,1,direct-function-timeline.csv\n' \
     >> "${output_dir}/success-criteria.csv"
 printf 'D,long_term_assessment_completed,1,longitudinal-checkpoints.csv.gz\n' \
+    >> "${output_dir}/success-criteria.csv"
+printf 'D,exact_deterministic_repeat,1,determinism.csv\n' \
     >> "${output_dir}/success-criteria.csv"
 
 printf 'C.1 pipeline complete: %s\n' "${output_dir}"

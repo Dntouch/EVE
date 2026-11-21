@@ -1,0 +1,9 @@
+dimension,criterion,passed,evidence
+A,independent_structural_safety_preflight,1,structural-safety-preflight.csv
+B,historical_causal_reconstruction,1,causal-matrix.csv.gz
+B,pre_experience_action_causality,1,action-causality.csv
+B,alternative_path_function_and_ablation,1,alternative-path-evidence.csv
+C,situational_assessment_corrected,1,situational-appropriateness.csv
+D,every_step_function_timeline,1,direct-function-timeline.csv
+D,long_term_assessment_completed,1,longitudinal-checkpoints.csv.gz
+D,exact_deterministic_repeat,1,determinism.csv

@@ -224,14 +224,14 @@ Rollback. Automatische Mechanismen bleiben bis dahin als Produktionsstandard
 gesperrt.
 
 C.1 rekonstruiert alle 19 Fälle und bestätigt den Mechanismus an 19
-prospektiv ausgewählten neuen Pfaden. Die in der Folgeerfahrung neu gebildete
-Eligibility, negative Modulation und konkrete 2→1-Schreibung sind für den
-direkten Funktionsverlust notwendig. Das einmalige Unterlassen verändert die
-unmittelbar falsche Doppelantwort jedoch nicht. Nach 256 Erfahrungen sind
-0/38 ausgewählte Pfade direkt funktional, während alle Fälle alternative
-funktionale Eingänge besitzen. Die Langzeitwirkung ist gemischt. C.2 kann
-daher lokale Handlungsbeiträge und verteilte Pfade untersuchen; eine
-Erhaltungsregel für einzelne Synapsen wird nicht freigegeben.
+prospektiv ausgewählten neuen Pfaden. Die post-hoc korrigierte
+Vor-Erfahrungs-Ablation weist alle 38 Pfade als kausal an der falschen
+Doppelantwort und die Abschwächungsrichtung als situativ nützlich aus.
+Kontrollierte Ablationen belegen in 38/38 Fällen fähigkeitsrelevante
+Alternativpfade. Alle ursprünglichen Pfade werden zwischenzeitlich erneut
+funktional, sind bei Schritt 256 jedoch inaktiv. Die Langzeitwirkung bleibt
+gemischt. C.2 kann daher lokale Handlungsbeiträge und verteilte Pfade
+untersuchen; eine Erhaltungsregel für einzelne Synapsen wird nicht freigegeben.
 
 ## Erfolgskriterien aus dem Konzept
 
