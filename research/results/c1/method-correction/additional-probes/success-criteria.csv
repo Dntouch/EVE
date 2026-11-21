@@ -1,0 +1,8 @@
+dimension,criterion,passed,evidence
+A,independent_structural_safety_preflight,1,structural-safety-preflight.csv
+B,all_regression_tests,1,regression-tests.csv
+B,historical_reference_reproduction,1,historical-regression.csv
+B,K1_weight_2_1_0_identity_controls,1,k1-partial-attenuation.csv
+B,K2_temporal_single_combined_ablations,1,k2-alternative-path-timeline.csv.gz
+D,exact_deterministic_repeat,1,determinism.csv
+D,pending_event_persistence,1,persistence.csv

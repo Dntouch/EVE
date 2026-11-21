@@ -1,0 +1,8 @@
+dimension,criterion,passed,evidence
+A,independent_structural_safety_preflight,1,structural-safety-preflight.csv
+B,historical_causal_reconstruction,1,causal-matrix.csv.gz
+B,prospective_independent_confirmation,1,prospective-connections.csv.gz
+C,situational_assessment_completed,1,situational-appropriateness.csv
+D,long_term_assessment_completed,1,long-term-assessment.csv
+learning,uniform_causal_learning_advantage,0,long-term-assessment.csv
+production,new_learning_rule_authorized,0,mechanism-decision.csv

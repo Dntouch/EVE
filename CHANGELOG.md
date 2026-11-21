@@ -96,6 +96,19 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
   über fünf Netzgrößen.
 - Fünf zusätzliche C.0-Schutzprüfungen; insgesamt 832/832 bestandene
   Kerntests.
+- Forschungsphase C.1 mit vollständiger Rekonstruktion der 19 C.0-Fälle,
+  prospektiver Registrierung von 166.880 neuen Verbindungen, W0–W9,
+  Angemessenheitsdiagnose und Langzeitverläufen bis 256 Erfahrungen.
+- 19 neue funktionale Einzelkausalfälle, davon zwölf in unabhängiger
+  Bestätigung; 0/19 nach einer Erfahrung erhalten und 0/38 bei Erfahrung 256
+  direkt funktional.
+- Post-hoc Methodenkorrektur für C.1 mit H0–H3 vor der Erfahrung,
+  funktionalen Einzel-/Kombinationsablationen alternativer Pfade und
+  diagnostischer Funktionsprüfung nach jedem Schritt 0–256.
+- Ergänzende K1/K2-Kausalproben: Die tatsächliche 2→1-Abschwächung ist 38-mal
+  neutral; alle fähigkeitsrelevanten Alternativen bestehen bereits vor dem
+  kritischen Verlust. Zwei neue Regressionstests erhöhen den Stand auf
+  834/834.
 
 ### Geändert
 
@@ -107,6 +120,13 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
 - C.0 berichtet A – Integrität, B – Selbstorganisation und C – Lernen ohne
   gemeinsame Erfolgskennzahl; natürliche Nullverletzungen ersetzen keine
   gezielten Negativtests.
+- C.1 trennt A – Integrität, B – Kausalität, C – situative Angemessenheit und
+  D – Langzeitwirkung. Die Vor-Erfahrungs-Ablation weist 38/38 Synapsen als
+  handlungskausal aus; K1 begrenzt diesen Befund auf die vollständige Ablation
+  und klassifiziert 2→1 als neutral. Die Langzeitverläufe bleiben heterogen.
+- Prospektive Synapsenregistrierung verhindert die ausschließliche Auswahl
+  später erfolgreicher Pfade. Diagnoseinterventionen W0–W9 bleiben auf
+  vollständige Forschungszustandskopien beschränkt.
 
 - B.5.11 bewertet Exploration ausschließlich anhand tatsächlich beobachteter
   Motoraktivität und trennt Reorganisation in 10 produktive, 12 schädliche

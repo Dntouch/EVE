@@ -1,0 +1,11 @@
+criterion,passed,value,evidence
+independent_integrity_gate,1,12/12,structural-safety-preflight.csv
+historical_19_reproduced,1,19,historical-case-reconstruction.csv.gz
+prospective_registration_complete,1,166880,prospective-connections.csv.gz
+prospective_functional_observed,1,19,prospective-connections.csv.gz
+independent_confirmation_functional,1,12,prospective-connections.csv.gz
+retention_after_one_observed,0,0,longitudinal-checkpoints.csv.gz
+direct_reemergence_by_256_observed,0,0,longitudinal-checkpoints.csv.gz
+alternative_paths_at_256,1,38,distributed-reorganization.csv.gz
+uniform_long_term_benefit,0,16_useful_10_harmful_7_neutral_5_context,long-term-assessment.csv
+new_learning_rule_justified,0,0,mechanism-decision.csv

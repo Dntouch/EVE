@@ -1,0 +1,10 @@
+probe,criterion,value
+K1,cases,38
+K1,classification_neutral,38
+K1,deterministic_controls,38
+K2,cases,38
+K2,controlled_alternatives_precritical,38
+K2,natural_decision_causal_precritical,0
+K2,ability_causal_precritical,38
+K2,substitution_precritical,38
+K2,deterministic_controls_precritical,38

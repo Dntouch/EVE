@@ -138,6 +138,9 @@ target_link_libraries(eve_research_stage_b513 PRIVATE eve_core)
 add_executable(eve_research_stage_c0 src/research_stage_c0.cpp)
 target_link_libraries(eve_research_stage_c0 PRIVATE eve_core)
 
+add_executable(eve_research_stage_c1 src/research_stage_c1.cpp)
+target_link_libraries(eve_research_stage_c1 PRIVATE eve_core)
+
 add_executable(eve_structural_safety_preflight
     src/structural_safety_preflight.cpp)
 target_link_libraries(eve_structural_safety_preflight PRIVATE eve_core)

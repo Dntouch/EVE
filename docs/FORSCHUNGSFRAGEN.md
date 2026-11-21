@@ -215,3 +215,17 @@ ist isoliert funktionsmindernd; 29 weitere Schreibungen sind es nicht. K3
 verbessert K0 im untersuchten einfachen 128-Neuronen-Vergleich nicht. Eine
 mögliche C.1-Stufe muss diese Instabilität ohne automatische Verstärkung,
 pauschalen Gewichtsschutz, Rollback, Zielwissen oder globale Suche untersuchen.
+
+C.1 beantwortet die unmittelbare Ursache: In allen 19 historischen und 19
+prospektiven Fällen erzeugt die neue Erfahrung eine lokale Eligibility und
+negative Modulation; die konkrete 2→1-Schreibung entfernt die direkte
+Funktion. Die korrigierte Vor-Erfahrungs-Ablation zeigt zusätzlich, dass alle
+38 Synapsen die falsche Doppelantwort kausal mitverursachen und ihre
+vollständige Ablation situativ nützlich ist. K1 zeigt die tatsächliche
+2→1-Abschwächung dagegen als neutral. Langfristig bleiben 16 Verläufe nützlich,
+zehn schädlich, sieben neutral und fünf kontextabhängig. Alle Pfade werden
+zeitweise erneut funktional, sind bei Schritt 256 aber inaktiv. K2 belegt
+fähigkeitsrelevante Alternativen bereits vor dem Verlust und keinen späteren
+Funktionsübergang. Eine mögliche C.2-Stufe muss lokale Handlungsbeiträge und
+vorbestehende verteilte Unterstützung untersuchen, nicht pauschalen
+Einzelgewichtserhalt.

@@ -8332,6 +8332,68 @@ void test_c0_protected_autonomous_structural_learning_case(
     }
 }
 
+void test_c1_partial_attenuation_diagnostic_copies() {
+    auto config = small_config();
+    config.learning_enabled = false;
+    config.firing_threshold = 2;
+    eve::bios::Runtime baseline(config, 0xC101ULL);
+    const auto selected = baseline.add_experimental_synapse(0, 1, 2);
+    auto partial = baseline;
+    auto ablated = baseline;
+    auto control = baseline;
+    partial.set_experimental_synapse_weight(selected, 1);
+    ablated.set_experimental_synapse_weight(selected, 0);
+    const auto fires_target = [](eve::bios::Runtime copy) {
+        bool fired = false;
+        copy.set_fire_observer([&](const eve::bios::FireObservation& item) {
+            fired = fired || item.neuron == 1;
+        });
+        copy.enqueue_fire(0);
+        static_cast<void>(copy.run());
+        return fired;
+    };
+    require(fires_target(baseline), "C.1 K1 weight two did not reach target");
+    require(!fires_target(partial), "C.1 K1 weight one was treated as ablation-equivalent evidence");
+    require(!fires_target(ablated), "C.1 K1 zero-weight ablation reached target");
+    require_equal(baseline.state_fingerprint(), control.state_fingerprint(),
+                  "C.1 K1 identity control diverged before intervention");
+    require_equal(baseline.network().synapse(selected).weight, 2,
+                  "C.1 K1 diagnostic copy mutated the source state");
+}
+
+void test_c1_alternative_path_single_and_combined_ablation() {
+    auto config = small_config();
+    config.learning_enabled = false;
+    config.firing_threshold = 2;
+    eve::bios::Runtime baseline(config, 0xC102ULL);
+    const auto selected = baseline.add_experimental_synapse(0, 2, 2);
+    const auto alternative = baseline.add_experimental_synapse(1, 2, 2);
+    const auto reaches_target = [](eve::bios::Runtime copy,
+                                   const eve::NeuronId sender) {
+        bool fired = false;
+        copy.set_fire_observer([&](const eve::bios::FireObservation& item) {
+            fired = fired || item.neuron == 2;
+        });
+        copy.enqueue_fire(sender);
+        static_cast<void>(copy.run());
+        return fired;
+    };
+    require(reaches_target(baseline, 0), "C.1 K2 selected path was not functional");
+    require(reaches_target(baseline, 1), "C.1 K2 alternative path was not functional");
+    auto selected_ablated = baseline;
+    selected_ablated.set_experimental_synapse_weight(selected, 0);
+    require(reaches_target(selected_ablated, 1),
+            "C.1 K2 selected ablation removed the independent alternative");
+    auto combined = selected_ablated;
+    combined.set_experimental_synapse_weight(alternative, 0);
+    require(!reaches_target(combined, 0) && !reaches_target(combined, 1),
+            "C.1 K2 combined ablation retained a diagnosed direct path");
+    require_equal(baseline.network().synapse(selected).weight, 2,
+                  "C.1 K2 diagnostic ablation mutated selected source weight");
+    require_equal(baseline.network().synapse(alternative).weight, 2,
+                  "C.1 K2 diagnostic ablation mutated alternative source weight");
+}
+
 }  // namespace
 
 int main() {
@@ -9062,6 +9124,12 @@ int main() {
             std::string("C0 ") + c0_names[index],
             [index]() { test_c0_protected_autonomous_structural_learning_case(index); });
     }
+    tests.emplace_back(
+        "C1 K1 partial attenuation diagnostic copies",
+        test_c1_partial_attenuation_diagnostic_copies);
+    tests.emplace_back(
+        "C1 K2 alternative single and combined ablation",
+        test_c1_alternative_path_single_and_combined_ablation);
 
     std::size_t failures = 0;
     for (const auto& [name, test] : tests) {

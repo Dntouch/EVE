@@ -1,0 +1,8 @@
+component,merge_recommendation,production_default,rationale
+C1_diagnostic_runner,yes,research_only,separates_four_assessment_dimensions
+prospective_registry,yes,research_only,prevents_success_only_selection
+W0_W9_interventions,yes,research_only,controlled_state_copies
+new_learning_rule,no,absent,no_rule_preregistered_or_authorized
+growth,no,disabled,research_evidence_only
+internal_exploration,no,disabled,research_evidence_only
+S4_d16,no,disabled,experimental_variant_unchanged

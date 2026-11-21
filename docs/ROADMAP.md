@@ -223,6 +223,17 @@ und die Stabilität kausal isolieren, ohne pauschalen Gewichtsschutz oder
 Rollback. Automatische Mechanismen bleiben bis dahin als Produktionsstandard
 gesperrt.
 
+C.1 rekonstruiert alle 19 Fälle und bestätigt den Mechanismus an 19
+prospektiv ausgewählten neuen Pfaden. Die post-hoc korrigierte
+Vor-Erfahrungs-Ablation weist alle 38 Pfade als kausal an der falschen
+Doppelantwort aus. K1 zeigt die tatsächliche 2→1-Abschwächung als situativ
+neutral; nur 2→0 verhindert den Fehler. K2 belegt fähigkeitsrelevante
+Alternativpfade bereits vor dem Verlust, aber keinen späteren Übergang. Alle
+ursprünglichen Pfade werden zwischenzeitlich erneut funktional, sind bei
+Schritt 256 jedoch inaktiv. Die Langzeitwirkung bleibt gemischt. C.2 kann
+daher lokale Handlungsbeiträge und verteilte Pfade untersuchen; eine
+Erhaltungsregel für einzelne Synapsen wird nicht freigegeben.
+
 ## Erfolgskriterien aus dem Konzept
 
 Ein geeigneter kontrollierter Test folgt der dort beschriebenen Abfolge:

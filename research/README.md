@@ -46,6 +46,33 @@ deterministisch.
 Fingerabdrücke verwenden FNV-1a als reproduzierbares Vergleichsmaß. Sie sind
 keine kryptografischen Integritätsnachweise.
 
+## Forschungsphase C.1 – neuronale Reorganisation
+
+Der vollständige Lauf führt zuerst den unabhängigen Sicherheits-Preflight,
+danach Kerntests und die exakte Reproduktion von B.5.11, B.5.12, B.5.13 und
+C.0 aus. Erst anschließend werden vier deterministische C.1-Shards gestartet
+und zusammengeführt:
+
+```sh
+scripts/run-research-stage-c1.sh
+```
+
+Die ursprünglichen Ergebnisse liegen unter `research/results/c1`; die
+post-hoc Methodenkorrektur wird getrennt unter
+`research/results/c1/method-correction` erzeugt. Große Ereignis-,
+Eligibility-, Kausal- und Langzeitdateien werden deterministisch komprimiert.
+`four-dimension-assessment.csv` trennt Integrität, Kausalität, situative
+Angemessenheit und Langzeitwirkung; es gibt keine Gesamtpunktzahl. Der
+korrigierte Lauf ergänzt H0–H3-Handlungskausalität,
+Alternativpfad-Ablationen, eine Diagnose jedes Schritts 0–256 und einen
+bytegenauen Wiederholungslauf.
+
+Die ergänzenden post-hoc Proben werden mit
+`scripts/run-research-stage-c1-additional-probes.sh` ausgeführt und liegen
+unter `research/results/c1/method-correction/additional-probes`. K1 trennt
+Gewicht 2, 1 und 0; K2 verfolgt alternative Pfade mit K2.0–K2.4 über feste
+Horizonte sowie sämtliche Verlust- und Wiederkehrereignisse.
+
 ## Experiment 002 – neuronale Selbstregulation
 
 Build, Tests und vollständige 512er-Matrix:
