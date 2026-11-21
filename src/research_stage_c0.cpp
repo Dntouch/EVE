@@ -480,6 +480,7 @@ TrialResult run_trial(const std::string& phase, const std::string& task,
 
 }  // namespace
 
+#ifndef EVE_RESEARCH_STAGE_C0_EMBEDDED
 int main(int argc, char** argv) {
     const auto started = std::chrono::steady_clock::now();
     const std::filesystem::path output = argc > 1
@@ -721,3 +722,4 @@ int main(int argc, char** argv) {
               << "\n";
     return 0;
 }
+#endif

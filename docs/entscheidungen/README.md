@@ -37,6 +37,7 @@ Dieser Ordner enthält bestätigte Entscheidungen zum Projekt sowie eine optiona
 | [0035](0035-b513-rekrutierbarkeit-bestaetigt-produktionsgrowth-gesperrt.md) | B.5.13 bestätigt vollständige technische Rekrutierbarkeit; Produktions-Growth bleibt wegen Schutzlücke und fehlendem natürlichem Vorteil gesperrt. |
 | [0036](0036-c0-schutz-bestaetigt-funktionale-autonomie-offen.md) | C.0 bestätigt geschützte autonome Strukturbildung; funktionale Autonomie und Produktionsfreigabe bleiben offen. |
 | [0037](0037-schutzvertrag-ist-voraussetzung-nicht-lernziel.md) | Der Schutzvertrag ist ein unabhängiges Integritätsgate vor strukturellen Lernexperimenten und kein neuronales Lernziel. |
+| [0038](0038-c1-reorganisation-ohne-gewichtsschutz.md) | C.1 bestätigt gemischte verteilte Reorganisation; pauschaler Gewichtsschutz und neue Produktionsregeln bleiben gesperrt. |
 
 Nummer 0002 dokumentiert den anfänglich offenen Technologie-Stack historisch;
 sie ist keine aktuelle Architektursperre. Die Nummern 0004 bis 0010 sind

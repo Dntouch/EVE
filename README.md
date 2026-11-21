@@ -17,11 +17,11 @@ reproduzierbaren Versuchsreihen.
 
 **Stand:** 21. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** C.0 – geschützte autonome
-neuronale Selbstorganisation
+**Jüngste abgeschlossene Forschungsstufe:** C.1 – neuronale Reorganisation
+und natürliche Plastizität
 
-**Nächster möglicher Forschungsschwerpunkt:** C.1 – Stabilisierung seltener
-natürlicher S4-Pfade und Übergang zu S5
+**Nächster möglicher Forschungsschwerpunkt:** C.2 – lokale
+Handlungsbeiträge und verteilte Pfadentwicklung
 
 C.0 schließt die Schutzlücke aus B.5.13: semantische Rollen schützen
 Sensorik, Motorik, Bewertung und Stammhirn vor Growth, während freie Neuronen
@@ -33,6 +33,16 @@ schon nach einer weiteren Erfahrung wieder verloren. Der Verlust geht in allen
 19 Fällen auf die konkrete Abschwächung der neuen Verbindung von 2 auf 1
 zurück; 29 weitere Schreibungen waren isoliert ohne Funktionseffekt. Ein
 Lernvorteil ist im untersuchten K3/K0-Vergleich nicht bestätigt.
+
+C.1 rekonstruiert alle 19 C.0-Fälle und registriert zusätzlich 166.880 neue
+Verbindungen vor Kenntnis ihres späteren Nutzens. 19 neue Pfade werden
+funktional und einzeln kausal, zwölf davon in der unabhängigen Bestätigung.
+In allen 38 historischen und prospektiven Fällen erzeugt die nächste
+Erfahrung eine neue lokale Eligibility und eine negative 2→1-Schreibung. Das
+isolierte Unterlassen erhält die direkte Funktion, ändert aber die tatsächlich
+falsche Doppelantwort nicht. Nach 256 Erfahrungen ist kein ausgewählter Pfad
+direkt funktional; alternative Eingänge sind in allen Fällen vorhanden. Die
+Langzeitwirkung ist gemischt, weshalb keine Erhaltungsregel freigegeben wird.
 
 | C.0-Befund | Ergebnis |
 |---|---:|
@@ -50,6 +60,18 @@ Lernvorteil ist im untersuchten K3/K0-Vergleich nicht bestätigt.
 | isoliert kausale funktionsmindernde Schreibungen | 19/48 |
 | Lernvorteil K3 gegenüber K0 im untersuchten Vergleich | keiner |
 | Regressionstests | 832/832 |
+
+| C.1-Befund | Ergebnis |
+|---|---:|
+| historische Fälle | 19/19 reproduziert |
+| prospektiv registrierte Growth-Verbindungen | 166.880 |
+| neue funktionale Einzelkausalfälle | 19 |
+| davon unabhängige Bestätigung | 12 |
+| nach einer Erfahrung erhalten | 0/19 |
+| unmittelbare Angemessenheit | 38/38 neutral |
+| direkte Wiederkehr bis Erfahrung 256 | 0/38 |
+| alternative funktionale Eingänge bei Erfahrung 256 | 38/38 |
+| neue Produktions-Lernregel | keine |
 
 Vollständige Rekrutierbarkeit und tatsächliche funktionale Nutzung werden
 künftig getrennt bewertet. S4 bleibt standardmäßig deaktiviert; weder eine
@@ -69,6 +91,9 @@ kompensieren.
 - [Architekturentscheidung 0037](docs/entscheidungen/0037-schutzvertrag-ist-voraussetzung-nicht-lernziel.md)
 - [Methodischer Schutzgrundsatz Phase C](docs/experimente/039-methodischer-grundsatz-schutzvertrag-phase-c.md)
 - [Entscheidungsvorlage C.1](docs/experimente/038-entscheidungsvorlage-forschungsphase-c1.md)
+- [Forschungsbericht C.1](docs/experimente/040-forschungsbericht-forschungsphase-c1.md)
+- [Technische Kausalanalyse C.1](docs/experimente/040-technische-kausalanalyse-c1.md)
+- [Architekturentscheidung 0038](docs/entscheidungen/0038-c1-reorganisation-ohne-gewichtsschutz.md)
 
 EVE ist weder eine fertige allgemeine Intelligenz noch ein Nachweis von
 Bewusstsein oder bereits entstandener eigenständiger Intelligenz. Der Prototyp
@@ -157,7 +182,8 @@ nicht der dauerhaft robuste Erhalt mehrerer konkurrierender Beziehungen.
 | B.5.12 | Teillernen, Verfestigung und Lernstadien | einfache latente Vorstrukturierung bestätigt; komplexe Übertragung und zuverlässige Beherrschung nicht bestätigt |
 | B.5.13 | vollständige neuronale Rekrutierbarkeit, Growth und interne Exploration | technisch bestätigt; schutzbereinigter Lernvorteil nicht bestätigt, Growth-Schutz offen |
 | C.0 | geschützte autonome neuronale Selbstorganisation | Schutz, autonome Struktur und 19 natürliche S3-Pfade bestätigt; W0-Fortsetzung 0/19, kein Vorteil im untersuchten K3/K0-Vergleich |
-| C.1 | Stabilisierung S4→S5 | als mögliche Folgestufe vorbereitet, noch nicht beauftragt |
+| C.1 | natürliche Reorganisation und Schicksal neuer Pfade | 19 historische und 19 prospektive Fälle kausal analysiert; situativ neutral, langfristig gemischt; keine neue Regel |
+| C.2 | lokale Handlungsbeiträge und verteilte Pfade | als mögliche Diagnosephase vorbereitet |
 
 Alle Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen im
 [Experimentverzeichnis](docs/experimente/README.md). Maschinenlesbare

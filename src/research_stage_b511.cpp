@@ -252,7 +252,8 @@ B511Episode b511_episode(
     eve::bios::Runtime& runtime, const B511Circuit& circuit,
     const B511Pattern pattern, const std::uint8_t exploration,
     const bool learn, const bool allow_exploration = true,
-    const std::uint32_t gap = kB511ElementGap) {
+    const std::uint32_t gap = kB511ElementGap,
+    const std::function<void(eve::bios::Runtime&)>& before_feedback = {}) {
     B511Episode result;
     result.exploration = exploration;
     const auto before = runtime.metrics();
@@ -297,6 +298,7 @@ B511Episode b511_episode(
     result.modulation = eve::research::b511_episode_modulation(
         pattern.target_a, activity);
     if (learn) {
+        if (before_feedback) before_feedback(runtime);
         static_cast<void>(runtime.process_modulatory_feedback(result.modulation));
     }
     runtime.set_fire_observer({});

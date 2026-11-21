@@ -1,0 +1,8 @@
+population,dimension,assessment,evidence,not_a_combined_score
+all,A_integrity,permitted_12_of_12,structural-safety-preflight.csv,1
+historical,B_causality,demonstrated_19_of_19,causal-matrix.csv.gz,1
+historical,C_situational,neutral_19_of_19,situational-appropriateness.csv,1
+historical,D_long_term,useful_7_harmful_4_neutral_3_context_5,long-term-assessment.csv,1
+prospective,B_causality,demonstrated_19_of_19,causal-matrix.csv.gz,1
+prospective,C_situational,neutral_19_of_19,situational-appropriateness.csv,1
+prospective,D_long_term,useful_9_harmful_6_neutral_4_context_0,long-term-assessment.csv,1

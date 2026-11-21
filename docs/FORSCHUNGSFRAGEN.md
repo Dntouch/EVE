@@ -215,3 +215,14 @@ ist isoliert funktionsmindernd; 29 weitere Schreibungen sind es nicht. K3
 verbessert K0 im untersuchten einfachen 128-Neuronen-Vergleich nicht. Eine
 mögliche C.1-Stufe muss diese Instabilität ohne automatische Verstärkung,
 pauschalen Gewichtsschutz, Rollback, Zielwissen oder globale Suche untersuchen.
+
+C.1 beantwortet die unmittelbare Ursache: In allen 19 historischen und 19
+prospektiven Fällen erzeugt die neue Erfahrung eine lokale Eligibility und
+negative Modulation; die konkrete 2→1-Schreibung entfernt die direkte
+Funktion. Die Synapse ist aktiv, ihr Erhalt ändert die tatsächlich ausgeführte
+falsche Doppelantwort aber nicht. Frage 7 bleibt deshalb kontextabhängig:
+Langfristig sind 16 Verläufe nützlich, zehn schädlich, sieben neutral und fünf
+kontextabhängig. Kein ausgewählter Pfad wird bis Erfahrung 256 wieder direkt
+funktional, aber alle Verläufe bilden alternative funktionale Eingänge. Eine
+mögliche C.2-Stufe muss daher lokale Handlungsbeiträge und verteilte
+Reorganisation untersuchen, nicht pauschalen Einzelgewichtserhalt.

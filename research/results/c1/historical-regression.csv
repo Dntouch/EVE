@@ -1,0 +1,5 @@
+stage,executable,comparison_scope,compared_items,exact_regression,reference_path
+B511,eve_research_stage_b511,deterministic_result_files,21,1,research/results/b511
+B512,eve_research_stage_b512,deterministic_result_files,15,1,research/results/b512
+B513,eve_research_stage_b513,deterministic_result_files,13,1,research/results/b513
+C0,eve_research_stage_c1,all_historical_functional_cases,19,1,research/results/c0/causal-interventions.csv.gz
