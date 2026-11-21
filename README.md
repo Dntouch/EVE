@@ -17,38 +17,49 @@ reproduzierbaren Versuchsreihen.
 
 **Stand:** 21. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.5.13 – vollständige neuronale
-Rekrutierbarkeit, Growth und interne Exploration
+**Jüngste abgeschlossene Forschungsstufe:** C.0 – geschützte autonome
+neuronale Selbstorganisation
 
-**Nächster Forschungsschwerpunkt:** Forschungsphase C – geschützte autonome
-Strukturbildung unter natürlicher Konsequenz
+**Nächster möglicher Forschungsschwerpunkt:** C.1 – Stabilisierung seltener
+natürlicher S4-Pfade und Übergang zu S5
 
-B.5.13 zeigt, dass jedes nicht geschützte lernfähige Neuron intern exploriert
-und durch Growth rekrutiert werden kann. Neu gewachsene Nullgewicht-Synapsen
-erreichen mit den vorhandenen lokalen Regeln Eligibility, Gewicht 2 und
-kausale Wiederverwendung. Auf den natürlichen historischen Aufgaben entsteht
-jedoch kein unabhängig bestätigter Größenvorteil. Growth respektiert zudem die
-Schutzreservierungen noch nicht; eine Produktionsaktivierung bleibt gesperrt.
+C.0 schließt die Schutzlücke aus B.5.13: semantische Rollen schützen
+Sensorik, Motorik, Bewertung und Stammhirn vor Growth, während freie Neuronen
+rekrutierbar bleiben. Interne Exploration wird nun durch lokale neuronale
+Aktivität statt durch den Forschungsrunner ausgelöst. Die sichere autonome
+Strukturbildung ist bestätigt. Seltene neue Pfade werden natürlich funktional
+und kausal wirksam, sind aber in der untersuchten unmittelbaren Fortsetzung
+schon nach einer weiteren Erfahrung wieder verloren. Der Verlust geht in allen
+19 Fällen auf die konkrete Abschwächung der neuen Verbindung von 2 auf 1
+zurück; 29 weitere Schreibungen waren isoliert ohne Funktionseffekt. Ein
+Lernvorteil ist im untersuchten K3/K0-Vergleich nicht bestätigt.
 
-| B.5.13-Befund | Ergebnis |
+| C.0-Befund | Ergebnis |
 |---|---:|
-| Rekrutierungsnetze | 3.840 |
-| kontrollierte funktionale Growth-Pfade | 768/768 |
-| gezielte Ablation entfernt den neuen Effekt | 768/768 |
+| zentrale Discovery-/Bestätigungsläufe | 12.800 |
+| aktuelle Kontrollläufe K0–K7 | 2.048 |
+| K8 | ausschließlich historische B.5.13-Referenz |
 | Netzgrößen | 32 · 128 · 256 · 512 · 2.048 |
-| Growth-Ziele in geschützten Schnittstellen | 221/3.840 |
-| schutzbereinigter natürlicher Repertoirevorteil | keiner |
-| deterministische B.5.12-Dateien reproduziert | 15/15 |
-| Regressionstests | 807/807 |
+| autonome interne Aktivierungen | 102.400 |
+| geschützte Growth-Ereignisse | 166.261 |
+| Schutzverletzungen | 0 |
+| positive natürliche Growth-Pfade | 1.802 |
+| natürliche funktionale und W1-kausale Pfade | 19/19 |
+| davon unabhängige Bestätigung | 8 |
+| nach unveränderter W0-Folgeerfahrung erhalten | 0/19 |
+| isoliert kausale funktionsmindernde Schreibungen | 19/48 |
+| Lernvorteil K3 gegenüber K0 im untersuchten Vergleich | keiner |
+| Regressionstests | 832/832 |
 
 Vollständige Rekrutierbarkeit und tatsächliche funktionale Nutzung werden
 künftig getrennt bewertet. S4 bleibt standardmäßig deaktiviert; weder eine
 neue Lernregel noch dauerhaftes automatisches Growth ist freigegeben.
 
-- [Forschungsbericht B.5.13](docs/experimente/037-forschungsbericht-forschungsstufe-b513.md)
-- [Technische Architekturanalyse](docs/experimente/037-technische-architekturanalyse-rekrutierbarkeit.md)
-- [Architekturentscheidung 0035](docs/entscheidungen/0035-b513-rekrutierbarkeit-bestaetigt-produktionsgrowth-gesperrt.md)
-- [Entscheidungsvorlage Forschungsphase C](docs/experimente/037-entscheidungsvorlage-forschungsphase-c.md)
+- [Forschungsbericht C.0](docs/experimente/038-forschungsbericht-forschungsphase-c0.md)
+- [C.0-Schutzvertrag](docs/experimente/038-schutzvertrag-autonome-strukturbildung.md)
+- [Wissenschaftliche Analyse](docs/experimente/038-wissenschaftliche-analyse-c0.md)
+- [Architekturentscheidung 0036](docs/entscheidungen/0036-c0-schutz-bestaetigt-funktionale-autonomie-offen.md)
+- [Entscheidungsvorlage C.1](docs/experimente/038-entscheidungsvorlage-forschungsphase-c1.md)
 
 EVE ist weder eine fertige allgemeine Intelligenz noch ein Nachweis von
 Bewusstsein oder bereits entstandener eigenständiger Intelligenz. Der Prototyp
@@ -67,9 +78,11 @@ prüfen und auch negative Ergebnisse nachvollziehbar festzuhalten.
 - abgestufte Bewertungsreize und lokale Drei-Faktor-Plastizität,
 - Schutz angeborener Explorationssynapsen vor Plastizität,
 - konfigurierbare Aktivitätsregulation und strukturelles Wachstum,
+- semantischer Schutzvertrag für autonome Strukturbildung,
+- lokale, budgetierte und persistierbare autonome interne Exploration,
 - versionierte Speicherung und Wiederherstellung vollständiger Zustände,
 - Diagnostik, Ereignisprotokolle und Zustandsfingerabdrücke,
-- 807 automatisierte Kerntests und reproduzierbare Forschungsrunner.
+- 832 automatisierte Kerntests und reproduzierbare Forschungsrunner.
 
 Die Forschungsvarianten aktivieren bewusst nur ausgewählte Mechanismen. Lernen,
 inhibitorische Plastizität, Wachstum und S4 sind keine pauschal eingeschalteten
@@ -134,7 +147,8 @@ nicht der dauerhaft robuste Erhalt mehrerer konkurrierender Beziehungen.
 | B.5.11 | gemeinsame Repräsentation und Bewertungsvalidität | strenge Zeitwertung zeigt Interferenz, negativen Transfer und produktive Einzelfälle |
 | B.5.12 | Teillernen, Verfestigung und Lernstadien | einfache latente Vorstrukturierung bestätigt; komplexe Übertragung und zuverlässige Beherrschung nicht bestätigt |
 | B.5.13 | vollständige neuronale Rekrutierbarkeit, Growth und interne Exploration | technisch bestätigt; schutzbereinigter Lernvorteil nicht bestätigt, Growth-Schutz offen |
-| Forschungsphase C | geschützte autonome Strukturbildung | als nächster, noch nicht nummerierter Forschungsschwerpunkt vorbereitet |
+| C.0 | geschützte autonome neuronale Selbstorganisation | Schutz, autonome Struktur und 19 natürliche S3-Pfade bestätigt; W0-Fortsetzung 0/19, kein Vorteil im untersuchten K3/K0-Vergleich |
+| C.1 | Stabilisierung S4→S5 | als mögliche Folgestufe vorbereitet, noch nicht beauftragt |
 
 Alle Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen im
 [Experimentverzeichnis](docs/experimente/README.md). Maschinenlesbare
@@ -177,12 +191,12 @@ ctest --test-dir _build/cmake --output-on-failure
 
 ## Jüngste Forschung reproduzieren
 
-Der B.5.13-Runner baut die benötigten Programme, führt die Kerntests aus,
-reproduziert B.5.12 und erzeugt Inventar, Rekrutierungs-, Kausal-, Größen- und
-historische Aufgabenmatrizen neu:
+Der C.0-Runner baut die benötigten Programme, führt alle Kerntests aus und
+erzeugt Schutz-, Autonomie-, Growth-, Stufen-, Kausal-, Größen- und
+Kontrollmatrizen neu:
 
 ```sh
-./scripts/run-research-stage-b513.sh research/results/b513
+./scripts/run-research-stage-c0.sh
 ```
 
 Der Lauf verarbeitet 64 Seeds je Familie und Zuordnung in getrennten

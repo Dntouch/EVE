@@ -1,0 +1,4 @@
+stage,executable,c0_mechanisms_disabled,compared_files,exact_regression,reference_path
+B511,eve_research_stage_b511,1,21,1,research/results/b511
+B512,eve_research_stage_b512,1,15,1,research/results/b512
+B513,eve_research_stage_b513,1,13,1,research/results/b513

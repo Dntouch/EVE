@@ -194,7 +194,18 @@ Schaltungsteile auf; alle schutzbereinigten Teilpopulationen zeigen Effekt
 null. Das betrifft insbesondere Frage 7 zur Stabilität der Selbstveränderung
 und Frage 11 zur funktionalen Effizienz zusätzlicher Kapazität.
 
-Die nächste, noch nicht nummerierte Forschungsphase C untersucht deshalb einen
-lokalen Growth-Schutzvertrag und geschützte autonome Strukturbildung unter
-natürlicher Konsequenz. Ein dauerhafter Produktionsbetrieb von Growth oder
-interner Exploration ist bis zu diesem Nachweis nicht freigegeben.
+C.0 beantwortet den Sicherheitsteil: Ein semantischer Schutzvertrag verhindert
+in 166.261 Growth-Ereignissen jeden Eingriff in angeborene Schnittstellen, und
+lokale Feuerereignisse können freie Neuronen autonom explorieren und
+strukturell integrieren. Frage 7 ist damit für den untersuchten Schutzrahmen
+teilweise beantwortet.
+
+Frage 6 ist auch funktional teilweise beantwortet: 19 natürlich gewachsene
+Verbindungen erreichen ohne Hilfskoinzidenz S3 und sind einzeln kausal; acht
+Fälle replizieren in der Bestätigung. Offen bleibt der stabile Übergang von S4
+zu S5. Alle 19 Effekte verschwinden in der unveränderten W0-Fortsetzung nach
+einer weiteren Erfahrung. Genau die jeweilige 2→1-Abschwächung der neuen Kante
+ist isoliert funktionsmindernd; 29 weitere Schreibungen sind es nicht. K3
+verbessert K0 im untersuchten einfachen 128-Neuronen-Vergleich nicht. Eine
+mögliche C.1-Stufe muss diese Instabilität ohne automatische Verstärkung,
+pauschalen Gewichtsschutz, Rollback, Zielwissen oder globale Suche untersuchen.

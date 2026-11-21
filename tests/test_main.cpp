@@ -8068,6 +8068,270 @@ void test_b513_recruitment_growth_exploration_case(const std::uint32_t index) {
     }
 }
 
+void test_c0_protected_autonomous_structural_learning_case(
+    const std::uint32_t index) {
+    const auto make_runtime = [](const std::uint64_t seed = 0xC000ULL,
+                                 const std::uint32_t neurons = 32) {
+        eve::ExperimentConfig config;
+        config.neuron_count = neurons;
+        config.width = neurons == 32 ? 4 : 8;
+        config.height = neurons == 32 ? 4 : 8;
+        config.depth = neurons / (config.width * config.height);
+        config.initial_outgoing_synapses = 0;
+        config.firing_threshold = 2;
+        config.maximum_synapse_weight = 4;
+        config.learning_enabled = false;
+        config.growth_enabled = true;
+        config.local_event_memory_capacity = 8;
+        config.eligibility_selection = eve::EligibilitySelection::active_phase;
+        config.eligibility_candidate_capacity = 8;
+        config.eligibility_decision_capacity = 8;
+        config.eligibility_duration = 64;
+        config.plasticity_trace_mode = eve::PlasticityTraceMode::g3_recent;
+        config.modulation_mode = eve::ModulationMode::ternary;
+        eve::bios::Runtime runtime(config, seed);
+
+        auto protection =
+            eve::brainstem::StructuralProtectionContract::protected_default(neurons);
+        protection.neuron_roles[0] = eve::brainstem::StructuralRole::innate_sensory;
+        protection.neuron_roles[1] = eve::brainstem::StructuralRole::innate_motor;
+        protection.neuron_roles[2] =
+            eve::brainstem::StructuralRole::evaluation_feedback;
+        protection.neuron_roles[3] =
+            eve::brainstem::StructuralRole::protected_brainstem;
+        protection.neuron_roles[4] =
+            eve::brainstem::StructuralRole::transition_contact;
+        runtime.configure_structural_protection(protection);
+
+        eve::brainstem::AutonomousExplorationConfig exploration;
+        exploration.enabled = true;
+        exploration.activation_budget = 4;
+        exploration.trigger_probability_denominator = 1;
+        exploration.maximum_sender_outgoing = 4;
+        exploration.local_radius = 2;
+        exploration.seed = seed ^ 0xC0E0ULL;
+        runtime.configure_autonomous_exploration(exploration);
+        return runtime;
+    };
+
+    auto runtime = make_runtime(0xC000ULL + index);
+    if (index == 0) {
+        const auto& roles = runtime.structural_protection().neuron_roles;
+        require(roles.size() == 32 &&
+                    roles[0] == eve::brainstem::StructuralRole::innate_sensory &&
+                    roles[1] == eve::brainstem::StructuralRole::innate_motor &&
+                    roles[2] == eve::brainstem::StructuralRole::evaluation_feedback &&
+                    roles[3] == eve::brainstem::StructuralRole::protected_brainstem &&
+                    roles[4] == eve::brainstem::StructuralRole::transition_contact,
+                "C.0 protection contract lost semantic interface roles");
+    } else if (index == 1) {
+        for (std::uint32_t attempt = 0; attempt < 64; ++attempt) {
+            runtime.enqueue_fire(8);
+            static_cast<void>(runtime.run());
+        }
+        for (const auto& edge : runtime.network().synapses()) {
+            require(edge.receiver > 3 && edge.sender > 3,
+                    "C.0 Growth entered a protected interface");
+        }
+    } else if (index == 2) {
+        const auto& contract = runtime.structural_protection();
+        require(contract.permits(8, 4) && contract.permits(4, 8) &&
+                    !contract.permits(8, 0) && !contract.permits(0, 8),
+                "C.0 explicit transition connection types changed");
+    } else if (index == 3) {
+        auto contract = runtime.structural_protection();
+        contract.neuron_roles[17] =
+            eve::brainstem::StructuralRole::protected_brainstem;
+        runtime.configure_structural_protection(contract);
+        require(!runtime.structural_protection().permits(8, 17),
+                "C.0 protection still depends on hard-coded interface ids");
+    } else if (index == 4) {
+        runtime.enqueue_fire(8);
+        static_cast<void>(runtime.run());
+        require(runtime.autonomous_exploration_activations() == 1,
+                "C.0 local neural event did not trigger autonomous exploration");
+    } else if (index == 5) {
+        for (std::uint32_t attempt = 0; attempt < 12; ++attempt) {
+            runtime.enqueue_fire(8);
+            static_cast<void>(runtime.run());
+        }
+        require(runtime.autonomous_exploration_activations() == 4 &&
+                    runtime.autonomous_exploration_remaining() == 0,
+                "C.0 autonomous exploration exceeded its resource budget");
+    } else if (index == 6) {
+        runtime.enqueue_fire(8);
+        static_cast<void>(runtime.run());
+        require(runtime.autonomous_exploration_activations() == 1,
+                "C.0 an exploratory fire recursively triggered exploration");
+    } else if (index == 7) {
+        static_cast<void>(runtime.advance_time_by(128));
+        require(runtime.autonomous_exploration_activations() == 0,
+                "C.0 exploration used a global time scan without local activity");
+    } else if (index == 8) {
+        runtime.enqueue_fire(8);
+        static_cast<void>(runtime.run());
+        require(runtime.metrics().fire_events == 2,
+                "C.0 one local trigger did not remain one bounded exploration");
+    } else if (index == 9) {
+        auto other = make_runtime(0xC000ULL + index);
+        runtime.enqueue_fire(8);
+        other.enqueue_fire(8);
+        static_cast<void>(runtime.run());
+        static_cast<void>(other.run());
+        require_equal(runtime.state_fingerprint(), other.state_fingerprint(),
+                      "C.0 autonomous continuation is not deterministic");
+    } else if (index == 10) {
+        runtime.set_autonomous_exploration_enabled(false);
+        runtime.enqueue_fire(8);
+        static_cast<void>(runtime.run());
+        require(runtime.autonomous_exploration_activations() == 0,
+                "C.0 exploration ablation did not disable internal activation");
+    } else if (index == 11) {
+        runtime.enqueue_fire(8);
+        const auto file = std::filesystem::temp_directory_path() /
+            "eve-stage-c0-pending.bin";
+        runtime.save(file.string());
+        auto restored = eve::bios::Runtime::load(file.string());
+        static_cast<void>(runtime.run());
+        static_cast<void>(restored.run());
+        require_equal(runtime.state_fingerprint(), restored.state_fingerprint(),
+                      "C.0 pending autonomous continuation diverged after restore");
+        require(restored.autonomous_exploration_activations() == 1,
+                "C.0 exploration state was not persisted");
+        static_cast<void>(std::filesystem::remove(file));
+    } else if (index == 12) {
+        runtime.set_structural_growth_enabled(false);
+        runtime.enqueue_fire(8);
+        static_cast<void>(runtime.run());
+        require(runtime.autonomous_exploration_activations() == 1 &&
+                    runtime.network().synapse_count() == 0,
+                "C.0 K2 exploration-only control created structure");
+    } else if (index == 13) {
+        runtime.set_autonomous_exploration_enabled(false);
+        runtime.enqueue_fire(8);
+        static_cast<void>(runtime.run());
+        require(runtime.network().synapse_count() == 1,
+                "C.0 K1 Growth-only control did not remain operational");
+    } else if (index == 14) {
+        std::vector<eve::NeuronId> fires;
+        runtime.set_fire_observer([&](const eve::bios::FireObservation& event) {
+            fires.push_back(event.neuron);
+        });
+        runtime.enqueue_fire(8);
+        static_cast<void>(runtime.run());
+        require(fires.size() == 2 && fires[1] >= 5,
+                "C.0 autonomous exploration recruited a protected neuron");
+    } else if (index == 15) {
+        auto large = make_runtime(0xC015ULL, 2048);
+        large.enqueue_fire(100);
+        static_cast<void>(large.run());
+        require(large.network().validate() &&
+                    large.network().synapse_count() <= 2 &&
+                    large.metrics().maximum_queue_size <= 8,
+                "C.0 large-network event or structure budget failed");
+    } else if (index == 16) {
+        auto invalid = runtime.structural_protection();
+        invalid.neuron_roles.pop_back();
+        bool rejected = false;
+        try { runtime.configure_structural_protection(invalid); }
+        catch (const std::invalid_argument&) { rejected = true; }
+        require(rejected, "C.0 accepted an incomplete protection inventory");
+    } else if (index == 17) {
+        const auto before = runtime.structural_protection();
+        for (const auto protected_id : {0U, 1U, 2U, 3U}) {
+            require(!before.permits(8, protected_id) &&
+                        !before.permits(protected_id, 8),
+                    "C.0 protected direction matrix contains an unsafe edge type");
+        }
+    } else if (index == 18) {
+        runtime.enqueue_fire(8);
+        static_cast<void>(runtime.run());
+        for (const auto& edge : runtime.network().synapses()) {
+            require(edge.weight == 0,
+                    "C.0 natural Growth encoded task-solution information");
+        }
+    } else if (index == 19) {
+        runtime.enqueue_fire(8);
+        static_cast<void>(runtime.run());
+        require(runtime.network().validate() &&
+                    runtime.autonomous_exploration_remaining() == 3,
+                "C.0 produced an invalid protected autonomous state");
+    } else if (index == 20) {
+        eve::ExperimentConfig config;
+        config.neuron_count = 32;
+        config.width = 4;
+        config.height = 4;
+        config.depth = 2;
+        config.initial_outgoing_synapses = 0;
+        config.growth_enabled = true;
+        eve::bios::Runtime unprotected(config, 0xC020ULL);
+        eve::brainstem::AutonomousExplorationConfig exploration;
+        exploration.enabled = true;
+        exploration.activation_budget = 1;
+        bool rejected = false;
+        try { unprotected.configure_autonomous_exploration(exploration); }
+        catch (const std::invalid_argument&) { rejected = true; }
+        require(rejected,
+                "C.0 allowed combined autonomous Growth without a contract");
+    } else if (index == 21) {
+        runtime.set_autonomous_exploration_enabled(false);
+        auto unsafe = runtime.structural_protection();
+        const auto sensory = static_cast<std::size_t>(
+            eve::brainstem::StructuralRole::innate_sensory);
+        const auto free = static_cast<std::size_t>(
+            eve::brainstem::StructuralRole::free_processing);
+        unsafe.allowed_connections[free][sensory] = true;
+        runtime.configure_structural_protection(unsafe);
+        bool rejected = false;
+        try { runtime.set_autonomous_exploration_enabled(true); }
+        catch (const std::invalid_argument&) { rejected = true; }
+        require(rejected,
+                "C.0 accepted an unsafe direction matrix for autonomous Growth");
+    } else if (index == 22) {
+        eve::ExperimentConfig config;
+        config.neuron_count = 32;
+        config.width = 4;
+        config.height = 4;
+        config.depth = 2;
+        config.initial_outgoing_synapses = 0;
+        config.growth_enabled = false;
+        eve::bios::Runtime exploration_only(config, 0xC022ULL);
+        eve::brainstem::AutonomousExplorationConfig exploration;
+        exploration.enabled = true;
+        exploration.activation_budget = 1;
+        exploration_only.configure_autonomous_exploration(exploration);
+        bool rejected = false;
+        try { exploration_only.set_structural_growth_enabled(true); }
+        catch (const std::invalid_argument&) { rejected = true; }
+        require(rejected,
+                "C.0 later Growth activation bypassed the protection contract");
+    } else if (index == 23) {
+        auto disabled = runtime.structural_protection();
+        disabled.enabled = false;
+        bool rejected = false;
+        try { runtime.configure_structural_protection(disabled); }
+        catch (const std::invalid_argument&) { rejected = true; }
+        require(rejected,
+                "C.0 allowed protection removal while autonomous Growth was active");
+    } else if (index == 24) {
+        const auto file = std::filesystem::temp_directory_path() /
+            "eve-stage-c0-contract.bin";
+        runtime.save(file.string());
+        auto restored = eve::bios::Runtime::load(file.string());
+        bool rejected = false;
+        auto disabled = restored.structural_protection();
+        disabled.enabled = false;
+        try { restored.configure_structural_protection(disabled); }
+        catch (const std::invalid_argument&) { rejected = true; }
+        require(rejected &&
+                    restored.structural_protection().enabled &&
+                    restored.autonomous_exploration_config().enabled &&
+                    restored.config().growth_enabled,
+                "C.0 persisted contract did not survive later reconfiguration");
+        static_cast<void>(std::filesystem::remove(file));
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -8775,6 +9039,28 @@ int main() {
         tests.emplace_back(
             std::string("B513 ") + b513_names[index],
             [index]() { test_b513_recruitment_growth_exploration_case(index); });
+    }
+    const std::array<const char*, 25> c0_names{{
+        "semantic protection inventory", "protected Growth targets",
+        "explicit transition contacts", "id-independent protection",
+        "local autonomous trigger", "exploration budget",
+        "nonrecursive exploration", "no periodic global scan",
+        "bounded activation per trigger", "deterministic autonomy",
+        "exploration ablation", "pending exploration persistence",
+        "K2 exploration only", "K1 Growth only",
+        "protected autonomous target", "2048-neuron resource bound",
+        "complete role inventory", "safe direction matrix",
+        "zero-information Growth", "valid autonomous state",
+        "unprotected combined activation rejected",
+        "unsafe matrix activation rejected",
+        "later Growth activation rejected",
+        "active contract removal rejected",
+        "persisted contract reconfiguration guarded",
+    }};
+    for (std::uint32_t index = 0; index < c0_names.size(); ++index) {
+        tests.emplace_back(
+            std::string("C0 ") + c0_names[index],
+            [index]() { test_c0_protected_autonomous_structural_learning_case(index); });
     }
 
     std::size_t failures = 0;

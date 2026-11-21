@@ -1,0 +1,8 @@
+metric,value
+wall_seconds,175.2921742
+peak_rss_kib,9956
+central_trials,12800
+control_trials,2048
+causal_rows,133
+additional_persistent_role_bytes_per_neuron,1
+production_S4_enabled,0

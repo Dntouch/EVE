@@ -41,6 +41,7 @@ enum class EventKind : std::uint8_t {
     modulation_impulse = 9,
     eligibility_decay = 10,
     subthreshold_relaxation = 11,
+    internal_exploration_fire = 12,
 };
 
 struct Event {
@@ -359,6 +360,17 @@ public:
     [[nodiscard]] brainstem::ExplorationResult enqueue_exploration(
         const brainstem::ExplorationConfig& config);
     [[nodiscard]] std::vector<NeuronId> exploration_reservations() const;
+    void configure_structural_protection(
+        const brainstem::StructuralProtectionContract& contract);
+    [[nodiscard]] const brainstem::StructuralProtectionContract&
+    structural_protection() const noexcept;
+    void configure_autonomous_exploration(
+        const brainstem::AutonomousExplorationConfig& config);
+    void set_autonomous_exploration_enabled(bool enabled);
+    [[nodiscard]] const brainstem::AutonomousExplorationConfig&
+    autonomous_exploration_config() const noexcept;
+    [[nodiscard]] std::uint32_t autonomous_exploration_remaining() const noexcept;
+    [[nodiscard]] std::uint64_t autonomous_exploration_activations() const noexcept;
     [[nodiscard]] brainstem::MotorCircuitResult configure_motor_circuit(
         const brainstem::MotorCircuitConfig& config);
     [[nodiscard]] brainstem::FeedbackResult process_motor_feedback(
@@ -440,7 +452,9 @@ private:
         bool feedback_context = false,
         std::uint32_t context_signature = 0,
         bool context_feedback_origin = false,
-        std::int8_t modulation = 0);
+        std::int8_t modulation = 0,
+        bool allow_autonomous_exploration = true);
+    void maybe_enqueue_autonomous_exploration(NeuronId local_trigger);
     void process_impulse(
         SynapseId synapse,
         bool feedback_context = false,
@@ -478,6 +492,7 @@ private:
     brainstem::Brainstem brainstem_;
     DeterministicRng rng_;
     DeterministicRng growth_rng_;
+    DeterministicRng exploration_rng_;
     std::deque<Event> queue_;
     Metrics metrics_;
     std::ostream* trace_stream_{};
@@ -490,6 +505,10 @@ private:
     brainstem::MotorOutput motor_output_;
     std::vector<NeuronId> innate_reservations_;
     std::vector<NeuronId> motor_circuit_reservations_;
+    brainstem::StructuralProtectionContract structural_protection_;
+    brainstem::AutonomousExplorationConfig autonomous_exploration_;
+    std::uint32_t autonomous_exploration_remaining_{};
+    std::uint64_t autonomous_exploration_activations_{};
     brainstem::EvaluationRouteResult evaluation_route_;
     bool evaluation_route_configured_{};
     brainstem::ActionContextRoute action_context_route_;
