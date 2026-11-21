@@ -1,0 +1,13 @@
+criterion,passed,evidence
+complete_neuron_inventory,1,neuron-accessibility.csv.gz
+all_learnable_neurons_recruitable,1,neuron-accessibility.csv.gz
+chicken_and_egg_broken,1,recruitment-trials.csv.gz
+zero_to_functional_weight,1,functional-growth.csv.gz
+causal_targeted_ablation,1,functional-growth.csv.gz
+sizes_32_to_2048,1,recruitment-trials.csv.gz
+B511_B512_tasks_reused,1,b511-b512-task-comparison.csv.gz
+task_learning_curves,1,task-learning-curves.csv.gz
+independent_confirmation,1,sampling-plan.csv
+persistence_and_determinism,1,persistence.csv
+protected_growth_gap_documented,1,exclusion-audit.csv
+new_rule_not_released,1,mechanism-decision.csv

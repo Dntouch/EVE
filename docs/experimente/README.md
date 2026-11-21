@@ -96,6 +96,10 @@ angepasst werden.
 - [Methodische Bewertung B.5.12](036-methodische-bewertung-lernkriterien.md)
 - [Bericht B.5.12](036-forschungsbericht-forschungsstufe-b512.md)
 - [Entscheidungsvorlage B.5.13](036-entscheidungsvorlage-forschungsstufe-b513.md)
+- [Auftrag B.5.13](037-entwicklungsauftrag-forschungsstufe-b513.md)
+- [Technische Architekturanalyse B.5.13](037-technische-architekturanalyse-rekrutierbarkeit.md)
+- [Bericht B.5.13](037-forschungsbericht-forschungsstufe-b513.md)
+- [Entscheidungsvorlage Forschungsphase C](037-entscheidungsvorlage-forschungsphase-c.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
@@ -215,3 +219,10 @@ ausgewählten Verlustpopulation im Mittel langsamer als naiver Erwerb. Eine
 neue Regel wird nicht freigegeben. Die zeitliche Kreditfrage bleibt offen und
 unnummeriert. B.5.13 ist stattdessen als Untersuchung vollständiger neuronaler
 Rekrutierbarkeit, Growth und interner Exploration festgelegt.
+
+B.5.13 weist die technische Rekrutierbarkeit aller nicht geschützten Neuronen
+und 768 kausal funktionale neue Growth-Pfade nach. Auf den historischen
+Aufgaben entsteht kein unabhängig bestätigter Vorteil größerer Netze. Growth
+trifft außerdem in 221 von 3.840 Fällen geschützte Schnittstellenziele. Die
+Forschungsgrundlagen sind integrierbar, eine Produktionsaktivierung bleibt bis
+zu einer geschützten autonomen Forschungsphase C gesperrt.

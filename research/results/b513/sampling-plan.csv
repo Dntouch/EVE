@@ -1,0 +1,3 @@
+phase,seeds,families,assignments,sizes,selection
+discovery,110001..110064,3,2,32|128|256|512|2048,predeclared
+confirmation,120001..120064,3,2,32|128|256|512|2048,independent

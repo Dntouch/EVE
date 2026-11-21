@@ -196,10 +196,19 @@ dem ersten autonomen Erfolg nach. In der zeitlichen Aufgabe entsteht derselbe
 Vorteil nicht. Weitere passende Erfahrung verbessert den Abruf gegenüber Pause,
 aber alle R0-Netze bleiben unter dem Kriterium zuverlässiger Beherrschung.
 Wiedererwerb nach A→B gelingt vollständig, ist im Mittel jedoch langsamer als
-naiver Erwerb. B.5.13 untersucht als neu festgelegte nächste Stufe vollständige
-neuronale Rekrutierbarkeit, Growth und interne Exploration. Zusätzliche
-Kapazität zählt dabei nur, wenn sie ohne semantische Zielvorgabe tatsächlich
-lokal rekrutiert und funktional wirksam wird.
+naiver Erwerb.
+
+B.5.13 bestätigt anschließend vollständige technische Rekrutierbarkeit:
+Unverbundene lernfähige Neuronen sind intern explorierbar, Growth erzeugt neue
+Nullgewicht-Verbindungen, und diese können über die vorhandene Eligibility und
+Drei-Faktor-Plastizität kausal wirksam werden. Zusätzliche Kapazität verbessert
+die historischen Aufgaben jedoch nicht unabhängig bestätigt. Growth kennt die
+Schutzreservierungen nicht und traf in 221 von 3.840 Fällen geschützte Ziele.
+
+Die nächste, noch nicht nummerierte Forschungsphase C untersucht deshalb
+geschützte autonome Strukturbildung unter natürlicher Konsequenz. Sie muss
+einen lokalen Growth-Schutzvertrag und einen natürlichen Nutzennachweis liefern,
+bevor automatische Mechanismen als Produktionsstandard erwogen werden.
 
 ## Erfolgskriterien aus dem Konzept
 

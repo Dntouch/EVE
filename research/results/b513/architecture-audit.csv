@@ -1,0 +1,12 @@
+property,supported,evidence
+all_nonprotected_neurons_explorable,1,neuron-accessibility.csv.gz
+unconnected_neuron_direct_activation,1,recruitment-trials.csv.gz
+explored_neuron_outgoing_growth,1,recruitment-trials.csv.gz
+previously_unconnected_target_integration,1,recruitment-trials.csv.gz
+new_edge_zero_weight,1,recruitment-trials.csv.gz
+new_edge_eligibility,1,functional-growth.csv.gz
+new_edge_positive_weighting,1,functional-growth.csv.gz
+new_edge_causal_reuse,1,functional-growth.csv.gz
+growth_honors_protected_reservations,0,exclusion-audit.csv
+growth_can_create_inhibitory_edge,0,implementation audit
+production_activation_ready,0,protection and natural-use limits

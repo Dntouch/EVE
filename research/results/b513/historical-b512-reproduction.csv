@@ -1,0 +1,16 @@
+file,status
+aggregate-statistics.csv,exact
+consolidation-interventions.csv,exact
+consolidation.csv.gz,exact
+control-group-manifest.csv,exact
+impairment-reacquisition.csv.gz,exact
+latent-learning.csv.gz,exact
+learning-curves.csv.gz,exact
+learning-stage-definitions.csv,exact
+mechanism-decision.csv,exact
+multi-learning.csv.gz,exact
+paired-statistics.csv,exact
+persistence.csv,exact
+sampling-plan.csv,exact
+simple-reference.csv.gz,exact
+success-criteria.csv,exact
