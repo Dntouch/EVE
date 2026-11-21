@@ -1,5 +1,10 @@
 # C.0-Schutzvertrag für autonome Strukturbildung
 
+Der Vertrag ist eine außerhalb des neuronalen Lernzustands verwaltete
+Versuchsvoraussetzung. Seine Prüfung erfolgt unabhängig von Funktions- und
+Lernmetriken gemäß
+[Architekturentscheidung 0037](../entscheidungen/0037-schutzvertrag-ist-voraussetzung-nicht-lernziel.md).
+
 ## Rollen
 
 | Rolle | Growth-Sender | Growth-Ziel | Bedeutung |
@@ -45,6 +50,19 @@ Growth-Kandidatenauswahl geprüft. Exploration wählt bei aktivem Vertrag nur
 - Growth behält seine lokale, vom Ausgangsgrad abhängige Wahrscheinlichkeit,
 - die kombinierte Aktivierung ist ohne gültigen Vertrag unmöglich,
 - keine automatische Löschregel und kein globaler Lösungsscan.
+
+## Unabhängige Freigabe
+
+Vor dem C.0-Lernlauf prüft ein eigener Preflight zwölf Positiv- und
+Negativfälle. Dazu gehören bewusst provozierte Growth-Versuche mit geschützten
+Sendern und ausgeschöpften zulässigen Zielen. Erst wenn alle Prüfungen
+bestehen, startet der Forschungsrunner die allgemeinen Regressionen und die
+Lernexperimente. Die null Verletzungen in natürlichen Läufen sind hiervon
+getrennte Beobachtungsevidenz.
+
+Neuronale Aktivität, Growth und Plastizität besitzen keine Berechtigung, den
+Vertrag zu verändern. Der Vertrag schützt zugleich ausdrücklich keine
+erfolgreichen freien Synapsen vor späterer Reorganisation.
 
 ## Ergebnis
 

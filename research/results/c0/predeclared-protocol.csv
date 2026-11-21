@@ -1,5 +1,7 @@
 field,value
 central_control,K3_protected_combined
+integrity_gate,independent_structural_safety_preflight_before_learning
+assessment_model,A_integrity;B_self_organization;C_learning
 episodes,16
 checkpoints,1;2;4;8;16
 exploration_budget,8

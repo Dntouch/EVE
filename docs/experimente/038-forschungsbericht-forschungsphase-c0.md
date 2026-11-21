@@ -14,6 +14,11 @@ Rekrutierbarkeit. Autonome interne Exploration wird nun durch reale lokale
 Aktivität ausgelöst und ist weder ein Runner-Befehl noch ein periodischer
 globaler Scan.
 
+Die Integrität wurde zusätzlich in einem eigenständigen Preflight mit zwölf
+gezielten Positiv- und Negativprüfungen freigegeben, bevor die Lernexperimente
+starteten. Diese Freigabe ist unabhängig von den späteren natürlichen
+Growth-Beobachtungen und Lernmetriken.
+
 Die natürliche Funktionsbildung gelingt selten: Von 166.261 neuen
 Verbindungen erhielten 1.802 positives Gewicht und 19 erreichten Gewicht 2.
 Alle 19 aktivierten ihr Ziel und verloren diese Wirkung unter W1; acht Fälle
@@ -30,6 +35,7 @@ Lernvorteil.
 
 | Größe | Wert |
 |---|---:|
+| unabhängige Integritätsprüfungen | 12/12 bestanden |
 | zentrale Discovery-/Bestätigungsläufe | 12.800 |
 | aktuelle Kontrollläufe K0–K7 | 2.048 |
 | K8 | historische B.5.13-Referenz, kein aktueller Messwert |
@@ -46,13 +52,16 @@ Lernvorteil.
 | davon isoliert funktionsmindernd | 19 |
 | bestandene Regressionstests | 832/832 |
 
-## Antworten A–N
+## Technische Befunde A–N
 
 ### A – Schutzarchitektur
 
 Sechs semantische Rollen und eine explizite Richtungsmatrix ersetzen
 ID-basierte Ausschlüsse. Der Vertrag klassifiziert jedes Neuron und wird bei
-jeder Growth-Auswahl geprüft.
+jeder Growth-Auswahl geprüft. Vor sämtlichen Lernläufen bestanden zwölf
+unabhängige Prüfungen einschließlich absichtlich provozierter unerlaubter
+Growth-Versuche. Null Verletzungen in natürlichen Läufen sind zusätzliche,
+nicht ersetzende Evidenz.
 
 ### B – Autonome Exploration
 
@@ -147,9 +156,15 @@ Lernregel oder pauschaler Gewichtsschutz wird ausdrücklich nicht empfohlen.
 
 ## Erfolgskriterien
 
-- **A – Schutz und freie Rekrutierbarkeit:** bestanden.
-- **B – natürlicher funktionaler Pfad:** bestanden.
+- **A – Integrität:** unabhängiger struktureller Sicherheits-Preflight
+  bestanden; nicht durch B oder C kompensierbar.
+- **B – Selbstorganisation:** natürliche Strukturbildung und mindestens ein
+  funktionaler, kausaler Pfad bestanden.
 - **C – Lernvorteil im vorab untersuchten K3/K0-Vergleich:** nicht bestanden.
+
+Die drei Bewertungen werden nicht zu einer Gesamtkennzahl vermischt. Der
+Schutzvertrag bestimmt den zulässigen Veränderungsraum und ist weder Lernziel
+noch Schutz erfolgreicher freier Verbindungen vor Reorganisation.
 
 Das negative Ergebnis begrenzt die Aussage von Meilenstein 002 korrekt: EVE
 kann freie Neuronen technisch und nun auch strukturell sicher rekrutieren und

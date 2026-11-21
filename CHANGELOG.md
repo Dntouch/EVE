@@ -99,6 +99,15 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
 
 ### Geändert
 
+- GitHub-Issue #9 wird als Architekturentscheidung 0037 übernommen: Der
+  Schutzvertrag ist unabhängige Versuchsvoraussetzung statt Lernziel.
+- Ein wiederverwendbarer struktureller Sicherheits-Preflight mit zwölf
+  gezielten Positiv-, Negativ-, Persistenz- und Provokationsprüfungen läuft vor
+  den C.0-Lernexperimenten und sperrt sie bei jedem Fehler.
+- C.0 berichtet A – Integrität, B – Selbstorganisation und C – Lernen ohne
+  gemeinsame Erfolgskennzahl; natürliche Nullverletzungen ersetzen keine
+  gezielten Negativtests.
+
 - B.5.11 bewertet Exploration ausschließlich anhand tatsächlich beobachteter
   Motoraktivität und trennt Reorganisation in 10 produktive, 12 schädliche
   und 38 unentschiedene W0/W1-Verläufe; Gleichstände gelten nicht mehr als

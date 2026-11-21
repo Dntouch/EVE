@@ -208,6 +208,10 @@ Schutzreservierungen nicht und traf in 221 von 3.840 Fällen geschützte Ziele.
 C.0 implementiert und bestätigt anschließend den lokalen Growth-Schutzvertrag
 sowie eine durch echte Feuerereignisse ausgelöste autonome interne
 Exploration. In 166.261 Growth-Ereignissen tritt keine Schutzverletzung auf.
+Diese Beobachtung wird methodisch nicht als alleiniger Sicherheitsnachweis
+verwendet: Ein eigenständiger Preflight mit gezielten Negativtests muss vor
+jedem strukturellen Lernlauf der Phase C bestehen. A – Integrität, B –
+Selbstorganisation und C – Lernen bleiben getrennte Bewertungen.
 1.802 Verbindungen werden natürlich positiv, 19 erreichen S3 und bestehen die
 W1-Kausalprobe; acht davon liegen in der Bestätigung. Die unveränderte
 W0-Fortsetzung verliert 19/19 Funktionen nach einer weiteren natürlichen

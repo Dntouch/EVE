@@ -55,10 +55,19 @@ Vollständige Rekrutierbarkeit und tatsächliche funktionale Nutzung werden
 künftig getrennt bewertet. S4 bleibt standardmäßig deaktiviert; weder eine
 neue Lernregel noch dauerhaftes automatisches Growth ist freigegeben.
 
+Für jede strukturelle Forschungsstufe der Phase C gilt vorab ein unabhängiges
+Integritätsgate: Der Schutzvertrag wird vor den Lernexperimenten mit gezielten
+Positiv- und Negativtests geprüft. A – Integrität, B – Selbstorganisation und
+C – Lernen werden getrennt berichtet. Sicherheit ist Voraussetzung und kein
+Lernziel; positive Lernwerte können einen fehlgeschlagenen Schutztest nicht
+kompensieren.
+
 - [Forschungsbericht C.0](docs/experimente/038-forschungsbericht-forschungsphase-c0.md)
 - [C.0-Schutzvertrag](docs/experimente/038-schutzvertrag-autonome-strukturbildung.md)
 - [Wissenschaftliche Analyse](docs/experimente/038-wissenschaftliche-analyse-c0.md)
 - [Architekturentscheidung 0036](docs/entscheidungen/0036-c0-schutz-bestaetigt-funktionale-autonomie-offen.md)
+- [Architekturentscheidung 0037](docs/entscheidungen/0037-schutzvertrag-ist-voraussetzung-nicht-lernziel.md)
+- [Methodischer Schutzgrundsatz Phase C](docs/experimente/039-methodischer-grundsatz-schutzvertrag-phase-c.md)
 - [Entscheidungsvorlage C.1](docs/experimente/038-entscheidungsvorlage-forschungsphase-c1.md)
 
 EVE ist weder eine fertige allgemeine Intelligenz noch ein Nachweis von

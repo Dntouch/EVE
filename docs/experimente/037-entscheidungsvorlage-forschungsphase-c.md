@@ -45,3 +45,9 @@ Die Phase ist durchzuführen, wenn ein minimaler Schutzvertrag vorab definiert
 und unabhängig von der späteren Erfolgsmetrik getestet werden kann. Eine
 konkrete B-Stufennummer wird erst mit einem eigenen Entwicklungsauftrag
 vergeben.
+
+Diese Bedingung ist durch
+[Architekturentscheidung 0037](../entscheidungen/0037-schutzvertrag-ist-voraussetzung-nicht-lernziel.md)
+verbindlich verschärft: Der unabhängige Schutz-Preflight ist ein
+nichtkompensierbares Freigabegate vor jedem strukturellen Lernexperiment der
+Phase C. Der Vertrag bestimmt Grenzen, nicht Lernziel oder Erfolgsstruktur.
