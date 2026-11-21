@@ -200,6 +200,12 @@ lokale Feuerereignisse können freie Neuronen autonom explorieren und
 strukturell integrieren. Frage 7 ist damit für den untersuchten Schutzrahmen
 teilweise beantwortet.
 
+Für Phase C gilt darüber hinaus verbindlich: Natürliche Nullverletzung genügt
+nicht als Sicherheitsprüfung. Ein unabhängiger Preflight provoziert verbotene
+Growth-Fälle und muss vollständig bestehen, bevor Selbstorganisation oder
+Lernen untersucht werden. Der Vertrag selbst bleibt außerhalb der
+Plastizität und ist kein neuronales Lernziel.
+
 Frage 6 ist auch funktional teilweise beantwortet: 19 natürlich gewachsene
 Verbindungen erreichen ohne Hilfskoinzidenz S3 und sind einzeln kausal; acht
 Fälle replizieren in der Bestätigung. Offen bleibt der stabile Übergang von S4

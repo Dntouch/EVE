@@ -106,6 +106,7 @@ angepasst werden.
 - [Technische Analyse natürliche Funktionsbildung](038-technische-analyse-natuerliche-funktionsbildung.md)
 - [Wissenschaftliche Analyse C.0](038-wissenschaftliche-analyse-c0.md)
 - [Bericht C.0](038-forschungsbericht-forschungsphase-c0.md)
+- [Methodischer Grundsatz zum Schutzvertrag in Phase C](039-methodischer-grundsatz-schutzvertrag-phase-c.md)
 - [Entscheidungsvorlage C.1](038-entscheidungsvorlage-forschungsphase-c1.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht

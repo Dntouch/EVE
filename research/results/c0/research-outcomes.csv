@@ -1,0 +1,3 @@
+assessment,criterion,passed,evidence
+B,self_organization_natural_functional_path,1,causal-interventions.csv.gz
+C,learning_simple_128_K3_over_K0_advantage,0,control-groups.csv.gz

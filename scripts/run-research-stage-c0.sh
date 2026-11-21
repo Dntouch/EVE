@@ -4,14 +4,17 @@ set -euo pipefail
 root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 output_dir="${root_dir}/research/results/c0"
 reproduction_root="$(mktemp -d)"
+preflight_result="${reproduction_root}/structural-safety-preflight.csv"
 trap 'rm -rf "${reproduction_root}"' EXIT
 
 make -C "${root_dir}" _build/eve_research_stage_c0 _build/eve_tests \
     _build/eve_research_stage_b511 _build/eve_research_stage_b512 \
-    _build/eve_research_stage_b513
+    _build/eve_research_stage_b513 _build/eve_structural_safety_preflight
+"${root_dir}/_build/eve_structural_safety_preflight" "${preflight_result}"
 "${root_dir}/_build/eve_tests"
 rm -rf "${output_dir}"
 mkdir -p "${output_dir}"
+cp "${preflight_result}" "${output_dir}/structural-safety-preflight.csv"
 "${root_dir}/_build/eve_research_stage_c0" "${output_dir}"
 
 for file in autonomous-trials.csv natural-growth-connections.csv \
@@ -19,6 +22,13 @@ for file in autonomous-trials.csv natural-growth-connections.csv \
     causal-interventions.csv continuation-weight-writes.csv; do
     gzip -n -9 "${output_dir}/${file}"
 done
+
+printf 'assessment,criterion,passed,evidence\n' \
+    > "${output_dir}/success-criteria.csv"
+printf 'A,integrity_independent_structural_safety_preflight,1,structural-safety-preflight.csv\n' \
+    >> "${output_dir}/success-criteria.csv"
+tail -n +2 "${output_dir}/research-outcomes.csv" \
+    >> "${output_dir}/success-criteria.csv"
 
 reproduce_stage() {
     local stage="$1"
@@ -91,5 +101,3 @@ reproduce_stage B512 "${root_dir}/_build/eve_research_stage_b512" \
     "${root_dir}/research/results/b512"
 reproduce_stage B513 "${root_dir}/_build/eve_research_stage_b513" \
     "${root_dir}/research/results/b513"
-printf 'historical_B511_B513_exact,1,historical-regression.csv\n' \
-    >> "${output_dir}/success-criteria.csv"

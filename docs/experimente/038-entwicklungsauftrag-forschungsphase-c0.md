@@ -40,11 +40,17 @@ getrennt bewertet.
 
 ## Erfolgskriterien
 
-1. **A – Sicherheit:** Schutzvertrag und freie Rekrutierbarkeit bestehen.
-2. **B – Funktion:** Mindestens ein natürlich gewachsener Pfad wird ohne
-   Versuchshilfe funktional und besteht eine gezielte Kausalprüfung.
+1. **A – Integrität:** Ein eigenständiger Schutz-Preflight besteht vor dem
+   ersten Lernexperiment vollständig. Natürliche Nullverletzungen genügen
+   nicht; ein Fehler sperrt die Stufe unabhängig von B und C.
+2. **B – Selbstorganisation:** Mindestens ein natürlich gewachsener Pfad wird
+   ohne Versuchshilfe funktional und besteht eine gezielte Kausalprüfung.
 3. **C – Lernen:** Ein Lernvorteil wird im vorab festgelegten K3/K0-Vergleich
    der unabhängigen Bestätigung reproduziert.
+
+A, B und C werden getrennt berichtet und nicht zu einer gemeinsamen
+Erfolgskennzahl verdichtet. Der Schutzvertrag ist keine lernfähige Struktur
+und kein Lernziel.
 
 Ein negatives Ergebnis bei B oder C ist zulässig und darf nicht durch eine
 technische Positivkontrolle ersetzt werden.

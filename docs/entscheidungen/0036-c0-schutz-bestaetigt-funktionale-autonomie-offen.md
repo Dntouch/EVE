@@ -3,6 +3,11 @@
 **Status:** angenommen  
 **Datum:** 21. November 2026
 
+Die methodische Rolle des Schutzvertrags wird durch
+[Entscheidung 0037](0037-schutzvertrag-ist-voraussetzung-nicht-lernziel.md)
+verbindlich präzisiert: Integrität ist ein unabhängiges Freigabegate und keine
+Lernmetrik.
+
 ## Entscheidung
 
 Der semantische Growth-Schutzvertrag und die persistierbare,

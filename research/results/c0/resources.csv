@@ -1,6 +1,6 @@
 metric,value
-wall_seconds,175.2921742
-peak_rss_kib,9956
+wall_seconds,227.7336489
+peak_rss_kib,9984
 central_trials,12800
 control_trials,2048
 causal_rows,133

@@ -22,7 +22,10 @@ abgebaut wird, und kann ein solcher Pfad ohne Zielwissen S5 erreichen?
 
 ## Mindestdesign
 
-- C.0-Schutzvertrag unverändert als harte Sicherheitsbedingung,
+- eigenständiger Schutz-Preflight als erstes, nicht kompensierbares
+  Freigabegate vor jedem Lernlauf,
+- C.0-Schutzvertrag unverändert als außerhalb des Lernzustands verwaltete
+  harte Sicherheitsbedingung,
 - prospektive Auswahl ausschließlich bei der Entstehung der Verbindung,
 - getrennte Ablation natürlicher Zielaktivität, Eligibility-Aufnahme,
   Modulationsankunft und Growth-Richtung,
@@ -31,6 +34,8 @@ abgebaut wird, und kann ein solcher Pfad ohne Zielwissen S5 erreichen?
 - W0–W6 am S3-Zeitpunkt und nach identischer Fortsetzung anwenden,
 - Discovery und unabhängige 64-Seed-Bestätigung,
 - B.5.12-Lernstadien und C.0-Kontrollen vollständig erhalten.
+- A – Integrität, B – Selbstorganisation und C – Lernen ohne gemeinsame
+  Erfolgskennzahl berichten.
 
 ## Nicht freigegeben
 

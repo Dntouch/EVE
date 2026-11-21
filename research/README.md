@@ -824,8 +824,8 @@ werden nicht als Produktionsstandard aktiviert.
 
 ## Forschungsphase C.0 – geschützte autonome Selbstorganisation
 
-Build, 832 Kerntests und vollständige Schutz-, Autonomie-, Struktur- und
-Kontrollmatrix:
+Unabhängiger struktureller Sicherheits-Preflight, Build, 832 Kerntests und
+vollständige Autonomie-, Struktur- und Kontrollmatrix:
 
 ```sh
 scripts/run-research-stage-c0.sh
@@ -848,13 +848,18 @@ entfernt die unmittelbare Zielaktivierung und W6 erhält 19/19 über die nächst
 Erfahrung. `continuation-weight-writes.csv.gz` protokolliert die 48 konkreten
 W0-Schreibungen und ihre isolierten Gegenproben: 19 Abschwächungen der neuen
 Kante sind funktionsmindernd, 29 weitere Schreibungen nicht.
+`structural-safety-preflight.csv` dokumentiert zwölf unabhängige Positiv- und
+Negativprüfungen, die der Runner vor jedem Lernexperiment vollständig
+bestehen muss. `success-criteria.csv` weist A – Integrität, B –
+Selbstorganisation und C – Lernen ohne Gesamtkennzahl getrennt aus.
 `persistence.csv`, `historical-regression.csv`, `resources.csv`,
-`success-criteria.csv` und `mechanism-decision.csv` dokumentieren exakte
+`research-outcomes.csv` und `mechanism-decision.csv` dokumentieren exakte
 Fortsetzung, die tatsächlich ausgeführte und über 49 Ergebnisdateien
 verglichene B.5.11–B.5.13-Reproduktion, Aufwand und die getrennte
 Mergeentscheidung.
 
-C.0 bestätigt Kriterium A (Schutz und freie Rekrutierbarkeit) und B
-(natürlich funktionaler Pfad), nicht aber C (Lernvorteil im untersuchten
-einfachen 128-Neuronen-K3/K0-Vergleich).
+C.0 bestätigt A (unabhängige Integrität) und B (natürliche strukturelle und
+funktionale Selbstorganisation), nicht aber C (Lernvorteil im untersuchten
+einfachen 128-Neuronen-K3/K0-Vergleich). A ist Voraussetzung und kann durch B
+oder C nicht kompensiert werden.
 Automatische Exploration, Growth und S4 bleiben Produktionsstandard aus.

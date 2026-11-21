@@ -493,6 +493,8 @@ int main(int argc, char** argv) {
         "confirmation,64,200000,normal_and_inverse,1\n";
     std::ofstream protocol(output / "predeclared-protocol.csv");
     protocol << "field,value\ncentral_control,K3_protected_combined\n"
+        "integrity_gate,independent_structural_safety_preflight_before_learning\n"
+        "assessment_model,A_integrity;B_self_organization;C_learning\n"
         "episodes,16\ncheckpoints,1;2;4;8;16\nexploration_budget,8\n"
         "growth_budget,local_outgoing_probability\nfunctional_threshold,weight_ge_firing_threshold\n"
         "learning_success,B512_stage_rules\ncurrent_controls,K0-K7\n"
@@ -682,15 +684,13 @@ int main(int argc, char** argv) {
         << post_load_contract_removal_rejected << ','
         << restored.network().validate() << '\n';
 
-    std::ofstream success(output / "success-criteria.csv");
-    success << "criterion,passed,evidence\n"
-        "A_protection_and_free_recruitability,1,autonomous-trials.csv.gz\n"
-        "B_natural_functional_path_without_helper," <<
+    std::ofstream outcomes(output / "research-outcomes.csv");
+    outcomes << "assessment,criterion,passed,evidence\n"
+        "B,self_organization_natural_functional_path," <<
             (confirmed_functional_edges > 0 && confirmed_causal_edges > 0) <<
             ",causal-interventions.csv.gz\n"
-        "C_simple_128_K3_over_K0_learning_advantage," << confirmed_learning_advantage <<
-            ",control-groups.csv.gz\n"
-        "persistence_and_determinism,1,persistence.csv\n";
+        "C,learning_simple_128_K3_over_K0_advantage,"
+        << confirmed_learning_advantage << ",control-groups.csv.gz\n";
     std::ofstream decision(output / "mechanism-decision.csv");
     decision << "component,merge_recommendation,production_default,rationale\n"
         "protection_contract,yes,enabled_when_autonomy_enabled,all_safety_tests_pass\n"
@@ -714,7 +714,7 @@ int main(int argc, char** argv) {
     std::cout << "C.0 complete central_trials="
               << 4 * kTasks.size() * kSizes.size() * kSeeds
               << " controls=" << 4 * kControls.size() * kSeeds
-              << " result=A-pass_B-"
+              << " integrity=external-preflight result=B-"
               << (confirmed_functional_edges > 0 && confirmed_causal_edges > 0
                       ? "pass" : "fail")
               << "_C-" << (confirmed_learning_advantage ? "pass" : "fail")
