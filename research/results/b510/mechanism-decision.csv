@@ -1,0 +1,6 @@
+candidate,authorized,decision
+isolated_write_interceptor,1,merge diagnostic only
+new_local_learning_rule,0,not causally justified
+automatic_stability_gate,0,forbidden and not implemented
+S4_default,0,unchanged disabled production default
+K23_K24,0,criteria not established

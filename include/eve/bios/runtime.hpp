@@ -253,6 +253,12 @@ enum class PlasticityWriteOutcome : std::uint8_t {
     input_weight_budget = 3,
     negative_zero_floor = 4,
     write_suppressed = 5,
+    isolated_write_suppressed = 6,
+};
+
+enum class PlasticityMechanism : std::uint8_t {
+    eligibility_modulation = 0,
+    activity_dependent = 1,
 };
 
 struct PlasticityObservation {
@@ -279,9 +285,20 @@ struct PlasticityObservation {
     PlasticityWriteOutcome write_outcome{PlasticityWriteOutcome::changed};
     std::int64_t receiver_membrane{};
     std::uint32_t candidate_activity_count{};
+    // B.5.10 research metadata captured before the concrete write.  These
+    // values describe the requested operation even when it is isolated by a
+    // diagnostic interceptor.
+    std::int32_t proposed_weight{};
+    std::int32_t requested_delta{};
+    PlasticityMechanism mechanism{PlasticityMechanism::eligibility_modulation};
 };
 
 using PlasticityObserver = std::function<void(const PlasticityObservation&)>;
+// Returning true suppresses only the currently described write.  This hook is
+// research-only, is disabled by default, is not persisted and does not select
+// operations automatically.
+using PlasticityWriteInterceptor =
+    std::function<bool(const PlasticityObservation&)>;
 
 struct MotorCausality {
     bool technical_abort{};
@@ -374,6 +391,8 @@ public:
     void set_subthreshold_relaxation_observer(
         SubthresholdRelaxationObserver observer);
     void set_plasticity_observer(PlasticityObserver observer);
+    void set_experimental_plasticity_write_interceptor(
+        PlasticityWriteInterceptor interceptor);
     [[nodiscard]] static MotorCausality analyze_motor_causality(
         const brainstem::MotorResponse& response,
         const brainstem::MotorCircuitResult& circuit,
@@ -467,6 +486,7 @@ private:
     RecoveryObserver recovery_observer_;
     SubthresholdRelaxationObserver subthreshold_relaxation_observer_;
     PlasticityObserver plasticity_observer_;
+    PlasticityWriteInterceptor plasticity_write_interceptor_;
     brainstem::MotorOutput motor_output_;
     std::vector<NeuronId> innate_reservations_;
     std::vector<NeuronId> motor_circuit_reservations_;

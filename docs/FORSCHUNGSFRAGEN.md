@@ -148,3 +148,11 @@ L4-Beobachtungen bleiben global mehrdeutig. Zugleich werden zehn einzelne
 positive Verstärkungen als kausale Ursachen historischer Doppelverlustfälle
 eingegrenzt. Offen ist nun, ob ihre lokal verfügbare Beitragsgeschichte bereits
 am Schreibzeitpunkt von notwendigen positiven Änderungen unterscheidbar ist.
+B.5.10 beantwortet die Ereigniskausalität: 13 konkrete historische Schritte
+sind kausal, und einzelne Operationen lassen sich ohne Abkürzung des
+Modulationswegs isolieren. Prospektiv bleiben jedoch die meisten Änderungen
+zunächst neutral; notwendige Erwerbs- und Umkehrschritte teilen denselben
+Mechanismus. Extern rekonstruierte Historien sind nicht lokal und verbessern
+die Bestätigung nicht. Offen ist, ob eine vorab festgelegte Kombination
+ausschließlich vorhandener A/B-Merkmale verzögert schädliche Änderungen aktiv
+vermeidet, ohne notwendige Anpassung zu unterdrücken.

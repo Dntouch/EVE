@@ -6861,6 +6861,316 @@ void test_b59_local_plasticity_causality_case(const std::uint32_t index) {
     }
 }
 
+void test_b510_prospective_write_causality_case(const std::uint32_t index) {
+    struct Fixture {
+        eve::bios::Runtime runtime;
+        eve::SynapseId a{};
+        eve::SynapseId b{};
+        eve::SynapseId inhibitory{};
+        eve::SynapseId protected_path{};
+        eve::NeuronId receiver{};
+    };
+    const auto make_fixture = [](const std::uint64_t seed) {
+        eve::ExperimentConfig config;
+        config.neuron_count = 32;
+        config.width = 4;
+        config.height = 4;
+        config.depth = 2;
+        config.initial_outgoing_synapses = 0;
+        config.firing_threshold = 2;
+        config.maximum_synapse_weight = 6;
+        config.input_weight_budget = 32;
+        config.learning_enabled = false;
+        config.growth_enabled = false;
+        config.batch_simultaneous_inputs = true;
+        config.local_event_memory_capacity = 8;
+        config.eligibility_selection = eve::EligibilitySelection::all_recent;
+        config.eligibility_representation =
+            eve::EligibilityRepresentation::unique;
+        config.eligibility_history = eve::EligibilityHistory::retain;
+        config.eligibility_candidate_capacity = 8;
+        config.eligibility_decision_capacity = 8;
+        config.eligibility_duration = 16;
+        config.modulation_mode = eve::ModulationMode::ternary;
+        config.plasticity_trace_mode = eve::PlasticityTraceMode::g3_recent;
+        config.plasticity_maximum_weight = 6;
+        config.plasticity_positive_step = 1;
+        config.plasticity_negative_step = 1;
+        config.inhibitory_plasticity_mode =
+            eve::InhibitoryPlasticityMode::contribution_aware;
+        eve::bios::Runtime runtime(config, seed);
+        const eve::NeuronId receiver = 8;
+        const auto a = runtime.add_experimental_synapse(0, receiver, 0);
+        const auto b = runtime.add_experimental_synapse(1, receiver, 1);
+        const auto inhibitory = runtime.add_experimental_synapse(
+            2, receiver, 1, false, eve::SynapticEffect::inhibitory);
+        const auto protected_path =
+            runtime.add_experimental_synapse(3, receiver, 2, true);
+        eve::brainstem::EvaluationRouteConfig route;
+        route.mode = eve::brainstem::EvaluationRouteMode::sensory_input;
+        route.first_input_neuron = 16;
+        route.graded_channel_count = 5;
+        route.fanout_per_source = 1;
+        route.weight = 1;
+        const auto configured = runtime.configure_evaluation_route(route);
+        static_cast<void>(runtime.add_experimental_synapse(
+            configured.input_neurons.front(), receiver, 0, true));
+        return Fixture{std::move(runtime), a, b, inhibitory,
+                       protected_path, receiver};
+    };
+    const auto prepare = [](Fixture& fixture, const bool include_b = false,
+                            const bool include_inhibitory = false) {
+        std::vector<eve::SynapseId> inputs{fixture.a};
+        if (include_b) inputs.push_back(fixture.b);
+        if (include_inhibitory) inputs.push_back(fixture.inhibitory);
+        inputs.push_back(fixture.protected_path);
+        if (include_inhibitory) {
+            fixture.runtime.set_experimental_neuron_membrane(
+                fixture.receiver, 1);
+        }
+        static_cast<void>(
+            fixture.runtime.process_simultaneous_impulses(inputs));
+    };
+    const auto feedback = [](
+        Fixture& fixture, const std::int8_t polarity,
+        eve::bios::PlasticityWriteInterceptor interceptor = {}) {
+        std::vector<eve::bios::PlasticityObservation> rows;
+        fixture.runtime.set_plasticity_observer(
+            [&](const auto& row) { rows.push_back(row); });
+        fixture.runtime.set_experimental_plasticity_write_interceptor(
+            std::move(interceptor));
+        static_cast<void>(
+            fixture.runtime.process_modulatory_feedback(polarity));
+        fixture.runtime.set_experimental_plasticity_write_interceptor({});
+        fixture.runtime.set_plasticity_observer({});
+        return rows;
+    };
+
+    auto fixture = make_fixture(0x510000ULL + index);
+    if (index == 0) {
+        prepare(fixture);
+        const auto rows = feedback(fixture, 1);
+        const auto& row = rows.front();
+        require(row.event_index > 0 && row.simulated_time ==
+                    fixture.runtime.simulated_time() && row.candidate == fixture.a,
+                "B.5.10 exact write time or identity was not captured");
+    } else if (index == 1) {
+        prepare(fixture);
+        static_cast<void>(feedback(fixture, 1));
+        prepare(fixture);
+        const auto rows = feedback(fixture, 1);
+        require(fixture.runtime.network().synapse(fixture.a).weight == 2 &&
+                    rows.front().weight_before == 1,
+                "B.5.10 repeated writes of one synapse were conflated");
+    } else if (index == 2) {
+        prepare(fixture);
+        const auto rows = feedback(fixture, 1);
+        require(rows.front().candidate_effect == eve::SynapticEffect::excitatory &&
+                    rows.front().requested_delta == 1 &&
+                    rows.front().changed,
+                "B.5.10 positive excitatory write metadata is wrong");
+    } else if (index == 3) {
+        prepare(fixture, false, true);
+        const auto before = fixture.runtime.network().synapse(
+            fixture.inhibitory).weight;
+        const auto rows = feedback(fixture, -1);
+        const auto found = std::find_if(rows.begin(), rows.end(), [&](const auto& row) {
+            return row.candidate == fixture.inhibitory;
+        });
+        require(found != rows.end() && found->local_polarity == 1 &&
+                    fixture.runtime.network().synapse(
+                        fixture.inhibitory).weight > before,
+                "B.5.10 positive inhibitory write origin is wrong");
+    } else if (index == 4 || index == 5 || index == 6) {
+        prepare(fixture);
+        const auto rows = feedback(fixture, 1);
+        const auto& row = rows.front();
+        require(index == 4 ? row.modulation_synapse != row.candidate &&
+                                 row.modulation_polarity == 1
+                           : index == 5 ? row.eligibility_generation != 0
+                           : row.weight_before == 0 &&
+                                 row.proposed_weight == 1 &&
+                                 row.requested_delta == 1,
+                "B.5.10 write cause, generation or pre-state is incomplete");
+    } else if (index == 7 || index == 11 || index == 12) {
+        auto copy = fixture;
+        require_equal(fixture.runtime.state_fingerprint(),
+                      copy.runtime.state_fingerprint(),
+                      "B.5.10 causal copies are not identical");
+        require(index == 7 ||
+                    fixture.runtime.future_event_count() ==
+                        copy.runtime.future_event_count(),
+                "B.5.10 queue differed before intervention");
+    } else if (index == 8) {
+        prepare(fixture);
+        bool used = false;
+        const auto rows = feedback(fixture, 1, [&](const auto& row) {
+            if (!used && row.candidate == fixture.a) {
+                used = true;
+                return true;
+            }
+            return false;
+        });
+        require(used && fixture.runtime.network().synapse(fixture.a).weight == 0 &&
+                    rows.front().write_outcome ==
+                        eve::bios::PlasticityWriteOutcome::
+                            isolated_write_suppressed,
+                "B.5.10 did not isolate exactly one write");
+    } else if (index == 9) {
+        prepare(fixture, true);
+        static_cast<void>(feedback(fixture, 1, [&](const auto& row) {
+            return row.candidate == fixture.a;
+        }));
+        require(fixture.runtime.network().synapse(fixture.a).weight == 0 &&
+                    fixture.runtime.network().synapse(fixture.b).weight == 2,
+                "B.5.10 interceptor suppressed another write in the contact");
+    } else if (index == 10) {
+        prepare(fixture);
+        static_cast<void>(feedback(fixture, 1));
+        prepare(fixture);
+        static_cast<void>(feedback(fixture, 1));
+        require(fixture.runtime.network().synapse(fixture.a).weight == 2,
+                "B.5.10 cumulative writes were not retained");
+    } else if (index == 13) {
+        auto natural = fixture;
+        auto omitted = fixture;
+        prepare(natural);
+        prepare(omitted);
+        static_cast<void>(feedback(natural, 1));
+        static_cast<void>(feedback(omitted, 1, [&](const auto& row) {
+            return row.candidate == omitted.a;
+        }));
+        static_cast<void>(natural.runtime.process_simultaneous_impulses(
+            {natural.a, natural.b}));
+        static_cast<void>(omitted.runtime.process_simultaneous_impulses(
+            {omitted.a, omitted.b}));
+        require(natural.runtime.state_fingerprint() !=
+                    omitted.runtime.state_fingerprint(),
+                "B.5.10 natural continuations did not diverge");
+    } else if (index == 14) {
+        prepare(fixture);
+        const auto rows = feedback(fixture, 1, [](const auto&) { return true; });
+        require(rows.front().modulation_polarity == 1 &&
+                    fixture.runtime.network().eligibility_records(
+                        fixture.receiver).empty(),
+                "B.5.10 intervention replaced feedback or trace consumption");
+    } else if (index == 15 || index == 17) {
+        auto omitted = fixture;
+        prepare(fixture);
+        prepare(omitted);
+        static_cast<void>(feedback(fixture, 1));
+        static_cast<void>(feedback(omitted, 1, [&](const auto& row) {
+            return row.candidate == omitted.a;
+        }));
+        const auto natural = fixture.runtime.process_simultaneous_impulses(
+            {fixture.a, fixture.b});
+        const auto blocked = omitted.runtime.process_simultaneous_impulses(
+            {omitted.a, omitted.b});
+        require(natural.fired && !blocked.fired,
+                index == 15
+                    ? "B.5.10 isolated positive write was not causal"
+                    : "B.5.10 necessary acquisition write was not preserved");
+    } else if (index == 16) {
+        prepare(fixture, true);
+        static_cast<void>(feedback(fixture, 1, [](const auto& row) {
+            return !row.plasticity_protected;
+        }));
+        require(fixture.runtime.network().synapse(fixture.a).weight == 0 &&
+                    fixture.runtime.network().synapse(fixture.b).weight == 1,
+                "B.5.10 combined suppression left a selected write");
+    } else if (index == 18) {
+        fixture.runtime.set_experimental_synapse_weight(fixture.a, 1);
+        fixture.runtime.set_experimental_synapse_weight(fixture.b, 0);
+        auto omitted = fixture;
+        prepare(fixture, true);
+        prepare(omitted, true);
+        static_cast<void>(feedback(fixture, 1));
+        static_cast<void>(feedback(omitted, 1, [&](const auto& row) {
+            return row.candidate == omitted.b;
+        }));
+        require(fixture.runtime.network().synapse(fixture.b).weight == 1 &&
+                    omitted.runtime.network().synapse(omitted.b).weight == 0,
+                "B.5.10 necessary reversal write was not isolated");
+    } else if (index == 19 || index == 20) {
+        prepare(fixture);
+        static_cast<void>(feedback(fixture, 1));
+        const auto immediate = fixture.runtime.process_simultaneous_impulses(
+            {fixture.a});
+        if (index == 19) {
+            require(!immediate.fired,
+                    "B.5.10 neutral first write changed immediate function");
+        } else {
+            prepare(fixture);
+            static_cast<void>(feedback(fixture, 1));
+            const auto later = fixture.runtime.process_simultaneous_impulses(
+                {fixture.a});
+            require(!immediate.fired && later.fired,
+                    "B.5.10 delayed write effect was not represented");
+        }
+    } else if (index == 21) {
+        prepare(fixture);
+        const auto rows = feedback(fixture, 1);
+        require(rows.front().candidate_activity_count > 0 &&
+                    rows.front().receiver_membrane >= 0,
+                "B.5.10 locally available history was not captured");
+    } else if (index == 22) {
+        prepare(fixture);
+        const auto rows = feedback(fixture, 1);
+        require(rows.front().mechanism ==
+                    eve::bios::PlasticityMechanism::eligibility_modulation &&
+                    !fixture.runtime.config().learning_enabled,
+                "B.5.10 external result knowledge entered the write path");
+    } else if (index == 23) {
+        prepare(fixture);
+        const auto before = fixture.runtime.network().synapse(
+            fixture.protected_path).weight;
+        static_cast<void>(feedback(fixture, -1));
+        require_equal(fixture.runtime.network().synapse(
+                          fixture.protected_path).weight,
+                      before, "B.5.10 protected exploration changed");
+    } else if (index == 24) {
+        static_cast<void>(fixture.runtime.advance_time_by(12));
+        prepare(fixture);
+        const auto rows = feedback(fixture, 1);
+        require(rows.front().simulated_time == 12,
+                "B.5.10 write timing ignored simulated time");
+    } else if (index == 25 || index == 26) {
+        require(index == 25
+                    ? !fixture.runtime.config().subthreshold_relaxation_enabled
+                    : !fixture.runtime.config()
+                           .experimental_plasticity_writes_suppressed,
+                "B.5.10 production default enables research machinery");
+    } else if (index == 27) {
+        prepare(fixture);
+        const auto path = std::filesystem::temp_directory_path() /
+            "eve-stage-b510-pending-modulation.bin";
+        static_cast<void>(fixture.runtime.process_modulatory_feedback(
+            1, fixture.runtime.simulated_time() + 4));
+        fixture.runtime.save(path.string());
+        auto restored = eve::bios::Runtime::load(path.string());
+        static_cast<void>(fixture.runtime.advance_time_by(4));
+        static_cast<void>(restored.advance_time_by(4));
+        require_equal(fixture.runtime.state_fingerprint(),
+                      restored.state_fingerprint(),
+                      "B.5.10 pending modulation continuation diverged");
+        static_cast<void>(std::filesystem::remove(path));
+    } else if (index == 28) {
+        auto copy = fixture;
+        prepare(fixture);
+        prepare(copy);
+        static_cast<void>(feedback(fixture, 1));
+        static_cast<void>(feedback(copy, 1));
+        require_equal(fixture.runtime.state_fingerprint(),
+                      copy.runtime.state_fingerprint(),
+                      "B.5.10 deterministic continuation diverged");
+    } else if (index == 29) {
+        prepare(fixture, true, true);
+        static_cast<void>(feedback(fixture, -1));
+        require(fixture.runtime.network().validate(),
+                "B.5.10 intervention path invalidated the network");
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -7489,6 +7799,27 @@ int main() {
         tests.emplace_back(
             std::string("B59 ") + b59_names[index],
             [index]() { test_b59_local_plasticity_causality_case(index); });
+    }
+    const std::array<const char*, 30> b510_names{{
+        "exact write time", "multiple writes same synapse",
+        "positive excitatory write", "positive inhibitory write",
+        "modulation origin", "eligibility generation", "pre-write state",
+        "identical starting copies", "single write suppression",
+        "other contact writes retained", "cumulative writes",
+        "queue identical before intervention", "random state retained",
+        "natural divergent continuation", "natural feedback retained",
+        "single causal positive write", "combined positive writes",
+        "necessary acquisition write", "necessary reversal write",
+        "immediately neutral write", "delayed effective write",
+        "locally available history", "external knowledge excluded",
+        "protected exploration", "time conditions", "S4 default",
+        "global gate default", "pending modulation persistence",
+        "deterministic continuation", "valid neural state",
+    }};
+    for (std::uint32_t index = 0; index < b510_names.size(); ++index) {
+        tests.emplace_back(
+            std::string("B510 ") + b510_names[index],
+            [index]() { test_b510_prospective_write_causality_case(index); });
     }
 
     std::size_t failures = 0;

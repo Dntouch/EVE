@@ -172,6 +172,14 @@ und zehn einzelne kausale Verstärkungen eingegrenzt. B.5.10 soll deren lokal
 verfügbare Vorgeschichte am Schreibzeitpunkt untersuchen, ohne nachträglichen
 Rollback oder globale Erfolgsinformation vorwegzunehmen.
 
+B.5.10 isoliert eine einzelne Gewichtsoperation im normalen Modulationsweg.
+Historisch sind 13 konkrete Schritte auf zehn Verbindungen kausal; prospektiv
+sind 21/119 positive Schritte notwendig und 98/119 zunächst neutral. Elf
+neutrale Schritte werden später schädlich, drei später nützlich. Vollständige
+externe Beitrags-, Margen- und Schreibfolgen generalisieren nicht und sind kein
+lokaler Zustand. B.5.11 darf daher nur eine vorab festgelegte Hypothese aus
+direkt lokalen oder lokal berechenbaren A/B-Merkmalen aktiv kausal prüfen.
+
 ## Erfolgskriterien aus dem Konzept
 
 Ein geeigneter kontrollierter Test folgt der dort beschriebenen Abfolge:

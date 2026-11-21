@@ -1,0 +1,11 @@
+field,class,reason,production_eligible
+weight_effect_receiver,A,persistent synapse state,1
+membrane_refractory_activity_count,A,persistent local state,1
+eligibility_generation_candidates,A,bounded local record,1
+current_decision_margin,B,computable from current local integration,1
+current_excitation_inhibition,B,computable at local decision,1
+prior_contribution_count,C,research log only,0
+prior_margin_sequence,C,research log only,0
+prior_competition_sequence,C,research log only,0
+complete_own_write_history,C,research log only,0
+future_functional_effect,D,known after continuation,0

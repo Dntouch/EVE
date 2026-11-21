@@ -17,38 +17,40 @@ reproduzierbaren Versuchsreihen.
 
 **Stand:** 20. November 2026
 
-**Jüngste abgeschlossene Forschungsstufe:** B.5.9 – lokale neuronale
-Entscheidungsmarge und synaptische Konkurrenz
+**Jüngste abgeschlossene Forschungsstufe:** B.5.10 – prospektive Kausalität
+einzelner synaptischer Schreibereignisse
 
-**Nächster Forschungsschwerpunkt:** B.5.10 – lokale Änderungsgeschichte
-kausal schädlicher positiver Verstärkungen
+**Nächster Forschungsschwerpunkt:** B.5.11 – präregistrierte aktive Prüfung
+eines minimalen lokalen Schreibselektors
 
-B.5.9 verbindet tatsächliche erregende und hemmende Eingänge mit der lokalen
-Feuerentscheidung, Eligibility und späterer Gewichtsänderung. Die zusätzliche
-Information verbessert die unabhängige Prognose, bleibt aber stark
-mehrdeutig. Deshalb wird keine neue Lernregel freigegeben.
+B.5.10 isoliert eine einzelne konkrete Gewichtsoperation im normalen
+Modulationsweg. Historische Verlustverstärkungen werden auf konkrete
+Schreibschritte zurückgeführt; neue Ereignisse werden vor Kenntnis ihrer
+Folgewirkung ausgewählt und bis zu 128 Erfahrungen natürlich fortgesetzt.
+Die Kausaldiagnose ist belastbar, eine neue Lernregel jedoch nicht freigegeben.
 
-| B.5.9-Befund | Ergebnis |
+| B.5.10-Befund | Ergebnis |
 |---|---:|
 | exakt reproduzierte B.5.7-/B.5.8-Referenzen | 242/384 · 254/384 · 240/384 · 244/384 |
-| lokale Integrations-/Nichtfeuerereignisse | 27.913 / 15.625 |
-| L0-/L4-Prognose in unabhängiger Bestätigung | 49,49 % / 53,51 % |
-| bei L4 weiterhin mehrdeutige Beobachtungen | 90,50 % |
-| einzeln kausale positive Verlustverstärkungen | 10/52 |
-| historische Fälle durch kombinierte Rücknahme wiederhergestellt | 12/12 |
-| Stabilität aktiv/Schreiben unterdrückt | 62/96 · 90/96 robuste Fälle |
-| Umkehr aktiv/unterdrückt/reaktiviert | 60/96 · 0/96 · 61/96 |
+| neue Discovery-/Bestätigungspopulation | 384 / 384 Netze |
+| prospektive Einzelereignisse | 119 |
+| erregende / inhibitorische Ereignisse | 77 / 42 |
+| unmittelbar notwendig / zunächst neutral | 21 / 98 |
+| später nützlich / später schädlich / weiter neutral | 3 / 11 / 84 |
+| historische Problemverbindungen / konkrete Schritte | 10 / 13 |
+| kombinierte historische Erhaltung | 12/12 |
+| Regressionstests | 726/726 |
 
-Die lokale Entscheidungsmarge erklärt Feuerung und Nichtfeuern exakt, aber
-nicht den globalen Nutzen. In den zwölf historischen Fällen ist positive
-Konkurrenz nun bis auf zehn einzelne kausale Verstärkungen eingegrenzt. Der
-diagnostische Rollback ist keine neuronale Regel. Schreib-Gate und S4 bleiben
-standardmäßig deaktiviert.
+Das Auslassen genau einer Operation erhält Eligibility-Verbrauch und weitere
+Schreibungen desselben Kontakts. 21 notwendige Erwerbs- und Umkehrschritte
+zeigen zugleich, warum eine pauschale Stabilisierung Lernen beschädigen würde.
+Extern rekonstruierte Historien sind kein lokaler Zustand und generalisieren
+schlechter. Schreib-Gate und S4 bleiben standardmäßig deaktiviert.
 
-- [Forschungsbericht B.5.9](docs/experimente/033-forschungsbericht-forschungsstufe-b59.md)
-- [Technische Kausalanalyse B.5.9](docs/experimente/033-technische-kausalanalyse-lokale-entscheidungsspielraeume.md)
-- [Architekturentscheidung 0031](docs/entscheidungen/0031-b59-lokale-integration-verbessert-diagnose-nicht-regelfreigabe.md)
-- [Entscheidungsvorlage B.5.10](docs/experimente/033-entscheidungsvorlage-forschungsstufe-b510.md)
+- [Forschungsbericht B.5.10](docs/experimente/034-forschungsbericht-forschungsstufe-b510.md)
+- [Technische Kausalanalyse B.5.10](docs/experimente/034-technische-kausalanalyse-einzelne-schreibereignisse.md)
+- [Architekturentscheidung 0032](docs/entscheidungen/0032-b510-einzelne-schreibkausalitaet-ohne-regelfreigabe.md)
+- [Entscheidungsvorlage B.5.11](docs/experimente/034-entscheidungsvorlage-forschungsstufe-b511.md)
 
 EVE ist weder eine fertige allgemeine Intelligenz noch ein Nachweis von
 Bewusstsein oder bereits entstandener eigenständiger Intelligenz. Der Prototyp
@@ -69,7 +71,7 @@ prüfen und auch negative Ergebnisse nachvollziehbar festzuhalten.
 - konfigurierbare Aktivitätsregulation und strukturelles Wachstum,
 - versionierte Speicherung und Wiederherstellung vollständiger Zustände,
 - Diagnostik, Ereignisprotokolle und Zustandsfingerabdrücke,
-- 696 automatisierte Kerntests und reproduzierbare Forschungsrunner.
+- 726 automatisierte Kerntests und reproduzierbare Forschungsrunner.
 
 Die Forschungsvarianten aktivieren bewusst nur ausgewählte Mechanismen. Lernen,
 inhibitorische Plastizität, Wachstum und S4 sind keine pauschal eingeschalteten
@@ -109,7 +111,8 @@ nicht der dauerhaft robuste Erhalt mehrerer konkurrierender Beziehungen.
 | B.5.7 | kausale sensorische Kreditzuordnung | zeitlich korrekt, kausal mehrdeutig |
 | B.5.8 | Lernen, Nichtlernen und kausale Stabilität | Fähigkeitserhalt braucht keine Dauerplastizität; Umlernen schon |
 | B.5.9 | lokale Entscheidungsmarge und positive Konkurrenz | Diagnose verbessert; zehn kausale Verlustverstärkungen; keine neue Regel |
-| B.5.10 | lokale Änderungsgeschichte | als nächste Kausalforschung empfohlen |
+| B.5.10 | einzelne Schreibkausalität und lokale Vorgeschichte | 13 historische Schritte kausal; 119 neue Ereignisse; keine neue Regel |
+| B.5.11 | minimaler lokaler Schreibselektor | als präregistrierte aktive Kausalprüfung empfohlen |
 
 Alle Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen im
 [Experimentverzeichnis](docs/experimente/README.md). Maschinenlesbare
@@ -152,14 +155,15 @@ ctest --test-dir _build/cmake --output-on-failure
 
 ## Jüngste Forschung reproduzieren
 
-Der B.5.9-Runner baut die benötigten Programme, führt die Kerntests aus und
+Der B.5.10-Runner baut die benötigten Programme, führt die Kerntests aus und
 erzeugt die vollständige Versuchsmatrix neu:
 
 ```sh
-./scripts/run-research-stage-b59.sh research/results/b59
+./scripts/run-research-stage-b510.sh research/results/b510
 ```
 
-Der Lauf verarbeitet 4.224 zentrale Netze sowie die kausalen Zustandskopien. Große
+Der Lauf verarbeitet die Referenz-, neuen Seed- und Zeitpopulationen sowie
+die kausalen Zustandskopien. Große
 Ereignistabellen werden deterministisch als gzip-Dateien gespeichert. Laufzeit
 und Speicherwerte sind maschinenabhängig; Ereignisfolgen, neuronale Zustände
 und Fingerabdrücke sind bei identischem Build, Seed und Eingabestrom

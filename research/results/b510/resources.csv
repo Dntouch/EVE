@@ -1,0 +1,14 @@
+metric,value
+wall_seconds,35.0849
+cpu_seconds,34.9557
+peak_rss_kib,20672
+runtime_bytes,2384
+plasticity_observation_bytes,144
+additional_persistent_bytes_per_neuron,0
+additional_persistent_bytes_per_synapse,0
+isolated_interventions,132
+combined_interventions,66
+diagnostic_runtime_copies,501
+persistence_version,15
+raw_result_bytes,24532695
+compressed_result_bytes,1462728

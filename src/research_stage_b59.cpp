@@ -860,6 +860,7 @@ void b59_persistence(
 
 }  // namespace
 
+#ifndef EVE_RESEARCH_STAGE_B59_EMBEDDED
 int main(int argc, char** argv) {
     const auto output = argc > 1
         ? std::filesystem::path(argv[1])
@@ -1100,3 +1101,4 @@ int main(int argc, char** argv) {
               << " wall=" << wall << "s\n";
     return 0;
 }
+#endif

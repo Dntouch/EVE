@@ -1,0 +1,10 @@
+criterion,passed,evidence
+exact_reference_reproduction,1,reference-reproduction.csv
+exact_write_identity,1,prospective-write-events.csv.gz
+isolated_W1_and_identical_W2,1,write-interventions.csv
+natural_followups_1_to_128,1,natural-followups.csv.gz
+historical_event_causality,1,historical-write-events.csv
+necessary_acquisition_and_reversal,1,prospective phases
+availability_A_to_D,1,information-availability.csv
+independent_confirmation,1,seeds 80001..80064
+new_rule_not_released,1,mechanism-decision.csv
