@@ -112,7 +112,7 @@ nicht der dauerhaft robuste Erhalt mehrerer konkurrierender Beziehungen.
 | B.5.10 | einzelne Schreibkausalität und lokale Vorgeschichte | 13 historische Schritte kausal; 119 neue Ereignisse; keine neue Regel |
 | B.5.11 | gemeinsame Repräsentation und Bewertungsvalidität | strenge Zeitwertung zeigt Interferenz, negativen Transfer und produktive Einzelfälle |
 | B.5.12 | Teillernen, Verfestigung und Lernstadien | einfache latente Vorstrukturierung bestätigt; komplexe Übertragung und zuverlässige Beherrschung nicht bestätigt |
-| B.5.13 | vollständige neuronale Rekrutierbarkeit, Growth und interne Exploration | technisch bestätigt; natürlicher Lernvorteil und Growth-Schutz noch offen |
+| B.5.13 | vollständige neuronale Rekrutierbarkeit, Growth und interne Exploration | technisch bestätigt; schutzbereinigter Lernvorteil nicht bestätigt, Growth-Schutz offen |
 | Forschungsphase C | geschützte autonome Strukturbildung | als nächster, noch nicht nummerierter Forschungsschwerpunkt vorbereitet |
 
 Alle Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen im

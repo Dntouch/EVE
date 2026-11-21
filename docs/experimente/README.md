@@ -217,8 +217,9 @@ Erfahrung verbessert den späteren Abruf gegenüber Pause, doch erster Erfolg
 und zuverlässige Beherrschung bleiben klar getrennt. Wiedererwerb ist in der
 ausgewählten Verlustpopulation im Mittel langsamer als naiver Erwerb. Eine
 neue Regel wird nicht freigegeben. Die zeitliche Kreditfrage bleibt offen und
-unnummeriert. B.5.13 ist stattdessen als Untersuchung vollständiger neuronaler
-Rekrutierbarkeit, Growth und interner Exploration festgelegt.
+unnummeriert. B.5.13 wurde stattdessen als Untersuchung vollständiger
+neuronaler Rekrutierbarkeit, Growth und interner Exploration festgelegt und ist
+inzwischen abgeschlossen.
 
 B.5.13 weist die technische Rekrutierbarkeit aller nicht geschützten Neuronen
 und 768 kausal funktionale neue Growth-Pfade nach. Auf den historischen

@@ -176,8 +176,25 @@ Kriterium zuverlässiger Beherrschung erreicht. Weitere passende Erfahrung
 verbessert den Abruf, bloße Pause nicht; Wiedererwerb ist im Mittel langsamer
 als naiver Ersterwerb. Offen bleibt damit die ursprünglich verschobene Frage,
 welche lokalen Zustände den Präfix P zeitlich korrekt an Q oder R binden und
-vorzeitige Ausgabe verhindern. Diese Frage bleibt offen, erhält aber keine
-automatische Stufennummer. B.5.13 untersucht stattdessen vollständige neuronale
-Rekrutierbarkeit, Growth und interne Exploration: Entscheidend ist, ob
-vorhandene und neu entstehende Struktur ohne semantische Zielvorgabe lokal
-erreichbar, auswählbar und funktional nutzbar wird.
+vorzeitige Ausgabe verhindern. Diese Frage bleibt offen und erhält keine
+automatische Stufennummer.
+
+B.5.13 beantwortet die stattdessen priorisierte Rekrutierungsfrage: Jedes
+nicht geschützte lernfähige Neuron ist intern explorierbar. Growth kann von
+einem zuvor unverbundenen Neuron ausgehen, eine Nullgewicht-Verbindung bilden
+und diese über vorhandene Eligibility und Drei-Faktor-Plastizität bis zur
+kausalen Wiederverwendung entwickeln. Damit ist Frage 6 nach der Entstehung
+neuer neuronaler Verarbeitungsmechanismen technisch teilweise beantwortet.
+
+Nicht gelöst ist die sichere autonome Nutzung. Growth kennt die
+Schutzreservierungen nicht und traf in 221 von 3.840 allgemeinen
+Rekrutierungsversuchen geschützte Ziele. In den historischen Aufgaben treten
+Größeneffekte ausschließlich zusammen mit Growth-Eingriffen in geschützte
+Schaltungsteile auf; alle schutzbereinigten Teilpopulationen zeigen Effekt
+null. Das betrifft insbesondere Frage 7 zur Stabilität der Selbstveränderung
+und Frage 11 zur funktionalen Effizienz zusätzlicher Kapazität.
+
+Die nächste, noch nicht nummerierte Forschungsphase C untersucht deshalb einen
+lokalen Growth-Schutzvertrag und geschützte autonome Strukturbildung unter
+natürlicher Konsequenz. Ein dauerhafter Produktionsbetrieb von Growth oder
+interner Exploration ist bis zu diesem Nachweis nicht freigegeben.
