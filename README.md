@@ -75,7 +75,28 @@ Die Forschungsvarianten aktivieren bewusst nur ausgewählte Mechanismen. Lernen,
 inhibitorische Plastizität, Wachstum und S4 sind keine pauschal eingeschalteten
 Produktionsfunktionen.
 
-## Nachgewiesener Meilenstein
+## Nachgewiesene Meilensteine
+
+### 002 – Erste funktionale neuronale Rekrutierung
+
+Am 21. November 2026 band EVE in Forschungsstufe B.5.13 erstmals nachweislich
+ein zuvor unverbundenes Neuron über interne Exploration, Growth und vorhandene
+lokale Plastizität in einen funktionalen Verarbeitungspfad ein.
+
+- 3.840/3.840 technische Rekrutierungsversuche erzeugten neue Struktur.
+- 768/768 kontrollierte Pfade wurden bis zur kausalen Zielaktivierung
+  entwickelt.
+- Die gezielte Ablation der neuen Verbindung entfernte den Effekt in 768/768
+  Fällen.
+- Persistenz und deterministische Fortsetzung blieben erhalten.
+
+Der Nachweis bestätigt die technische Rekrutierbarkeit, noch nicht die autonome
+Auswahl nützlicher neuer Struktur. Growth-Schutz und natürlicher funktionaler
+Nutzen bleiben Gegenstand der Forschungsphase C.
+
+[Meilenstein 002 vollständig lesen](docs/meilensteine/002-erste-funktionale-neuronale-rekrutierung.md)
+
+### 001 – Erste erlernte Fähigkeit
 
 Am 18. November 2026 lernte EVE in Forschungsstufe B.4.2 erstmals nachweislich
 eine Fähigkeit durch eigene Erfahrung: Bei einem wiederholten sensorischen Reiz
