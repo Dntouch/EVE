@@ -91,6 +91,11 @@ angepasst werden.
 - [Methodische Neubewertung B.5.3–B.5.10](035-methodische-neubewertung-b53-b510.md)
 - [Bericht B.5.11](035-forschungsbericht-forschungsstufe-b511.md)
 - [Entscheidungsvorlage B.5.12](035-entscheidungsvorlage-forschungsstufe-b512.md)
+- [Auftrag B.5.12](036-entwicklungsauftrag-forschungsstufe-b512.md)
+- [Technische Kausalanalyse B.5.12](036-technische-kausalanalyse-lernentwicklung.md)
+- [Methodische Bewertung B.5.12](036-methodische-bewertung-lernkriterien.md)
+- [Bericht B.5.12](036-forschungsbericht-forschungsstufe-b512.md)
+- [Entscheidungsvorlage B.5.13](036-entscheidungsvorlage-forschungsstufe-b513.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
@@ -199,6 +204,14 @@ A/B-Folgen deutlich hinter unabhängigen Pfaden. Von 60 detaillierten
 B-Schreibinterventionen sind zehn langfristig produktiv, zwölf schädlich und
 38 unentschieden. Nur 27 von 58 unmittelbaren A-Beeinträchtigungen werden durch
 W1 verhindert; die übrigen 31 sind mit der ausgewählten Änderung koinzident.
-Aktivitätsüberlappung allein belegt
-keine gemeinsame Repräsentation. B.5.12 soll vorzeitige Ausgabe und lokale
-zeitliche Kreditbindung innerhalb geteilter Folgen isolieren.
+Aktivitätsüberlappung allein belegt keine gemeinsame Repräsentation. Die lokale
+zeitliche Kreditbindung innerhalb geteilter Folgen blieb damit offen.
+B.5.12 trennt erstmals vollständige Lernstadien. Eine einfache Referenz weist
+aufgabenspezifische Vorstrukturierung vor der ersten autonomen Antwort nach;
+die zeitliche A-Aufgabe bestätigt diesen Vorteil nicht. Weitere passende
+Erfahrung verbessert den späteren Abruf gegenüber Pause, doch erster Erfolg
+und zuverlässige Beherrschung bleiben klar getrennt. Wiedererwerb ist in der
+ausgewählten Verlustpopulation im Mittel langsamer als naiver Erwerb. Eine
+neue Regel wird nicht freigegeben. Die zeitliche Kreditfrage bleibt offen und
+unnummeriert. B.5.13 ist stattdessen als Untersuchung vollständiger neuronaler
+Rekrutierbarkeit, Growth und interner Exploration festgelegt.

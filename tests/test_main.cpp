@@ -7518,6 +7518,312 @@ void test_b511_representation_and_interference_case(const std::uint32_t index) {
     }
 }
 
+void test_b512_learning_development_case(const std::uint32_t index) {
+    struct Fixture {
+        eve::bios::Runtime runtime;
+        eve::NeuronId cue_a{};
+        eve::NeuronId cue_control{};
+        eve::NeuronId decision{};
+        eve::NeuronId motor{};
+        eve::NeuronId explorer{};
+        eve::SynapseId path_a{};
+        eve::SynapseId path_control{};
+        eve::SynapseId exploration_path{};
+    };
+    struct Experience {
+        bool autonomous{};
+        bool explored{};
+        bool observed_motor{};
+        std::int8_t modulation{};
+    };
+    const auto make_fixture = [](const eve::RecoveryMode recovery =
+                                     eve::RecoveryMode::input_dependent,
+                                 const bool s4 = false) {
+        eve::ExperimentConfig config;
+        config.neuron_count = 16;
+        config.width = 4;
+        config.height = 2;
+        config.depth = 2;
+        config.initial_outgoing_synapses = 0;
+        config.firing_threshold = 2;
+        config.maximum_synapse_weight = 3;
+        config.input_weight_budget = 8;
+        config.learning_enabled = false;
+        config.growth_enabled = false;
+        config.reset_mode = eve::ResetMode::to_zero;
+        config.refractory_input_events = recovery ==
+            eve::RecoveryMode::input_dependent ? 0 : 1;
+        config.recovery_mode = recovery;
+        config.recovery_delay = 16;
+        config.membrane_relaxation_percent = recovery ==
+            eve::RecoveryMode::independent_with_membrane_relaxation ? 50 : 0;
+        config.local_event_memory_capacity = 8;
+        config.eligibility_selection = eve::EligibilitySelection::active_phase;
+        config.eligibility_candidate_capacity = 8;
+        config.eligibility_decision_capacity = 8;
+        config.eligibility_duration = 16;
+        config.plasticity_trace_mode = eve::PlasticityTraceMode::g3_recent;
+        config.modulation_mode = eve::ModulationMode::ternary;
+        config.subthreshold_relaxation_enabled = s4;
+        config.subthreshold_relaxation_delay = s4 ? 16 : 0;
+        eve::bios::Runtime runtime(config, 0x5128000ULL +
+            static_cast<std::uint64_t>(s4));
+        Fixture result{std::move(runtime), 0, 1, 2, 3, 4};
+        result.path_a = result.runtime.add_experimental_synapse(
+            result.cue_a, result.decision, 0);
+        result.path_control = result.runtime.add_experimental_synapse(
+            result.cue_control, result.decision, 0);
+        static_cast<void>(result.runtime.add_experimental_synapse(
+            result.decision, result.motor, 2, true));
+        result.exploration_path = result.runtime.add_experimental_synapse(
+            result.explorer, result.decision, 2, true);
+        eve::brainstem::EvaluationRouteConfig route;
+        route.mode = eve::brainstem::EvaluationRouteMode::sensory_input;
+        route.first_input_neuron = 10;
+        route.graded_channel_count = 5;
+        route.fanout_per_source = 1;
+        route.weight = 1;
+        const auto configured = result.runtime.configure_evaluation_route(route);
+        for (const auto source : configured.input_neurons) {
+            static_cast<void>(result.runtime.add_experimental_synapse(
+                source, result.decision, 0, true));
+            static_cast<void>(result.runtime.add_experimental_synapse(
+                source, result.motor, 0, true));
+        }
+        return result;
+    };
+    const auto probe = [](const Fixture& source, const eve::NeuronId cue) {
+        auto runtime = source.runtime;
+        bool motor = false;
+        runtime.set_fire_observer(
+            [&](const eve::bios::FireObservation& event) {
+                motor = motor || event.neuron == source.motor;
+            });
+        runtime.enqueue_fire(cue);
+        static_cast<void>(runtime.run());
+        return motor;
+    };
+    const auto experience = [](Fixture& value, const eve::NeuronId cue,
+                               const bool allow_exploration = true) {
+        Experience result;
+        std::uint8_t phase = 0;
+        value.runtime.set_fire_observer(
+            [&](const eve::bios::FireObservation& event) {
+                if (event.neuron != value.motor) return;
+                result.observed_motor = true;
+                result.autonomous = result.autonomous || phase == 0;
+                result.explored = result.explored || phase == 1;
+            });
+        value.runtime.enqueue_fire(cue);
+        static_cast<void>(value.runtime.run());
+        if (!result.autonomous && allow_exploration) {
+            phase = 1;
+            value.runtime.enqueue_fire(value.explorer);
+            static_cast<void>(value.runtime.run());
+        }
+        result.modulation = static_cast<std::int8_t>(
+            result.observed_motor ? 1 : -1);
+        static_cast<void>(value.runtime.process_modulatory_feedback(
+            result.modulation));
+        value.runtime.set_fire_observer({});
+        static_cast<void>(value.runtime.advance_time_by(16));
+        return result;
+    };
+
+    auto fixture = make_fixture();
+    if (index == 0) {
+        const std::array<std::uint32_t, 11> checkpoints{{
+            0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512}};
+        require(checkpoints.front() == 0 && checkpoints.back() == 512 &&
+                    std::is_sorted(checkpoints.begin(), checkpoints.end()),
+                "B.5.12 learning checkpoints are incomplete");
+    } else if (index == 1) {
+        const auto row = experience(fixture, fixture.cue_a);
+        require(!row.autonomous && row.explored && row.observed_motor &&
+                    fixture.runtime.network().synapse(fixture.path_a).weight == 1,
+                "B.5.12 did not retain learning before autonomous success");
+    } else if (index == 2) {
+        static_cast<void>(experience(fixture, fixture.cue_a));
+        require(!probe(fixture, fixture.cue_a),
+                "B.5.12 equated a changed weight with demonstrated learning");
+    } else if (index == 3) {
+        auto pretrained = fixture;
+        auto naive = fixture;
+        static_cast<void>(experience(pretrained, pretrained.cue_a));
+        static_cast<void>(experience(pretrained, pretrained.cue_a));
+        static_cast<void>(experience(naive, naive.cue_a));
+        require(probe(pretrained, pretrained.cue_a) &&
+                    !probe(naive, naive.cue_a),
+                "B.5.12 early experience supplied no functional advantage");
+    } else if (index == 4) {
+        require(!probe(fixture, fixture.cue_a) &&
+                    fixture.runtime.network().synapse(fixture.path_a).weight == 0,
+                "B.5.12 unexperienced control was not naive");
+    } else if (index == 5) {
+        static_cast<void>(experience(fixture, fixture.cue_control));
+        require(fixture.runtime.network().synapse(fixture.path_control).weight == 1 &&
+                    fixture.runtime.network().synapse(fixture.path_a).weight == 0,
+                "B.5.12 independent experience leaked into A");
+    } else if (index == 6) {
+        const auto before = fixture.runtime.state_fingerprint();
+        static_cast<void>(fixture.runtime.advance_time_by(32));
+        require(fixture.runtime.network().synapse(fixture.path_a).weight == 0 &&
+                    fixture.runtime.state_fingerprint() != before,
+                "B.5.12 time control did not separate time from learning");
+    } else if (index == 7) {
+        auto left = fixture;
+        auto right = fixture;
+        static_cast<void>(experience(left, left.cue_a));
+        static_cast<void>(experience(right, right.cue_a));
+        require_equal(left.runtime.state_fingerprint(),
+                      right.runtime.state_fingerprint(),
+                      "B.5.12 equal continuation plans diverged");
+    } else if (index == 8) {
+        static_cast<void>(experience(fixture, fixture.cue_a));
+        static_cast<void>(experience(fixture, fixture.cue_a));
+        const auto first = experience(fixture, fixture.cue_a);
+        require(first.autonomous,
+                "B.5.12 first autonomous success was not detected");
+    } else if (index == 9) {
+        fixture.runtime.set_experimental_synapse_weight(fixture.path_a, 2);
+        std::uint32_t successes = 0;
+        for (std::uint32_t i = 0; i < 4; ++i)
+            successes += experience(fixture, fixture.cue_a).autonomous;
+        require_equal(successes, std::uint32_t{4},
+                      "B.5.12 repeated success was not separated");
+    } else if (index == 10) {
+        fixture.runtime.set_experimental_synapse_weight(fixture.path_a, 2);
+        auto delayed = fixture;
+        static_cast<void>(delayed.runtime.advance_time_by(64));
+        require(probe(fixture, fixture.cue_a) &&
+                    probe(delayed, delayed.cue_a),
+                "B.5.12 reliable skill failed valid contexts");
+    } else if (index == 11) {
+        static_cast<void>(experience(fixture, fixture.cue_a));
+        static_cast<void>(experience(fixture, fixture.cue_a));
+        const auto before = fixture.runtime.network().synapse(
+            fixture.path_a).weight;
+        static_cast<void>(experience(fixture, fixture.cue_a));
+        require(probe(fixture, fixture.cue_a) &&
+                    fixture.runtime.network().synapse(fixture.path_a).weight >= before,
+                "B.5.12 further A experience did not consolidate recall");
+    } else if (index == 12) {
+        fixture.runtime.set_experimental_synapse_weight(fixture.path_a, 2);
+        const auto before = fixture.runtime.network().synapse(
+            fixture.path_a).weight;
+        static_cast<void>(fixture.runtime.advance_time_by(128));
+        require_equal(fixture.runtime.network().synapse(fixture.path_a).weight,
+                      before, "B.5.12 pause invented synaptic learning");
+    } else if (index == 13) {
+        fixture.runtime.set_experimental_synapse_weight(fixture.path_a, 2);
+        const auto before = fixture.runtime.network().synapse(
+            fixture.path_a).weight;
+        static_cast<void>(experience(fixture, fixture.cue_a));
+        require(fixture.runtime.network().synapse(fixture.path_a).weight != before ||
+                    probe(fixture, fixture.cue_a),
+                "B.5.12 further reorganization was not observable");
+    } else if (index == 14) {
+        fixture.runtime.set_experimental_synapse_weight(fixture.path_a, 2);
+        require(probe(fixture, fixture.cue_a),
+                "B.5.12 impairment fixture never acquired A");
+        fixture.runtime.set_experimental_synapse_weight(fixture.path_a, 0);
+        require(!probe(fixture, fixture.cue_a),
+                "B.5.12 temporary impairment remained callable");
+    } else if (index == 15) {
+        auto retained = fixture;
+        auto naive = fixture;
+        retained.runtime.set_experimental_synapse_weight(retained.path_a, 1);
+        static_cast<void>(experience(retained, retained.cue_a));
+        static_cast<void>(experience(naive, naive.cue_a));
+        require(probe(retained, retained.cue_a) &&
+                    !probe(naive, naive.cue_a),
+                "B.5.12 retained preparation did not ease reacquisition");
+    } else if (index == 16 || index == 17) {
+        fixture.runtime.set_experimental_synapse_weight(fixture.path_a, 2);
+        static_cast<void>(experience(fixture, fixture.cue_control));
+        static_cast<void>(experience(fixture, fixture.cue_a));
+        require(probe(fixture, fixture.cue_a) &&
+                    fixture.runtime.network().validate(),
+                index == 16 ? "B.5.12 A-B-A sequence invalid"
+                            : "B.5.12 mixed A-B sequence invalid");
+    } else if (index == 18) {
+        fixture.runtime.set_experimental_synapse_weight(
+            fixture.exploration_path, 0);
+        const auto row = experience(fixture, fixture.cue_a);
+        require(!row.observed_motor && row.modulation < 0,
+                "B.5.12 rewarded planned but unexecuted exploration");
+    } else if (index == 19) {
+        const auto before = fixture.runtime.state_fingerprint();
+        static_cast<void>(probe(fixture, fixture.cue_a));
+        require_equal(fixture.runtime.state_fingerprint(), before,
+                      "B.5.12 diagnostic probe changed training original");
+    } else if (index == 20) {
+        auto w0 = fixture;
+        auto w1 = fixture;
+        auto w2 = fixture;
+        w1.runtime.set_experimental_plasticity_write_interceptor(
+            [candidate = w1.path_a](
+                const eve::bios::PlasticityObservation& write) {
+                return write.candidate == candidate;
+            });
+        static_cast<void>(experience(w0, w0.cue_a));
+        static_cast<void>(experience(w1, w1.cue_a));
+        w1.runtime.set_experimental_plasticity_write_interceptor({});
+        static_cast<void>(experience(w2, w2.cue_a));
+        require_equal(w0.runtime.state_fingerprint(), w2.runtime.state_fingerprint(),
+                      "B.5.12 W2 did not reproduce W0");
+        require(w1.runtime.metrics().plasticity_suppressed_writes == 1 &&
+                    w1.runtime.network().synapse(w1.path_a).weight == 0 &&
+                    w0.runtime.network().synapse(w0.path_a).weight == 1,
+                "B.5.12 W1 did not isolate the selected write");
+    } else if (index == 21) {
+        const auto r0 = make_fixture(eve::RecoveryMode::input_dependent, false);
+        const auto r2 = make_fixture(
+            eve::RecoveryMode::independent_with_membrane_relaxation, false);
+        const auto s4 = make_fixture(
+            eve::RecoveryMode::independent_with_membrane_relaxation, true);
+        require(r0.runtime.config().recovery_mode != r2.runtime.config().recovery_mode &&
+                    !r2.runtime.config().subthreshold_relaxation_enabled &&
+                    s4.runtime.config().subthreshold_relaxation_enabled,
+                "B.5.12 R0/R2/S4 controls collapsed");
+    } else if (index == 22) {
+        const auto before = fixture.runtime.network().synapse(
+            fixture.exploration_path).weight;
+        static_cast<void>(experience(fixture, fixture.cue_a));
+        require_equal(fixture.runtime.network().synapse(
+                          fixture.exploration_path).weight,
+                      before, "B.5.12 protected exploration changed");
+    } else if (index == 23) {
+        auto pending = make_fixture(
+            eve::RecoveryMode::independent_with_membrane_relaxation, true);
+        pending.runtime.set_experimental_synapse_weight(pending.path_a, 1);
+        pending.runtime.enqueue_fire(pending.cue_a);
+        static_cast<void>(pending.runtime.run());
+        require(pending.runtime.future_event_count() > 0,
+                "B.5.12 persistence state has no pending event");
+        const auto path = std::filesystem::temp_directory_path() /
+            "eve-stage-b512-pending.bin";
+        pending.runtime.save(path.string());
+        auto restored = eve::bios::Runtime::load(path.string());
+        static_cast<void>(pending.runtime.advance_time_by(32));
+        static_cast<void>(restored.advance_time_by(32));
+        require_equal(pending.runtime.state_fingerprint(),
+                      restored.state_fingerprint(),
+                      "B.5.12 persistence continuation diverged");
+        static_cast<void>(std::filesystem::remove(path));
+    } else if (index == 24) {
+        auto copy = fixture;
+        static_cast<void>(experience(fixture, fixture.cue_a));
+        static_cast<void>(experience(copy, copy.cue_a));
+        require_equal(fixture.runtime.state_fingerprint(),
+                      copy.runtime.state_fingerprint(),
+                      "B.5.12 deterministic continuation diverged");
+        require(fixture.runtime.network().validate() &&
+                    copy.runtime.network().validate(),
+                "B.5.12 produced invalid neural states");
+    }
+}
+
 }  // namespace
 
 int main() {
@@ -8188,6 +8494,26 @@ int main() {
         tests.emplace_back(
             std::string("B511 ") + b511_names[index],
             [index]() { test_b511_representation_and_interference_case(index); });
+    }
+    const std::array<const char*, 25> b512_names{{
+        "complete learning checkpoints", "learning before first response",
+        "weight change without demonstrated learning",
+        "functional early-experience advantage", "unexperienced control",
+        "independent experience control", "time control",
+        "equal continuation plan", "first autonomous success",
+        "repeated successful recall", "reliable contextual skill",
+        "experience-dependent consolidation", "pause without learning",
+        "continued synaptic reorganization", "temporary recall impairment",
+        "facilitated reacquisition", "A then B then A",
+        "A then B then mixed", "executed exploration only",
+        "diagnostic training isolation", "W0 W1 W2 reproducibility",
+        "R0 R2 S4 controls", "protected exploration",
+        "pending-event persistence", "deterministic valid continuation",
+    }};
+    for (std::uint32_t index = 0; index < b512_names.size(); ++index) {
+        tests.emplace_back(
+            std::string("B512 ") + b512_names[index],
+            [index]() { test_b512_learning_development_case(index); });
     }
 
     std::size_t failures = 0;

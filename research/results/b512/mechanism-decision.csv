@@ -1,0 +1,7 @@
+candidate,authorized,decision
+new_learning_rule,0,not part of B512
+semantic_task_state,0,forbidden
+automatic_weight_protection,0,forbidden
+rollback,0,forbidden
+extended_observation,1,research only
+S4_default,0,experimental and disabled

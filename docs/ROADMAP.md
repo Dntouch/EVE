@@ -185,10 +185,21 @@ Pfaden; vorzeitige Ausgaben sind Teil des Fehlers. Von 60 isolierten
 Schreibereignissen sind zehn später produktiv, zwölf schädlich und 38
 unentschieden. W1 verhindert nur 27 von 58 unmittelbaren
 A-Beeinträchtigungen; 31 fallen mit der ausgewählten Änderung zusammen. R2,
-S4 und bloß zusätzliche unverdrahtete Kapazität
-lösen die Integration nicht stabil. B.5.12 soll deshalb vorzeitige Ausgabe und
-lokale zeitliche Kreditbindung innerhalb geteilter Folgen kausal isolieren,
-ohne Aufgabenlabels, globalen Phasenschalter oder neue Regel vorwegzunehmen.
+S4 und bloß zusätzliche unverdrahtete Kapazität lösen die Integration nicht
+stabil. Die lokale zeitliche Kreditbindung innerhalb geteilter Folgen bleibt
+damit eine offene Forschungsfrage, ohne bereits einer bestimmten Folgestufe
+zugeordnet zu sein.
+
+B.5.12 prüft zuerst, was im bisherigen System überhaupt als Lernen gilt. Eine
+einfache Referenz weist funktionale aufgabenspezifische Vorstrukturierung vor
+dem ersten autonomen Erfolg nach. In der zeitlichen Aufgabe entsteht derselbe
+Vorteil nicht. Weitere passende Erfahrung verbessert den Abruf gegenüber Pause,
+aber alle R0-Netze bleiben unter dem Kriterium zuverlässiger Beherrschung.
+Wiedererwerb nach A→B gelingt vollständig, ist im Mittel jedoch langsamer als
+naiver Erwerb. B.5.13 untersucht als neu festgelegte nächste Stufe vollständige
+neuronale Rekrutierbarkeit, Growth und interne Exploration. Zusätzliche
+Kapazität zählt dabei nur, wenn sie ohne semantische Zielvorgabe tatsächlich
+lokal rekrutiert und funktional wirksam wird.
 
 ## Erfolgskriterien aus dem Konzept
 
