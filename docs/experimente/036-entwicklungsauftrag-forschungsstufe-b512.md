@@ -58,7 +58,10 @@ Verbindlich sind:
 
 B.5.12 muss vom anschließend integrierten `main` ausgehen.
 
-Die bisher für B.5.12 vorgesehene Untersuchung zeitlicher Kreditbindung wird zunächst auf **B.5.13** verschoben.
+Zum Zeitpunkt dieses Auftrags wurde die für B.5.12 vorgesehene Untersuchung
+zeitlicher Kreditbindung zunächst auf **B.5.13** verschoben. Diese Zuordnung ist
+inzwischen überholt: Die Frage bleibt offen und unnummeriert; B.5.13 untersucht
+vollständige neuronale Rekrutierbarkeit, Growth und interne Exploration.
 
 ---
 

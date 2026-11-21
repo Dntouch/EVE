@@ -85,5 +85,8 @@ Zeitmechanismen, aber keinen Nutzen für diese Erwerbsdefinition. S4 bleibt aus.
   erforderlich.
 - Negative Ergebnisse werden nicht durch neue Regeln oder nachträgliche
   Schwellenwahl repariert.
-- B.5.13 darf lokale zeitliche Kreditbindung untersuchen, aber keine semantischen
-  Aufgabenlabels, globalen Phasenschalter oder Rollback einführen.
+- B.5.13 untersucht vollständige neuronale Rekrutierbarkeit, Growth und interne
+  Exploration ohne semantische Zielverdrahtung oder extern ausgewählte
+  Rekrutierung.
+- Lokale zeitliche Kreditbindung bleibt als eigene, noch nicht nummerierte
+  Forschungsfrage bestehen.

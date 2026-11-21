@@ -1,48 +1,86 @@
 # Entscheidungsvorlage – Forschungsstufe B.5.13
 
+## Titel
+
+Vollständige neuronale Rekrutierbarkeit, Growth und interne Exploration
+
 ## Empfohlene Forschungsfrage
 
-Welche direkt lokalen zeitlichen Zustände binden den gemeinsamen Präfix P an
-das spätere Element Q oder R, und warum erzeugt die vorhandene Dynamik
-vorzeitige, fehlende oder kontextfalsche Motorhandlungen?
+Kann EVE vorhandene und neu entstehende neuronale Struktur vollständig durch
+lokale Aktivität und interne Exploration rekrutieren, sodass zusätzliche
+Neuronen und Synapsen ohne semantische Zielvorgabe funktional am Lernen und
+Handeln teilnehmen?
 
 ## Begründung
 
-B.5.12 zeigt, dass die Architektur auf einer einfachen Aufgabe funktionale
-Vorstrukturierung vor dem ersten Abruf bilden kann. Dieselbe Vorstrukturierung
-überträgt sich nicht auf die zeitliche A-Aufgabe. Alle R0-Netze erreichen dort
-früh mindestens einen Erfolg, aber kein Netz beherrscht fünf von sechs Kontexten.
-Weitere Erfahrung verbessert den Abruf, Pause nicht; R2-50 und S4-d16 lösen die
-Aufgabe ebenfalls nicht. Der nächste Engpass liegt daher nicht in einer
-allgemeinen Fähigkeit zu früher Plastizität, sondern in ihrer zeitlich korrekten
-Bindung und ihrem kontextgültigen Abruf.
+B.5.12 zeigt, dass EVE auf einer einfachen Aufgabe funktionale
+Vorstrukturierung vor dem ersten autonomen Abruf bilden kann. Auf der
+schwierigeren zeitlichen Aufgabe entsteht derselbe Vorteil nicht, und ein
+erster Erfolg führt nicht automatisch zu zuverlässiger Beherrschung.
+
+Frühere Growth-Versuche erzeugten zusätzliche Struktur, aber nicht automatisch
+funktionale Lernwege. Ebenso löste zusätzliche unverdrahtete Kapazität die
+B.5.11-Aufgabe nicht. Daraus folgt nicht, dass neuronale Kapazität grundsätzlich
+wirkungslos ist. Offen ist vielmehr, ob sie vom bestehenden System überhaupt
+vollständig erreichbar, lokal auswählbar und durch eigene interne Aktivität
+funktional rekrutierbar wird.
+
+B.5.13 trennt daher Strukturangebot, Rekrutierbarkeit und tatsächliche
+funktionale Nutzung. Die zeitliche Kreditbindung in geteilten Folgen bleibt
+eine offene Forschungsfrage, wird aber nicht mehr automatisch B.5.13
+zugeordnet.
 
 ## Mindestumfang
 
-- unveränderte B.5.11-Aufgaben A=P→Q und B=P→R,
-- vorab festgelegte Elementabstände und Kontrollpunkte,
-- Zustandskopien vor P, zwischen P und Q/R sowie vor der Motorentscheidung,
-- getrennte frühe, fehlende, falsche, doppelte und korrekte Motorantworten,
-- lokale Inventur von Membran, Refraktärzustand, Eligibility, Kandidaten,
-  erregender/hemmender Konkurrenz und ausstehenden Ereignissen,
-- W0/W1/W2-Gegenproben an kritischen zeitlichen Übergängen,
-- gleiche Erfahrungsmenge, Seeds, Familien und Zuordnungen,
-- No-Learning-, R0-, R2- und S4-Kontrollen,
-- Discovery und unabhängige Bestätigung,
-- vollständige B.5.12-Lernstadien statt eines einzelnen Endscores.
+- vollständiges Inventar vorhandener, erreichbarer, aktiver und funktional
+  rekrutierter Neuronen und Synapsen,
+- getrennte Kontrollen für feste Topologie, Growth ohne funktionale
+  Rekrutierung und Growth mit späterer funktionaler Nutzung,
+- lokale Growth-Auslöser ausschließlich aus vorhandener Aktivität und lokalem
+  Zustand,
+- interne Exploration als neuronaler Prozess ohne extern ausgewählte Handlung,
+- Nachweis tatsächlich ausgeführter Motoraktivität statt geplanter Exploration,
+- Prüfung, ob neue Struktur Eligibility, Modulation und natürliche
+  Folgeerfahrung tatsächlich erreicht,
+- Einzel- und Kombinationsablation neu rekrutierter Pfade,
+- unveränderte Kontrollen ohne Growth und ohne zusätzliche interne Exploration,
+- vollständige B.5.12-Lernkurven und Lernstadien,
+- Discovery, unabhängige Bestätigung, Persistenz, Determinismus und
+  Ressourcenmessung.
+
+## Wissenschaftliche Erfolgskriterien
+
+Eine zusätzliche Struktur gilt nur dann als rekrutiert, wenn sie durch einen
+lokalen Prozess entsteht oder aktiviert wird und anschließend einen
+kontrollierten funktionalen Beitrag leistet. Mehr Neuronen, mehr
+Nullgewicht-Synapsen oder mehr Aktivität allein genügen nicht.
+
+Interne Exploration gilt nur dann als wirksam, wenn sie ohne semantische
+Zielinformation unterschiedliche neuronale Handlungswege erreichbar macht und
+die tatsächlich ausgeführte Handlung der natürlichen Rückmeldung zugrunde
+liegt.
 
 ## Nicht freigegeben
 
-- semantisches A/B-Aufgabenlabel im Netz,
-- globale Phasenkennung oder technischer Episodenreset,
+- semantische Aufgaben- oder Zielkennzeichnungen im Netz,
+- extern ausgewählte Growth-Partner oder Motorhandlungen,
+- globale Rekrutierungsphase oder technischer Episodenreset,
 - nachträglicher Rollback oder automatische Gewichtsstabilisierung,
-- neue Eligibility- oder Schreibregel allein aus Korrelation,
+- Growth allein als Folge freier Kapazität,
+- neue Produktionsregel ohne unabhängig bestätigten lokalen Kausalnachweis,
 - S4 als Produktionsstandard.
+
+## Offene, nicht nummerierte Forschungsfrage
+
+Welche lokalen Zustände den Präfix P zeitlich korrekt an Q oder R binden und
+vorzeitige Ausgabe verhindern, bleibt weiterhin ungeklärt. Diese zeitliche
+Kreditbindungsfrage erhält erst dann eine Stufennummer, wenn sie erneut als
+konkreter Entwicklungsauftrag priorisiert wird.
 
 ## Entscheidung
 
-**B.5.13 durchführen: Ja – als kausale Analyse lokaler zeitlicher
-Kreditbindung und vorzeitiger Ausgabe in geteilten Folgen.**
+**B.5.13 durchführen: Ja – als Untersuchung der vollständigen neuronalen
+Rekrutierbarkeit sowie von Growth und interner Exploration.**
 
-Eine neue neuronale Produktionsfunktion bleibt bis zu einem unabhängig
-bestätigten lokalen Kausalnachweis gesperrt.
+Eine neue neuronale Produktionsfunktion wird aus dieser Entscheidung noch nicht
+freigegeben.

@@ -20,8 +20,8 @@ reproduzierbaren Versuchsreihen.
 **Jüngste abgeschlossene Forschungsstufe:** B.5.12 – Teillernen, latentes
 Lernen, Verfestigung und Fähigkeitsentwicklung
 
-**Nächster Forschungsschwerpunkt:** B.5.13 – lokale zeitliche Kreditbindung
-und vorzeitige Ausgabe in geteilten Folgen
+**Nächster Forschungsschwerpunkt:** B.5.13 – vollständige neuronale
+Rekrutierbarkeit, Growth und interne Exploration
 
 B.5.12 trennt Veränderung, Teillernen, ersten Abruf, zuverlässige Fähigkeit,
 Verfestigung, Retention und Wiedererwerb. Eine einfache Referenz weist
@@ -116,7 +116,7 @@ nicht der dauerhaft robuste Erhalt mehrerer konkurrierender Beziehungen.
 | B.5.10 | einzelne Schreibkausalität und lokale Vorgeschichte | 13 historische Schritte kausal; 119 neue Ereignisse; keine neue Regel |
 | B.5.11 | gemeinsame Repräsentation und Bewertungsvalidität | strenge Zeitwertung zeigt Interferenz, negativen Transfer und produktive Einzelfälle |
 | B.5.12 | Teillernen, Verfestigung und Lernstadien | einfache latente Vorstrukturierung bestätigt; komplexe Übertragung und zuverlässige Beherrschung nicht bestätigt |
-| B.5.13 | lokale Kreditbindung in geteilten Folgen | als nächste Kausalanalyse empfohlen |
+| B.5.13 | vollständige neuronale Rekrutierbarkeit, Growth und interne Exploration | als nächste Forschungsstufe festgelegt |
 
 Alle Aufträge, Methoden, Ergebnisse und Schlussfolgerungen stehen im
 [Experimentverzeichnis](docs/experimente/README.md). Maschinenlesbare

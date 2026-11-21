@@ -170,8 +170,10 @@ Erfolg, kontextuelle Zuverlässigkeit, Retention, Wiedererwerb, passende Zeit- u
 Aktivitätskontrollen sowie isolierte W0/W1/W2-Gegenproben werden dauerhaft
 beibehalten. **O.** Die vorhandene Architektur kann frühe aufgabenspezifische
 Vorstrukturierung erzeugen, integriert zeitliche und konkurrierende Fähigkeiten
-aber nicht zuverlässig. **P.** B.5.13 untersucht wie ursprünglich vorgesehen
-die lokale zeitliche Kreditbindung und vorzeitige Ausgabe in geteilten Folgen.
+aber nicht zuverlässig. **P.** B.5.13 untersucht als neu festgelegte nächste
+Stufe vollständige neuronale Rekrutierbarkeit, Growth und interne Exploration.
+Die lokale zeitliche Kreditbindung bleibt offen, ist aber keiner Stufennummer
+mehr automatisch zugeordnet.
 
 ## Validierung, Grenzen und Merge-Empfehlung
 

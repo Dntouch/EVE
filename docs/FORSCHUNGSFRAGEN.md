@@ -176,4 +176,8 @@ Kriterium zuverlässiger Beherrschung erreicht. Weitere passende Erfahrung
 verbessert den Abruf, bloße Pause nicht; Wiedererwerb ist im Mittel langsamer
 als naiver Ersterwerb. Offen bleibt damit die ursprünglich verschobene Frage,
 welche lokalen Zustände den Präfix P zeitlich korrekt an Q oder R binden und
-vorzeitige Ausgabe verhindern. Sie wird zur Leitfrage für B.5.13.
+vorzeitige Ausgabe verhindern. Diese Frage bleibt offen, erhält aber keine
+automatische Stufennummer. B.5.13 untersucht stattdessen vollständige neuronale
+Rekrutierbarkeit, Growth und interne Exploration: Entscheidend ist, ob
+vorhandene und neu entstehende Struktur ohne semantische Zielvorgabe lokal
+erreichbar, auswählbar und funktional nutzbar wird.

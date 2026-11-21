@@ -32,5 +32,7 @@ ausreichendes Lernkriterium zu.
 - Wiedererwerb wird gegen naiven Ersterwerb geprüft.
 - Einzelne Schreibkausalität und kombinierte Plastizität bleiben getrennt.
 - S4 bleibt standardmäßig deaktiviert.
-- B.5.13 übernimmt die verschobene Untersuchung lokaler zeitlicher
-  Kreditbindung und vorzeitiger Ausgabe in geteilten Folgen.
+- B.5.13 untersucht vollständige neuronale Rekrutierbarkeit, Growth und interne
+  Exploration.
+- Lokale zeitliche Kreditbindung bleibt eine offene, noch nicht nummerierte
+  Forschungsfrage.

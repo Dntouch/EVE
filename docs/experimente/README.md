@@ -204,14 +204,14 @@ A/B-Folgen deutlich hinter unabhängigen Pfaden. Von 60 detaillierten
 B-Schreibinterventionen sind zehn langfristig produktiv, zwölf schädlich und
 38 unentschieden. Nur 27 von 58 unmittelbaren A-Beeinträchtigungen werden durch
 W1 verhindert; die übrigen 31 sind mit der ausgewählten Änderung koinzident.
-Aktivitätsüberlappung allein belegt
-keine gemeinsame Repräsentation. B.5.12 soll vorzeitige Ausgabe und lokale
-zeitliche Kreditbindung innerhalb geteilter Folgen isolieren.
+Aktivitätsüberlappung allein belegt keine gemeinsame Repräsentation. Die lokale
+zeitliche Kreditbindung innerhalb geteilter Folgen blieb damit offen.
 B.5.12 trennt erstmals vollständige Lernstadien. Eine einfache Referenz weist
 aufgabenspezifische Vorstrukturierung vor der ersten autonomen Antwort nach;
 die zeitliche A-Aufgabe bestätigt diesen Vorteil nicht. Weitere passende
 Erfahrung verbessert den späteren Abruf gegenüber Pause, doch erster Erfolg
 und zuverlässige Beherrschung bleiben klar getrennt. Wiedererwerb ist in der
 ausgewählten Verlustpopulation im Mittel langsamer als naiver Erwerb. Eine
-neue Regel wird nicht freigegeben; B.5.13 übernimmt die lokale zeitliche
-Kreditbindung.
+neue Regel wird nicht freigegeben. Die zeitliche Kreditfrage bleibt offen und
+unnummeriert. B.5.13 ist stattdessen als Untersuchung vollständiger neuronaler
+Rekrutierbarkeit, Growth und interner Exploration festgelegt.
