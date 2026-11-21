@@ -554,6 +554,7 @@ void b510_manifests(const std::filesystem::path& output) {
 
 } // namespace
 
+#ifndef EVE_RESEARCH_STAGE_B510_EMBEDDED
 int main(int argc, char** argv) {
     const auto output = argc > 1 ? std::filesystem::path(argv[1])
         : std::filesystem::path("research/results/b510");
@@ -693,3 +694,4 @@ int main(int argc, char** argv) {
               << " combined=" << combined << " wall=" << wall << "s\n";
     return 0;
 }
+#endif

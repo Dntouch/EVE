@@ -177,8 +177,16 @@ Historisch sind 13 konkrete Schritte auf zehn Verbindungen kausal; prospektiv
 sind 21/119 positive Schritte notwendig und 98/119 zunächst neutral. Elf
 neutrale Schritte werden später schädlich, drei später nützlich. Vollständige
 externe Beitrags-, Margen- und Schreibfolgen generalisieren nicht und sind kein
-lokaler Zustand. B.5.11 darf daher nur eine vorab festgelegte Hypothese aus
-direkt lokalen oder lokal berechenbaren A/B-Merkmalen aktiv kausal prüfen.
+lokaler Zustand.
+
+B.5.11 prüft erstmals Fähigkeiten statt nur einzelner Gewichte. Unter strenger
+Zeitbewertung bleiben Aufgaben mit geteiltem P deutlich hinter unabhängigen
+Pfaden; vorzeitige Ausgaben sind Teil des Fehlers. Zehn isolierte
+Schreibereignisse sind trotz unmittelbarer A-Beeinträchtigung später produktiv;
+48 bleiben nachteilig. R2, S4 und bloß zusätzliche unverdrahtete Kapazität
+lösen die Integration nicht stabil. B.5.12 soll deshalb vorzeitige Ausgabe und
+lokale zeitliche Kreditbindung innerhalb geteilter Folgen kausal isolieren,
+ohne Aufgabenlabels, globalen Phasenschalter oder neue Regel vorwegzunehmen.
 
 ## Erfolgskriterien aus dem Konzept
 

@@ -80,6 +80,10 @@ Software-Release existiert, werden Änderungen unter „Unveröffentlicht“ gef
   Gewichtsoperationen, isolierter Einzel-Schreibunterdrückung, W0–W4-Kopien,
   historischen Ereignisketten und prospektiven natürlichen Fortsetzungen.
 - 30 zusätzliche B.5.10-Prüfungen; insgesamt 726/726 bestandene Kerntests.
+- Forschungsstufe B.5.11 mit zeitlichen Aufgaben aus geteilten sensorischen
+  Elementen, getrennten V1–V10-Maßen, Kontextmatrizen, Transfer zu C,
+  Pfadablationen und isolierten W0/W1/W2-Reorganisationsgegenproben.
+- 30 zusätzliche B.5.11-Prüfungen; insgesamt 756/756 bestandene Kerntests.
 
 ### Geändert
 

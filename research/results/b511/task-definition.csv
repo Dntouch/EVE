@@ -1,0 +1,6 @@
+task,first_external_element,second_external_element,target,shared_control
+A,P,Q,motor_A,shared
+B,P,R,motor_B,shared
+C,Q,R,motor_A,shared transfer
+A_control,S,T,motor_A,independent
+B_control,U,V,motor_B,independent

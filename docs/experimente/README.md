@@ -86,6 +86,11 @@ angepasst werden.
 - [Technische Kausalanalyse B.5.10](034-technische-kausalanalyse-einzelne-schreibereignisse.md)
 - [Bericht B.5.10](034-forschungsbericht-forschungsstufe-b510.md)
 - [Entscheidungsvorlage B.5.11](034-entscheidungsvorlage-forschungsstufe-b511.md)
+- [Auftrag B.5.11](035-entwicklungsauftrag-forschungsstufe-b511.md)
+- [Technische Repräsentationsanalyse B.5.11](035-technische-analyse-neuronale-repraesentation.md)
+- [Methodische Neubewertung B.5.3–B.5.10](035-methodische-neubewertung-b53-b510.md)
+- [Bericht B.5.11](035-forschungsbericht-forschungsstufe-b511.md)
+- [Entscheidungsvorlage B.5.12](035-entscheidungsvorlage-forschungsstufe-b512.md)
 
 Der Bericht trennt technische Gewichtsänderung ausdrücklich vom nicht
 erreichten Nachweis einer Verhaltensverbesserung. B.4.1 validiert Zeit,
@@ -188,5 +193,10 @@ zehn historischen Problemverbindungen sind kausal; von 119 prospektiv
 ausgewählten Änderungen sind 21 unmittelbar notwendig und 98 zunächst
 neutral. Vierzehn neutrale Änderungen werden später wirksam. Eine einzelne
 Operation kann isoliert ausgelassen werden, doch extern rekonstruierte
-Historien liefern keinen freigabefähigen lokalen Selektor. B.5.11 soll deshalb
-eine vorab festgelegte A/B-Hypothese aktiv auf neuen Seeds prüfen.
+Historien liefern keinen freigabefähigen lokalen Selektor. B.5.11 erweitert
+deshalb den Bewertungsraum. Unter strenger Zeitbewertung bleiben geteilte
+A/B-Folgen deutlich hinter unabhängigen Pfaden. Von 58 detaillierten
+B-Schreibungen mit unmittelbarer A-Beeinträchtigung sind zehn später kausal
+produktiv und 48 langfristig nachteilig. Aktivitätsüberlappung allein belegt
+keine gemeinsame Repräsentation. B.5.12 soll vorzeitige Ausgabe und lokale
+zeitliche Kreditbindung innerhalb geteilter Folgen isolieren.

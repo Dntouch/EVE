@@ -1,0 +1,11 @@
+metric,value
+wall_seconds,31.505
+cpu_seconds,31.3885
+peak_rss_kib,12712
+runtime_bytes,2384
+networks,14592
+additional_persistent_bytes_per_neuron,0
+additional_persistent_bytes_per_synapse,0
+production_rule_changes,0
+raw_result_bytes,17833090
+compressed_result_bytes,1063869

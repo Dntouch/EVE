@@ -724,3 +724,36 @@ Große Tabellen werden mit `gzip -n` deterministisch komprimiert.
 Fortsetzung, Aufwand und die Nichtfreigabe einer neuen Lernregel. Laufzeit und
 RSS sind maschinenabhängig; Ereignisse, Zustände und Fingerabdrücke sind bei
 identischem Build, Seed und Eingabestrom deterministisch.
+
+## Forschungsstufe B.5.11 – Repräsentation und Lerninterferenz
+
+Build, 756 Kerntests, historische Reproduktion und vollständige
+Mehrfachlernmatrix:
+
+```sh
+scripts/run-research-stage-b511.sh research/results/b511
+```
+
+Discovery (90001–90064) und Bestätigung (100001–100064) verwenden je drei
+Stromfamilien und beide Zuordnungen. `task-definition.csv` präregistriert
+A=P→Q, B=P→R, C=Q→R sowie unabhängige S/T- und U/V-Kontrollen.
+
+`network-results.csv.gz` enthält getrennte bedingte A-/B-/C-Abrufraten,
+Erwerb, Wiedererwerb, Schreibungen und Ressourcen. `response-matrix.csv.gz`
+protokolliert jede Aufgabe in sechs Kontexten einschließlich fehlender,
+doppelter, anderer und früher Antworten. `v1-v10-dimensions.csv.gz` hält die
+zehn Dimensionen getrennt; es gibt keinen globalen Lernscore.
+
+`component-overlap.csv.gz` beschreibt aktive Neuronen und Synapsen.
+`causal-ablations.csv` trennt einzelne, kombinierte und allgemeine
+Ausgabeengpässe. `productive-reorganization.csv` enthält W0/W1/W2-Verläufe
+für konkrete B-Schreibungen mit unmittelbarer A-Änderung.
+`transfer-c.csv.gz` vergleicht C ohne Vortraining, nach A, B, A+B und nach
+unabhängigen Kontrollaufgaben.
+
+`historical-reproduction.csv` und die zugehörigen Rohdateien rechnen B.5.7
+bis B.5.10 frisch nach. `aggregate-statistics.csv` enthält seedbasierte
+Bootstrap-Intervalle, `paired-statistics.csv` den gepaarten Vergleich
+geteilter und unabhängiger Pfade. `persistence.csv` prüft einen tatsächlich
+ausstehenden S4-Termin. S4, strukturelle Plastizität und neue Lernregeln
+bleiben deaktiviert.
